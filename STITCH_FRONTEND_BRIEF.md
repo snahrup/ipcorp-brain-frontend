@@ -27,14 +27,34 @@ The core narrative is similar in shape to "context chaos into context clarity," 
 
 The design should feel distinctive, modern, and useful. Avoid a marketing landing page.
 
+## Correction From First Stitch Attempt
+
+The first generated screen misunderstood the product as an operations/network monitoring dashboard. That is wrong.
+
+Do not show active nodes, system health percentages, protocol alerts, global throughput, server locations, or asset management. None of those are IP Corp Brain objects.
+
+This product displays a curated engagement brain:
+
+- Readiness status
+- Meeting prep packets
+- Missing/stale source evidence
+- Open questions
+- Risks
+- Architecture decisions
+- Cortex insights
+- Approval-gated action proposals
+- Source health
+- Evidence references
+
 ## Primary Screens
 
 1. **Dashboard**
    - Freshness status
-   - Next best packet
-   - Open action proposals
-   - Critical stale/missing evidence
+   - Next best packet: `weekly-fabric-post-onsite-synthesis`
+   - Open action proposals: proactive coaching disable-gate audit, Fabric calendar reset details
+   - Critical stale/missing evidence: May 27 plant-tour post-capture missing, DQ-048 unresolved, Fabric calendar fields missing
    - Top risks and decisions needing attention
+   - Counts: 14 prep packets, 20 Cortex insights, 13 proposals, 48 open questions, 22 risks, 6 proposed ADRs
 
 2. **Meetings**
    - Upcoming, active, recent
@@ -83,4 +103,4 @@ The design can lean more ambitious than a standard internal dashboard. It should
 
 ## Suggested Stitch Prompt
 
-Create a desktop-first intelligence web app for the IP Corp Architecture Brain. It should help stakeholders explore project readiness, meetings, decisions, risks, open questions, Cortex insights, and approval-gated action proposals. Use the attached JSON data contract and seed data as the source of truth, but take creative ownership of the visual direction and layout. The product should feel like a purpose-built intelligence workspace, not a generic admin dashboard and not a marketing site.
+Create a desktop-first intelligence web app for the IP Corp Architecture Brain. Use `data/frontend-seed.json` as the source of truth. Do not invent operations telemetry. This is not a network dashboard, asset dashboard, protocol monitor, or security operations console. It is a stakeholder-safe context workspace for meetings, readiness, prep packets, open questions, risks, ADRs, Cortex insights, source health, and approval-gated action proposals. Take creative ownership of the visual direction and layout, with inspiration from Unabyss's context-headquarters feel, but render the actual brain objects and workflows.

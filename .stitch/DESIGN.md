@@ -26,6 +26,26 @@ Stitch should own the creative direction: layout, visual style, component treatm
 
 The constraints are about **what the product must organize**, not how it must look.
 
+## Critical Correction
+
+Do **not** design a generic enterprise operations dashboard. This is not a system-monitoring product.
+
+Do not invent:
+
+- Active nodes
+- Protocol alerts
+- Global throughput
+- Network intelligence
+- Asset health
+- Security protocols
+- Server locations
+- Sync IDs
+- Synthetic chart metrics
+
+Those objects are not in the product. If a screen shows them, the design is solving the wrong problem.
+
+The real product objects are readiness, meetings, prep packets, open questions, risks, ADRs, Cortex insights, action proposals, source health, and evidence references.
+
 ## Creative Reference
 
 Steve likes the product/design feel of `https://unabyss.com/`. Use it as a directional reference, not a template to copy.
@@ -142,6 +162,23 @@ The interface must support:
 - Drill from insight to evidence references.
 - Separate stakeholder-safe content from raw/private source material.
 - Understand whether a view is fresh, stale, or pending source evidence.
+
+## First Screen Must Show
+
+The first generated screen should be a **Brain Readiness Workspace**, not a generic dashboard.
+
+It should include real objects from `data/frontend-seed.json`, such as:
+
+- Freshness: `fresh-no-new-inputs-after-pryor-promotion`
+- Next best packet: `weekly-fabric-post-onsite-synthesis`
+- Open action proposals: proactive coaching disable-gate audit, Fabric calendar reset details
+- Missing/stale evidence: May 27 plant-tour follow-up post-capture missing
+- Open questions count: 48
+- Active risks count: 22
+- ADRs: 6 proposed, plus candidate queue
+- Source health: Teams, Cluely, Notion, project-memory, Natively contract, live captures, outcomes
+
+Use actual data labels. Do not make up placeholder telemetry.
 
 ## Design Freedom
 

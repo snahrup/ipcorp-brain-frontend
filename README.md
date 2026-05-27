@@ -17,7 +17,9 @@ Start with:
 
 1. `STITCH_FRONTEND_BRIEF.md`
 2. `DATA_CONTRACT.md`
-3. `data/frontend-seed.json`
+3. `.stitch/DESIGN.md`
+4. `data/frontend-seed.json`
+5. `STITCH_REPAIR_PROMPT.md` if Stitch starts inventing generic dashboard content
 
 The frontend should be designed around the sanitized read model, not around the raw source repo structure.
 
@@ -36,4 +38,3 @@ The app is a working intelligence surface, not a marketing site:
 ## Non-Negotiable Boundary
 
 Do not add raw captures, SQL credentials, internal `AGENTS.md` / `CLAUDE.md` content, or private transcript text to this repository. If the frontend needs more context, add a sanitized field to the data contract first.
-
