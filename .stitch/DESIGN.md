@@ -59,8 +59,27 @@ Useful concepts to borrow:
 - Permission/scoping controls as a first-class part of the product.
 - Strong language around context being current, structured, and usable by agents.
 - A product identity that feels sharper than a standard enterprise dashboard.
+- A modern dark product surface with crisp contrast, refined glow, and layered depth.
+- Motion that makes context feel actively gathered, filtered, and assembled.
+- Small animated status moments: freshness, source health, approvals, evidence refs, and readiness.
 
 Do not duplicate Unabyss copy, brand, layout, or visual assets. Translate the spirit into an IP Corp stakeholder workspace.
+
+## Motion And Visual Energy
+
+The interface should feel modern and alive, closer to a premium context operating system than a static admin dashboard.
+
+Preferred motion language:
+
+- Source chips can flow into a readiness surface or packet view.
+- Detail panels should slide, expand, or unfold with clear spatial continuity.
+- Reasoning chains should reveal step-by-step instead of appearing as a flat wall of text.
+- Evidence references should feel attached to claims: hover, focus, or expand can expose source paths and timestamps.
+- Stale or missing inputs should use restrained amber/red attention states, not alarmist SOC-console treatment.
+- Counts and freshness indicators can animate subtly when the page loads.
+- Navigation transitions should preserve context so users feel they are drilling deeper into the same brain, not jumping between unrelated pages.
+
+Avoid motion that feels decorative only. The movement should explain how raw source inputs become stakeholder-safe context.
 
 ## What This Product Is
 

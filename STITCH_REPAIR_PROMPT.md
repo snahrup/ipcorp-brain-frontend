@@ -57,5 +57,12 @@ Core interactions:
 - Click an open question/risk/ADR to see owner, status, related evidence refs, and why it matters.
 
 Creative direction is open. Use Unabyss only as inspiration for the feeling of a context headquarters with many sources organized into current, safe, agent-ready context. Do not copy Unabyss. Do not create a marketing page. This is a real product workspace.
-```
 
+Important visual correction: the current version is structurally closer, but it still feels too much like a static security/operations dashboard. Push the next version toward a modern, kinetic context workspace inspired by Unabyss:
+- Refined dark surfaces with layered depth, not flat black panels.
+- Crisp source/status chips, proof trails, and access/safety indicators.
+- Motion implied in the layout: sources flowing into readiness, meetings assembling into prep packets, Cortex reasoning unfolding step-by-step.
+- Softer labels: use "Needs Attention" instead of "Priority Intervention Required"; use "Decisions Needing Review" instead of "System Blockers"; use "Brain Snapshot" instead of "Current Global State"; use "Stakeholder-safe draft" instead of "Safe to Share: Yes".
+- Treat proposed ADRs as governance review, not an emergency outage.
+- Keep the UI serious, but make it feel like a premium context operating system rather than a SOC console.
+```

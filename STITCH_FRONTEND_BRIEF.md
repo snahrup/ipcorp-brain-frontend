@@ -94,6 +94,17 @@ Open. Stitch can choose the palette, typography, spatial model, and component st
 
 The design can lean more ambitious than a standard internal dashboard. It should make a complex knowledge system feel coherent, current, and alive.
 
+Steve specifically wants the modern look and motion energy of `https://unabyss.com/`: dark refined surfaces, layered depth, crisp status chips, smooth product motion, and the feeling that scattered context is being gathered into a usable intelligence layer. Do not copy Unabyss. Translate that feeling into this product.
+
+Motion should be part of the concept:
+
+- Source systems can visually feed the brain/readiness layer.
+- Prep packets can feel assembled from meetings, decisions, risks, and open questions.
+- Cortex insights can reveal their reasoning chain progressively.
+- Evidence refs can appear as attached source chips or expandable proof trails.
+- Missing evidence should be noticeable but not catastrophic.
+- Approval-gated actions should feel deliberate and reviewable, not automated.
+
 ## Interaction Notes
 
 - Every insight, risk, action, and meeting should expose evidence refs.
