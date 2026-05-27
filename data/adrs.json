@@ -1,0 +1,132 @@
+{
+  "adrs": [
+    {
+      "number": "00010001",
+      "title": "Consolidate IP Corp knowledge into single knowledge-base repo",
+      "status": "proposed",
+      "date": "2026-04-29",
+      "decider": "Steve → ratification",
+      "supersedes": "—"
+    },
+    {
+      "number": "00020002",
+      "title": "Implement Purview as the parallel governance layer for Fabric",
+      "status": "proposed",
+      "date": "2026-05-04",
+      "decider": "Steve → Patrick / Mike ratification",
+      "supersedes": "—"
+    },
+    {
+      "number": "00030003",
+      "title": "Use Teams as canonical meeting evidence when sources overlap",
+      "status": "proposed",
+      "date": "2026-05-04",
+      "decider": "Steve → ratification",
+      "supersedes": "—"
+    },
+    {
+      "number": "00040004",
+      "title": "Enforcement stack for governance boundaries",
+      "status": "proposed",
+      "date": "2026-05-20",
+      "decider": "Mike / Patrick / Stuart / Michael → ratification",
+      "supersedes": "—"
+    },
+    {
+      "number": "00050005",
+      "title": "Gold domain semantic model as the reporting control surface",
+      "status": "proposed",
+      "date": "2026-05-21",
+      "decider": "Patrick / Mike / Eudias / Matt → ratification",
+      "supersedes": "—"
+    },
+    {
+      "number": "00060006",
+      "title": "Plant-floor evidence stream contract before Traceability Gold",
+      "status": "proposed",
+      "date": "2026-05-27",
+      "decider": "Patrick / Plant Ops / R&D / MES → ratification",
+      "supersedes": "—"
+    }
+  ],
+  "candidates": [
+    {
+      "dateFlagged": "2026-05-18",
+      "topic": "**Custom data-migration tooling deprecated → Fabric Data Factory** as canonical ingestion runtime. Architectural lock-in to Fabric-native ELT. Captures the rationale for retiring legacy migration scripts.",
+      "source": "`DISC-2026-05-18-008` (weekly status 2026-05-14)",
+      "status": "candidate"
+    },
+    {
+      "dateFlagged": "2026-05-18",
+      "topic": "**Informatica vs. Fabric-native MDM.** Robin Virginia opened a Salesforce/Informatica vendor channel positioning Informatica as \"Source of Truth Engine\" complementary to Fabric. Decision needed: evaluate, decline, or formally non-pursue.",
+      "source": "`DISC-2026-05-18-010`, `DQ-020`",
+      "status": "candidate"
+    },
+    {
+      "dateFlagged": "2026-05-18",
+      "topic": "**Fabric Foundation for Execution Brief** — capture the strategic framing decisions (Purview-in-parallel recommendation, \"hard calls\" section).",
+      "source": "`DISC-2026-05-18-007` (Steve authored 2026-05-05)",
+      "status": "candidate"
+    },
+    {
+      "dateFlagged": "2026-05-18",
+      "topic": "**Purview Advisory engagement model (CDW external partner)** — formalize the working relationship: CDW as named external partner for Purview/MDM/governance, distinct from Robin Virginia as individual consultant. SOW PO-004-9015989 signed 2026-05-04.",
+      "source": "`DISC-2026-05-18-006`",
+      "status": "candidate"
+    },
+    {
+      "dateFlagged": "2026-05-19",
+      "topic": "**M3 Cloud → Microsoft Fabric ingestion path** — replace multi-hop (M3 Cloud → Infor Data Fabric → on-prem SQL Server → MS Fabric) with either a direct Infor-Fabric → MS-Fabric connector or M3-Cloud → MS-Fabric direct, pending connector research. Eliminates two unnecessary hops and an on-prem dependency.",
+      "source": "`DISC-2026-05-19-001`, `meetings/summaries/2026-05-19-preface-fabric-meeting.md`",
+      "status": "candidate"
+    },
+    {
+      "dateFlagged": "2026-05-19",
+      "topic": "**SQL Server → Fabric Bronze mirroring as default ingestion pattern** — adopt Fabric's real-time SQL Server mirroring/sync (log-shipping-like) for all SQL-Server-backed sources, replacing recurring pipelines. Subject to per-table indexing/PK confirmation and network prerequisites validation with Stuart + Michael Kent.",
+      "source": "`DISC-2026-05-19-005`, `meetings/summaries/2026-05-19-preface-fabric-meeting.md`",
+      "status": "candidate"
+    },
+    {
+      "dateFlagged": "2026-05-19",
+      "topic": "**MES scope expansion: bring pilot reactor + experimental R&D batches under MES tracking** — close the new-product-introduction traceability gap (pilot reactor batches today created manually by Andre, materials drawn down manually, no soft-allocation in M3). Decision required because the change touches MES configuration, M3 inventory policy, and R&D workflow.",
+      "source": "`DISC-2026-05-19-009`, `meetings/summaries/2026-05-19-plant-tour.md`",
+      "status": "candidate"
+    },
+    {
+      "dateFlagged": "2026-05-19",
+      "topic": "**System-of-record for CIPP submittal-package documentation** — current thumb-drive-only storage is an unacceptable single-point-of-failure for ~$20K-per-system test investments and contractually-required customer documentation. Decision needed on Optiva vs. document-management platform vs. Fabric-governed store.",
+      "source": "`DISC-2026-05-19-011`, `meetings/summaries/2026-05-19-plant-tour.md`",
+      "status": "candidate"
+    },
+    {
+      "dateFlagged": "2026-05-19",
+      "topic": "**Batch lineage aggregation from PLC tank-transfer log** — design a Bronze→Silver model that reconstructs commingled-tank composition over time so traceability lookups (\"which batches went into S-24 last quarter?\") are possible. PLC already writes batch + product on every transfer; data is there, aggregation is not.",
+      "source": "`DISC-2026-05-19-012`, `meetings/summaries/2026-05-19-plant-tour.md`",
+      "status": "candidate"
+    },
+    {
+      "dateFlagged": "2026-05-19",
+      "topic": "**Digitization of paper batch charge sheets** — paper is currently the legal record for batch composition (≥15 lot numbers per batch, manually recorded). MES captures only a subset. Decision needed on whether to digitize at point-of-charge or accept paper-as-legal-record indefinitely; impacts MDM scope.",
+      "source": "`DISC-2026-05-19-010`, `meetings/summaries/2026-05-19-plant-tour.md`",
+      "status": "candidate"
+    },
+    {
+      "dateFlagged": "2026-05-21",
+      "topic": "**Sales semantic-model consolidation / canonical measure contract** — Sales BI models across Interplastic, MP, and NAC are cloned enough to share a semantic pattern but have same-name divergent DAX. Decision needed on one shared model with RLS vs governed per-company templates with canonical measures.",
+      "source": "`DISC-2026-05-20-002`, `DISC-2026-05-20-003`, `meetings/summaries/_RUN_REPORT_2026-05-20-pbi-model-documentation-sweep.md`",
+      "status": "candidate"
+    },
+    {
+      "dateFlagged": "2026-05-21",
+      "topic": "**Shared master-data relationship pattern for intercompany item/customer/supplier modeling** — May 20 intercompany mapping favored stable master records with maintained contextual relationships over duplicated company-specific masters. Needs M3-owner validation before full ADR.",
+      "source": "`DISC-2026-05-21-003`, `meetings/summaries/2026-05-20-intercompany-item-mapping.md`, `DQ-046`",
+      "status": "candidate"
+    },
+    {
+      "dateFlagged": "2026-05-27",
+      "topic": "**Plant-floor evidence stream contract before Traceability Gold** — formalize the May 19/26 plant-floor source-of-record insight as a prerequisite pattern: MES, paper charge sheets, PLC transfer logs, lab notebooks, CIPP packages, Optiva, Salesforce LSRs, QC, retains/rework, and NIR remain separate evidence streams until owner/location/authority/digital coverage are explicit.",
+      "source": "`project-memory/source-systems/plant-floor-evidence.md`, `meetings/summaries/_RUN_REPORT_2026-05-26-plant-tour-asset-application.md`, `DQ-037` through `DQ-042`, `R-015` through `R-021`",
+      "status": "drafted as `ADR-0006`"
+    }
+  ]
+}

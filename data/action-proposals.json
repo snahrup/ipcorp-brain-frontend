@@ -1,0 +1,533 @@
+[
+  {
+    "id": "proposal-2026-05-12-confirm-elt-steward-decision-path",
+    "type": "follow_up",
+    "title": "Confirm ELT steward decision path",
+    "status": "executed",
+    "createdAt": "2026-05-12T14:31:00-04:00",
+    "updatedAt": "2026-05-27T16:18:23.6708444Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-05-12-stewardship-gate.json"
+    ],
+    "evidenceRefs": [
+      "meetings/summaries/2026-05-06-fabric-weekly-stand-up.md",
+      "natively/prep-packets/elt-data-stewards-readiness.packet.json"
+    ],
+    "proposal": {
+      "target": "Steve prep / Patrick alignment before ELT",
+      "suggestedAction": "Ask Patrick whether the ELT session is expected to name data stewards, delegate nominations to a follow-up owner, or simply validate the approach.",
+      "suggestedWording": "For the ELT prep, I want to make sure the ask lands cleanly: are we expecting them to name data stewards in the room, delegate the nomination path, or validate the model and schedule a follow-up? The deck can support any of those, but the close needs to match the real decision path.",
+      "whyNow": "The 2026-05-06 stand-up made steward selection by July the phase-2 gate, but the meeting-index still lacks the ELT date and decision path."
+    },
+    "approval": {
+      "required": true,
+      "reason": "This is an external-facing follow-up and Steve has not granted bounded autonomy for sending or scheduling."
+    },
+    "risk": {
+      "level": "low",
+      "notes": "The wording is internal and alignment-oriented, but should still be approved before use."
+    },
+    "executionReadiness": null,
+    "tags": [
+      "elt",
+      "data-stewards",
+      "follow-up"
+    ]
+  },
+  {
+    "id": "proposal-2026-05-12-draft-policy-response-outline",
+    "type": "task",
+    "title": "Draft policy response outline",
+    "status": "executed",
+    "createdAt": "2026-05-12T14:31:00-04:00",
+    "updatedAt": "2026-05-27T16:18:23.6708444Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-05-12-policy-enforcement-gap.json"
+    ],
+    "evidenceRefs": [
+      "meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md",
+      "natively/prep-packets/data-classification-policy-response.packet.json",
+      "deliverables/policy-drafts/2026/README.md",
+      "architecture/security/data-segregation-requirements.md"
+    ],
+    "proposal": {
+      "target": "Joint Patrick and Steve response to Mike Spencer's policy v1.1 draft",
+      "suggestedAction": "Prepare a short outline that separates policy, rollout notice, and classification taxonomy, then lists decisions Mike needs to make on owner, exception authority, Purview mapping, unlabeled-data default, and NAC vs Interplastic isolation.",
+      "deliverableShape": "Internal outline or note, not an email sent by automation.",
+      "whyNow": "The 2026-05-11 meeting says Steve should send compiled review notes this week, and the policy packet is ready-needs-decision."
+    },
+    "approval": {
+      "required": true,
+      "reason": "The action shapes stakeholder-facing policy feedback and must be reviewed by Steve before use."
+    },
+    "risk": {
+      "level": "medium",
+      "notes": "Policy language can imply governance authority; keep the outline framed as draft input until Patrick and Steve align."
+    },
+    "executionReadiness": null,
+    "tags": [
+      "policy",
+      "purview",
+      "financial-isolation",
+      "task"
+    ]
+  },
+  {
+    "id": "proposal-2026-05-20-confirm-first-gold-domain",
+    "type": "follow_up",
+    "title": "Confirm first Gold domain",
+    "status": "executed",
+    "createdAt": "2026-05-20T17:54:57.898Z",
+    "updatedAt": "2026-05-27T16:18:23.6708444Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-05-20-pbi-sales-model-consolidation.json",
+      "../cortex/insights/2026-05-20-gold-domain-scope-risk.json"
+    ],
+    "evidenceRefs": [
+      "natively/meeting-captures/2026-05-20/2026-05-20-power-bi-source-mapping-bccb90a3.md",
+      "natively/meeting-captures/2026-05-20/2026-05-20-fabric-deep-dive-working-session-part-1-the-and-they-can-faf3e9fc-p1.md",
+      "natively/prep-packets/fabric-gold-model-access-follow-up.packet.json",
+      "meetings/summaries/2026-05-20-fabric-weekly-stand-up.md"
+    ],
+    "proposal": {
+      "target": "Patrick / Eudias / Steve first-domain alignment",
+      "suggestedAction": "Ask whether the first Gold domain should be Sales/Customer, Product, Finance, or a smaller high-value domain that can prove value faster while a larger domain runs in parallel.",
+      "suggestedWording": "Before we lock the first Gold model, I want to separate the long-tail strategic domain from the first quick-value domain. Which domain do we want to put in front of stewards first, and which one proves value fastest without creating access-risk?",
+      "whyNow": "The May 20 Fabric Weekly Stand-Up was promoted after quiet-window review and connected domain choice, Gold models, steward assignment, and the risk of taking too large a first bite."
+    },
+    "approval": {
+      "required": true,
+      "reason": "External-facing alignment follow-up requires Steve approval."
+    },
+    "risk": {
+      "level": "low",
+      "notes": "Decision-framing question, not a committed recommendation."
+    },
+    "executionReadiness": null,
+    "tags": [
+      "gold-model",
+      "domains",
+      "stewards",
+      "follow-up"
+    ]
+  },
+  {
+    "id": "proposal-2026-05-20-confirm-m3-etq-data-flow-working-session",
+    "type": "follow_up",
+    "title": "Confirm M3/ETQ data-flow working session",
+    "status": "executed",
+    "createdAt": "2026-05-20T17:54:57.898Z",
+    "updatedAt": "2026-05-27T16:18:23.6708444Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-05-20-source-truth-collapse.json"
+    ],
+    "evidenceRefs": [
+      "meetings/summaries/2026-05-19-preface-fabric-meeting.md",
+      "natively/prep-packets/m3-etq-data-flow-working-session.packet.json"
+    ],
+    "proposal": {
+      "target": "Steve / Patrick alignment with Matt Tallarico",
+      "suggestedAction": "Confirm a working session with Matt Tallarico to walk the exact M3 Cloud and ETQ source bindings into Fabric, including staging tables, hidden transformations, and whether direct connectors or SQL mirroring can replace the current hops.",
+      "suggestedWording": "I want to pin down the actual source path before we build more on top of it. Can we get time with Matt to walk the M3 Cloud and ETQ flow end to end - source system, staging table or view, transformations, and what Fabric is actually reading today?",
+      "whyNow": "The 2026-05-19 Preface Fabric meeting raised a high-risk source identity gap, and DQ-031 through DQ-035 are now open."
+    },
+    "approval": {
+      "required": true,
+      "reason": "This is an external-facing follow-up and Steve has not granted bounded autonomy for sending or scheduling."
+    },
+    "risk": {
+      "level": "low",
+      "notes": "Alignment-oriented and source-backed; still requires Steve approval before use."
+    },
+    "executionReadiness": null,
+    "tags": [
+      "fabric",
+      "etq",
+      "m3-cloud",
+      "source-mapping",
+      "follow-up"
+    ]
+  },
+  {
+    "id": "proposal-2026-05-20-draft-steward-workshop-plan",
+    "type": "task",
+    "title": "Draft steward workshop plan",
+    "status": "executed",
+    "createdAt": "2026-05-20T18:49:11.764Z",
+    "updatedAt": "2026-05-27T16:18:23.6708444Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-05-12-stewardship-gate.json",
+      "../cortex/insights/2026-05-20-steward-workshop-operating-model.json",
+      "../cortex/insights/2026-05-20-gold-domain-scope-risk.json"
+    ],
+    "evidenceRefs": [
+      "meetings/summaries/2026-05-20-fabric-weekly-stand-up.md",
+      "natively/prep-packets/elt-data-stewards-readiness.packet.json",
+      "project-memory/open-questions.md#dq-043",
+      "project-memory/open-questions.md#dq-044"
+    ],
+    "proposal": {
+      "target": "Steve prep before Patrick/Mike alignment",
+      "suggestedAction": "Draft a one-page steward workshop plan that converts the post-ELT discussion into a concrete session: objective, attendees, candidate criteria, domain options, breakout prompts, and the expected output of named owner/steward candidates.",
+      "suggestedWording": "I think the next move is a focused steward workshop, not another broad review. I would narrow the SharePoint list, separate the first strategic domain from the first quick-value proof, and bring a short candidate-intake worksheet so we can leave with names instead of another abstract agreement.",
+      "whyNow": "The May 20 stand-up said to wait for Mike feedback, narrow the list, and use a workshop with questions/application-style intake to identify steward candidates."
+    },
+    "approval": {
+      "required": true,
+      "reason": "This creates a stakeholder-facing planning artifact and should stay proposed until Steve approves the exact workshop shape."
+    },
+    "risk": {
+      "level": "low",
+      "notes": "Internal draft proposal only; no message, calendar event, or task is executed."
+    },
+    "executionReadiness": null,
+    "tags": [
+      "data-stewards",
+      "workshop",
+      "elt",
+      "governance",
+      "task"
+    ]
+  },
+  {
+    "id": "proposal-2026-05-20-license-audit-enforcement-stack",
+    "type": "task",
+    "title": "Confirm enforcement-stack license position",
+    "status": "executed",
+    "createdAt": "2026-05-20T17:54:57.898Z",
+    "updatedAt": "2026-05-27T16:18:23.6708444Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-05-20-enforcement-stack-license-gate.json"
+    ],
+    "evidenceRefs": [
+      "project-memory/decisions/ADR-0004-enforcement-stack-for-governance-boundaries.md",
+      "natively/prep-packets/fabric-gold-model-access-follow-up.packet.json"
+    ],
+    "proposal": {
+      "target": "Patrick plus procurement/security ownership check",
+      "suggestedAction": "Produce a short license-position checklist for M365 E3/E5, Purview DLP, Endpoint DLP, Defender for Cloud Apps, Sentinel, and Purview Audit before ADR-0004 is treated as implementable.",
+      "deliverableShape": "Internal checklist or meeting note, not an email sent by automation.",
+      "whyNow": "ADR-0004 explicitly depends on knowing which enforcement layers are already licensed versus acquisition decisions."
+    },
+    "approval": {
+      "required": true,
+      "reason": "This shapes governance/security follow-up and must be reviewed by Steve before use."
+    },
+    "risk": {
+      "level": "medium",
+      "notes": "Licensing language can imply procurement commitments; keep it framed as discovery."
+    },
+    "executionReadiness": null,
+    "tags": [
+      "governance",
+      "security",
+      "purview",
+      "licensing",
+      "task"
+    ]
+  },
+  {
+    "id": "proposal-2026-05-20-pcd-database-review-read-path",
+    "type": "note",
+    "title": "Prep PCD governed read path",
+    "status": "executed",
+    "createdAt": "2026-05-20T17:54:57.898Z",
+    "updatedAt": "2026-05-27T16:18:23.6708444Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-05-20-citrine-historian-sample-still-unstuck.json"
+    ],
+    "evidenceRefs": [
+      "natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-update-meeting-part-2-the-and-can-data-55c993c4-p2.md",
+      "natively/prep-packets/citrine-pcd-database-review.packet.json"
+    ],
+    "proposal": {
+      "target": "Steve prep for PCD database review",
+      "suggestedAction": "Prepare three questions for the PCD review: exact tables/views needed, who approves a governed read-only path, and whether Citrine ingestion should use SQL views, exported files, or Fabric-staged data.",
+      "deliverableShape": "Internal meeting-prep note.",
+      "whyNow": "The PCD review was called out for Thursday after the Citrine session, and on-prem SQL access is the current ingestion bottleneck."
+    },
+    "approval": {
+      "required": true,
+      "reason": "Internal prep defaults to proposed until Steve accepts it."
+    },
+    "risk": {
+      "level": "low",
+      "notes": "Prepares questions only; does not request access or create accounts."
+    },
+    "executionReadiness": null,
+    "tags": [
+      "citrine",
+      "pcd",
+      "sql-access",
+      "prep"
+    ]
+  },
+  {
+    "id": "proposal-2026-05-20-prepare-plant-tour-data-gap-questions",
+    "type": "note",
+    "title": "Prepare plant-tour data-gap questions",
+    "status": "executed",
+    "createdAt": "2026-05-20T17:54:57.898Z",
+    "updatedAt": "2026-05-27T16:18:23.6708444Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-05-20-plant-floor-paper-system-of-record.json",
+      "../cortex/insights/2026-05-26-plant-floor-evidence-map-promoted.json",
+      "../cortex/insights/2026-05-27-plant-floor-evidence-stream-contract.json"
+    ],
+    "evidenceRefs": [
+      "meetings/summaries/2026-05-19-plant-tour.md",
+      "project-memory/source-systems/plant-floor-evidence.md",
+      "project-memory/decisions/ADR-0006-plant-floor-evidence-stream-contract.md",
+      "project-memory/risk-register.md#r-020",
+      "project-memory/risk-register.md#r-021",
+      "diagrams/mermaid/plant-floor-source-of-record.mmd",
+      "natively/prep-packets/plant-tour-follow-up-2026-05-27.packet.json"
+    ],
+    "proposal": {
+      "target": "Steve prep for Wednesday 2026-05-27 plant tour",
+      "suggestedAction": "Prepare a one-page source-of-record question sheet for Ben/Ryan/Mike Wiggins using the canonical plant-floor evidence map: pilot reactor batches, paper charge sheets, CIPP thumb drives, lab notebooks, tank transfer logs, QC readings, retains/rework, and NIR readings.",
+      "deliverableShape": "Internal prep note for Steve; no stakeholder send by automation.",
+      "whyNow": "The first plant tour surfaced high-value data gaps, the brain now has a canonical evidence-stream map, and the follow-up tour is already visible for Wednesday 2026-05-27."
+    },
+    "approval": {
+      "required": true,
+      "reason": "Even internal notes remain proposed until Steve chooses to use them."
+    },
+    "risk": {
+      "level": "low",
+      "notes": "Internal prep only; avoids sending or modifying canonical docs."
+    },
+    "executionReadiness": null,
+    "tags": [
+      "plant-tour",
+      "mes",
+      "rd",
+      "prep",
+      "note"
+    ]
+  },
+  {
+    "id": "proposal-2026-05-24-confirm-patrick-1on1-pre-ooo-agenda",
+    "type": "follow_up",
+    "title": "Confirm Patrick 1:1 pre-OOO agenda",
+    "status": "executed",
+    "createdAt": "2026-05-24T17:39:26.437Z",
+    "updatedAt": "2026-05-27T16:18:23.6708444Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-05-24-patrick-ooo-decision-gate.json"
+    ],
+    "evidenceRefs": [
+      "deliverables/upcoming-prep-targets-2026-05-19.md",
+      "meetings/summaries/2026-05-18-mdm-elt-presentation.md",
+      "meetings/summaries/2026-05-20-fabric-weekly-stand-up.md",
+      "natively/prep-packets/nahrup-stiller-1on1-post-elt-debrief-2026-05-26.packet.json"
+    ],
+    "proposal": {
+      "target": "Steve prep for 2026-05-26 Patrick 1:1",
+      "suggestedAction": "Use a short agenda prompt to confirm what must land before Patrick's 2026-05-28 through 2026-06-03 OOO window: Mike feedback, narrowed SharePoint/execution package, steward workshop shape, first-domain strategy, and May 27 plant-tour follow-up questions.",
+      "suggestedWording": "For Tuesday, I want to make sure we use the 1:1 to separate what has to land before you are out from what can wait. I have five items: Mike's feedback, the narrowed SharePoint/execution package, steward workshop shape, first-domain strategy, and the May 27 plant-tour questions. Anything else you want on that list?",
+      "whyNow": "The repo-visible 1:1 is the last Steve/Patrick alignment slot before Patrick's OOO window, and several current decisions are Patrick-dependent."
+    },
+    "approval": {
+      "required": true,
+      "reason": "This is a stakeholder-facing follow-up prompt and Steve has not granted bounded autonomy for sending or scheduling."
+    },
+    "risk": {
+      "level": "low",
+      "notes": "The wording is agenda-setting only and cites existing evidence, but Steve should still approve it before use."
+    },
+    "executionReadiness": null,
+    "tags": [
+      "patrick-stiller",
+      "ooo-window",
+      "elt",
+      "stewards",
+      "follow-up"
+    ]
+  },
+  {
+    "id": "proposal-2026-05-27-audit-proactive-coaching-disable-gate",
+    "type": "task",
+    "title": "Audit proactive coaching disable gate",
+    "status": "proposed",
+    "createdAt": "2026-05-27T16:18:23.6708444Z",
+    "updatedAt": "2026-05-27T16:18:23.6708444Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-05-27-proactive-coaching-disable-gate.json"
+    ],
+    "evidenceRefs": [
+      "natively/live-captures/2026-05-27-natively-live.jsonl",
+      "natively/meeting-captures/2026-05-27/2026-05-27-disabling-proactive-coaching-mode-12b70248.md",
+      "natively/meeting-captures/2026-05-27/2026-05-27-disabling-proactive-coaching-mode-12b70248.json",
+      "meetings/summaries/_RUN_REPORT_2026-05-27-natively-disabling-proactive-coaching-mode-12b70248.md"
+    ],
+    "proposal": {
+      "target": "Natively live-assist mode gating",
+      "suggestedAction": "Audit the proactive meeting coaching disable gate and verify that disabled mode suppresses unsolicited SAY THIS responses while preserving explicitly requested live help.",
+      "deliverableShape": "Internal engineering task or bug ticket; do not change Natively app code from this brain-refresh automation.",
+      "whyNow": "A 2026-05-27 local capture shows a SAY THIS suggestion immediately before Steve said he had disabled proactive meeting coaching mode."
+    },
+    "approval": {
+      "required": true,
+      "reason": "Natively app-code changes are outside this automation; Steve must approve or route the engineering task."
+    },
+    "risk": {
+      "level": "medium",
+      "notes": "If disabled mode still emits proactive coaching, live meetings can get unsolicited guidance even when Steve intended a quieter mode."
+    },
+    "executionReadiness": null,
+    "tags": [
+      "natively",
+      "task",
+      "readiness-risk",
+      "live-coaching",
+      "mode-gating"
+    ]
+  },
+  {
+    "id": "proposal-2026-05-27-confirm-weekly-fabric-calendar-reset",
+    "type": "follow_up",
+    "title": "Resolve Fabric calendar reset details",
+    "status": "proposed",
+    "createdAt": "2026-05-27T16:26:44.1057864Z",
+    "updatedAt": "2026-05-27T19:19:17.537Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-05-27-weekly-fabric-cadence-reset.json"
+    ],
+    "evidenceRefs": [
+      "natively/live-captures/2026-05-27-natively-live.jsonl#2026-05-27T16:15:01Z",
+      "natively/live-captures/2026-05-27-natively-live.jsonl#2026-05-27T16:19:02Z",
+      "natively/prep-packets/weekly-fabric-post-onsite-synthesis.packet.json"
+    ],
+    "proposal": {
+      "target": "Steve calendar prep for Fabric cadence",
+      "suggestedAction": "Before retrying any calendar mutation, identify the exact Fabric stand-up calendar instance and replacement slot: current subject, current start, current end, target subject, target start, target end, and attendee-impact note. Treat the earlier calendar_event proposal as a meeting-prep follow-up until those fields are known.",
+      "suggestedWording": "I still agree with canceling this week and making next week a better synthesis session, but the calendar action needs exact event details before anything should execute. I need the current Fabric stand-up instance and the target Thursday/Friday slot pinned first.",
+      "whyNow": "The May 27 outcome ledger shows five failed execution attempts because the calendar proposal did not include subject, start, and end. Retrying without those fields will keep failing and risks noisy calendar automation."
+    },
+    "approval": {
+      "required": true,
+      "reason": "Calendar changes and attendee messaging require Steve approval; this proposal only asks for the missing executable scheduling fields."
+    },
+    "risk": {
+      "level": "medium",
+      "notes": "Calendar automation should not execute from inferred meeting intent. It needs exact event coordinates or a human-confirmed calendar lookup result first."
+    },
+    "executionReadiness": {
+      "status": "not_calendar_executable_until_fields_confirmed",
+      "requiredFields": [
+        "currentEvent.subject",
+        "currentEvent.start",
+        "currentEvent.end",
+        "targetEvent.subject",
+        "targetEvent.start",
+        "targetEvent.end"
+      ],
+      "missingFields": [
+        "currentEvent.subject",
+        "currentEvent.start",
+        "currentEvent.end",
+        "targetEvent.start",
+        "targetEvent.end"
+      ],
+      "latestFailure": "Calendar proposal needs subject, start, and end before it can execute.",
+      "outcomeRefs": [
+        "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:49.682Z",
+        "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:51.342Z",
+        "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:52.313Z",
+        "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:52.831Z",
+        "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:52.975Z"
+      ]
+    },
+    "tags": [
+      "fabric-standup",
+      "calendar",
+      "follow-up",
+      "post-onsite-synthesis",
+      "natively-readiness",
+      "calendar-execution-contract",
+      "needs-event-fields"
+    ]
+  },
+  {
+    "id": "proposal-2026-05-27-prepare-sanitized-brain-access-path",
+    "type": "task",
+    "title": "Prepare sanitized brain access path",
+    "status": "executed",
+    "createdAt": "2026-05-27T17:17:52.810Z",
+    "updatedAt": "2026-05-27T19:19:17.537Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-05-27-stakeholder-knowledge-base-access-boundary.json"
+    ],
+    "evidenceRefs": [
+      "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:57:40-12:58:45",
+      "AGENTS.md#sensitive-data",
+      "natively/prep-packets/shared-knowledge-base-review.packet.json"
+    ],
+    "proposal": {
+      "target": "Steve prep before sending Patrick or Eudias a link",
+      "suggestedAction": "Create a sanitized stakeholder-facing access path for the IP Corp brain/readiness layer before sharing anything: include curated meeting summaries, decisions, open questions, prep packets, selected Cortex insights, and Power BI model-overlap/readiness context; exclude raw captures, credentials, internal agent rules, personal/off-topic transcript material, and unreviewed Natively exports.",
+      "suggestedWording": "I can send a link, but I want to send the useful layer rather than the raw working repo. I am going to package the decisions, open questions, meeting summaries, model-analysis context, and readiness packets into a clean read-only view so you and Eudias can review it without exposing the internal machinery.",
+      "whyNow": "Patrick asked for a link during the 2026-05-27 Natively capture, and the full brain repo is explicitly internal-only with sensitive content."
+    },
+    "approval": {
+      "required": true,
+      "reason": "Sharing any stakeholder-facing access path requires Steve approval and a redaction/access-control decision."
+    },
+    "risk": {
+      "level": "high",
+      "notes": "Direct repo access would expose credentials, raw captures, internal operating instructions, and private/off-topic transcript content. The proposal is to prepare a sanitized view only."
+    },
+    "executionReadiness": null,
+    "tags": [
+      "stakeholder-access",
+      "redaction",
+      "natively-readiness",
+      "brain-boundary",
+      "patrick-stiller",
+      "eudias-kifem"
+    ]
+  },
+  {
+    "id": "proposal-2026-05-27-promote-pryor-ot-architecture-summary",
+    "type": "task",
+    "title": "Promote Pryor OT architecture capture",
+    "status": "executed",
+    "createdAt": "2026-05-27T19:24:35.144Z",
+    "updatedAt": "2026-05-27T20:14:52.377Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-05-27-pryor-ot-purdue-ssrs-boundary.json"
+    ],
+    "evidenceRefs": [
+      "natively/meeting-captures/2026-04-15/2026-04-15-pryor-azure-ot-architecture-alignment-d558f168.md#12:20:31-12:32:46",
+      "natively/meeting-captures/2026-04-15/2026-04-15-pryor-azure-ot-architecture-alignment-d558f168.json",
+      "meetings/summaries/_RUN_REPORT_2026-05-27-natively-pryor-azure-ot-architecture-alignment-d558f168.md",
+      "meetings/transcripts/teams-export/_LOCKED_ip-pryor-network-updates-w34293.md"
+    ],
+    "proposal": {
+      "target": "IP Corp brain canonical meeting intelligence",
+      "suggestedAction": "Run a targeted promotion pass for the Pryor W34293 OT/Azure/SSRS capture. Create or reconcile the canonical meeting summary, preserve the Purdue-model and DMZ relay evidence, and capture the unresolved reporting-path question as an open question or ADR/risk candidate.",
+      "deliverableShape": "Canonical meeting summary plus any needed project-memory open-question/risk references; do not overwrite canonical architecture docs without Steve review if a contradiction appears.",
+      "whyNow": "The recovered capture contains architecture-level evidence that is stronger than a raw transcript: Purdue remains governing, Azure egress should be DMZ-whitelisted, PCD stays control-side, and Will's corporate SSRS reports need a deliberate replicate-up versus reports-down decision."
+    },
+    "approval": {
+      "required": true,
+      "reason": "This is a canonical-promotion task that may touch architecture boundaries and should be reviewed before project-memory doctrine changes."
+    },
+    "risk": {
+      "level": "medium",
+      "notes": "Leaving this only in raw Natively exports risks losing a concrete OT/Purdue/SSRS decision point before Pryor deployment planning advances."
+    },
+    "executionReadiness": null,
+    "tags": [
+      "pryor",
+      "w34293",
+      "task",
+      "canonical-promotion",
+      "ot-security",
+      "purdue-model",
+      "ssrs",
+      "natively-readiness"
+    ]
+  }
+]

@@ -1,0 +1,222 @@
+[
+  {
+    "id": "R-001",
+    "risk": "MES-M3 sync failure rate (1-2%) creates manufacturing data gaps for Interplastic + HK",
+    "severity": "Medium",
+    "likelihood": "Confirmed",
+    "exposed": "Manufacturing analytics, batch traceability",
+    "mitigation": "Identify the 1-2% failure pattern (DQ-002), build reconciliation in Silver layer",
+    "owner": "Steve / Matt Pennaz",
+    "lastReviewed": "2026-04-29"
+  },
+  {
+    "id": "R-002",
+    "risk": "Cross-company financial isolation accidentally violated by a Gold-layer aggregation",
+    "severity": "High",
+    "likelihood": "Possible",
+    "exposed": "NAC ↔ Interplastic financial visibility (CIO mandate)",
+    "mitigation": "Mandatory ADR review for any cross-company Gold table; RLS by default on financial semantic models",
+    "owner": "Steve",
+    "lastReviewed": "2026-04-29"
+  },
+  {
+    "id": "R-003",
+    "risk": "M3 ERP modeling decisions made without complete table inventory (3,949 tables)",
+    "severity": "Medium",
+    "likelihood": "Confirmed",
+    "exposed": "Silver layer design, semantic model coverage",
+    "mitigation": "Prioritize M3 table catalog completion; build incremental coverage; flag uncovered domains in ADRs",
+    "owner": "Steve / Matt Francis",
+    "lastReviewed": "2026-04-29"
+  },
+  {
+    "id": "R-004",
+    "risk": "Stakeholder churn — key contacts (Patrick, Matt P, Matt F, Eudias) leave or change roles",
+    "severity": "Medium",
+    "likelihood": "Possible",
+    "exposed": "Engagement velocity, institutional knowledge",
+    "mitigation": "Document everyone's expertise in stakeholder-map; maintain at least one secondary contact per workstream",
+    "owner": "Steve",
+    "lastReviewed": "2026-04-29"
+  },
+  {
+    "id": "R-005",
+    "risk": "Capacity sizing wrong (F64 inadequate at scale, or oversized waste)",
+    "severity": "Medium",
+    "likelihood": "Possible",
+    "exposed": "Monthly Fabric spend, performance",
+    "mitigation": "Build usage telemetry from week 1; review at 30/60/90 days; have F128 upgrade path agreed",
+    "owner": "Steve",
+    "lastReviewed": "2026-04-29"
+  },
+  {
+    "id": "R-006",
+    "risk": "Power BI consolidation breaks existing reports (Eudias's star schemas, Kerri's SSRS migration)",
+    "severity": "Medium",
+    "likelihood": "Likely",
+    "exposed": "Reporting users, change management",
+    "mitigation": "Build a sunset register of legacy reports; communicate transitions with Kerri's involvement; preserve report-by-report parity tests",
+    "owner": "Steve / Eudias / Kerri",
+    "lastReviewed": "2026-04-29"
+  },
+  {
+    "id": "R-007",
+    "risk": "Source-system VPN dependency creates productivity friction (every connection requires VPN)",
+    "severity": "Low",
+    "likelihood": "Confirmed",
+    "exposed": "Day-to-day analyst work",
+    "mitigation": "Document VPN setup in [project-memory/source-databases.md](source-databases.md); evaluate Fabric on-premises gateway as long-term solution",
+    "owner": "Steve",
+    "lastReviewed": "2026-04-29"
+  },
+  {
+    "id": "R-008",
+    "risk": "Project documentation becomes stale because source repos keep getting updated independently",
+    "severity": "High",
+    "likelihood": "Possible",
+    "exposed": "The very foundation of this engagement",
+    "mitigation": "Deprecate the source `knowledge/` folders with `_DEPRECATED.md` notices; brief Patrick on the convention; monthly architecture-librarian audit",
+    "owner": "Steve",
+    "lastReviewed": "2026-04-29"
+  },
+  {
+    "id": "R-009",
+    "risk": "MDM workstream loses momentum — recent meeting recaps suggest some weeks have no MDM-tagged action items",
+    "severity": "Medium",
+    "likelihood": "Possible",
+    "exposed": "One of the named primary deliverables",
+    "mitigation": "Task-scout monitors weekly; if 2+ weeks of zero MDM activity, escalate via stakeholder briefing",
+    "owner": "Steve",
+    "lastReviewed": "2026-04-29"
+  },
+  {
+    "id": "R-010",
+    "risk": "Books-layer structured extraction is still draft-level even though PDFs are now present",
+    "severity": "Low",
+    "likelihood": "Possible",
+    "exposed": "Recommendation quality when detailed chapter-level citation is required",
+    "mitigation": "Use existing doctrine files for routine decisions; open the full PDFs for chapter-specific claims until full chunked extraction is needed",
+    "owner": "Steve",
+    "lastReviewed": "2026-05-04"
+  },
+  {
+    "id": "R-011",
+    "risk": "Future raw evidence can outpace canonical memory if capture and summary/discovery promotion split again",
+    "severity": "Medium",
+    "likelihood": "Possible",
+    "exposed": "Agent retrieval, task-scout accuracy, stakeholder deliverables",
+    "mitigation": "Teams captures normalized on 2026-05-04; keep future sweeps writing both raw capture and canonical summary in the same pass",
+    "owner": "Steve",
+    "lastReviewed": "2026-05-04"
+  },
+  {
+    "id": "R-012",
+    "risk": "BatchWorks appears in vendor SOW but conflicts with Patrick's \"we don't use\" correction",
+    "severity": "Medium",
+    "likelihood": "Possible",
+    "exposed": "OT integration design, source-system inventory accuracy",
+    "mitigation": "Do not design against BatchWorks; confirm with Robert LaMontagne / OT before any Cybertrol integration planning",
+    "owner": "Steve / Patrick",
+    "lastReviewed": "2026-05-04"
+  },
+  {
+    "id": "R-013",
+    "risk": "Steward and Gold-domain rollout stalls because the first domain choice and workshop candidate path stay fuzzy after ELT",
+    "severity": "Medium",
+    "likelihood": "Possible",
+    "exposed": "Phase 1 governance, data steward naming, first Gold semantic model",
+    "mitigation": "Wait for Mike's feedback, narrow the SharePoint list, then run a focused steward workshop that separates a strategic long-tail domain from a smaller proof-of-value domain",
+    "owner": "Steve / Patrick",
+    "lastReviewed": "2026-05-20"
+  },
+  {
+    "id": "R-014",
+    "risk": "Emergency backup generators provide ~16 minutes runtime, not the ~45 minutes previously believed",
+    "severity": "High",
+    "likelihood": "Confirmed",
+    "exposed": "Reactor shutdown safety, active cooks, plant operating continuity",
+    "mitigation": "Treat as a plant safety / OT follow-up; keep out of Fabric scope unless data/alerting requirements are requested",
+    "owner": "Patrick / Plant Ops",
+    "lastReviewed": "2026-05-21"
+  },
+  {
+    "id": "R-015",
+    "risk": "Paper batch charge sheets are the legal record for batch composition, while MES captures only a subset",
+    "severity": "High",
+    "likelihood": "Confirmed",
+    "exposed": "Complaint investigations, batch traceability, future MDM/Fabric truth claims",
+    "mitigation": "Do not present MES as the complete batch-composition source; scope digitization or governed capture path as a formal decision",
+    "owner": "Steve / Patrick / Plant Ops",
+    "lastReviewed": "2026-05-21"
+  },
+  {
+    "id": "R-016",
+    "risk": "CIPP submittal packages live on thumb drives with weak versioning, backup, and governance",
+    "severity": "High",
+    "likelihood": "Confirmed",
+    "exposed": "Contractual customer documentation, ~$20K-per-system certification evidence, R&D continuity",
+    "mitigation": "Decide system of record for submittal-package evidence; evaluate Optiva vs governed document/Fabric store",
+    "owner": "Steve / Ben / Grant",
+    "lastReviewed": "2026-05-21"
+  },
+  {
+    "id": "R-017",
+    "risk": "Tank-farm commingling breaks simple per-batch lineage unless PLC transfer logs are modeled",
+    "severity": "Medium",
+    "likelihood": "Confirmed",
+    "exposed": "Traceability lookups, complaint investigations, tank composition over time",
+    "mitigation": "Locate PLC transfer log landing point; design Bronze/Silver lineage aggregation if data is usable",
+    "owner": "Steve / MES-OT owner",
+    "lastReviewed": "2026-05-21"
+  },
+  {
+    "id": "R-018",
+    "risk": "NIR spectroscopy readings are not fully trusted by operators",
+    "severity": "Low",
+    "likelihood": "Confirmed",
+    "exposed": "QC analytics, future authoritative-measurement assumptions",
+    "mitigation": "Treat NIR as secondary/qualified evidence until operator-trust and calibration issues are resolved",
+    "owner": "Steve / QC Lab",
+    "lastReviewed": "2026-05-21"
+  },
+  {
+    "id": "R-019",
+    "risk": "Same-name Power BI measures carry divergent DAX across cloned Sales models",
+    "severity": "Medium",
+    "likelihood": "Confirmed",
+    "exposed": "KPI consistency, Sales BI consolidation, executive trust in metrics",
+    "mitigation": "Resolve canonical measure definitions before consolidating Sales semantic models or rebuilding reports",
+    "owner": "Steve / Eudias / Patrick",
+    "lastReviewed": "2026-05-21"
+  },
+  {
+    "id": "R-020",
+    "risk": "Pilot reactor batches and experimental R&D material draw-down sit outside MES/M3 governance",
+    "severity": "Medium",
+    "likelihood": "Confirmed",
+    "exposed": "New-product-introduction traceability, scale-up history, customer-trial lineage, raw-material accountability",
+    "mitigation": "Resolve DQ-037; decide whether pilot/R&D batches need MES/M3 representation or a governed parallel evidence path",
+    "owner": "Steve / Patrick / Ben / Andre",
+    "lastReviewed": "2026-05-26"
+  },
+  {
+    "id": "R-021",
+    "risk": "R&D lab notebooks and staff memory remain unmanaged process-knowledge stores",
+    "severity": "Medium",
+    "likelihood": "Confirmed",
+    "exposed": "Formulation history, process tuning, staff turnover, future Citrine/Fabric context quality",
+    "mitigation": "Resolve DQ-039 with Ben/lab staff; define whether notebook-derived knowledge belongs in Optiva, a governed document store, or a curated Fabric evidence layer",
+    "owner": "Steve / Ben / Terry",
+    "lastReviewed": "2026-05-26"
+  },
+  {
+    "id": "R-022",
+    "risk": "Pryor W34293 reporting path creates an unmanaged Purdue-model exception if corporate SSRS continues pulling OT/PCD data without an approved replicate-up or reports-down pattern",
+    "severity": "Medium",
+    "likelihood": "Possible",
+    "exposed": "Pryor reporting continuity, OT security, future Fabric/Power BI migration",
+    "mitigation": "Audit Will's report data sources; resolve DQ-048; keep Azure/Optix egress constrained through a DMZ whitelist and involve OT engineers before deployment",
+    "owner": "Steve / Stuart / Will / OT engineers",
+    "lastReviewed": "2026-05-27"
+  }
+]

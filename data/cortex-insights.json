@@ -1,0 +1,977 @@
+[
+  {
+    "id": "insight-2026-05-12-policy-enforcement-gap",
+    "type": "policy_enforcement_gap",
+    "title": "Policy draft needs controls, not contradiction handling",
+    "summary": "Mike's data-classification policy draft does not supersede the brain's existing financial-isolation doctrine. It is a gap to fix: the draft needs enforceable language for ownership, exceptions, unlabeled data, Purview label mapping, and NAC vs Interplastic financial isolation before it can safely govern Fabric assets.",
+    "createdAt": "2026-05-12T14:31:00-04:00",
+    "confidence": 0.84,
+    "reasoning": {
+      "trigger": "The policy-response packet is ready but marked ready-needs-decision, and the 2026-05-11 summary flags policy ownership and enforcement questions.",
+      "observations": [
+        "Patrick and Steve decided to compile a joint response to Mike's policy v1.1 draft. Source: meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md.",
+        "The summary identifies the draft as mixing policy, transition notice, and taxonomy. Source: meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md.",
+        "The summary flags missing NAC vs Interplastic financial-isolation language as a high-severity risk. Source: meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md.",
+        "The repo doctrine states financial data isolation is non-negotiable and NAC cannot see Interplastic numbers. Source: agent-prompts/system-doctrine.md and AGENTS.md.",
+        "Open questions remain for policy ownership, exception authority, Purview label mapping, and unlabeled-data defaults. Source: meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md."
+      ],
+      "connections": [
+        "The policy draft is the governance-facing expression of the same boundaries enforced by Fabric workspace/security design.",
+        "Purview can catalog and classify, but the policy must define what happens when assets are unlabeled, mislabeled, or exception-bound.",
+        "The joint-response path gives Steve a bounded way to keep Mike's direction while closing enforcement gaps."
+      ],
+      "chain": [
+        "The brain already has a stronger financial-isolation rule than the policy draft.",
+        "A weaker draft is not authoritative evidence to overwrite canonical architecture docs.",
+        "Therefore the right Natively posture is to surface it as a response item and action proposal, not as a contradiction requiring immediate canonical change."
+      ],
+      "alternativesConsidered": [
+        "Raise a contradiction against project-memory; rejected because the draft underspecifies the boundary instead of negating it.",
+        "Create no proposal because Steve already has PDFs; rejected because the concrete next action is the joint Patrick+Steve response outline."
+      ],
+      "confidenceFactors": [
+        "High because the policy risks and action items are explicit in the 2026-05-11 summary.",
+        "High because the architecture boundary is repeated in both project and system doctrine.",
+        "Moderated because the draft PDF itself was not re-parsed in this run; the latest summary and policy packet were used as local evidence."
+      ]
+    },
+    "recommendedAction": "Create a concise joint-response outline for Patrick and Steve that separates policy, rollout communication, and taxonomy, then lists the missing enforcement controls for Mike to decide.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-12-draft-policy-response-outline.json"
+    ],
+    "tags": [
+      "policy",
+      "purview",
+      "financial-isolation",
+      "security",
+      "governance"
+    ]
+  },
+  {
+    "id": "insight-2026-05-12-stewardship-gate",
+    "type": "governance_readiness",
+    "title": "ELT steward decision path is the gate",
+    "summary": "The next ELT-oriented conversation should be treated as a governance decision-rights checkpoint, not as another Fabric explanation. Evidence from the 2026-05-06 stand-up and Mike's modernization framing points to the same dependency: named data stewards are needed before domain assignments and phase 2 pilots can move.",
+    "createdAt": "2026-05-12T14:31:00-04:00",
+    "confidence": 0.86,
+    "reasoning": {
+      "trigger": "The ELT readiness packet is the next best packet, but calendar dates and the decision path are still unknown.",
+      "observations": [
+        "Robin stated that domain definition should happen through a workshop with named data stewards, not a unilateral IT recommendation. Source: meetings/summaries/2026-05-06-fabric-weekly-stand-up.md.",
+        "Robin and Steve framed data stewards as needed by July before domain assignments can be finalized. Source: meetings/summaries/2026-05-06-fabric-weekly-stand-up.md.",
+        "Mike's 2026-04-22 modernization deck is referenced as People plus Process plus Technology, which aligns the steward ask with enterprise operating change rather than tooling. Source: meetings/summaries/_RUN_REPORT_2026-05-12-daily-meeting-sweep.md.",
+        "The ELT packet still has startsAt null and readinessStatus ready-needs-date. Source: natively/meeting-index.json."
+      ],
+      "connections": [
+        "The data-steward workshop decision connects governance design to the ELT deck, the Copilot demo, and domain-pilot sequencing.",
+        "The subsidiary-autonomy plus financial-isolation phrasing needs validation before Steve uses it as settled canon in an executive room.",
+        "Sales and operations representation, specifically Kevin Casey and Joe Huff, is part of the same readiness problem because definitions require cross-functional ownership."
+      ],
+      "chain": [
+        "If stewards are not named, domain definitions remain IT-shaped examples.",
+        "If domain definitions remain IT-shaped, Gold-layer standardization and Purview classification will lack business sign-off.",
+        "If Gold and Purview lack business sign-off, the platform can still be built but will not become the governed operating model Mike is funding."
+      ],
+      "alternativesConsidered": [
+        "Treat the next meeting as deck polish only; rejected because the source action items repeatedly frame named stewards and decision rights as the blocker.",
+        "Wait for calendar data before creating the insight; rejected because the local meeting-index already identifies the near-term packet and the decision-risk is independent of exact date."
+      ],
+      "confidenceFactors": [
+        "High because the 2026-05-06 summary has multiple confirmed decisions with direct quotes.",
+        "Moderated because the exact ELT meeting date and whether ELT will decide live remain open questions.",
+        "Moderated because Mike's 2026-04-22 deck is represented through a captured meeting/deck artifact rather than a fully summarized transcript."
+      ]
+    },
+    "recommendedAction": "Before the next ELT touchpoint, confirm the steward decision path: whether ELT will name data stewards in the meeting, delegate nomination, or defer to a follow-up workshop owner.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-12-confirm-elt-steward-decision-path.json"
+    ],
+    "tags": [
+      "elt",
+      "data-stewards",
+      "governance",
+      "fabric-mdm",
+      "readiness"
+    ]
+  },
+  {
+    "id": "insight-2026-05-20-citrine-historian-sample-still-unstuck",
+    "type": "execution_blocker",
+    "title": "Citrine needs a governed read path, not another spreadsheet workaround",
+    "summary": "The May 19 Citrine session shows cook-parameter analysis is still not moving: data exists or was extracted, but Mark still needs Robert/Ryan time, and programmatic ingestion is blocked by on-prem SQL access. The near-term PCD review should define a governed read path.",
+    "createdAt": "2026-05-20T17:54:57.898Z",
+    "confidence": 0.79,
+    "reasoning": {
+      "trigger": "Historian/Citrine capture recorded that cook parameters were not analyzed and a PCD database review is set for Thursday.",
+      "observations": [
+        "Mark said he needs time with Robert and Ryan to look over cook parameters. Source: natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-update-meeting-part-2-the-and-can-data-55c993c4-p2.md.",
+        "Nikhil was introduced as Citrine data engineering support. Source: same capture.",
+        "Citrine Python API exists for programmatic data ingestion, but on-prem SQL access requires IT/governed path. Source: same capture.",
+        "Bradley has a flat formulation spreadsheet and Francis has another tool that may simplify prep. Source: same capture."
+      ],
+      "connections": [
+        "The historian sample-extract problem and PCD database review are the same access-pattern problem: a safe, repeatable read path is missing.",
+        "Cowork/agents can shape workflow, but Citrine remains the materials-aware modeling substrate.",
+        "Plant Tour adds that pilot reactor and AV manual-entry gaps may limit what historian/MES can supply."
+      ],
+      "chain": [
+        "If data prep remains spreadsheet/manual, Citrine ingestion will stay brittle.",
+        "If SQL access is opened ad hoc, governance and repeatability suffer.",
+        "Therefore the PCD review should produce table/view names plus an access owner and approved read mechanism."
+      ],
+      "alternativesConsidered": [
+        "Promote the Citrine capture as a canonical summary now; rejected because it is a Natively capture and still needs meeting-intelligence pass.",
+        "Create a broad Citrine strategy action; rejected in favor of the concrete PCD read-path prep."
+      ],
+      "confidenceFactors": [
+        "Moderated because source is an automated Natively capture, not a full canonical meeting summary.",
+        "High because named people and next steps are explicit in the capture.",
+        "High because this aligns with prior historian extraction summaries and recurring meeting context."
+      ]
+    },
+    "recommendedAction": "Use the PCD review to name exact tables/views, access owner, and read mechanism for Citrine-facing data.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-20-pcd-database-review-read-path.json"
+    ],
+    "tags": [
+      "citrine",
+      "historian",
+      "pcd",
+      "sql-access",
+      "ingestion"
+    ]
+  },
+  {
+    "id": "insight-2026-05-20-enforcement-stack-license-gate",
+    "type": "governance_enforcement",
+    "title": "ADR-0004 turns Purview governance into a license-gated enforcement stack",
+    "summary": "The governance conversation has moved past policy wording. ADR-0004 names the actual enforcement layers, but several depend on licensing or ownership that is not confirmed. The next risk is designing against tools IP Corp may not own or has not operationalized.",
+    "createdAt": "2026-05-20T17:54:57.898Z",
+    "confidence": 0.86,
+    "reasoning": {
+      "trigger": "ADR-0004 was drafted after the May 20 working session exposed the gap between Purview classification and actual enforcement.",
+      "observations": [
+        "ADR-0004 states Purview classifies/catalogs but enforcement happens through RLS, workspace permissions, MIP, DLP, Defender/Sentinel, and Audit. Source: project-memory/decisions/ADR-0004-enforcement-stack-for-governance-boundaries.md.",
+        "ADR-0004 lists license gates for Purview DLP, Sentinel, and Defender for Cloud Apps. Source: project-memory/decisions/ADR-0004-enforcement-stack-for-governance-boundaries.md.",
+        "Fabric deep-dive discussed department/account/manager access and RLS rules. Source: natively/meeting-captures/2026-05-20/2026-05-20-fabric-deep-dive-working-session-part-1-the-and-they-can-faf3e9fc-p1.md.",
+        "Project doctrine says financial isolation is non-negotiable. Source: AGENTS.md and agent-prompts/system-doctrine.md."
+      ],
+      "connections": [
+        "The policy response packet and ADR-0004 now form one governance thread: policy states boundaries; enforcement stack implements them.",
+        "Power BI RLS design is the free immediate layer; DLP/Sentinel/MCAS are license/owner checks.",
+        "This should feed ELT/steward conversations because every layer needs a business owner and implementation owner."
+      ],
+      "chain": [
+        "If Purview is treated as enforcement, compliance will be illusory.",
+        "If paid enforcement layers are assumed without license confirmation, the design will stall later.",
+        "Therefore the next move is a license-position audit and ownership mapping before ADR-0004 is accepted."
+      ],
+      "alternativesConsidered": [
+        "Wait until implementation to verify licenses; rejected because ADR-0004 acceptance criteria explicitly depend on the license audit.",
+        "Create a new policy-response proposal; rejected because the prior policy proposal was executed and this is now a narrower license/implementation action."
+      ],
+      "confidenceFactors": [
+        "High because ADR-0004 is explicit.",
+        "High because the RLS/access-control live capture aligns with the ADR.",
+        "Moderated because Microsoft license state has not been verified in the repo."
+      ]
+    },
+    "recommendedAction": "Prepare and run a license-position checklist covering M365 E3/E5, Purview DLP, Endpoint DLP, Defender for Cloud Apps, Sentinel, and Purview Audit.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-20-license-audit-enforcement-stack.json"
+    ],
+    "tags": [
+      "purview",
+      "security",
+      "rls",
+      "licensing",
+      "governance"
+    ]
+  },
+  {
+    "id": "insight-2026-05-20-gold-domain-scope-risk",
+    "type": "delivery_strategy",
+    "title": "Gold domain selection needs one fast proof and one strategic track",
+    "summary": "The promoted May 20 Fabric Weekly Stand-Up confirms the earlier live signal: domain selection, steward assignment, and Gold-model rollout are coupled. The next meeting should separate a quick-value proof domain from longer-tail strategic domain work so the program can show progress without pretending large domains are simple.",
+    "createdAt": "2026-05-20T17:54:57.898Z",
+    "confidence": 0.78,
+    "reasoning": {
+      "trigger": "The May 20 Fabric Weekly Stand-Up was promoted from live capture into canonical meeting intelligence, replacing the prior active-capture-only signal.",
+      "observations": [
+        "The meeting summary says the SharePoint list must be narrowed and time-boxed before teams use it as next-step guidance. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+        "The team discussed not taking too big a first bite and proving value sooner with a high-value, low-effort track. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+        "The same summary links domain/steward selection to Gold-layer model discussion. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+        "Existing ELT packet already frames steward assignment as the governance gate. Source: natively/prep-packets/elt-data-stewards-readiness.packet.json."
+      ],
+      "connections": [
+        "This live signal connects the ELT steward packet to the Gold model packet: domains need both business owners and implementation scope.",
+        "PBI Sales clone evidence is tempting as first domain, but sales already has something visible; another group may prove value faster.",
+        "A dual-track framing can reduce risk: one long-tail strategic domain plus one fast proof domain."
+      ],
+      "chain": [
+        "If the first domain is too large, status becomes still working for too long.",
+        "If the first domain is too small or irrelevant, ELT will not see strategic value.",
+        "Therefore the next alignment should explicitly choose both a strategic long-tail domain and a fast proof-of-value domain."
+      ],
+      "alternativesConsidered": [
+        "Promote as canonical decision; rejected because first-domain selection is still pending Mike/Patrick/Eudias alignment.",
+        "Use Sales as the obvious quick domain; rejected because the meeting says sales already has some visible artifacts and many sales workflows are still manual or access-constrained.",
+        "Ignore until a calendar-dated meeting exists; rejected because Natively needs the domain tradeoff available during live follow-up."
+      ],
+      "confidenceFactors": [
+        "Higher than prior run because the evidence is now in a canonical meeting summary, not only active live capture.",
+        "Moderated because speaker identities remain diarized only by speaker number.",
+        "Moderated because Mike feedback is still pending and may change the workshop/domain path."
+      ]
+    },
+    "recommendedAction": "Ask Patrick/Eudias/Mike to choose both the first strategic long-tail domain and the first fast proof-of-value domain before taking the domain list to stewards.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-20-confirm-first-gold-domain.json"
+    ],
+    "tags": [
+      "domains",
+      "gold",
+      "elt",
+      "stewards",
+      "canonical-summary"
+    ]
+  },
+  {
+    "id": "insight-2026-05-20-pbi-sales-model-consolidation",
+    "type": "semantic_model_consolidation",
+    "title": "Sales BI clone drift is the strongest proof for governed Gold models",
+    "summary": "The Power BI sweep turned the Gold-domain argument into evidence: Interplastic, MP, and NAC Sales BI models share a template, but same-name measures have drifted. This is exactly the failure mode a governed domain semantic model is supposed to prevent.",
+    "createdAt": "2026-05-20T17:54:57.898Z",
+    "confidence": 0.9,
+    "reasoning": {
+      "trigger": "Power BI documentation sweep produced cross-model overlap analysis and new discoveries DISC-2026-05-20-001 through DISC-2026-05-20-006.",
+      "observations": [
+        "30 semantic models were documented with complete DAX where measures exist. Source: meetings/summaries/_RUN_REPORT_2026-05-20-pbi-model-documentation-sweep.md.",
+        "The three company Sales BI models and TST twins share about 50 byte-identical-DAX measures. Source: DISC-2026-05-20-002.",
+        "About 23 same-name Sales measures have divergent DAX definitions. Source: DISC-2026-05-20-003.",
+        "Interplastic Sales BI still sources sql2012test.diverdata while MP/NAC Sales source ipc_powerdata. Source: DISC-2026-05-20-004."
+      ],
+      "connections": [
+        "The May 20 Power BI Source Mapping capture says one Gold model per domain should be the target control surface.",
+        "The Sales clone family is both the obvious consolidation candidate and the obvious isolation-risk test case.",
+        "ADR-0004 means consolidation must be paired with RLS/workspace enforcement, not treated as pure model cleanup."
+      ],
+      "chain": [
+        "Copied models created consistency at first, then measure definitions drifted.",
+        "Same KPI name with different math undermines trust more quietly than visibly broken reports.",
+        "A governed Gold model or governed template needs canonical measure ownership before report migration."
+      ],
+      "alternativesConsidered": [
+        "Recommend immediate single shared model; rejected until financial isolation/RLS pattern is confirmed.",
+        "Leave per-company models alone; rejected because the drift evidence is now explicit and source-backed."
+      ],
+      "confidenceFactors": [
+        "High because the sweep is structured and scanner-backed.",
+        "High because DAX drift is directly documented.",
+        "Moderated because phase 2 UX/page audits are still deferred."
+      ]
+    },
+    "recommendedAction": "Run a model-consolidation review that resolves drift measures and chooses between one shared Sales semantic model versus a governed template per company with explicit RLS/workspace boundaries.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-20-confirm-first-gold-domain.json"
+    ],
+    "tags": [
+      "power-bi",
+      "gold",
+      "sales",
+      "dax",
+      "semantic-models"
+    ]
+  },
+  {
+    "id": "insight-2026-05-20-plant-floor-paper-system-of-record",
+    "type": "mdm_scope_expansion",
+    "title": "The plant floor exposed non-system records as the real governance gap",
+    "summary": "The May 19 plant tour reframes the MDM/Fabric problem: the most important production and R&D records are not always in MES/M3/Optiva. Paper charge sheets, pilot reactor batch numbers, thumb-drive submittal packages, and lab notebooks are now first-class governance risks.",
+    "createdAt": "2026-05-20T17:54:57.898Z",
+    "confidence": 0.88,
+    "reasoning": {
+      "trigger": "Plant Tour summary recorded multiple high-severity manual record systems and follow-up tour is visible for 2026-05-27.",
+      "observations": [
+        "Paper batch charge sheets are the legal record for material additions and lot numbers. Source: meetings/summaries/2026-05-19-plant-tour.md.",
+        "Pilot reactor batches are outside MES and Andre creates batch numbers manually. Source: meetings/summaries/2026-05-19-plant-tour.md and DISC-2026-05-19-009.",
+        "CIPP submittal package evidence lives on thumb drives. Source: meetings/summaries/2026-05-19-plant-tour.md.",
+        "Lab notebooks hold R&D process notes without systematic digital transfer. Source: DISC-2026-05-19-018."
+      ],
+      "connections": [
+        "Batch ID remains the universal key for production, but pilot reactor/R&D records sit outside that universe today.",
+        "The ELT steward conversation needs these examples because they show why business ownership matters beyond Fabric tables.",
+        "The Wednesday follow-up tour is the right moment to collect system-of-record candidates before jumping to a solution."
+      ],
+      "chain": [
+        "If the legal or operational truth is on paper/thumb drives/notebooks, a Fabric-only data estate will be incomplete.",
+        "If those records are not mapped before MDM scope is set, the program will optimize the visible systems and miss high-value hidden records.",
+        "Therefore the next prep should focus on respectful workflow discovery and system-of-record questions."
+      ],
+      "alternativesConsidered": [
+        "Treat these as operational side notes; rejected because several are legal/compliance/traceability records.",
+        "Immediately update canonical systems-landscape; rejected because the run report deliberately deferred canonical doc changes for Steve direction."
+      ],
+      "confidenceFactors": [
+        "High because the Plant Tour summary is fully ingested with transcript-backed facts.",
+        "High because several independent tour segments surfaced the same paper/manual pattern.",
+        "Moderated because stakeholder identities for Jason and some plant roles remain open."
+      ]
+    },
+    "recommendedAction": "Prepare a focused question sheet for the 2026-05-27 follow-up tour covering pilot reactor, paper charge sheets, submittal packages, lab notebooks, and tank transfer logs.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-20-prepare-plant-tour-data-gap-questions.json"
+    ],
+    "tags": [
+      "plant-tour",
+      "mdm",
+      "mes",
+      "rd",
+      "traceability"
+    ]
+  },
+  {
+    "id": "insight-2026-05-20-source-truth-collapse",
+    "type": "source_architecture_risk",
+    "title": "Source identity must be settled before pipeline simplification",
+    "summary": "Three separate May 19-20 signals point to the same risk: IP Corp can simplify Fabric ingestion, but only after naming the real source-of-truth and hidden staging transformations. M3 Cloud, ETQ, Salesforce/M3 staging, and direct SQL mirroring are converging into one source-binding decision.",
+    "createdAt": "2026-05-20T17:54:57.898Z",
+    "confidence": 0.83,
+    "reasoning": {
+      "trigger": "Preface Fabric meeting opened DQ-031 through DQ-035, and a Natively data-source simplification capture raised the double-ETL question.",
+      "observations": [
+        "Preface Fabric states current M3 Cloud path is M3 Cloud -> Infor Data Fabric -> SQL Server -> Microsoft Fabric. Source: meetings/summaries/2026-05-19-preface-fabric-meeting.md.",
+        "Preface Fabric flags ETQ may be read from Matt Tallarico staging rather than live ETQ cloud. Source: meetings/summaries/2026-05-19-preface-fabric-meeting.md.",
+        "Natively data-source simplification capture says the intermediate layer may only add a date stamp and no real transformation. Source: natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-1-the-and-was-one-8a4bf8ec-p1.md.",
+        "Open questions DQ-031 through DQ-035 now track the source binding, connector, mirroring, and staging-transform gaps. Source: project-memory/open-questions.md."
+      ],
+      "connections": [
+        "The ETQ staging ambiguity and M3 Cloud double-hop are not separate problems; both are source-binding uncertainty before Bronze.",
+        "SQL Server mirroring only helps if the SQL Server object is a faithful transport, not an undocumented business transformation.",
+        "The Matt Tallarico working session is the practical convergence point for source identity, transformation inventory, and direct connector options."
+      ],
+      "chain": [
+        "If Fabric reads a staging subset, Bronze is not actually source-faithful.",
+        "If hidden transformations remain unnamed, direct-to-Fabric simplification can remove business logic accidentally.",
+        "Therefore the next action is not to remove hops immediately; it is to run a source-binding walkthrough and classify each hop as transport, transformation, or system of record."
+      ],
+      "alternativesConsidered": [
+        "Create an ADR for direct connectors now; rejected because source binding and vendor options are still open.",
+        "Treat this as only an ETQ issue; rejected because M3 Cloud, SQL mirroring, and Salesforce/M3 staging show the same architectural pattern."
+      ],
+      "confidenceFactors": [
+        "High because the Preface Fabric summary has direct quoted decisions and open questions.",
+        "Moderated because the Natively simplification capture has lower transcript fidelity and no canonical meeting-intelligence promotion yet.",
+        "High because multiple independent files now point to the same source-binding question."
+      ]
+    },
+    "recommendedAction": "Confirm the Matt Tallarico working session and use it to classify every current hop as source, staging, transformation, or transport.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-20-confirm-m3-etq-data-flow-working-session.json"
+    ],
+    "tags": [
+      "fabric",
+      "source-mapping",
+      "etq",
+      "m3-cloud",
+      "bronze"
+    ]
+  },
+  {
+    "id": "insight-2026-05-20-steward-workshop-operating-model",
+    "type": "governance_operating_model",
+    "title": "The steward workshop is now the operating-model bridge",
+    "summary": "The May 20 Fabric Weekly Stand-Up turns the post-ELT steward problem from an abstract governance ask into a concrete workshop design problem: narrow the SharePoint list, wait for Mike feedback, define domains, and leave a working session with candidate names. That is the bridge between ELT alignment and business-owned domains.",
+    "createdAt": "2026-05-20T18:49:11.764Z",
+    "confidence": 0.82,
+    "reasoning": {
+      "trigger": "The prior Natively run left the May 20 live capture pending quiet-window review; the capture is now quiet and has been promoted into a canonical meeting summary.",
+      "observations": [
+        "The group agreed the broad SharePoint list needs to be categorized and narrowed before it drives next steps. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+        "Mike Spencer follow-up feedback is needed before locking the next move. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+        "A workshop was proposed to identify steward/key-role candidates and leave with names, supported by prepared questions or an application-style intake. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+        "The team also discussed separating large strategic domains from high-value, low-effort proof domains. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md."
+      ],
+      "connections": [
+        "This connects the May 6 steward-by-July critical path to an executable workshop mechanism.",
+        "It reduces the risk that ELT alignment remains passive by turning the next meeting into candidate identification, not another conceptual review.",
+        "It also links Gold-model selection to governance staffing: domain choice and steward choice now need to be designed together."
+      ],
+      "chain": [
+        "ELT understood the topic, but quiet engagement means follow-up processing is expected.",
+        "A broad list without scope will not create accountable work.",
+        "A workshop with prepared questions and domain framing can force names, ownership, and exceptions into the open.",
+        "Therefore the next readiness artifact should be a workshop plan, not another generic MDM explanation."
+      ],
+      "alternativesConsidered": [
+        "Treat this as only a meeting recap; rejected because it produces concrete readiness changes for packets and proposals.",
+        "Create a stakeholder-map update for sales leadership; deferred because speaker identities and exact org status need confirmation.",
+        "Mark a new architecture decision; rejected because this is an operating recommendation, not an accepted ADR."
+      ],
+      "confidenceFactors": [
+        "High confidence that a workshop path was discussed because multiple timestamped action snippets align.",
+        "Moderated because speaker identities are diarized only as Speaker 1/2/3/4 in the Natively transcript.",
+        "Moderated because Mike feedback is explicitly pending and may alter the path."
+      ]
+    },
+    "recommendedAction": "Draft a one-page steward workshop plan with objective, attendees, domain options, breakout prompts, candidate criteria, and a desired output of named owner/steward candidates.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-20-draft-steward-workshop-plan.json"
+    ],
+    "tags": [
+      "elt",
+      "data-stewards",
+      "workshop",
+      "governance",
+      "domains"
+    ]
+  },
+  {
+    "id": "insight-2026-05-21-gold-semantic-control-surface",
+    "type": "architecture_decision",
+    "title": "Gold semantic models are becoming the control surface",
+    "summary": "The May 20 Power BI source-mapping discussion and existing enforcement ADR now converge on a stronger pattern: domain Gold semantic models should be treated as the governed reporting contract and access-control surface, not just another presentation layer artifact.",
+    "createdAt": "2026-05-21T19:45:00.000Z",
+    "confidence": 0.86,
+    "reasoning": {
+      "trigger": "The May 20 Power BI Source Mapping capture was promoted to a canonical meeting summary and ADR-0005 was drafted as a proposed architecture decision.",
+      "observations": [
+        "The Power BI Source Mapping summary says the target design is one Gold semantic model per reporting domain. Source: meetings/summaries/2026-05-20-power-bi-source-mapping.md.",
+        "The same summary ties RLS and filtering to the semantic-model/report layer, not ad hoc direct report queries. Source: meetings/summaries/2026-05-20-power-bi-source-mapping.md.",
+        "ADR-0004 defines Purview as catalog/classification and enforcement through RLS, MIP, DLP, audit, and workspace boundaries. Source: project-memory/decisions/ADR-0004-enforcement-stack-for-governance-boundaries.md.",
+        "ADR-0005 now proposes the Gold domain semantic model as the reporting control surface. Source: project-memory/decisions/ADR-0005-gold-domain-semantic-model-control-surface.md."
+      ],
+      "connections": [
+        "This turns Power BI consolidation from a cleanup exercise into a governance mechanism.",
+        "It connects Fabric Gold modeling, Power BI clone drift, and enforcement design into one implementation pattern.",
+        "It also gives Natively a compact live-meeting posture: ask whether a proposed report uses the domain model or bypasses it."
+      ],
+      "chain": [
+        "If reports can bypass Gold semantic models, governance remains policy-only and clone drift continues.",
+        "If semantic models become domain contracts, definitions, RLS, and certification have one surface to govern.",
+        "Therefore the next readiness question is which domain gets the first governed model and which exceptions are allowed."
+      ],
+      "alternativesConsidered": [
+        "Keep ADR-0005 as an implementation note only; rejected because multiple meetings now use the same pattern as the decision point.",
+        "Treat each report migration independently; rejected because May 20 evidence shows source mapping, RLS, and report consolidation are coupled.",
+        "Move enforcement entirely to workspace access; rejected for domain reporting because account/customer-level boundaries need model/report-layer rules."
+      ],
+      "confidenceFactors": [
+        "High because the canonical summary and ADR cite the same May 20 capture.",
+        "High because the PBI documentation sweep independently found clone drift and same-name divergent measures.",
+        "Moderated because first-domain selection and exception policy are still open."
+      ]
+    },
+    "recommendedAction": "Use follow-up meetings to confirm the first Gold domain, the certified semantic model owner, and the rule that reports should not bypass the domain model without an approved exception.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-20-confirm-first-gold-domain.json"
+    ],
+    "tags": [
+      "gold",
+      "semantic-model",
+      "power-bi",
+      "rls",
+      "governance"
+    ]
+  },
+  {
+    "id": "insight-2026-05-21-intercompany-master-data-pattern",
+    "type": "master_data_modeling",
+    "title": "Intercompany modeling should preserve shared master data",
+    "summary": "The May 20 intercompany item discussion strengthens the master-data stance: avoid duplicating item numbers across companies when M3 can preserve one item definition and express company-specific behavior through maintained relationships, masks, and intercompany transaction flow.",
+    "createdAt": "2026-05-21T19:45:00.000Z",
+    "confidence": 0.78,
+    "reasoning": {
+      "trigger": "The Intercompany Item Mapping capture was promoted to a canonical meeting summary and surfaced as an ADR candidate.",
+      "observations": [
+        "The summary says the preferred direction is to avoid duplicate item numbers where a maintained M3 item mask or cross-reference can carry the relationship. Source: meetings/summaries/2026-05-20-intercompany-item-mapping.md.",
+        "The flow discussed was NAC purchase order to Plastic invoice, with AP/AR handled by system logic rather than manual duplicate-company structures. Source: meetings/summaries/2026-05-20-intercompany-item-mapping.md.",
+        "DQ-046 now asks whether shared item/customer/supplier entities should be modeled as global master data with company-specific relationships. Source: project-memory/open-questions.md.",
+        "The ADR candidate list now tracks a possible shared master-data relationship pattern for intercompany modeling. Source: project-memory/decisions/_ADR_CANDIDATES.md."
+      ],
+      "connections": [
+        "This is the master-data mirror of the Fabric source-truth problem: do not create a second identity just because a second company participates in the process.",
+        "It also connects to the financial-isolation doctrine: shared master data can exist while transactional and financial visibility remains company-bound.",
+        "The same pattern may apply to customer/supplier relationships, not just item numbers."
+      ],
+      "chain": [
+        "If each company creates its own duplicate item/customer/supplier identity, consolidation creates reconciliation debt.",
+        "If one global identity is preserved with company-specific relationships, MDM can model the business relationship without destroying source-system semantics.",
+        "Therefore the next meeting should confirm the M3 fields/cross-reference tables that support the pattern before turning it into an accepted ADR."
+      ],
+      "alternativesConsidered": [
+        "Accept the shared-master pattern now; rejected because the exact M3 field/cross-reference evidence is still pending.",
+        "Treat the item as a one-off operational cleanup; rejected because the same structure will recur in customer, supplier, and intercompany data.",
+        "Force company-specific duplicate keys for isolation; rejected because isolation is an access/control boundary, not a reason to corrupt master identity."
+      ],
+      "confidenceFactors": [
+        "High that duplicate item numbers are a risk based on the promoted summary.",
+        "Moderated because the raw capture was short and speaker identity is not fully resolved.",
+        "Moderated because the exact M3 reference tables still need confirmation."
+      ]
+    },
+    "recommendedAction": "Use the next M3/Fabric data-flow session to identify the maintained M3 item/customer/supplier relationship fields and decide whether this should become a formal ADR.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-20-confirm-m3-etq-data-flow-working-session.json"
+    ],
+    "tags": [
+      "mdm",
+      "m3",
+      "intercompany",
+      "item-master",
+      "source-truth"
+    ]
+  },
+  {
+    "id": "insight-2026-05-24-patrick-ooo-decision-gate",
+    "type": "readiness_risk",
+    "title": "Patrick's 1:1 is the pre-OOO decision gate",
+    "summary": "The May 26 Patrick 1:1 is now the highest-leverage near-term meeting because it sits between the post-ELT recalibration, Mike feedback dependency, steward workshop planning, and Patrick's 2026-05-28 through 2026-06-03 OOO window.",
+    "createdAt": "2026-05-24T17:39:26.437Z",
+    "confidence": 0.84,
+    "reasoning": {
+      "trigger": "The local upcoming-prep-targets file listed a 2026-05-26 Patrick 1:1, but the Natively meeting index did not have a dedicated packet for it.",
+      "observations": [
+        "The prep-targets file says Patrick is OOO 2026-05-28 through 2026-06-03 and that Patrick-dependent items should land by 2026-05-27 EOD. Source: deliverables/upcoming-prep-targets-2026-05-19.md.",
+        "The May 18 ELT summary says data stewards must be named by end of July 2026 and that Steve owes a proposed domain list. Source: meetings/summaries/2026-05-18-mdm-elt-presentation.md.",
+        "Patrick's May 18 feedback says Jeff Notarangelo's 'what good looks like' concern is the priority and that deeper domain grounding is useful. Source: meetings/summaries/2026-05-18-mdm-elt-presentation.md.",
+        "The May 20 Fabric stand-up says the group should wait for Mike Spencer feedback, narrow the SharePoint list, and plan a workshop that leaves with names. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+        "ADR-0005 is still proposed and depends on first-domain selection plus source/report/owner mapping. Source: project-memory/decisions/ADR-0005-gold-domain-semantic-model-control-surface.md."
+      ],
+      "connections": [
+        "This 1:1 is not just a status touchpoint; it is the last visible Patrick alignment slot before the OOO window.",
+        "The meeting connects MDM governance, Gold semantic-model design, SharePoint/execution-package cleanup, and plant-tour source-of-record follow-up.",
+        "Natively should surface this as the next best packet before the May 27 plant-tour packet."
+      ],
+      "chain": [
+        "If Patrick-dependent decisions wait until after OOO, the steward workshop and domain package can lose a week.",
+        "If the May 26 1:1 narrows decisions before OOO, Steve can use May 27 for plant-floor source validation without losing the governance thread.",
+        "Therefore the live posture should be decision triage: what needs Patrick now, what Mike feedback changes, and what can intentionally wait."
+      ],
+      "alternativesConsidered": [
+        "Treat the existing ELT steward readiness packet as sufficient; rejected because it does not carry the dated OOO timing and 1:1-specific triage posture.",
+        "Wait for live calendar enrichment; rejected because the local prep-targets file already provides a cited meeting window and Natively should not gather context live.",
+        "Create no action proposal; rejected because a concise agenda prompt is concrete and time-sensitive while still approval-gated."
+      ],
+      "confidenceFactors": [
+        "High because the meeting date, OOO window, and required prep themes are explicitly listed in deliverables/upcoming-prep-targets-2026-05-19.md.",
+        "High because the same themes are independently reinforced by May 18 and May 20 summaries.",
+        "Moderated because the current repo does not include a post-May-20 live capture or direct calendar update confirming the 1:1 still exists."
+      ]
+    },
+    "recommendedAction": "Use the May 26 Patrick 1:1 to lock what must land before Patrick is out: Mike feedback impact, narrowed SharePoint/execution package structure, steward workshop ask, first-domain strategy, and May 27 plant-tour source-of-record questions.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-24-confirm-patrick-1on1-pre-ooo-agenda.json"
+    ],
+    "tags": [
+      "patrick-stiller",
+      "ooo-window",
+      "elt",
+      "data-stewards",
+      "readiness",
+      "natively"
+    ]
+  },
+  {
+    "id": "insight-2026-05-26-plant-floor-evidence-map-promoted",
+    "type": "readiness_boundary",
+    "title": "Plant-floor truth now has a canonical evidence map",
+    "summary": "The May 19 plant-tour findings moved from meeting evidence into a dedicated plant-floor source-of-record map, updated MES caveats, data-flow extensions, stakeholder notes, glossary terms, and risks R-020/R-021. Natively should use the May 27 follow-up packet as a source-of-record validation checklist, not a generic tour prompt.",
+    "createdAt": "2026-05-26T18:44:25.368Z",
+    "confidence": 0.91,
+    "reasoning": {
+      "trigger": "Project-memory files changed after the previous Natively refresh, especially project-memory/source-systems/plant-floor-evidence.md and the refreshed plant-tour follow-up packet.",
+      "observations": [
+        "project-memory/source-systems/plant-floor-evidence.md now enumerates paper charge sheets, pilot reactor batches, QC readings, tank transfers, CIPP submittals, lab notebooks, Optiva formula transit, Salesforce LSRs, retains/rework, and NIR readings as separate evidence streams.",
+        "project-memory/data-flows.md now warns that Bronze should not flatten the tour findings into one MES truth stream and should preserve provenance until source bindings are explicit.",
+        "project-memory/risk-register.md now includes R-020 for pilot/R&D batches outside MES/M3 governance and R-021 for unmanaged R&D lab-notebook knowledge.",
+        "natively/prep-packets/plant-tour-follow-up-2026-05-27.packet.json now references the canonical plant-floor evidence map and the companion Mermaid diagram."
+      ],
+      "connections": [
+        "This turns the earlier plant-floor paper-record insight into a broader evidence-boundary model: legal records, operational records, lab records, PLC transfer logs, and customer-document packages each need named ownership before Fabric Gold can certify traceability.",
+        "The same control-surface pattern appears in Gold semantic model ownership, Power BI measure drift, and intercompany item mapping: do not consolidate data until the business owner and source of truth are explicit.",
+        "The May 27 follow-up is the right live-meeting moment to validate source ownership, because Ben/Ryan/Mike Wiggins are named near-term plant-floor/R&D participants."
+      ],
+      "chain": [
+        "If Natively only surfaces the original May 19 tour summary, Steve may ask broad follow-up questions.",
+        "The promoted project-memory map gives a sharper structure: ask each contact who owns each evidence stream, where it is stored, whether it is legal/authoritative, and what would make it Fabric-ready.",
+        "Therefore the live packet should steer Steve toward source-of-record validation first and automation second."
+      ],
+      "alternativesConsidered": [
+        "Create a new action proposal for a plant-floor checklist; rejected because the existing plant-tour question-sheet proposal already covers the concrete action and can be updated without duplicating work.",
+        "Treat the project-memory changes as canonical ingestion outside Natively scope; rejected because the May 27 packet is the next dated live-assist target and directly depends on these promoted facts.",
+        "Modify canonical project-memory again; rejected because the new canonical files already exist and this automation should only publish the Natively readiness layer."
+      ],
+      "confidenceFactors": [
+        "High because the changed files cite the May 19 plant-tour summary, transcript, discoveries DISC-2026-05-19-009 through DISC-2026-05-19-025, and risk IDs.",
+        "High because multiple canonical docs now converge on the same framing: MES is partial, paper and R&D evidence streams matter, and source binding is unresolved.",
+        "Moderated because DQ-036 through DQ-042 remain open and the May 27 follow-up has not yet produced post-meeting evidence."
+      ]
+    },
+    "recommendedAction": "Use the May 27 Plant Tour Follow-up packet as a source-of-record validation checklist: for each evidence stream, confirm owner, storage location, legal authority, digital coverage, and Fabric readiness.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-20-prepare-plant-tour-data-gap-questions.json"
+    ],
+    "tags": [
+      "plant-tour",
+      "source-of-record",
+      "mes",
+      "rd",
+      "traceability",
+      "natively-readiness"
+    ]
+  },
+  {
+    "id": "insight-2026-05-27-calendar-action-contract-gap",
+    "type": "action_contract_risk",
+    "title": "Calendar actions need executable event coordinates, not just intent",
+    "summary": "The Fabric cadence reset was directionally right, but the outcome ledger shows five failed execution attempts because the calendar proposal lacked subject, start, and end. Natively should keep this as a follow-up until exact current and target event fields are confirmed.",
+    "createdAt": "2026-05-27T19:19:17.537Z",
+    "confidence": 0.91,
+    "reasoning": {
+      "trigger": "New outcome events after the prior Natively refresh recorded repeated failures for the Fabric calendar reset proposal.",
+      "observations": [
+        "natively/outcomes/2026-05-27-natively-outcomes.jsonl records five failed attempts for proposal-2026-05-27-confirm-weekly-fabric-calendar-reset between 2026-05-27T18:23:49.682Z and 2026-05-27T18:23:52.975Z.",
+        "Each failed attempt reports the same error: Calendar proposal needs subject, start, and end before it can execute.",
+        "The underlying packet supports the meeting intent, but natively/prep-packets/weekly-fabric-post-onsite-synthesis.packet.json has startsAt=null and frames the reset as a confirmation task rather than an executable calendar mutation.",
+        "The finalized May 27 Natively export confirms the cadence direction: cancel this week and move or extend next week, but it does not provide a target slot that satisfies execution requirements."
+      ],
+      "connections": [
+        "This reinforces the durable-intelligence-layer principle that Natively should present logic and ask for judgment before action.",
+        "It also sharpens the runtime boundary: the brain can propose the calendar intent, but live execution needs either human-supplied event coordinates or a bounded calendar lookup outside the live meeting hot path.",
+        "The same outcome ledger shows source-backed task/note/follow-up proposals executed successfully, so the failure is specific to calendar_event field completeness rather than proposal usefulness."
+      ],
+      "chain": [
+        "The meeting evidence supports canceling or rescheduling the Fabric cadence.",
+        "The proposal encoded the intent but not the executable event tuple.",
+        "The execution layer refused the action repeatedly for missing required fields.",
+        "Therefore the readiness layer should downgrade this from calendar_event to follow_up until exact event details are confirmed."
+      ],
+      "alternativesConsidered": [
+        "Retry the same calendar_event proposal; rejected because the required fields are still missing and the same failure would repeat.",
+        "Use a live calendar connector from this maintenance run; rejected because the automation prompt prefers local evidence and the exact meeting can be resolved by Steve or a bounded future calendar lookup.",
+        "Drop the proposal entirely; rejected because the Fabric cadence reset remains useful and source-backed."
+      ],
+      "confidenceFactors": [
+        "High confidence in the failure mode because five outcome events repeat the same error text.",
+        "High confidence in the directional meeting intent because both live and finalized Natively captures support canceling this week and extending or moving next week.",
+        "Moderated confidence on exact scheduling because the local repo does not contain a confirmed replacement slot."
+      ]
+    },
+    "recommendedAction": "Keep the Fabric calendar reset as an approval-gated follow-up. Collect current subject/start/end and target subject/start/end before generating any executable calendar_event proposal.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-27-confirm-weekly-fabric-calendar-reset.json"
+    ],
+    "tags": [
+      "calendar",
+      "action-proposal",
+      "outcome-learning",
+      "fabric-standup",
+      "natively-readiness"
+    ]
+  },
+  {
+    "id": "insight-2026-05-27-context-capsule-packet-promotion",
+    "type": "meeting_readiness",
+    "title": "Context capsule exposed a live 1:1 that the packet index had missed",
+    "summary": "A local Natively context capsule generated a high-confidence prep surface for the 2026-05-27 Steve/Patrick 1:1, while the durable Natively meeting index still pointed at the older 2026-05-26 packet and treated that lane as missing a post-meeting capture. The fix is to promote useful capsules into compact prep packets during the brain refresh, without promoting them into canonical meeting memory.",
+    "createdAt": "2026-05-27T18:21:25.952Z",
+    "confidence": 0.81,
+    "reasoning": {
+      "trigger": "Two new files appeared after the prior automation high-water: a Natively context capsule JSON and Markdown file for the 2026-05-27 Nahrup - 1-on-1 meeting.",
+      "observations": [
+        "The capsule identifies a 2026-05-27 14:00-14:30 Microsoft Teams meeting titled Nahrup - 1-on-1 with Patrick Stiller and Steve Nahrup.",
+        "The capsule confidence is high and its source references include the May 18 ELT presentation, May 20 Fabric stand-up, May 20 Power BI source mapping, and upcoming prep targets.",
+        "Before this refresh, natively/meeting-index.json had no active 2026-05-27 1:1 entry and still tracked the 2026-05-26 Patrick 1:1 packet as awaiting post-meeting capture.",
+        "The capsule contains enough structured material to support live meeting readiness, but it does not contain a post-meeting transcript or outcome that would justify canonical project-memory changes."
+      ],
+      "connections": [
+        "This reinforces the runtime boundary: Natively can generate/read local context capsules and calendar metadata, but the brain repo should publish durable packets for live use.",
+        "It connects to the earlier Patrick OOO decision gate: the 1:1 is still about Mike feedback, steward workshop shape, first-domain strategy, and execution-package narrowing.",
+        "It connects to the plant tour packet because the 1:1 should route any Patrick-dependent source-of-record questions into the 14:30 follow-up.",
+        "It connects to outcome learning: do not create an external proposal unless there is a concrete next action; here the concrete action is internal packet promotion."
+      ],
+      "chain": [
+        "The repo already had background readiness for a Patrick 1:1, but the dated packet did not match the newly visible 2026-05-27 calendar capsule.",
+        "Leaving the capsule only in runtime cache would make the live widget dependent on cache state instead of the durable brain contract.",
+        "Promoting it into prep-packets keeps Natively as a read-only touchpoint while letting the brain own the readiness layer.",
+        "Because the capsule is pre-meeting context rather than evidence of what happened, canonical summaries and project-memory stay unchanged."
+      ],
+      "alternativesConsidered": [
+        "Ignore the capsule because it came from Natively; rejected because the automation specifically maintains the Natively readiness layer and the capsule is a local exported artifact.",
+        "Rewrite the older 2026-05-26 packet; rejected because the new capsule is a distinct dated calendar instance and the older packet may still be useful background.",
+        "Promote the capsule to a canonical meeting summary; rejected because it has no transcript/outcome and meeting-intelligence rules prohibit inventing facts.",
+        "Create a new action proposal; rejected because no stakeholder-facing or executable next action is supported beyond the internal packet refresh."
+      ],
+      "confidenceFactors": [
+        "High confidence in the meeting identity because the capsule includes calendar title, start/end, attendees, and high intent confidence.",
+        "High confidence in the readiness value because the capsule cites existing brain materials and repeats open commitments from the current Fabric/MDM path.",
+        "Moderated because there is no post-meeting capture yet and the capsule invite metadata should not be treated as business evidence.",
+        "Moderated because the prior 2026-05-26 packet may represent a rescheduled or separate 1:1 until an outcome confirms the sequence."
+      ]
+    },
+    "recommendedAction": "Keep this as a prep-packet promotion only. After the 1:1 ends, wait for a Natively capture, outcome ledger event, or meeting summary before updating canonical project-memory or closing the older 2026-05-26 missing-capture item.",
+    "actionProposalRefs": [],
+    "tags": [
+      "natively-context-capsule",
+      "meeting-readiness",
+      "patrick-stiller",
+      "stewardship",
+      "fabric",
+      "runtime-boundary"
+    ]
+  },
+  {
+    "id": "insight-2026-05-27-plant-floor-evidence-stream-contract",
+    "type": "architecture_decision",
+    "title": "Plant-floor traceability now has a proposed evidence-stream contract",
+    "summary": "ADR-0006 proposes that Traceability Gold must not certify a combined plant-floor view until MES, paper charge sheets, PLC transfer logs, lab notebooks, CIPP packages, Optiva, Salesforce LSRs, QC/ANV/OATES, retains/rework, and NIR readings each have explicit owner, storage, authority, digital coverage, and lineage fields.",
+    "createdAt": "2026-05-27T10:36:03.900Z",
+    "confidence": 0.9,
+    "reasoning": {
+      "trigger": "The May 26 plant-tour asset application promoted the plant-floor source-of-record map and completed risk coverage with R-020/R-021 after the prior daily sweep.",
+      "observations": [
+        "project-memory/source-systems/plant-floor-evidence.md separates production batch execution, paper legal records, pilot reactor batches, QC readings, tank transfer logs, CIPP submittals, lab notebooks, Optiva formula transit, Salesforce LSRs, retains/rework, and NIR readings.",
+        "project-memory/data-flows.md now states that Bronze should not flatten those streams into one MES truth stream.",
+        "project-memory/risk-register.md now includes R-020 and R-021, completing the current plant-floor risk cluster alongside R-015 through R-018.",
+        "ADR-0006 was drafted as proposed to make the evidence-stream contract an explicit architecture prerequisite before Gold traceability."
+      ],
+      "connections": [
+        "This mirrors ADR-0005's semantic-model control-surface logic: the live/reporting surface is only trustworthy if the upstream contract is named.",
+        "The same pattern recurs across ETQ/M3 source binding, PBI measure drift, intercompany item mapping, and steward assignment: consolidation before source authority creates hidden drift.",
+        "The May 27 plant-tour follow-up is the immediate live-assist venue to validate the owner/location/authority/digital-coverage fields."
+      ],
+      "chain": [
+        "The tour showed MES is partial evidence, not complete plant-floor truth.",
+        "The asset application converted that into durable memory, risk, and diagram artifacts.",
+        "Therefore the architecture needs a proposed decision record that blocks premature Gold traceability certification until evidence contracts exist."
+      ],
+      "alternativesConsidered": [
+        "Leave the idea only in the plant-floor evidence map; rejected because the pattern constrains future Gold traceability design and belongs in ADR review.",
+        "Draft separate ADRs for paper charge sheets, CIPP packages, PLC logs, and pilot reactor scope immediately; deferred because those specific choices remain open and need follow-up evidence.",
+        "Treat this as Natively-only readiness context; rejected because durable intelligence belongs in the architecture brain."
+      ],
+      "confidenceFactors": [
+        "High because the proposed ADR cites canonical meeting summary, risk register, open questions, data-flow notes, and the plant-floor evidence map.",
+        "Moderated because DQ-037 through DQ-042 remain unresolved and the May 27 follow-up has not yet produced outcomes."
+      ]
+    },
+    "recommendedAction": "Use ADR-0006 during the May 27 plant-tour follow-up as the decision frame: validate each evidence stream's owner, storage location, authority, digital coverage, lineage key, and Fabric readiness before proposing automation.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-20-prepare-plant-tour-data-gap-questions.json"
+    ],
+    "tags": [
+      "plant-tour",
+      "traceability",
+      "source-of-record",
+      "adr-0006",
+      "mes",
+      "fabric-gold",
+      "natively-readiness"
+    ]
+  },
+  {
+    "id": "insight-2026-05-27-proactive-coaching-disable-gate",
+    "type": "readiness_risk",
+    "title": "Disabled proactive coaching still emitted a live suggestion",
+    "summary": "A short May 27 Natively capture shows the assistant emitted a SAY THIS coaching line during a manual session immediately before Steve said he had disabled proactive meeting coaching mode. Treat this as a Natively live-mode gate risk, not IP Corp architecture evidence.",
+    "createdAt": "2026-05-27T16:18:23.6708444Z",
+    "confidence": 0.82,
+    "reasoning": {
+      "trigger": "A new Natively live capture and auto-export appeared after the automation high-water at 2026-05-27T15:07:08.360Z.",
+      "observations": [
+        "natively/live-captures/2026-05-27-natively-live.jsonl records four user speech snippets between 2026-05-27T15:59:46Z and 2026-05-27T16:01:35Z.",
+        "natively/meeting-captures/2026-05-27/2026-05-27-disabling-proactive-coaching-mode-12b70248.md includes an assistant SAY THIS suggestion at 12:01:17 local session time.",
+        "The same capture records Steve saying he disabled proactive meeting coaching mode at 12:01:32-12:01:35 local session time.",
+        "The capture has no calendar match and no IP Corp stakeholder content that should be promoted to canonical meeting intelligence."
+      ],
+      "connections": [
+        "The existing Natively runtime boundary says the desktop app should read prepared brain artifacts and avoid live source gathering during meetings.",
+        "A disabled coaching mode should suppress unsolicited SAY THIS guidance; otherwise Natively can violate Steve's live-meeting posture even when the brain packet is correct.",
+        "The outcome ledger shows Steve accepts concise, source-backed internal prep actions, so the right response is a gated task proposal to audit the mode guard rather than changing app code from this automation."
+      ],
+      "chain": [
+        "A post-high-water capture shows a live suggestion in a manual session.",
+        "Steve explicitly referenced disabling proactive meeting coaching mode in the same short capture.",
+        "Therefore the Natively readiness layer should flag a live-mode gate risk while leaving IP Corp canonical memory untouched."
+      ],
+      "alternativesConsidered": [
+        "Treat the capture as IP Corp meeting evidence; rejected because it has no calendar match, no architecture decision, and mainly records a Natively behavior issue.",
+        "Modify Natively application code immediately; rejected because this automation is scoped to the brain contract and must not touch Natively app code.",
+        "Ignore the capture as noise; rejected because it is a concrete disabled-mode readiness signal with direct transcript evidence."
+      ],
+      "confidenceFactors": [
+        "High transcript confidence on Steve's disabling statement in the JSON source.",
+        "Moderated because the exact UI toggle state is inferred from Steve's statement rather than observed from Natively application state.",
+        "The capture is short and non-calendar-associated, so it should drive a readiness proposal rather than a canonical architecture change."
+      ]
+    },
+    "recommendedAction": "Audit the Natively proactive meeting coaching gate before relying on disabled mode in live meetings; verify that disabled mode suppresses unsolicited SAY THIS suggestions while leaving manual asks available.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-27-audit-proactive-coaching-disable-gate.json"
+    ],
+    "tags": [
+      "natively",
+      "live-coaching",
+      "readiness-risk",
+      "mode-gating",
+      "automation-outcome"
+    ]
+  },
+  {
+    "id": "insight-2026-05-27-pryor-ot-purdue-ssrs-boundary",
+    "type": "architecture_risk",
+    "title": "Pryor SSRS reporting is the first concrete test of the OT-to-Azure boundary",
+    "summary": "The newly recovered Pryor W34293 capture ties three threads together: Purdue-model enforcement, Azure-bound edge data collection, and Will's existing corporate SSRS reports. The non-obvious risk is not only where the Optix/Azure relay lives; it is whether reporting moves data up, moves reports down into OT, or creates a one-off exception that weakens the security pattern.",
+    "createdAt": "2026-05-27T19:24:35.144Z",
+    "confidence": 0.86,
+    "reasoning": {
+      "trigger": "A post-18:21 Natively auto-export surfaced the 2026-04-15 Pryor Azure OT Architecture Alignment capture for Project W34293.",
+      "observations": [
+        "At 12:21:37 through 12:21:44, Stuart said the Purdue model should remain in place until explicit direction changes.",
+        "At 12:22:12 through 12:25:47, the group converged on an OT-side collection plus DMZ relay pattern where a DMZ-side NIC gets explicit egress to a whitelisted Azure endpoint.",
+        "At 12:26:12 through 12:28:10, Steve and the group identified Will's corporate SSRS reports as a boundary issue because Pryor is moving into the Purdue model and some reporting data may live on the OT/PCD side.",
+        "At 12:27:11 through 12:28:48, PCD was kept on the control side with MES-style replication/callbacks where possible and log shipping as a fallback for tables that cannot replicate cleanly.",
+        "At 12:29:33 through 12:31:21, vendor access was scoped toward Cato VPN and jump-server access rather than broad internal or zero-trust service access."
+      ],
+      "connections": [
+        "This connects to the IP Corp hard rule that MES integration is only for Interplastic and HK Research, because Pryor/Interplastic OT reporting is not a generic enterprise-wide MES pattern.",
+        "It connects to the Fabric/FMD source-truth work because reporting consumers will eventually want the same facts in enterprise analytics, but the capture shows the OT security boundary must decide the extraction path before modeling.",
+        "It connects to the plant-floor evidence stream work: OT signals can support business analytics only after the capture/replication path is explicit, timestamped, and security-approved.",
+        "It connects to Natively's purpose as a live touchpoint: the capture should be promoted into canonical meeting intelligence or a targeted architecture note, not left as a raw recovered transcript."
+      ],
+      "chain": [
+        "The team accepted the Purdue model as the governing architecture.",
+        "The Azure connectivity pattern can fit that model if outbound egress is constrained through a DMZ relay and explicit whitelist.",
+        "Will's SSRS reporting creates a second path question: either replicate OT/PCD data upward or host reports closer to OT.",
+        "If that reporting decision is not captured, the project could accidentally solve the edge-device path while leaving the report-consumption path as an unmanaged exception.",
+        "Therefore the next brain action should be a canonical promotion pass that records the Pryor-specific boundary decision candidates and open questions."
+      ],
+      "alternativesConsidered": [
+        "Treat the capture as only a Natively export detail; rejected because it contains named architecture constraints, action items, and cross-system reporting implications.",
+        "Directly update canonical project-memory docs; rejected because the repo's contradiction protocol says not to silently overwrite canonical docs when new material touches architecture boundaries.",
+        "Create a full prep packet immediately; rejected because no upcoming Pryor meeting is visible from local context, and the more useful immediate action is a canonical promotion/reconciliation task."
+      ],
+      "confidenceFactors": [
+        "High confidence in the Purdue/DMZ/Azure facts because the capture includes timestamped transcript evidence and Natively's original summary aligns with it.",
+        "High confidence that SSRS reporting is unresolved because the transcript explicitly says the team needs to see what Will's reports pull and whether to replicate up or put reports down.",
+        "Moderated by the Natively reconstruction note that participant mapping is limited and diarization is imperfect.",
+        "Moderated because no matching calendar event or attendee list was found in the local export."
+      ]
+    },
+    "recommendedAction": "Run a targeted canonical promotion pass for the Pryor W34293 capture: create or reconcile the meeting summary, record the Purdue/DMZ/SSRS open questions, and decide whether the reporting path belongs in an ADR, risk register, or project-memory note.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-27-promote-pryor-ot-architecture-summary.json"
+    ],
+    "tags": [
+      "pryor",
+      "w34293",
+      "ot-security",
+      "purdue-model",
+      "ssrs",
+      "azure",
+      "natively-readiness"
+    ]
+  },
+  {
+    "id": "insight-2026-05-27-stakeholder-knowledge-base-access-boundary",
+    "type": "risk",
+    "title": "Knowledge-base access is now a stakeholder deliverable, not just an internal tool",
+    "summary": "Patrick asked for a link to the IP Corp knowledge-base layer after Steve described a searchable interface over meetings, decisions, source discussions, and Power BI/report-model analyses. That creates a useful stakeholder-alignment path, but it also turns repo exposure into an access-control and redaction problem.",
+    "createdAt": "2026-05-27T17:17:52.810Z",
+    "confidence": 0.83,
+    "reasoning": {
+      "trigger": "A finalized 2026-05-27 Natively auto-export captured Patrick asking Steve to send a link to the shared IP Corp knowledge-base/readiness layer.",
+      "observations": [
+        "At 12:47:34 through 12:48:14, Steve described an IP Corp interface that connects meeting transcripts, decisions, discussion sources, and decisions.",
+        "At 12:57:40 through 12:57:54, Steve said he wants Patrick and Eudias to have access, likely via a server rather than SharePoint.",
+        "At 12:58:12 through 12:58:28, Steve tied the layer to report/model analyses, measures, dimensions, overlap, workspace context, and searchability.",
+        "At 12:58:45, Patrick asked Steve to send a link so he can start looking ahead.",
+        "AGENTS.md explicitly says the repo is internal-only and contains read-only SQL credentials; the Natively capture itself also contains private/off-topic material."
+      ],
+      "connections": [
+        "This connects to the Natively runtime boundary: Natively should read compact brain outputs and not become the ingestion/analysis system.",
+        "It connects to the Power BI model documentation sweep because the stakeholder-facing value is searchable model overlap and measure/dimension context.",
+        "It connects to stakeholder briefing rules: Steve can draft/share curated outputs, but raw repo access is not the same as a stakeholder deliverable.",
+        "It connects to the slim-brain doctrine: publish a distilled view, not every raw source and operational file."
+      ],
+      "chain": [
+        "A stakeholder asked for a link, which turns the knowledge base from internal operating memory into a potential shared artifact.",
+        "The raw repo contains sensitive and private material, so direct sharing would violate the repo's own boundary.",
+        "The right next move is a sanitized access path: curated read model, static export, or controlled viewer that only exposes approved summaries, decisions, packets, and selected insights.",
+        "Once that boundary is decided, the knowledge-base walkthrough can become a high-leverage way for Patrick/Eudias to correct gaps before the next Fabric/domain discussions."
+      ],
+      "alternativesConsidered": [
+        "Send the full repo/server link immediately; rejected because AGENTS.md marks the repo internal-only and the repository contains credentials and raw private captures.",
+        "Ignore the link request as casual conversation; rejected because Patrick explicitly asked to start looking ahead and the request aligns with Steve's goal of making the work visible.",
+        "Use SharePoint by default; rejected because the capture records Steve saying SharePoint does not feel like the right home, and because the live widget/brain contract already has a compact read layer."
+      ],
+      "confidenceFactors": [
+        "High confidence that a stakeholder-facing access request exists because Patrick's link request is explicit.",
+        "High confidence that raw repo sharing is unsafe because the repo doctrine explicitly says internal-only and credentials are present.",
+        "Moderated by diarization uncertainty in the Natively export and by the fact that no formal calendar event or written follow-up exists yet.",
+        "Moderated because the exact publishing mechanism is not yet selected."
+      ]
+    },
+    "recommendedAction": "Prepare a sanitized, approval-gated access path or walkthrough packet for Patrick and Eudias before sending any link to the underlying brain/readiness layer.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-27-prepare-sanitized-brain-access-path.json"
+    ],
+    "tags": [
+      "stakeholder-access",
+      "natively-readiness",
+      "brain-boundary",
+      "redaction",
+      "power-bi-models",
+      "fabric"
+    ]
+  },
+  {
+    "id": "insight-2026-05-27-weekly-fabric-cadence-reset",
+    "type": "meeting_readiness",
+    "title": "Fabric cadence should pause once, then return as a synthesis session",
+    "summary": "The May 27 live capture indicates this week's Fabric stand-up should be canceled because there is not enough new material yet, while next week's Fabric discussion should be extended or moved after Steve organizes onsite transcripts and domain takeaways.",
+    "createdAt": "2026-05-27T16:26:44.1057864Z",
+    "confidence": 0.78,
+    "reasoning": {
+      "trigger": "The live-capture file appended a substantive Fabric cadence discussion after the initial disabled-coaching capture.",
+      "observations": [
+        "At 2026-05-27T16:15:01Z through 16:15:02Z, Speaker 1 says to cancel this week's Fabric stand-up.",
+        "At 2026-05-27T16:14:46Z through 16:14:58Z, Steve says he has many transcripts and topics to put into an actionable execution plan.",
+        "At 2026-05-27T16:19:02Z through 16:19:08Z, Speaker 1 says next week's Fabric discussion should be extended by at least half an hour, possibly an hour.",
+        "At 2026-05-27T16:19:26Z through 16:19:31Z, Steve identifies domain approach and starting product domain as major takeaways."
+      ],
+      "connections": [
+        "This connects to the 2026-05-20 Fabric stand-up, where domain/steward readiness and Mike feedback were already unresolved.",
+        "It also connects to ADR-0006 and the plant-tour packet: raw onsite evidence needs synthesis before it becomes a useful meeting agenda.",
+        "The outcome ledger shows Steve accepts concrete prep/calendar proposals when they are source-backed and low-risk."
+      ],
+      "chain": [
+        "The current cadence meeting would likely be low-value because Steve still needs to organize the onsite evidence.",
+        "Canceling this week preserves quality and gives time for synthesis.",
+        "Extending or moving next week creates a better slot for domain and product discussion once the evidence is organized."
+      ],
+      "alternativesConsidered": [
+        "Keep the existing weekly stand-up unchanged; rejected because the live capture explicitly questions whether there is enough to discuss today.",
+        "Promote the raw live capture into canonical project-memory immediately; rejected because it is raw Natively evidence and may still need a proper meeting export or summary pass.",
+        "Treat this as only a calendar issue; rejected because it also changes the next readiness packet and topic posture."
+      ],
+      "confidenceFactors": [
+        "High on the calendar/cadence direction because multiple snippets repeat cancel/extend language.",
+        "Moderated because speaker identities are diarized numbers, not confirmed names, and the capture is raw JSONL rather than a finalized meeting export.",
+        "Moderated because exact date/time remains uncertain: Wednesday is mentioned, but Thursday/Friday is also discussed as possibly better."
+      ]
+    },
+    "recommendedAction": "Use the new Weekly Fabric Follow-up packet to confirm calendar cleanup, extend or move next week's Fabric discussion, and prepare a concise post-onsite synthesis agenda before the group meets again.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-27-confirm-weekly-fabric-calendar-reset.json"
+    ],
+    "tags": [
+      "fabric-standup",
+      "natively-live-capture",
+      "meeting-readiness",
+      "domains",
+      "post-onsite-synthesis"
+    ]
+  }
+]

@@ -1,0 +1,234 @@
+{
+  "updatedAt": "2026-05-27T21:19:23.997Z",
+  "freshnessLabel": "fresh-no-new-inputs-after-pryor-promotion",
+  "counts": {
+    "meetingsIndexed": 32,
+    "teamsImports": 73,
+    "cluelyImports": 4,
+    "otherImports": 58,
+    "prepPacketsReady": 14,
+    "cortexInsights": 20,
+    "openActionProposals": 2,
+    "liveCaptures": 6,
+    "liveCaptureSnippets": 8372,
+    "nativelyAutoExports": 32,
+    "contextCapsules": 1,
+    "outcomeEvents": 16,
+    "proposedAdrs": 3
+  },
+  "sourceHealth": {
+    "teamsExport": {
+      "status": "fresh-local-exports-reviewed-no-new-inputs",
+      "latestInput": "meetings/transcripts/teams-export",
+      "note": "Reviewed local Teams export lane after automation high-water 2026-05-27T20:22:55.837Z. No Teams export changed after that high-water; no live Teams connector was used."
+    },
+    "cluelyExport": {
+      "status": "fresh-local-exports-reviewed-no-new-inputs",
+      "latestInput": "meetings/transcripts/cluely-export",
+      "note": "Reviewed local Cluely export lane after automation high-water 2026-05-27T20:22:55.837Z. No Cluely export changed after that high-water; no live Cluely connector was used."
+    },
+    "notionExport": {
+      "status": "fresh-local-exports-reviewed-no-new-inputs",
+      "latestInput": "meetings/transcripts/notion-export",
+      "note": "Reviewed local Notion export lane after automation high-water 2026-05-27T20:22:55.837Z. No raw Notion export changed after that high-water; no live Notion connector was used."
+    },
+    "projectMemory": {
+      "status": "fresh-no-new-canonical-inputs-after-pryor-promotion",
+      "latestInput": "meetings/summaries/2026-04-15-pryor-azure-ot-architecture-alignment.md",
+      "note": "No project-memory or canonical meeting file changed after the previous 20:22Z refresh. The Pryor promotion remains the latest canonical update; DQ-048 and R-022 remain open follow-up items."
+    },
+    "nativelyContract": {
+      "status": "refreshed-no-new-source-deltas-open-proposals-unchanged",
+      "latestInput": "natively/status.json",
+      "note": "Refreshed the Natively read-model timestamp, readiness summary, latest-run report, and source-health notes. Open proposals remain limited to proactive coaching disable-gate audit and Fabric calendar reset details. No Natively app code was modified."
+    },
+    "liveCaptures": {
+      "status": "fresh-local-captures-reviewed-no-new-snippets",
+      "latestInput": "natively/live-captures/2026-05-27-natively-live.jsonl",
+      "latestCapturedAt": "2026-05-27T17:01:34.903Z",
+      "note": "Reviewed live-capture files after automation high-water 2026-05-27T20:22:55.837Z. Latest May 27 snippet remains 2026-05-27T17:01:34.903Z; no live context connector was used."
+    },
+    "outcomes": {
+      "status": "fresh-reviewed-no-new-outcomes",
+      "latestInput": "natively/outcomes/2026-05-27-natively-outcomes.jsonl",
+      "latestOutcomeAt": "2026-05-27T19:27:46.252Z",
+      "note": "Reviewed outcome ledgers after automation high-water 2026-05-27T20:22:55.837Z. No outcome event is newer than the previously applied Pryor canonical-promotion execution."
+    },
+    "nativelyAutoExport": {
+      "status": "fresh-no-new-auto-exports",
+      "latestInput": "natively/meeting-captures/2026-05-27/2026-05-27-fabric-stand-up-recovery-planning-39c96ede.md",
+      "latestExportedAt": "2026-05-27T19:23:04.798Z",
+      "note": "No Natively auto-export source file appeared after the prior refresh high-water 2026-05-27T20:22:55.837Z."
+    },
+    "contextCapsules": {
+      "status": "fresh-local-capsule-reviewed-no-new-capsules",
+      "latestInput": "natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.json",
+      "latestGeneratedAt": "2026-05-27T17:43:33.450Z",
+      "note": "No new context capsule appeared after the prior Natively refresh. The 2026-05-27 Nahrup - 1-on-1 capsule remains promoted into a prep packet."
+    }
+  },
+  "contradictionsNeedingSteve": [
+    {
+      "id": "readiness-playbook-convention-debt-2026-05-19",
+      "severity": "low",
+      "status": "tracked-in-dq-047",
+      "newInfo": "The plant-tour ingestion run introduced local capture-metadata and classification conventions and explicitly noted that INGESTION_PLAYBOOK.md was not updated in the same change.",
+      "existingRule": "INGESTION_PLAYBOOK.md section 21 requires any new ingestion convention to be added to the playbook in the same change.",
+      "sourceRefs": [
+        "meetings/summaries/_RUN_REPORT_2026-05-19-plant-tour-ingestion.md#6-conventions-touched-playbook-self-extension-check-per-21",
+        "INGESTION_PLAYBOOK.md#21-self-extension-rule",
+        "project-memory/open-questions.md#DQ-047"
+      ],
+      "recommendation": "Steve should decide whether to codify the new Natively/plant-tour ingestion conventions in INGESTION_PLAYBOOK.md or mark them as one-off run notes."
+    },
+    {
+      "id": "brain-stakeholder-access-boundary-2026-05-27",
+      "severity": "high",
+      "status": "mitigation-started-via-executed-proposal",
+      "newInfo": "The May 27 Natively capture records Steve saying he wants Patrick and Eudias to access the IP Corp knowledge-base/readiness layer, and Patrick asked Steve to send a link.",
+      "existingRule": "AGENTS.md states this repo is internal-only and contains read-only SQL credentials; Natively captures also include raw/private/off-topic transcript material. Direct repo access would violate the current boundary.",
+      "sourceRefs": [
+        "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:57:40-12:58:45",
+        "AGENTS.md#sensitive-data",
+        "natively/prep-packets/shared-knowledge-base-review.packet.json"
+      ],
+      "recommendation": "The sanitized-access preparation proposal was executed, but Steve should still avoid sharing the full brain repo. Share only a curated/redacted stakeholder-facing surface when that artifact exists."
+    }
+  ],
+  "readinessImprovements": [
+    {
+      "id": "no-new-inputs-readiness-check-2026-05-27T21Z",
+      "title": "No new inputs after promotion",
+      "summary": "Source lanes reviewed; readiness contract refreshed without new promotions.",
+      "sourceRefs": [
+        "natively/latest-run.md",
+        "natively/cortex/latest-run.json"
+      ]
+    },
+    {
+      "id": "open-proposal-state-still-bounded-2026-05-27T21Z",
+      "title": "Open proposals remain bounded",
+      "summary": "Only coaching-gate audit and Fabric calendar details remain proposed.",
+      "sourceRefs": [
+        "action-proposals/2026-05-27-audit-proactive-coaching-disable-gate.json",
+        "action-proposals/2026-05-27-confirm-weekly-fabric-calendar-reset.json"
+      ]
+    },
+    {
+      "id": "plant-tour-packet-now-awaits-post-capture",
+      "title": "Plant tour packet needs outcome evidence",
+      "summary": "Dated packet is past; no post-meeting capture has landed.",
+      "sourceRefs": [
+        "natively/prep-packets/plant-tour-follow-up-2026-05-27.packet.json",
+        "natively/meeting-index.json"
+      ]
+    },
+    {
+      "id": "proactive-coaching-gate-warning",
+      "title": "Live coaching gate warning added",
+      "summary": "Disabled-mode capture reviewed; audit proposal created.",
+      "sourceRefs": [
+        "natively/cortex/insights/2026-05-27-proactive-coaching-disable-gate.json",
+        "natively/action-proposals/2026-05-27-audit-proactive-coaching-disable-gate.json"
+      ]
+    },
+    {
+      "id": "plant-tour-packet-still-ready",
+      "title": "Plant tour packet still ready",
+      "summary": "Prep packet remains current; plant-tour question proposal executed.",
+      "sourceRefs": [
+        "natively/prep-packets/plant-tour-follow-up-2026-05-27.packet.json",
+        "natively/outcomes/2026-05-27-natively-outcomes.jsonl"
+      ]
+    },
+    {
+      "id": "weekly-fabric-cadence-snapshot",
+      "title": "Weekly Fabric reset packet added",
+      "summary": "Live capture suggests cancel this week and extend next week.",
+      "sourceRefs": [
+        "natively/prep-packets/weekly-fabric-post-onsite-synthesis.packet.json",
+        "natively/cortex/insights/2026-05-27-weekly-fabric-cadence-reset.json",
+        "natively/action-proposals/2026-05-27-confirm-weekly-fabric-calendar-reset.json"
+      ]
+    },
+    {
+      "id": "stakeholder-knowledge-base-access-boundary",
+      "title": "Stakeholder access packet added",
+      "summary": "Patrick requested link; sanitized view needed first.",
+      "sourceRefs": [
+        "natively/prep-packets/shared-knowledge-base-review.packet.json",
+        "natively/cortex/insights/2026-05-27-stakeholder-knowledge-base-access-boundary.json",
+        "natively/action-proposals/2026-05-27-prepare-sanitized-brain-access-path.json"
+      ]
+    },
+    {
+      "id": "nahrup-stiller-1on1-context-capsule-promoted",
+      "title": "Active 1:1 packet promoted",
+      "summary": "Context capsule converted into durable Natively prep packet.",
+      "sourceRefs": [
+        "natively/prep-packets/nahrup-stiller-1on1-2026-05-27.packet.json",
+        "natively/cortex/insights/2026-05-27-context-capsule-packet-promotion.json",
+        "natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.json"
+      ]
+    },
+    {
+      "id": "calendar-action-contract-gap-captured-2026-05-27",
+      "title": "Calendar proposal failure converted",
+      "summary": "Calendar reset now waits for exact subject/start/end fields.",
+      "sourceRefs": [
+        "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:52.975Z",
+        "natively/cortex/insights/2026-05-27-calendar-action-contract-gap.json",
+        "natively/action-proposals/2026-05-27-confirm-weekly-fabric-calendar-reset.json"
+      ]
+    },
+    {
+      "id": "outcome-ledger-applied-2026-05-27",
+      "title": "Outcome ledger applied",
+      "summary": "Executed access task closed; calendar failure captured.",
+      "sourceRefs": [
+        "natively/outcomes/2026-05-27-natively-outcomes.jsonl",
+        "natively/action-proposals/2026-05-27-prepare-sanitized-brain-access-path.json",
+        "natively/action-proposals/2026-05-27-confirm-weekly-fabric-calendar-reset.json"
+      ]
+    },
+    {
+      "id": "pryor-ot-purdue-ssrs-boundary-surfaced-2026-05-27",
+      "title": "Pryor OT summary promoted",
+      "summary": "Canonical summary, DQ-048, and R-022 are now in place.",
+      "sourceRefs": [
+        "natively/meeting-captures/2026-04-15/2026-04-15-pryor-azure-ot-architecture-alignment-d558f168.md",
+        "natively/cortex/insights/2026-05-27-pryor-ot-purdue-ssrs-boundary.json",
+        "natively/action-proposals/2026-05-27-promote-pryor-ot-architecture-summary.json",
+        "meetings/summaries/2026-04-15-pryor-azure-ot-architecture-alignment.md",
+        "meetings/summaries/_RUN_REPORT_2026-05-27-pryor-canonical-promotion.md",
+        "project-memory/open-questions.md#DQ-048",
+        "project-memory/risk-register.md#R-022"
+      ]
+    }
+  ],
+  "runtimeBoundary": {
+    "nativelyReadsFrom": [
+      "natively/status.json",
+      "natively/meeting-index.json",
+      "natively/prep-packets/*.packet.json",
+      "natively/cortex/latest-run.json",
+      "natively/cortex/insights/*.json",
+      "natively/action-proposals/*.json",
+      "natively/outcomes/*.jsonl",
+      "natively/live-captures/"
+    ],
+    "nativelyShouldNotCallLive": [
+      "Teams",
+      "Notion",
+      "Cluely",
+      "Semantica",
+      "Outlook email/search context during live meetings",
+      "Teams chat/message/transcript context during live meetings",
+      "source databases for live meeting context"
+    ],
+    "nativelyMayReadMetadata": [
+      "Outlook calendar metadata for timing and meeting association only"
+    ],
+    "boundaryStatement": "Natively is a live touchpoint only. The brain repo owns ingestion, meeting intelligence, cross-meeting reasoning, outcome learning, ADR drafting, and readiness packet generation."
+  }
+}

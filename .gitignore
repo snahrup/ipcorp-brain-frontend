@@ -1,0 +1,30 @@
+# Local/editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Build output
+dist/
+build/
+.next/
+out/
+node_modules/
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.p12
+
+# Raw brain exports must never be committed here
+raw/
+private/
+transcripts/
+meeting-captures/
+live-captures/
+context-capsules/
+workflow-runs/
+

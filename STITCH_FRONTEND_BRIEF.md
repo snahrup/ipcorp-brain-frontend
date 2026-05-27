@@ -1,0 +1,86 @@
+# Google Stitch Frontend Brief
+
+Design a polished, work-focused web app for stakeholders to view and interact with the IP Corp Architecture Brain.
+
+This should be a creative blank-canvas design. Do not copy the existing brain dashboard's visual style unless it helps. The source material tells Stitch what the product needs to organize; Stitch should decide the visual direction.
+
+Steve likes the design/product feel of `https://unabyss.com/`. Use that as inspiration for the idea of a context headquarters: many sources, clean segmentation, access controls, current context, and agent-ready retrieval. Do not copy the site; translate the spirit into the IP Corp Brain.
+
+## Audience
+
+- Steve Nahrup: consultant/operator maintaining the brain.
+- Patrick Stiller and selected IP Corp stakeholders: readers who need project state, readiness, decisions, risks, and next actions without seeing the raw working repo.
+- Future frontend implementers: need stable screens and data contracts.
+
+## Experience Goal
+
+Make the brain feel like a live intelligence workspace for the engagement:
+
+- What changed?
+- What needs attention?
+- What decisions are pending?
+- What meetings are ready?
+- What evidence supports the recommendation?
+- What is safe to share?
+
+The core narrative is similar in shape to "context chaos into context clarity," but for IP Corp's Fabric/MDM engagement.
+
+The design should feel distinctive, modern, and useful. Avoid a marketing landing page.
+
+## Primary Screens
+
+1. **Dashboard**
+   - Freshness status
+   - Next best packet
+   - Open action proposals
+   - Critical stale/missing evidence
+   - Top risks and decisions needing attention
+
+2. **Meetings**
+   - Upcoming, active, recent
+   - Readiness status
+   - Prep packet drawer
+   - Evidence references
+   - Missing post-meeting capture warning
+
+3. **Cortex Insights**
+   - Insight cards grouped by type/tag/confidence
+   - Reasoning drawer with trigger, observations, connections, chain, alternatives, confidence factors
+   - Linked action proposals
+
+4. **Action Proposals**
+   - Proposed / executed / blocked
+   - Approval required indicator
+   - Suggested action and suggested wording
+   - Risk notes
+
+5. **Open Questions**
+   - Priority buckets
+   - Owner, target, status
+   - Linked risks, decisions, and meetings
+
+6. **Risks and Decisions**
+   - Active risk register
+   - ADR status board
+   - Candidate decisions queue
+
+7. **Source Health**
+   - Teams / Cluely / Notion / Natively / project-memory freshness
+   - Runtime boundary: Natively reads the brain and does not call live context systems
+
+## Visual Direction
+
+Open. Stitch can choose the palette, typography, spatial model, and component style. The only requirement is that the interface remains serious enough for IP Corp stakeholders and clear enough for operational use.
+
+The design can lean more ambitious than a standard internal dashboard. It should make a complex knowledge system feel coherent, current, and alive.
+
+## Interaction Notes
+
+- Every insight, risk, action, and meeting should expose evidence refs.
+- Do not show raw private transcript text unless it has been explicitly sanitized into the data contract.
+- The approval queue should default to review-only. No action executes from the frontend without explicit approval.
+- Make stale/missing evidence visible without making the whole dashboard feel broken.
+
+## Suggested Stitch Prompt
+
+Create a desktop-first intelligence web app for the IP Corp Architecture Brain. It should help stakeholders explore project readiness, meetings, decisions, risks, open questions, Cortex insights, and approval-gated action proposals. Use the attached JSON data contract and seed data as the source of truth, but take creative ownership of the visual direction and layout. The product should feel like a purpose-built intelligence workspace, not a generic admin dashboard and not a marketing site.

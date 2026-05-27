@@ -1,0 +1,410 @@
+[
+  {
+    "id": "DQ-001",
+    "priority": "Critical (block decisions)",
+    "question": "Exact mechanism for MES-M3 sync — real-time, scheduled, or event-driven?",
+    "answerOwner": "Matt Pennaz",
+    "target": "next MES deep-dive",
+    "status": "open"
+  },
+  {
+    "id": "DQ-002",
+    "priority": "Critical (block decisions)",
+    "question": "What happens to the 1-2% of MES-M3 syncs that fail? Retry or manual reconciliation?",
+    "answerOwner": "Matt Pennaz",
+    "target": "next MES deep-dive",
+    "status": "open"
+  },
+  {
+    "id": "DQ-003",
+    "priority": "Critical (block decisions)",
+    "question": "Complete list of M3 tables/fields replicated to IPC_PowerData",
+    "answerOwner": "Matt Francis",
+    "target": "DBAmp working session",
+    "status": "open"
+  },
+  {
+    "id": "DQ-004",
+    "priority": "Critical (block decisions)",
+    "question": "Refresh frequency for IPC_PowerData",
+    "answerOwner": "Matt Francis",
+    "target": "DBAmp working session",
+    "status": "open"
+  },
+  {
+    "id": "DQ-017",
+    "priority": "Critical (block decisions)",
+    "question": "Specific security/isolation requirements between company data",
+    "answerOwner": "Mike Spencer",
+    "target": "next CIO 1:1",
+    "status": "open"
+  },
+  {
+    "id": "DQ-005",
+    "priority": "High priority",
+    "question": "Who owns the ETL processes between M3 and IPC_PowerData?",
+    "answerOwner": "Matt Francis",
+    "target": "DBAmp session",
+    "status": "open"
+  },
+  {
+    "id": "DQ-006",
+    "priority": "High priority",
+    "question": "Are there data transformations during ETL, or straight copy?",
+    "answerOwner": "Matt Francis",
+    "target": "DBAmp session",
+    "status": "open"
+  },
+  {
+    "id": "DQ-007",
+    "priority": "High priority",
+    "question": "Relationship between OATES and ANV — same system or separate?",
+    "answerOwner": "Matt Pennaz / Patrick",
+    "target": "MES deep-dive",
+    "status": "RESOLVED 2026-05-18 — see Resolved section"
+  },
+  {
+    "id": "DQ-008",
+    "priority": "High priority",
+    "question": "Does Optiva talk to M3 Cloud, or only M3 On-Prem?",
+    "answerOwner": "Matt Pennaz",
+    "target": "Optiva walkthrough",
+    "status": "open"
+  },
+  {
+    "id": "DQ-009",
+    "priority": "High priority",
+    "question": "What specific data flows through DBAmp between Salesforce and M3?",
+    "answerOwner": "Matt Francis",
+    "target": "DBAmp session",
+    "status": "open"
+  },
+  {
+    "id": "DQ-015",
+    "priority": "High priority",
+    "question": "Are there business rules requiring data from BOTH M3 On-Prem AND M3 Cloud?",
+    "answerOwner": "Matt Francis / Patrick",
+    "target": "next architecture sync",
+    "status": "open"
+  },
+  {
+    "id": "DQ-018",
+    "priority": "High priority",
+    "question": "Does BatchWorks actually exist in IP Corp's OT environment, or is it only a stale/incorrect Cybertrol SOW reference?",
+    "answerOwner": "Robert LaMontagne / OT",
+    "target": "next OT/Cybertrol sync",
+    "status": "open — do not design against BatchWorks until answered"
+  },
+  {
+    "id": "DQ-031",
+    "priority": "High priority",
+    "question": "Are current Fabric pipelines pulling ETQ data from the on-prem **staging** database (Matt-Tallarico-maintained subset, possibly stale) or from ETQ cloud directly via the linked server?",
+    "answerOwner": "Matt Tallarico + pipeline source-binding review",
+    "target": "M3 Cloud / ETQ working session (target next week)",
+    "status": "open — source: `meetings/summaries/2026-05-19-preface-fabric-meeting.md`, `DISC-2026-05-19-004`"
+  },
+  {
+    "id": "DQ-032",
+    "priority": "High priority",
+    "question": "Does ETQ (Hexagon) offer a direct (non-VPN, non-linked-server) connection method into Microsoft Fabric?",
+    "answerOwner": "ETQ vendor support / Hexagon",
+    "target": "this week or next",
+    "status": "open — source: `meetings/summaries/2026-05-19-preface-fabric-meeting.md`"
+  },
+  {
+    "id": "DQ-033",
+    "priority": "High priority",
+    "question": "Does Infor offer a connector from **M3 Cloud direct to Microsoft Fabric** (skipping Infor Data Fabric and the on-prem SQL Server)? Preliminary Copilot-assisted reading hinted at duplicate-record risk.",
+    "answerOwner": "Patrick (connector research)",
+    "target": "this week",
+    "status": "open — source: `meetings/summaries/2026-05-19-preface-fabric-meeting.md`, `DISC-2026-05-19-001`"
+  },
+  {
+    "id": "DQ-034",
+    "priority": "High priority",
+    "question": "What database + network prerequisites must be in place to enable SQL Server → Fabric Bronze mirroring? Some tables may lack the indexing / primary keys mirroring requires.",
+    "answerOwner": "Stuart + Michael Kent (DB + network)",
+    "target": "this week if calendars permit",
+    "status": "open — source: `meetings/summaries/2026-05-19-preface-fabric-meeting.md`, `DISC-2026-05-19-005`"
+  },
+  {
+    "id": "DQ-035",
+    "priority": "High priority",
+    "question": "What is the precise list of Salesforce↔M3 staging-layer tables and transformations (current dedup/merge logic) that would need to be reproduced in Fabric Silver if both sources are pulled independently?",
+    "answerOwner": "Matt Tallarico + integration developers",
+    "target": "M3/ETQ working session",
+    "status": "open — source: `meetings/summaries/2026-05-19-preface-fabric-meeting.md`, `DISC-2026-05-19-006`"
+  },
+  {
+    "id": "DQ-043",
+    "priority": "High priority",
+    "question": "What feedback does Mike Spencer bring back from his post-ELT follow-up conversations, and does it change the steward workshop / domain assignment path?",
+    "answerOwner": "Mike Spencer + Patrick Stiller",
+    "target": "before steward workshop planning",
+    "status": "open — source: `meetings/summaries/2026-05-20-fabric-weekly-stand-up.md`"
+  },
+  {
+    "id": "DQ-044",
+    "priority": "High priority",
+    "question": "Which two-track domain strategy should be used for the first steward/Gold-model push: one strategic long-tail domain plus one smaller proof-of-value domain, or a single first domain?",
+    "answerOwner": "Steve + Patrick + Eudias + Mike",
+    "target": "before first Gold-domain / steward workshop decision",
+    "status": "open — source: `meetings/summaries/2026-05-20-fabric-weekly-stand-up.md`"
+  },
+  {
+    "id": "DQ-045",
+    "priority": "High priority",
+    "question": "Which execution-package artifact/tab is canonical for upstream source tables, downstream reports, ownership/governance, and first-domain scope before the first Gold semantic model is locked?",
+    "answerOwner": "Steve + Patrick + Eudias",
+    "target": "before first Gold-domain model design",
+    "status": "open — source: `meetings/summaries/2026-05-20-power-bi-source-mapping.md`, `DISC-2026-05-21-002`"
+  },
+  {
+    "id": "DQ-010",
+    "priority": "Medium priority",
+    "question": "Is there a data dictionary beyond MDP?",
+    "answerOwner": "Matt Francis",
+    "target": "data-catalog scoping",
+    "status": "open"
+  },
+  {
+    "id": "DQ-011",
+    "priority": "Medium priority",
+    "question": "What is the CPR system? Full name and purpose? (`mssql-ipc-cpr` MCP recently exposed)",
+    "answerOwner": "Patrick",
+    "target": "next 1:1",
+    "status": "RESOLVED 2026-05-18 — see Resolved section"
+  },
+  {
+    "id": "DQ-012",
+    "priority": "Medium priority",
+    "question": "Are there data marts/cubes between IPC_PowerData and Power BI?",
+    "answerOwner": "Eudias",
+    "target": "Power BI walkthrough",
+    "status": "open"
+  },
+  {
+    "id": "DQ-013",
+    "priority": "Medium priority",
+    "question": "What is M3 Prod Actual used for? Who accesses it?",
+    "answerOwner": "Matt Francis",
+    "target": "DBAmp session",
+    "status": "RESOLVED 2026-05-18 — see Resolved section"
+  },
+  {
+    "id": "DQ-014",
+    "priority": "Medium priority",
+    "question": "Is ETQ integrated with other systems, or standalone?",
+    "answerOwner": "Patrick",
+    "target": "quality-systems sync",
+    "status": "open"
+  },
+  {
+    "id": "DQ-016",
+    "priority": "Medium priority",
+    "question": "Is there ever a need to reconcile MES data with M3 Cloud companies?",
+    "answerOwner": "Patrick",
+    "target": "architecture sync",
+    "status": "open"
+  },
+  {
+    "id": "DQ-019",
+    "priority": "Medium priority",
+    "question": "For domains with known dual definitions — inventory (financial vs. operational), sales (RevRec vs. sales team), profitability (GAAP vs. internal), and now product + customer (distributor vs. manufacturer) — how are conflicts reconciled in Phase 1 pilots?",
+    "answerOwner": "Data owner + finance lead per domain",
+    "target": "next ELT touchpoint / Phase 1 domain proposal",
+    "status": "open — distributor vs. manufacturer dimension for product AND customer added per Patrick Stiller post-meeting feedback (source: `meetings/summaries/2026-05-18-mdm-elt-presentation.md`)"
+  },
+  {
+    "id": "DQ-020",
+    "priority": "Medium priority",
+    "question": "Salesforce/Informatica vendor channel — did Steve or Patrick respond to Robin Virginia's 2026-04-30 forward of the Tristan Bush intro? If unanswered, this may resurface at next ELT touch as a \"did you ever evaluate Informatica?\" question.",
+    "answerOwner": "Steve",
+    "target": "next ELT prep",
+    "status": "open — source: `meetings/summaries/_source-sweeps/brain-update-2026-05-18-context-sweep.md`, `DISC-2026-05-18-010`"
+  },
+  {
+    "id": "DQ-021",
+    "priority": "Medium priority",
+    "question": "Mike Spencer's Master Data Source Map reconciliation — was Mike's 2026-04-08 Product_Master_Data_Source_Map.docx ever reconciled against Steve's domain taxonomy in the Execution Package? Risk of two competing artifacts living in parallel.",
+    "answerOwner": "Steve",
+    "target": "before next ELT touch",
+    "status": "open — source: context sweep 2026-05-18, `DISC-2026-05-18-011`"
+  },
+  {
+    "id": "DQ-022",
+    "priority": "Medium priority",
+    "question": "Data Classification Policy v1.1 feedback delivery — did Steve's written feedback to Mike Spencer on enforcement gaps, company-level isolation, and DLP monitoring get sent?",
+    "answerOwner": "Steve",
+    "target": "when remembered",
+    "status": "open — source: context sweep 2026-05-18, `DISC-2026-05-18-015`"
+  },
+  {
+    "id": "DQ-023",
+    "priority": "Medium priority",
+    "question": "Eudias Kifem role/title — stakeholder-map entry currently lists \"Data Analyst\" but MDM scope has expanded (Weekly Fabric Check-in organizer, Fabric Foundation Brief recipient, regular 1:1 attendee). What is her current title / scope mandate?",
+    "answerOwner": "Patrick or Eudias directly",
+    "target": "next 1:1",
+    "status": "open — source: context sweep 2026-05-18, `DISC-2026-05-18-016`"
+  },
+  {
+    "id": "DQ-024",
+    "priority": "Medium priority",
+    "question": "The \"second Steve\" — in Mike Spencer's Cowork pilot loop, a separate \"Steve\" is named distinct from Steve Nahrup. Identity needs resolution before next ELT prep so confusion doesn't surface in a meeting.",
+    "answerOwner": "Mike Spencer or Patrick",
+    "target": "next 1:1 with Patrick",
+    "status": "open — source: context sweep 2026-05-18 (Section 6)"
+  },
+  {
+    "id": "DQ-025",
+    "priority": "Medium priority",
+    "question": "Robin Virginia's operational-standup disengagement — confirm whether deliberate scope management (likely) or scheduling friction. Affects how Robin is engaged on operational decisions vs. strategic.",
+    "answerOwner": "Patrick or Robin directly",
+    "target": "when convenient",
+    "status": "open — source: context sweep 2026-05-18, `DISC-2026-05-18-019`"
+  },
+  {
+    "id": "DQ-026",
+    "priority": "Medium priority",
+    "question": "Does the F2 Enterprise Layer aggregating cross-company Gold data need RLS as defense-in-depth, given that current per-company workspaces have zero RLS roles? Currently the workspace+capacity boundary IS the isolation; this becomes a gap if Gold consolidates.",
+    "answerOwner": "Steve + Mike Spencer + Patrick",
+    "target": "when F2 layer design is finalized",
+    "status": "open — source: `DISC-2026-05-18-020`, `pbi-model-analyses/project-fabric-vision.html:634-674`"
+  },
+  {
+    "id": "DQ-027",
+    "priority": "Medium priority",
+    "question": "Should we re-run the cross-model audit to actually compute the \"68 metric differences\" claim? Steve's ELT quote has directional correctness but no audit-quality citation.",
+    "answerOwner": "Steve",
+    "target": "next analysis cycle",
+    "status": "open — source: `DISC-2026-05-18-021`"
+  },
+  {
+    "id": "DQ-028",
+    "priority": "Medium priority",
+    "question": "Power BI tenant sensitivity labels are DISABLED. Is this incompatible with the forward Purview governance plan, or will Purview's data-classification approach supersede the tenant-level setting?",
+    "answerOwner": "Steve + CDW Purview Advisory team",
+    "target": "next CDW Advisory Working Session 2026-05-20",
+    "status": "open — source: `DISC-2026-05-18-022`"
+  },
+  {
+    "id": "DQ-029",
+    "priority": "Medium priority",
+    "question": "How was the \"Margin% LYTD\" bug propagated across both audited PBI models (Interplastic + MP)? Suggests an antipattern in the dev workflow. Should Steve raise with Eudias as a process-improvement candidate?",
+    "answerOwner": "Steve + Eudias",
+    "target": "next 1:1 / Weekly Fabric Check-in",
+    "status": "open — source: `DISC-2026-05-18-023`"
+  },
+  {
+    "id": "DQ-030",
+    "priority": "Medium priority",
+    "question": "What is the promotion/governance process for MP Sales BI TST → MP Sales BI prod (same workspace)? Currently undocumented.",
+    "answerOwner": "Eudias + Patrick",
+    "target": "next workspace cleanup",
+    "status": "open — source: `DISC-2026-05-18-024`"
+  },
+  {
+    "id": "DQ-036",
+    "priority": "Medium priority",
+    "question": "Who is \"Jason\" (visiting MES/data specialist who jointly led both 2026-05-19 sessions with Steve)? Need full name, role, organization (IP Corp employee, Cybertrol, other vendor).",
+    "answerOwner": "Patrick",
+    "target": "next 1:1",
+    "status": "open — source: `meetings/summaries/2026-05-19-plant-tour.md`, `meetings/summaries/2026-05-19-preface-fabric-meeting.md`"
+  },
+  {
+    "id": "DQ-037",
+    "priority": "Medium priority",
+    "question": "Should pilot reactor batches and experimental R&D material draw-down be brought into MES + M3 (currently Andre creates batch numbers manually and raw materials are drawn without soft-allocation)? What does the new-product-introduction data flow look like end-to-end?",
+    "answerOwner": "R&D (Ben) + Andre + Matt Francis",
+    "target": "architecture sync",
+    "status": "open — source: `meetings/summaries/2026-05-19-plant-tour.md`, `DISC-2026-05-19-009`"
+  },
+  {
+    "id": "DQ-038",
+    "priority": "Medium priority",
+    "question": "What system should hold CIPP submittal-package data (currently on thumb drives, ~10 documents per package, ~$20K per system test investment)? Optiva is the architectural candidate but operators explicitly do not use it for this.",
+    "answerOwner": "Ben + Grant + Steve",
+    "target": "as part of MDM scope",
+    "status": "open — source: `meetings/summaries/2026-05-19-plant-tour.md`, `DISC-2026-05-19-011`"
+  },
+  {
+    "id": "DQ-039",
+    "priority": "Medium priority",
+    "question": "Are lab notebook entries (R&D process notes, formulation tweaks) ever transferred into Optiva or another system, or are they truly notebook-only? Patrick previously asked about this \"the wrong way\" and rubbed people the wrong way — Ben's relationship needed.",
+    "answerOwner": "R&D (Ben + Terry + lab staff)",
+    "target": "next plant visit (Wed 2026-05-27) or follow-up",
+    "status": "open — source: `meetings/summaries/2026-05-19-plant-tour.md`, `DISC-2026-05-19-018`"
+  },
+  {
+    "id": "DQ-040",
+    "priority": "Medium priority",
+    "question": "Is there an existing tank-farm transfer report aggregating batch-number lineage (PLC writes batch # + product # on every transfer, but lineage isn't currently aggregated for \"which source batches went into S-24 over time\" lookups)? Where does the PLC data land and how queryable is it?",
+    "answerOwner": "Floor PLC / MES integrator (likely Cybertrol or internal IT)",
+    "target": "follow-up session",
+    "status": "open — source: `meetings/summaries/2026-05-19-plant-tour.md`, `DISC-2026-05-19-012`"
+  },
+  {
+    "id": "DQ-041",
+    "priority": "Medium priority",
+    "question": "Does the Viscometer-to-MES auto-populate work consistently across all four kettles, or is it kettle-specific wiring? Acid value (AV) requires manual entry on every kettle.",
+    "answerOwner": "Sam + Tom Darby",
+    "target": "next plant visit",
+    "status": "open — source: `meetings/summaries/2026-05-19-plant-tour.md`, `DISC-2026-05-19-017`"
+  },
+  {
+    "id": "DQ-042",
+    "priority": "Medium priority",
+    "question": "What's the rework loop volume and tracking status? Retains held 6 months in QC lab, then drummed and reworked into Nordic-approved formulations. Is rework volume captured in MES / M3 today, or is it another paper/tribal step?",
+    "answerOwner": "Sam + Ryan",
+    "target": "next plant visit",
+    "status": "open — source: `meetings/summaries/2026-05-19-plant-tour.md`, `DISC-2026-05-19-019`"
+  },
+  {
+    "id": "DQ-046",
+    "priority": "Medium priority",
+    "question": "Should shared item/customer/supplier master data use one global master record with contextual facility/company/relationship dimensions, or keep company-specific master keys for NAC, Interplastic, and Molding Products?",
+    "answerOwner": "Patrick + Matt Francis + Eudias / M3 owner",
+    "target": "product/customer model working session",
+    "status": "open — source: `meetings/summaries/2026-05-20-intercompany-item-mapping.md`, `DISC-2026-05-21-003`"
+  },
+  {
+    "id": "DQ-047",
+    "priority": "Medium priority",
+    "question": "Should the May 19 Natively/plant-tour ingestion conventions be codified in `INGESTION_PLAYBOOK.md` (Notion MCP transcripts saved as Markdown and `tags: [all]` frontmatter on summaries), or should they be treated as one-off run notes?",
+    "answerOwner": "Steve",
+    "target": "documentation hygiene pass / next architecture-brain maintenance",
+    "status": "open -- source: `meetings/summaries/_RUN_REPORT_2026-05-19-plant-tour-ingestion.md#6-conventions-touched-playbook-self-extension-check-per-21`, `INGESTION_PLAYBOOK.md#21-self-extension-rule`"
+  },
+  {
+    "id": "DQ-048",
+    "priority": "Medium priority",
+    "question": "For Pryor W34293, should Will's corporate SSRS/reporting path consume OT/PCD data by replicating data up to corporate/data, hosting reports inside OT, or another explicitly approved pattern?",
+    "answerOwner": "Stuart + Will + Adam / OT engineers + Steve",
+    "target": "Pryor OT network deep-dive / W34293 deployment planning",
+    "status": "open — source: `meetings/summaries/2026-04-15-pryor-azure-ot-architecture-alignment.md`"
+  },
+  {
+    "id": "DQ-CON-001",
+    "priority": "From consolidation pass (2026-04-29)",
+    "question": "Where is the source-system SQLite DB Steve mentioned? Searched CascadeProjects + OneDrive + Documents — not found.",
+    "answerOwner": "Steve",
+    "target": "when remembered",
+    "status": "open"
+  },
+  {
+    "id": "DQ-CON-003",
+    "priority": "From consolidation pass (2026-04-29)",
+    "question": "Should `MDM_Weekly_Status_Email` runtime be moved into the project documentation, or stay as a separate repo with project documentation only holding artifact history?",
+    "answerOwner": "Steve",
+    "target": "when reorganizing operational tools",
+    "status": "open"
+  },
+  {
+    "id": "DQ-CON-005",
+    "priority": "From consolidation pass (2026-04-29)",
+    "question": "Persist the skill rewrite into the user-skills account (currently only session caches are updated; the cloud-synced canonical may overwrite on next sync)",
+    "answerOwner": "Steve",
+    "target": "next Claude desktop session",
+    "status": "open — use Claude desktop's skill-creator UI to upload `agent-prompts/ipcorp-data-intelligence.skill.md` as the new SKILL.md for `ipcorp-data-intelligence` (skillId `skill_013WZMdjFueo3MZGnw6uCmpX`)"
+  }
+]

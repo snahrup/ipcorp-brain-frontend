@@ -1,0 +1,1040 @@
+[
+  {
+    "id": "citrine-pcd-database-review",
+    "title": "Citrine / PCD Database Review",
+    "startsAt": "2026-05-21T09:00:00-05:00",
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller",
+      "Bradley Grove",
+      "Matt",
+      "IT-side database owner",
+      "possibly Mark Sullivan",
+      "Nikhil"
+    ],
+    "summary": "Prepare Steve for the near-term PCD database review that was mentioned in the 2026-05-19 Citrine session. The immediate goal is to identify what data is accessible and what governed read path is needed before programmatic Citrine ingestion can move beyond spreadsheets.",
+    "whyItMatters": "Citrine needs reliable formulation/process inputs, but on-prem SQL access is not generally available. The review should avoid ad hoc data pulls and instead define a safe read-only path, likely via IT-owned views or service-account access.",
+    "currentState": [
+      "Mark Sullivan said cook parameters were extracted but not yet analyzed and he needs time with Robert and Ryan.",
+      "Nikhil was introduced as Citrine data engineering support for pipelines and programmatic ingestion.",
+      "Citrine has a Python API for programmatic ingestion, but on-prem SQL access is the bottleneck.",
+      "Bradley has reorganized a flat formulation spreadsheet partly manually and partly programmatically."
+    ],
+    "relatedWork": [
+      "Historian sample extract",
+      "Citrine platform model",
+      "PCD database governed read path",
+      "Optiva and formulation data preparation"
+    ],
+    "openQuestions": [
+      "Which PCD tables/views are needed for Citrine ingestion?",
+      "Who can approve a governed read-only view or endpoint for Citrine-facing data?",
+      "What data remains spreadsheet-only after Bradley and Francis tooling are compared?",
+      "How will cook parameter extracts be validated with Robert and Ryan?"
+    ],
+    "openCommitments": [
+      "Mark Sullivan: schedule working session with Robert and Ryan to analyze cook parameters. Source: natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-update-meeting-part-2-the-and-can-data-55c993c4-p2.md.",
+      "Bradley Grove: share flat formulation spreadsheet with the group. Source: natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-update-meeting-part-2-the-and-can-data-55c993c4-p2.md.",
+      "Steve/Patrick: use Thursday PCD database session to parse accessible data and IT request needed for a governed read path. Source: natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-update-meeting-part-2-the-and-can-data-55c993c4-p2.md."
+    ],
+    "talkingPoints": [
+      "Keep Citrine as the modeling substrate; use Cowork/agents only for workflow orchestration and data shaping.",
+      "Ask for table/view names and access constraints, not general database access.",
+      "Define whether the governed path is a read-only SQL view, export file, service account, or staged Fabric dataset.",
+      "Compare Francis tooling against the Excel flat-formulation approach before locking a data prep workflow."
+    ],
+    "risks": [
+      "High: on-prem SQL access bottleneck stalls programmatic ingestion.",
+      "Medium: cook parameters remain extracted but unanalyzed without Robert/Ryan review.",
+      "Medium: spreadsheet-first workflows can become hidden production systems if not replaced by a governed path."
+    ],
+    "suggestedPosture": "Boundary-setting and concrete. Let Citrine handle materials modeling; force the database review to name the minimum governed data path.",
+    "evidenceRefs": [
+      "natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-update-meeting-part-2-the-and-can-data-55c993c4-p2.md",
+      "meetings/summaries/2026-04-10-historian-data-extraction.md",
+      "meetings/summaries/2026-05-19-plant-tour.md"
+    ],
+    "liveContextMarkdown": "## Citrine / PCD Database Review\n\nGoal: leave with the database objects, access owner, and safe read path.\n\nAsk: what tables/views, who approves access, which data must stay spreadsheet-only for now, and how Robert/Ryan will validate cook parameters.",
+    "decisionsPending": [
+      "Name the governed PCD read path for Citrine-facing data before any recurring extraction is treated as production.",
+      "Decide whether spreadsheet-shaped formulation data remains temporary prep or becomes a supported handoff artifact."
+    ],
+    "relatedPriorMeetings": [
+      "2026-05-19 Historian / Citrine Update",
+      "2026-05-19 Plant Tour",
+      "2026-04-10 Historian Data Extraction"
+    ]
+  },
+  {
+    "id": "copilot-project-update-assistance-2026-05-20",
+    "title": "Co-pilot Project Update Assistance",
+    "startsAt": "2026-05-20T15:00:00-05:00",
+    "attendees": [
+      "Steve Nahrup",
+      "Lorrie Connelly"
+    ],
+    "summary": "Prepare Steve for a short Teams meeting with Lorrie Connelly. The local Natively context capsule has no close prior meeting match, so the safest posture is to establish the meeting purpose first, then connect any project-update ask to the current IP Corp architecture path only if Lorrie frames it that way.",
+    "whyItMatters": "The meeting is imminent and the local context capsule did not have a dedicated packet. A compact packet gives Natively a deterministic local briefing without pulling live Teams, Outlook email/search, Notion, Cluely, Semantica, or source-system context during the meeting.",
+    "currentState": [
+      "A local Natively context capsule was generated at 2026-05-20T19:43:37.682Z for a 2026-05-20 15:00-15:30 CT Teams meeting titled Co-pilot Project Update Assistance.",
+      "The invite lists Lorrie Connelly and Steve Nahrup; no transcript or post-meeting capture exists yet.",
+      "The capsule inferred a decision/status/review posture but explicitly noted there is no close prior meeting match.",
+      "The capsule pulled broad brain-memory hits from existing prep packets, so Steve should avoid assuming the agenda is Fabric-specific until Lorrie confirms the real topic."
+    ],
+    "relatedWork": [
+      "M3 Cloud and ETQ Data-Flow Working Session",
+      "Citrine / PCD Database Review",
+      "Fabric Pipeline Deep-Dive",
+      "Fabric Gold Model Access Follow-up",
+      "Plant Tour Follow-up: MES and R&D Data Gaps",
+      "Demand-management project update cadence where Lorrie has appeared as a project owner"
+    ],
+    "openQuestions": [
+      "Is this meeting about a specific IP Corp project, a Copilot/tooling update, or a general project-status ask?",
+      "Does Lorrie need a decision, a status explanation, or a next-step owner from Steve?",
+      "If project dates or percent-complete come up, which project is in scope and who owns the current source of truth?",
+      "Should any outcome be captured into the brain after the meeting, or is this a live-only touchpoint?"
+    ],
+    "openCommitments": [
+      "No open commitments surfaced from the local context capsule. Source: natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.md."
+    ],
+    "talkingPoints": [
+      "Open by confirming the goal: decision, status review, discovery, or follow-up assignment.",
+      "If Lorrie asks for project progress, ask which project and what artifact should be treated as authoritative.",
+      "If the topic touches Fabric, keep the response grounded in owner, source system, data path, and next checkpoint.",
+      "Close with one named owner and one next date if any follow-up is created."
+    ],
+    "risks": [
+      "Medium: the capsule's brain-memory hits are broad and may over-associate the meeting with Fabric before the topic is confirmed.",
+      "Medium: project-update conversations can produce vague commitments if owner, source artifact, and timing are not named.",
+      "Low: Lorrie is a known IP Corp participant, but she is not yet fully represented in the canonical stakeholder map; do not infer her role beyond cited evidence."
+    ],
+    "suggestedPosture": "Calm, short, and purpose-first. Establish what Lorrie needs before introducing architecture context; then convert any ask into owner, artifact, decision boundary, and next checkpoint.",
+    "evidenceRefs": [
+      "natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.md",
+      "natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.json",
+      "meetings/summaries/2026-04-28-biweekly-demand-management.md",
+      "meetings/summaries/2026-05-06-fabric-weekly-stand-up.md"
+    ],
+    "liveContextMarkdown": "## Co-pilot Project Update Assistance\n\nStart by asking what Lorrie needs from the meeting: decision, status review, discovery, or follow-up assignment. The local capsule has no close prior match, so do not assume this is a Fabric meeting until she says so.\n\nIf it becomes project-status oriented, anchor on: project name, authoritative artifact, owner, decision boundary, and next checkpoint. If it becomes Fabric-related, keep it to current architecture posture and avoid making uncited commitments.",
+    "decisionsPending": [
+      "Confirm whether the Co-pilot project update produced any IP Corp architecture-brain commitment or should remain live-only context.",
+      "If a project-status ask exists, identify the authoritative project artifact and owner before recording commitments."
+    ],
+    "relatedPriorMeetings": [
+      "2026-04-28 Biweekly Demand Management",
+      "2026-05-06 Fabric Weekly Stand-Up"
+    ]
+  },
+  {
+    "id": "data-classification-policy-response",
+    "title": "Data Classification Policy Response",
+    "startsAt": null,
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller",
+      "Mike Spencer"
+    ],
+    "summary": "Prepare Steve for the joint Patrick+Steve response to Mike Spencer's IPCORP Data Classification Policy v1.1 draft. The key issue is that the draft mixes policy, transition notice, and taxonomy, while missing several enforcement and governance details that matter for Fabric/Purview.",
+    "whyItMatters": "This policy becomes the bridge between Fabric/Purview controls and IP Corp's business boundaries. The current draft underspecifies NAC versus Interplastic financial isolation, policy ownership, exception authority, default handling for unlabeled data, and the Data Steward role.",
+    "currentState": [
+      "Mike's source policy PDF and Steve's review v1/v2 PDFs are archived under deliverables/policy-drafts/2026.",
+      "Patrick ran the draft through independent review notes and wants Steve's input folded into a joint response.",
+      "Steve's v2 review is the latest working basis for the response.",
+      "No contradiction was found: the policy draft is weaker than canonical brain doctrine, but does not supersede it."
+    ],
+    "relatedWork": [
+      "Purview classification model and governance strategy",
+      "Data steward operating model",
+      "Company financial isolation requirements",
+      "ELT data-governance narrative"
+    ],
+    "openQuestions": [
+      "Who owns the policy long-term?",
+      "Who approves policy exceptions?",
+      "Should Purview labels map directly to the policy's five sensitivity levels, or does IP Corp need an intermediate classification layer?",
+      "What is the default rule for unlabeled Fabric, Power BI, and report assets?"
+    ],
+    "openCommitments": [
+      "Steve: send compiled policy review notes to Patrick for joint-response prep. Source: meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md.",
+      "Steve: define Purview real-time monitoring rules and alert thresholds for classification violations. Source: meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md.",
+      "Steve: confirm policy ownership and exception authority with Mike. Source: meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md."
+    ],
+    "talkingPoints": [
+      "Separate the document into policy, rollout communication, and classification taxonomy so each can be enforced cleanly.",
+      "Add Data Steward responsibilities explicitly; the current governance model depends on stewards.",
+      "State the NAC versus Interplastic financial isolation boundary plainly.",
+      "Tie classification levels to Purview labels and enforcement paths, not just document labels."
+    ],
+    "risks": [
+      "High: vague control language makes the policy hard to enforce after Fabric launch.",
+      "High: company financial isolation is not explicitly protected in the draft.",
+      "Medium: unlabeled-data default handling is undefined.",
+      "Medium: policy ownership and exception authority are unclear."
+    ],
+    "suggestedPosture": "Constructive but firm. Treat Mike's draft as useful direction that needs operational control language before it can govern Fabric/Purview assets.",
+    "evidenceRefs": [
+      "meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md",
+      "deliverables/policy-drafts/2026/README.md",
+      "deliverables/policy-drafts/2026/2026-05-mike-spencer-ipcorp-data-classification-policy-v1.1-draft.pdf",
+      "deliverables/policy-drafts/2026/2026-05-11-steve-nahrup-review-of-ipcorp-data-classification-policy-v2.pdf",
+      "project-memory/purview-implementation-strategy.md",
+      "architecture/security/data-segregation-requirements.md"
+    ],
+    "liveContextMarkdown": "## Data Classification Policy Response\n\nLead with: the draft has the right strategic intent, but it currently tries to be policy, transition notice, and taxonomy at once. Split those concerns and add enforceable controls.\n\nMust-cover gaps: Data Steward role, NAC/Interplastic financial isolation, owner and exception approver, Purview label mapping, unlabeled-data default, and alert/monitoring rules.\n\nBest posture: help Mike turn a directionally correct draft into something operational.",
+    "decisionsPending": [
+      "Confirm policy owner and exception approver.",
+      "Confirm whether Purview labels map directly to the five policy sensitivity levels or require an intermediate IP Corp taxonomy.",
+      "Decide the default handling rule for unlabeled Fabric, Power BI, and report assets."
+    ],
+    "relatedPriorMeetings": [
+      "2026-05-11 Nahrup 1-on-1 and Data Classification Policy Review",
+      "2026-05-18 MDM ELT Presentation",
+      "2026-05-20 Power BI Source Mapping"
+    ]
+  },
+  {
+    "id": "elt-data-stewards-readiness",
+    "title": "ELT Data Steward Readiness",
+    "startsAt": null,
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller",
+      "Mike Spencer",
+      "Robin Virginia",
+      "Eudias Kifem",
+      "Kevin Casey (requested)",
+      "Joe Huff (requested)"
+    ],
+    "summary": "Prepare Steve for the next ELT-oriented governance conversation. The evidence now says the main ask has moved from explaining Fabric/MDM into designing the next operating mechanism: wait for Mike feedback, narrow the SharePoint list, define the steward/domain candidate path, and run a focused workshop that leaves with names.",
+    "whyItMatters": "The 2026-05-06 stand-up made steward naming the Phase 1 gate. The 2026-05-20 stand-up adds the execution shape: ELT may process quietly, so the next artifact needs to turn passive alignment into named candidates, domain scope, and time-boxed work.",
+    "currentState": [
+      "Fabric/MDM budget appears already secured by Mike; this is validation and operating-model alignment, not an initial pitch.",
+      "The May 20 recap says the ELT understood why the topic mattered, but engagement is low and follow-up processing is expected.",
+      "Mike Spencer feedback from follow-up conversations is pending before the next move is locked.",
+      "The SharePoint list is too broad; it needs categorization and out-of-scope filtering before being reposted as a work driver.",
+      "A steward/key-role workshop is now the practical path: breakout discussion, prepared questions/application-style intake, and a goal of leaving with candidate names.",
+      "Domain selection is unresolved; the current best frame is one strategic long-tail domain plus one smaller high-value proof-of-value domain.",
+      "DQ-045 now asks which execution-package artifact/tab is the canonical home for source mapping, report mapping, ownership, governance, and first-domain scope.",
+      "Gold semantic model ownership is now part of the steward-readiness conversation because ADR-0005 proposes the model as the domain contract."
+    ],
+    "relatedWork": [
+      "ELT presentation / 12 pain-point scenarios",
+      "Data steward workshop design",
+      "Domain analysis and first Gold-model selection",
+      "Operating-model framing for subsidiary autonomy plus enterprise standards",
+      "Sales/customer security boundary clarification"
+    ],
+    "openQuestions": [
+      "What feedback does Mike bring back from his follow-up conversations? Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+      "Which SharePoint list is canonical for the narrowed post-ELT work queue, and what items are out of scope?",
+      "Which domains should the workshop ask people to own or steward?",
+      "Should the first push use one strategic long-tail domain plus one smaller proof-of-value domain?",
+      "Who can credibly represent sales/customer data ownership while sales leadership is in transition?",
+      "Is the subsidiary autonomy plus financial isolation operating-model phrase accurate enough to use externally?",
+      "Which steward candidates can own a domain semantic model definition, not just a source-system data list?",
+      "Does the execution package need separate sections for source mapping, report mapping, steward ownership, and governance rules? Source: DQ-045."
+    ],
+    "openCommitments": [
+      "Steve/Patrick: wait for Mike Spencer feedback from follow-up conversations before locking the next move. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+      "Steve/Patrick: refresh the SharePoint list, categorize out-of-scope items, and repost the narrowed version. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+      "Steve/Patrick: define time-boxed next steps for teams. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+      "Steve/Patrick: prepare a workshop with breakout discussion, questions/application-style intake, and the expected output of steward/key-role candidate names. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md."
+    ],
+    "talkingPoints": [
+      "The technical platform is not the ask; the ask is business decision rights around shared definitions, trusted datasets, and access boundaries.",
+      "The next move should not be another broad review. Narrow the list, separate out-of-scope items, and ask for named ownership.",
+      "Treat the steward workshop as a decision mechanism: prepared questions, candidate criteria, breakout groups, and a clear output.",
+      "Separate strategic domain work from quick proof-of-value work so ELT sees progress while larger domains mature.",
+      "Sales/customer domains need extra care because NAC vs Interplastic visibility and sales leadership structure are still sensitive.",
+      "The steward workshop should leave with owner names tied to actual artifacts: source map, report map, data contract, and certified semantic model.",
+      "A domain without an owner cannot safely become a certified Gold semantic model."
+    ],
+    "risks": [
+      "High: Data stewards not identified by July blocks domain assignment and phase 2 pilots.",
+      "High: Workshop becomes another abstract discussion if it does not leave with names or candidate criteria.",
+      "Medium: Mike feedback may redirect the next move after this packet is prepared.",
+      "Medium: Taking on only a large domain first can create a long period with no visible value.",
+      "Medium: Sales/customer stewardship may stall because sales leadership and visibility boundaries are unsettled."
+    ],
+    "suggestedPosture": "Direct, pragmatic, and facilitative. Treat ELT silence as a processing pattern, not a rejection. Bring a narrowed artifact and a workshop mechanism that helps them make decisions without forcing IT to guess business ownership.",
+    "evidenceRefs": [
+      "meetings/summaries/2026-05-06-fabric-weekly-stand-up.md",
+      "meetings/transcripts/teams-export/2026-04-22-monthly-it-all-hands-cio-modernization.md",
+      "project-memory/company-structure.md",
+      "project-memory/risk-register.md",
+      "meetings/summaries/2026-05-20-fabric-weekly-stand-up.md",
+      "project-memory/open-questions.md#dq-043",
+      "project-memory/open-questions.md#dq-044",
+      "project-memory/risk-register.md#r-013",
+      "project-memory/open-questions.md#dq-045",
+      "project-memory/decisions/ADR-0005-gold-domain-semantic-model-control-surface.md",
+      "meetings/summaries/2026-05-20-power-bi-source-mapping.md"
+    ],
+    "liveContextMarkdown": "## ELT Data Steward Readiness\n\nCurrent posture: the May 20 stand-up moved this from an abstract steward ask into a workshop-design problem. Wait for Mike feedback, narrow the SharePoint list, and go into the next conversation with a candidate/intake structure.\n\nUse this frame live: \"I do not think the next step is another broad review. I think we narrow the list, decide which domains we are asking people to own, and run a short workshop designed to leave with names.\"\n\nWatch-outs: sales/customer is sensitive because NAC vs Interplastic visibility and sales leadership ownership are unsettled. Product may be too large as the only first domain; pair a long-tail strategic domain with a smaller proof-of-value domain.\n\nDaily sweep update: tie steward readiness to the execution package and certified semantic model ownership. Names without artifact ownership will not be enough.",
+    "decisionsPending": [
+      "Confirm the execution-package structure before the steward workshop asks business owners to react to it."
+    ],
+    "relatedPriorMeetings": [
+      "2026-05-06 Fabric Weekly Stand-Up",
+      "2026-05-18 MDM ELT Presentation",
+      "2026-05-20 Fabric Weekly Stand-Up",
+      "2026-05-20 Power BI Source Mapping"
+    ]
+  },
+  {
+    "id": "fabric-gold-model-access-follow-up",
+    "title": "Fabric Gold Model Access Follow-up",
+    "startsAt": null,
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller",
+      "Eudias Kifem",
+      "Matt Francis",
+      "Kerri Voiss",
+      "Stuart Langley if enforcement labels are discussed"
+    ],
+    "summary": "Prepare Steve for follow-up after the 2026-05-20 Fabric deep-dive and Power BI source-mapping sessions. The live discussion moved from source mapping into domain Gold models, RLS, department/account access, and how to avoid broad report access while still making data useful.",
+    "whyItMatters": "This is where the strategy becomes enforceable. If Gold models are not designed with access rules, source ownership, and domain scope from day one, IP Corp will recreate one-off Power BI sprawl on top of Fabric.",
+    "currentState": [
+      "Power BI source mapping session framed the target as one Gold semantic model per domain with filtering/RLS in the model/report layer.",
+      "Fabric deep-dive discussed department-level filtering, row-level security, manager access to account sets, and sales rep customer assignment boundaries.",
+      "ADR-0004 now anchors Purview as classification/catalog and RLS/MIP/DLP/Audit as enforcement layers.",
+      "The active May 20 live capture is still moving and appears to be discussing domain analysis and steward assignment; not yet promoted.",
+      "ADR-0005 is now drafted as proposed: each governed reporting domain should expose a certified Gold semantic model as the reporting contract and access-control surface.",
+      "Power BI Source Mapping is promoted to a canonical summary and now reinforces the one-Gold-model-per-domain pattern."
+    ],
+    "relatedWork": [
+      "ADR-0004 enforcement stack",
+      "Power BI model documentation sweep",
+      "ELT data steward readiness",
+      "Gold domain selection"
+    ],
+    "openQuestions": [
+      "Which domain goes first: sales/customer, product, finance, inventory, or a smaller high-value domain?",
+      "What is the first RLS reference implementation for sales reps and sales managers?",
+      "Which existing Power BI reports connect to live warehouse views versus semantic models?",
+      "Who owns the domain definition before ELT assigns stewards?",
+      "Should ADR-0005 be accepted as the governing semantic-model control-surface rule?",
+      "Which execution-package artifact/tab owns source mapping, report mapping, ownership, governance, and first-domain scope? Source: DQ-045."
+    ],
+    "openCommitments": [
+      "Steve/Patrick: define Fabric sales Gold model access rules by department, role, and customer/account assignment. Source: natively/meeting-captures/2026-05-20/2026-05-20-fabric-deep-dive-working-session-part-1-the-and-they-can-faf3e9fc-p1.md.",
+      "Steve/Patrick: document row-level security model for sales reps and sales managers. Source: natively/meeting-captures/2026-05-20/2026-05-20-fabric-deep-dive-working-session-part-1-the-and-they-can-faf3e9fc-p1.md.",
+      "Steve/team: decide and document which domain goes first before locking the Gold model shape. Source: natively/meeting-captures/2026-05-20/2026-05-20-power-bi-source-mapping-bccb90a3.md.",
+      "Steve/Patrick/Eudias: confirm the first Gold domain and whether report builders must consume the certified semantic model by default. Source: meetings/summaries/2026-05-20-power-bi-source-mapping.md; ADR-0005."
+    ],
+    "talkingPoints": [
+      "Use one Gold model per domain as the control surface; reports should not reach around it for one-off data.",
+      "RLS is not an afterthought. Sales rep and manager boundaries need a reference implementation before broad rollout.",
+      "Pick at least one high-value but low-effort domain alongside any long-tail domain so ELT can see value quickly.",
+      "Do not call Purview enforcement. Purview classifies and catalogs; RLS/MIP/DLP/Audit enforce.",
+      "Treat the Gold semantic model as the domain contract: definitions, certified measures, RLS, and report access should converge there.",
+      "Ask directly whether any report is allowed to bypass the domain model, and what approval makes that exception legitimate."
+    ],
+    "risks": [
+      "High: broad report access can leak cross-company or account-restricted data if RLS is delayed.",
+      "High: choosing only a large domain can delay visible value and weaken ELT confidence.",
+      "Medium: existing Power BI source mappings may hide report-specific transformations that should become Gold contracts.",
+      "High: if reports bypass the Gold semantic model, the program recreates Power BI clone drift and undermines access-control consistency."
+    ],
+    "suggestedPosture": "Decision-oriented. Bring the model shape, force the domain choice, and tie every access rule to an enforcement layer.",
+    "evidenceRefs": [
+      "natively/meeting-captures/2026-05-20/2026-05-20-power-bi-source-mapping-bccb90a3.md",
+      "natively/meeting-captures/2026-05-20/2026-05-20-fabric-deep-dive-working-session-part-1-the-and-they-can-faf3e9fc-p1.md",
+      "project-memory/decisions/ADR-0004-enforcement-stack-for-governance-boundaries.md",
+      "project-memory/learnings/discoveries.json#DISC-2026-05-20-002",
+      "meetings/summaries/2026-05-20-power-bi-source-mapping.md",
+      "project-memory/decisions/ADR-0005-gold-domain-semantic-model-control-surface.md",
+      "project-memory/open-questions.md#dq-045"
+    ],
+    "liveContextMarkdown": "## Fabric Gold Model Access Follow-up\n\nPrimary point: a Gold domain model is both the data product and the access-control surface. Decide the first domain, document RLS/account assignment rules, and make sure report builders use the model instead of bypassing it.\n\nUse ADR-0004 language: Purview catalogs; RLS/MIP/DLP/Audit enforce.\n\nDaily sweep update: ADR-0005 is proposed. The key live-assist test is whether each reporting request consumes the certified Gold semantic model or asks for a bypass that needs explicit approval.",
+    "decisionsPending": [
+      "Accept or revise ADR-0005 before broad report migration depends on Gold semantic models."
+    ],
+    "relatedPriorMeetings": [
+      "2026-05-20 Power BI Source Mapping",
+      "2026-05-20 Fabric Weekly Stand-Up",
+      "2026-05-20 Power BI Model Documentation Sweep"
+    ]
+  },
+  {
+    "id": "fabric-pipeline-deep-dive",
+    "title": "Fabric Pipeline Deep-Dive",
+    "startsAt": null,
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller",
+      "Eudias Kifem",
+      "Matt Francis",
+      "Kerri Voiss"
+    ],
+    "summary": "Prepare Steve for the near-term technical deep-dive on Fabric pipelines. The 2026-05-11 1-on-1 captured a directional decision: standardize on Data Factory pipelines running inside Fabric and deprecate the custom-tool backend path.",
+    "whyItMatters": "This is the implementation hinge between the strategy deck and actual migration mechanics. It affects FMD Framework direction, pipeline ownership, supportability, MES migration cutover design, and how historical data is preserved during plant-by-plant transitions.",
+    "currentState": [
+      "Fabric Data Factory is the intended canonical ingestion/runtime path.",
+      "Custom tooling is deprecated for backend migration where Fabric-native pipelines can carry the work.",
+      "MES migration is expected to proceed plant-by-plant, preserving historical data with parquet/delta side-by-side mappings.",
+      "The meeting is not yet scheduled; the summary says within the next 2-3 weeks."
+    ],
+    "relatedWork": [
+      "FMD Framework pipeline engine direction",
+      "MES plant-by-plant migration planning",
+      "Landing/Bronze/Silver/Gold deployment conventions",
+      "Power BI and SSRS transition planning"
+    ],
+    "openQuestions": [
+      "What specific plant sequence should MES migration use?",
+      "What is the cutover timing for M3 on-prem to cloud for Interplastic and HK Research?",
+      "Which source-specific history fields must be preserved for side-by-side mapping?",
+      "Which pipeline steps belong in Data Factory versus Fabric notebooks or SQL procedures?"
+    ],
+    "openCommitments": [
+      "Steve: schedule Fabric pipeline deep-dive with Patrick, Steve, Eudias, Francis, and Kerri. Source: meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md.",
+      "Steve: draft plant-by-plant MES migration plan with source-specific history preservation and dedicated pipeline routing. Source: meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md."
+    ],
+    "talkingPoints": [
+      "The reason for Fabric-native pipelines is supportability and consistency, not novelty.",
+      "Plant-by-plant cutover reduces blast radius and lets old/new mappings coexist during migration.",
+      "Historical records need to survive system replacement as parquet/delta, not just as old application screens.",
+      "Keep MES scope bounded to Interplastic and HK Research; NAC and Molding do not have MES."
+    ],
+    "risks": [
+      "Medium: MES change-out timing overlaps MDM rollout, creating compound migration risk.",
+      "Medium: incomplete M3 table/field inventory can skew Silver/Gold modeling.",
+      "Medium: pipeline ownership and operational support model may be unclear if custom-tool logic remains half-alive."
+    ],
+    "suggestedPosture": "Technical and scoped. Bring the decision, then force the conversation into cutover sequence, ownership, artifact preservation, and minimum viable pipeline path.",
+    "evidenceRefs": [
+      "meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md",
+      "agent-prompts/system-doctrine.md",
+      "project-memory/fabric-migration-strategy.md",
+      "project-memory/known-issues.md",
+      "project-memory/open-questions.md"
+    ],
+    "liveContextMarkdown": "## Fabric Pipeline Deep-Dive\n\nCore decision: Fabric Data Factory pipelines inside Fabric are the standard backend path. Custom migration tooling is no longer the preferred runtime when Fabric-native pipelines can handle it.\n\nDrive the meeting toward: plant sequence, historical data preservation, pipeline ownership, runtime split, monitoring, and cutover rollback.\n\nGuardrails: MES only applies to Interplastic and HK Research. Financial isolation remains mandatory. Batch ID remains the manufacturing cross-system key.",
+    "decisionsPending": [
+      "Confirm Fabric Data Factory as the canonical backend ingestion runtime where Fabric-native pipelines can carry the work.",
+      "Decide the MES plant migration sequence and historical-data preservation pattern.",
+      "Confirm whether SQL Server to Fabric mirroring becomes the default SQL-backed Bronze ingestion pattern after prereq validation."
+    ],
+    "relatedPriorMeetings": [
+      "2026-05-11 Nahrup 1-on-1 and Data Classification Policy Review",
+      "2026-05-19 Preface Fabric Meeting",
+      "2026-05-20 Power BI Source Mapping"
+    ]
+  },
+  {
+    "id": "m3-etq-data-flow-working-session",
+    "title": "M3 Cloud and ETQ Data-Flow Working Session",
+    "startsAt": null,
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller",
+      "Matt Tallarico",
+      "Stuart Langley or Michael Kent if mirroring/network prerequisites are in scope"
+    ],
+    "summary": "Prepare Steve for the follow-up with Matt Tallarico on the actual M3 Cloud and ETQ data paths feeding Fabric. The core issue is source identity: Fabric may be reading SQL staging, not the live ETQ cloud source, and M3 Cloud currently reaches Fabric through Infor Data Fabric plus on-prem SQL Server.",
+    "whyItMatters": "This determines whether Bronze ingestion is source-faithful or quietly inherits stale staging logic. It also decides whether SQL Server mirroring or direct cloud connectors can collapse unnecessary ETL hops before the architecture hardens.",
+    "currentState": [
+      "Preface Fabric meeting captured the M3 Cloud path as M3 Cloud -> Infor Data Fabric -> on-prem SQL Server -> Microsoft Fabric.",
+      "ETQ reporting currently appears to use linked-server SQL over VPN to ETQ cloud, while the on-prem ETQ database may be only a staging subset maintained by Matt Tallarico.",
+      "Patrick planned to research M3 Cloud direct connector options and to ask ETQ/Hexagon about direct-to-Fabric connectivity.",
+      "Open questions DQ-031 through DQ-035 now track the source-mapping cluster."
+    ],
+    "relatedWork": [
+      "SQL Server to Fabric mirroring candidate",
+      "ETQ source-of-truth clarification",
+      "M3 Cloud connector research",
+      "Fabric Bronze source binding"
+    ],
+    "openQuestions": [
+      "Are Fabric pipelines reading ETQ cloud directly, linked-server views, or Matt Tallarico staging tables?",
+      "Does ETQ/Hexagon support a direct Microsoft Fabric connector that avoids VPN and linked-server dependency?",
+      "Does Infor offer a direct M3 Cloud to Microsoft Fabric connector that avoids the Infor Data Fabric to SQL Server hop?",
+      "Which staging tables contain real transformations versus pass-through/date stamping?"
+    ],
+    "openCommitments": [
+      "Steve: schedule M3 Cloud / ETQ data-flow working session with Matt Tallarico. Source: meetings/summaries/2026-05-19-preface-fabric-meeting.md.",
+      "Steve or Patrick: ask ETQ/Hexagon whether direct-to-Fabric connectivity exists. Source: meetings/summaries/2026-05-19-preface-fabric-meeting.md.",
+      "Patrick: research M3 Cloud connector options for direct Microsoft Fabric ingest. Source: meetings/summaries/2026-05-19-preface-fabric-meeting.md."
+    ],
+    "talkingPoints": [
+      "Start with source identity, not tool preference: what exact table/view is Fabric reading today?",
+      "Separate staging-as-source from staging-as-transport. If staging only adds a date stamp, it is a simplification candidate.",
+      "Ask Matt to identify every transformation currently hiding between cloud systems and SQL Server.",
+      "Treat direct connector and mirroring as options to evaluate, not decisions already made."
+    ],
+    "risks": [
+      "High: ETQ Fabric data could be stale if current pipelines read Matt staging instead of ETQ cloud.",
+      "High: pulling Salesforce and M3 independently can recreate duplicate/merge logic in Fabric without a single conformed rule.",
+      "Medium: SQL mirroring may fail on legacy tables without primary keys or adequate indexing."
+    ],
+    "suggestedPosture": "Forensic and practical. Do not let the meeting become a generic Fabric design debate until the current source bindings and hidden transformations are named.",
+    "evidenceRefs": [
+      "meetings/summaries/2026-05-19-preface-fabric-meeting.md",
+      "project-memory/open-questions.md#dq-031",
+      "project-memory/open-questions.md#dq-035",
+      "natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-1-the-and-was-one-8a4bf8ec-p1.md"
+    ],
+    "liveContextMarkdown": "## M3 Cloud and ETQ Data-Flow Working Session\n\nPrimary ask: confirm exactly what Fabric is reading today. Do not accept \"ETQ\" or \"M3\" as a source answer until the actual database, table/view, connector, and transformation layer are named.\n\nClose with: owner, source-binding checklist, direct-connector research owner, and whether the double-hop can be retired.",
+    "decisionsPending": [
+      "Confirm whether Fabric reads ETQ cloud, linked-server views, or Matt Tallarico staging tables.",
+      "Confirm whether ETQ/Hexagon and Infor provide direct Microsoft Fabric connector paths.",
+      "Decide whether SQL Server mirroring is viable for each source after indexing, primary-key, and network prerequisites are checked."
+    ],
+    "relatedPriorMeetings": [
+      "2026-05-19 Preface Fabric Meeting",
+      "2026-05-20 Power BI Source Mapping",
+      "2026-05-20 Fabric Weekly Stand-Up"
+    ]
+  },
+  {
+    "id": "nahrup-stiller-1on1-2026-05-27",
+    "title": "Nahrup - 1-on-1",
+    "startsAt": "2026-05-27T14:00:00-04:00",
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller"
+    ],
+    "summary": "Just-in-time prep for the 2026-05-27 Steve/Patrick 1:1. The local Natively context capsule frames it as a decision-triage slot before Patrick is out, with focus on Mike feedback, SharePoint/execution-package narrowing, steward workshop shape, first-domain strategy, and what must feed the plant-tour follow-up.",
+    "whyItMatters": "This meeting is the live alignment bridge between the post-ELT governance push and the 2026-05-27 plant-tour follow-up. The durable Natively contract did not yet have this exact calendar instance, so the capsule needed promotion from runtime cache into a prep packet.",
+    "currentState": [
+      "The May 18 ELT presentation landed the governance model and set the public end-of-July deadline for naming data stewards.",
+      "Patrick post-meeting feedback reframed the next optimization target toward sharper asks, useful domain grounding, and Jeff Notarangelo concern that IP Corp lacks people who know what good looks like.",
+      "The May 20 Fabric Weekly Stand-Up said to wait for Mike Spencer feedback before locking the next move.",
+      "The May 20 stand-up also says the broad SharePoint list needs to be categorized, narrowed, reposted, and converted into time-boxed next steps.",
+      "The local context capsule generated at 2026-05-27T17:43:33.450Z identified this 2:00 PM 1:1 as a high-confidence decision/governance/status meeting.",
+      "The existing 2026-05-26 Patrick 1:1 packet remains useful background, but this packet is the current dated calendar instance now visible to Natively."
+    ],
+    "relatedWork": [
+      "MDM ELT presentation follow-up",
+      "Data steward workshop design",
+      "SharePoint work-list narrowing",
+      "First Gold semantic model / domain selection",
+      "Plant tour source-of-record follow-up",
+      "Patrick OOO coverage planning"
+    ],
+    "openQuestions": [
+      "What feedback has Mike Spencer brought back from post-ELT follow-up conversations, and does it change the steward workshop path? Source: project-memory/open-questions.md#dq-043.",
+      "Which SharePoint list or execution-package artifact is canonical for the narrowed work queue and source/report/ownership mapping? Source: project-memory/open-questions.md#dq-045.",
+      "Which domain strategy should Steve and Patrick take forward: one long-tail strategic domain plus one quick proof, or one first domain only? Source: project-memory/open-questions.md#dq-044.",
+      "How should the next ELT ask address Jeff Notarangelo concern that IP Corp does not yet know what good data ownership looks like? Source: meetings/summaries/2026-05-18-mdm-elt-presentation.md.",
+      "Which parts of this 1:1 should become explicit follow-up evidence after the meeting ends? Source: natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.md."
+    ],
+    "openCommitments": [
+      "Steve: bring a proposed data domain list to ELT for review and candidate identification. Source: meetings/summaries/2026-05-18-mdm-elt-presentation.md.",
+      "Steve/Patrick: wait for Mike Spencer feedback before locking the next move. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+      "Steve/Patrick: refresh the SharePoint list, categorize out-of-scope items, repost the narrowed version, and time-box next steps. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+      "Steve/Patrick: plan a steward/key-role workshop with breakout discussion and candidate-intake questions. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md."
+    ],
+    "talkingPoints": [
+      "I want to use this 1:1 to separate what needs to land before your OOO window from what can wait until you are back.",
+      "Patrick feedback changed the optimization target for the next ELT touch: sharper asks, not a shorter domain conversation.",
+      "Jeff concern is the real risk. The workshop needs to help the business recognize what good ownership looks like, not just nominate names.",
+      "The SharePoint list probably needs to become a decision package: in scope, out of scope, owner needed, and next action.",
+      "We should decide whether the first push is one strategic long-tail domain plus a smaller proof-of-value domain.",
+      "The May 27 plant tour should feed source-of-record requirements, not become a detached operations visit."
+    ],
+    "risks": [
+      "High: if Patrick OOO starts before the next move is clarified, steward/domain work can idle for a week.",
+      "High: if the steward workshop does not define what good ownership looks like, it may produce names without accountable behavior.",
+      "Medium: Mike feedback could redirect the workshop path, so the agenda should leave room for that input.",
+      "Medium: taking only a large domain first can create a long period with no visible value.",
+      "Medium: plant-floor source-of-record risks may stay disconnected from Fabric/MDM decisions unless they are explicitly routed into the source map.",
+      "Medium: because this packet is promoted from a context capsule rather than a post-meeting transcript, it should guide live posture but not become canonical meeting memory until an outcome/capture exists."
+    ],
+    "suggestedPosture": "Use the 1:1 as a crisp decision triage, not a broad rehash. Patrick already signaled that the ELT message landed; focus on what must be decided before OOO, what Mike feedback changes, and what artifact Steve should bring next.",
+    "evidenceRefs": [
+      "natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.md",
+      "natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.json",
+      "deliverables/upcoming-prep-targets-2026-05-19.md",
+      "meetings/summaries/2026-05-18-mdm-elt-presentation.md",
+      "meetings/summaries/2026-05-20-fabric-weekly-stand-up.md",
+      "meetings/summaries/2026-05-20-power-bi-source-mapping.md",
+      "project-memory/open-questions.md#dq-043",
+      "project-memory/open-questions.md#dq-044",
+      "project-memory/open-questions.md#dq-045",
+      "natively/prep-packets/nahrup-stiller-1on1-post-elt-debrief-2026-05-26.packet.json"
+    ],
+    "liveContextMarkdown": "## Nahrup - 1-on-1\n\nPrimary purpose: use the live Steve/Patrick 1:1 as decision triage before Patrick is out. Keep the discussion anchored on Mike feedback, the narrowed SharePoint/execution package, steward workshop shape, first-domain strategy, and what should feed the May 27 plant-tour follow-up.\n\nRecommended live framing: \"I want to separate what has to land before you are out from what can wait. I have Mike feedback, the narrowed execution package, steward workshop shape, first-domain strategy, and plant-tour follow-up inputs on the list. Anything else needs to be decided today?\"\n\nWatch-outs: this is promoted from a context capsule, not a post-meeting transcript. Use it for live readiness; wait for a capture or outcome before changing canonical project-memory.",
+    "decisionsPending": [
+      "Confirm whether Mike Spencer feedback changes the steward workshop path.",
+      "Confirm the execution-package artifact for source mapping, report mapping, ownership, governance, and first-domain scope.",
+      "Confirm whether the first domain path is one strategic long-tail domain plus a quick proof, or one first domain only.",
+      "Decide what must land before Patrick is out and what should be parked until he returns."
+    ],
+    "relatedPriorMeetings": [
+      "2026-05-18 MDM ELT Presentation",
+      "2026-05-20 Fabric Weekly Stand-Up",
+      "2026-05-20 Power BI Source Mapping",
+      "2026-05-19 Plant Tour",
+      "2026-05-26 Nahrup 1-on-1 with Stiller packet"
+    ]
+  },
+  {
+    "id": "nahrup-stiller-1on1-post-elt-debrief-2026-05-26",
+    "title": "Nahrup 1-on-1 with Stiller: Post-ELT Debrief",
+    "startsAt": "2026-05-26T11:30:00-05:00",
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller"
+    ],
+    "summary": "First post-ELT 1:1 with Patrick before his 2026-05-28 through 2026-06-03 OOO window. Use it to lock the practical path from the May 18 ELT session into the next execution package: Mike feedback, narrowed SharePoint work list, steward workshop shape, domain strategy, and plant-tour follow-up questions.",
+    "whyItMatters": "This is the last clearly visible Steve/Patrick alignment slot before Patrick is out. Decisions that need Patrick's read should land here or be intentionally parked until he returns.",
+    "currentState": [
+      "The May 18 ELT presentation landed the governance model and set the public end-of-July deadline for naming data stewards.",
+      "Patrick's post-meeting feedback reframed the next optimization target: sharpen explicit asks, spend more time on domain grounding when useful, and focus hardest on Jeff Notarangelo's concern that IP Corp lacks people who know what good looks like.",
+      "The May 20 Fabric Weekly Stand-Up said to wait for Mike Spencer feedback before locking the next move.",
+      "The same May 20 stand-up said the broad SharePoint list needs to be categorized, narrowed, reposted, and turned into time-boxed next steps.",
+      "A steward/key-role workshop is now the practical mechanism: breakout discussion, prepared questions or application-style intake, and an expected output of candidate names.",
+      "Domain strategy remains open: one strategic long-tail domain plus a smaller high-value proof, or a single first domain.",
+      "ADR-0005 is still proposed and ties the first Gold domain to a governed semantic model/control surface.",
+      "The May 27 plant tour follow-up is the next dated packet after this 1:1 and needs Patrick/Bens/Ryan/Mike Wiggins alignment."
+    ],
+    "relatedWork": [
+      "MDM ELT presentation follow-up",
+      "Data steward workshop design",
+      "SharePoint work-list narrowing",
+      "First Gold semantic model / domain selection",
+      "Plant tour source-of-record follow-up",
+      "Patrick OOO coverage planning"
+    ],
+    "openQuestions": [
+      "What feedback has Mike Spencer brought back from post-ELT follow-up conversations, and does it change the steward workshop path? Source: project-memory/open-questions.md#dq-043.",
+      "Which SharePoint list or execution-package artifact is canonical for the narrowed work queue and source/report/ownership mapping? Source: project-memory/open-questions.md#dq-045.",
+      "Which domain strategy should Steve and Patrick take forward: one long-tail strategic domain plus one quick proof, or one first domain only? Source: project-memory/open-questions.md#dq-044.",
+      "How should the next ELT ask address Jeff Notarangelo's concern that IP Corp does not yet know what good data ownership looks like? Source: meetings/summaries/2026-05-18-mdm-elt-presentation.md.",
+      "Which Patrick-dependent decisions must land before the 2026-05-28 through 2026-06-03 OOO window? Source: deliverables/upcoming-prep-targets-2026-05-19.md.",
+      "Should ADR-0005 remain proposed, be revised, or move toward acceptance before the first Gold model design?"
+    ],
+    "openCommitments": [
+      "Steve: bring a proposed data domain list to ELT for review and candidate identification. Source: meetings/summaries/2026-05-18-mdm-elt-presentation.md.",
+      "Steve/Patrick: wait for Mike Spencer feedback before locking the next move. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+      "Steve/Patrick: refresh the SharePoint list, categorize out-of-scope items, repost the narrowed version, and time-box next steps. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+      "Steve/Patrick: plan a steward/key-role workshop with breakout discussion and candidate-intake questions. Source: meetings/summaries/2026-05-20-fabric-weekly-stand-up.md.",
+      "Steve: prepare May 27 plant tour questions around pilot reactor batches, paper charge sheets, thumb-drive submittals, lab notebooks, and tank transfer logs. Source: natively/prep-packets/plant-tour-follow-up-2026-05-27.packet.json."
+    ],
+    "talkingPoints": [
+      "I want to use this 1:1 to separate what needs to land before your OOO window from what can wait until you are back.",
+      "Patrick's feedback changed the optimization target for the next ELT touch: sharper asks, not a shorter domain conversation.",
+      "Jeff's concern is the real risk. The workshop needs to help the business recognize what good ownership looks like, not just nominate names.",
+      "The SharePoint list probably needs to become a decision package: in scope, out of scope, owner needed, and next action.",
+      "We should decide whether the first push is one strategic long-tail domain plus a smaller proof-of-value domain.",
+      "A domain owner should own an artifact, not a vague role: source map, report map, data contract, and certified semantic model.",
+      "The May 27 plant tour should feed source-of-record requirements, not become a detached operations visit."
+    ],
+    "risks": [
+      "High: if Patrick's OOO starts before the next move is clarified, steward/domain work can idle for a week.",
+      "High: if the steward workshop does not define what good ownership looks like, it may produce names without accountable behavior.",
+      "Medium: Mike feedback could redirect the workshop path, so the agenda should leave room for that input.",
+      "Medium: taking only a large domain first can create a long period with no visible value.",
+      "Medium: sales/customer stewardship remains sensitive because NAC vs Interplastic visibility and sales leadership ownership are unsettled.",
+      "Medium: plant-floor source-of-record risks may stay disconnected from Fabric/MDM decisions unless they are explicitly routed into the source map."
+    ],
+    "suggestedPosture": "Use the 1:1 as a crisp decision triage, not a broad rehash. Patrick already signaled that the ELT message landed; focus on what must be decided before OOO, what Mike feedback changes, and what artifact Steve should bring next.",
+    "evidenceRefs": [
+      "deliverables/upcoming-prep-targets-2026-05-19.md",
+      "meetings/summaries/2026-05-18-mdm-elt-presentation.md",
+      "meetings/summaries/2026-05-20-fabric-weekly-stand-up.md",
+      "meetings/summaries/2026-05-20-power-bi-source-mapping.md",
+      "project-memory/project-state.md",
+      "project-memory/open-questions.md#dq-043",
+      "project-memory/open-questions.md#dq-044",
+      "project-memory/open-questions.md#dq-045",
+      "project-memory/risk-register.md#r-013",
+      "project-memory/decisions/ADR-0005-gold-domain-semantic-model-control-surface.md",
+      "natively/prep-packets/plant-tour-follow-up-2026-05-27.packet.json"
+    ],
+    "liveContextMarkdown": "## Patrick 1:1 - Post-ELT Debrief\n\nPrimary purpose: land decisions before Patrick is OOO 2026-05-28 through 2026-06-03.\n\nUse the 1:1 to answer four things: (1) what Mike feedback changes, (2) what the narrowed SharePoint/execution package should look like, (3) whether the first domain path is one strategic long-tail domain plus one quick proof, and (4) what needs to be fed into the May 27 plant-tour follow-up.\n\nRecommended live framing: \"I do not think the next move is another broad review. I think we narrow the list, identify the decision points, and turn the workshop into a mechanism for naming people against real artifacts. What has to land before you are out?\"\n\nWatch-outs: do not optimize against shortening the domain conversation. Patrick's feedback says ELT curiosity around domains was useful. Optimize for clearer asks and a path that addresses Jeff's 'what good looks like' concern.",
+    "decisionsPending": [
+      "Decide which Patrick-dependent items must land before Patrick is OOO 2026-05-28 through 2026-06-03.",
+      "Confirm Mike Spencer's post-ELT feedback and whether it changes the steward workshop path.",
+      "Confirm the execution-package artifact for source mapping, report mapping, ownership, governance, and first-domain scope.",
+      "Accept, revise, or keep proposed ADR-0005 before first Gold semantic model design."
+    ],
+    "relatedPriorMeetings": [
+      "2026-05-18 MDM ELT Presentation",
+      "2026-05-20 Fabric Weekly Stand-Up",
+      "2026-05-20 Power BI Source Mapping",
+      "2026-05-19 Plant Tour"
+    ]
+  },
+  {
+    "id": "plant-tour-follow-up-2026-05-27",
+    "title": "Plant Tour Follow-up: MES and R&D Data Gaps",
+    "startsAt": "2026-05-27T14:30:00-04:00",
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller",
+      "Ben (R&D lead)",
+      "Ryan",
+      "Mike Wiggins",
+      "Grant",
+      "possibly Jason"
+    ],
+    "summary": "Prepare Steve for the follow-up plant tour the week of 2026-05-25. The first tour surfaced the real data frontier: pilot reactor batches outside MES, paper batch charge sheets as the legal record, submittal packages on thumb drives, lab notebooks, and tank-farm commingling that is logged but not reconstructed for traceability.",
+    "whyItMatters": "These gaps are bigger than ordinary system integration. They determine whether Fabric/MDM can actually explain batch composition, R&D formulation history, customer submittals, and complaint investigations.",
+    "currentState": [
+      "Ben is expected to lead the Wednesday follow-up tour; Ryan and Mike Wiggins were named as attendees.",
+      "Pilot reactor batch numbers are manually created by Andre and are not currently in MES.",
+      "Paper batch charge sheets are treated as the legal record for material additions and lot numbers.",
+      "CIPP submittal package evidence currently lives on thumb drives and is manually curated.",
+      "R-014 through R-018 now capture plant-floor risks promoted from the May 19 tour: backup generator runtime, paper batch charge sheets, thumb-drive submittals, tank-farm commingling, and NIR trust gaps.",
+      "R-020 and R-021 now capture the two remaining source-of-record risks from the tour: pilot/R&D batches outside MES/M3 governance and lab notebooks as unmanaged process-knowledge stores.",
+      "A canonical plant-floor evidence map now lives at project-memory/source-systems/plant-floor-evidence.md, with a companion Mermaid lineage diagram at diagrams/mermaid/plant-floor-source-of-record.mmd.",
+      "The plant tour follow-up should connect operational source-of-record issues to the broader source-truth and Gold-domain readiness decisions."
+    ],
+    "relatedWork": [
+      "MES scope expansion candidate",
+      "CIPP submittal package system-of-record decision",
+      "Batch lineage aggregation from PLC transfer logs",
+      "R&D lab notebook capture pattern",
+      "ADR-0006 plant-floor evidence stream contract"
+    ],
+    "openQuestions": [
+      "Should pilot reactor batches and experimental material draw-down be brought into MES and M3?",
+      "What system should hold CIPP submittal-package data currently on thumb drives?",
+      "Are lab notebook entries ever transferred into Optiva or another durable system?",
+      "Where does the tank-farm PLC transfer log land, and can it reconstruct commingled-tank composition over time?",
+      "Which plant-floor records are legal/system-of-record evidence versus convenience copies for analysis?",
+      "Which plant-floor risks should become source-system onboarding requirements before they feed Fabric Gold?",
+      "Should ADR-0006 be accepted as the prerequisite pattern before any Traceability Gold model is certified?"
+    ],
+    "openCommitments": [
+      "Patrick/Zach: coordinate Wednesday 2026-05-27 follow-up tour attendance. Source: meetings/summaries/2026-05-19-plant-tour.md.",
+      "Steve/Jason/Patrick: evaluate whether pilot reactor batch data should be captured in MES. Source: meetings/summaries/2026-05-19-plant-tour.md.",
+      "Steve: identify manual process pain points from the tour and turn them into architecture follow-up questions. Source: meetings/summaries/2026-05-19-plant-tour.md."
+    ],
+    "talkingPoints": [
+      "Ask Ben where the submittal package evidence should live if thumb drives go away.",
+      "Ask Ryan/Sam where PLC transfer logs are stored and whether they preserve batch/product/tank/timestamp.",
+      "Ask Andre/R&D how pilot reactor batch numbers are generated and whether they should become MES-visible.",
+      "Frame paper charge sheets as a legal-record capture problem, not a criticism of operators.",
+      "Paper records, thumb drives, tank commingling, and NIR trust are not just local operations issues; they decide what Fabric can certify downstream.",
+      "Ask for the actual owner and retention rule for each plant-floor evidence source before proposing automation."
+    ],
+    "risks": [
+      "High: legal batch composition lives on paper, not in MES.",
+      "High: CIPP submittal packages live on thumb drives with weak versioning and backup.",
+      "Medium-high: lab notebooks and operator memory remain unmanaged knowledge stores.",
+      "Medium: tank-farm commingling breaks simple one-batch lineage unless transfer logs are modeled.",
+      "High: paper batch charge sheets remain legal/manufacturing records while MES coverage is partial. Source: R-015.",
+      "Medium: CIPP submittal packages on thumb drives create uncontrolled customer-facing evidence risk. Source: R-016.",
+      "Medium: tank-farm commingling can break batch lineage unless the transfer/changeover records are captured. Source: R-017.",
+      "Medium: NIR readings are not fully trusted and need calibration/validation ownership before Gold consumption. Source: R-018.",
+      "Medium: pilot reactor batches and experimental R&D material draw-down sit outside MES/M3 governance. Source: R-020.",
+      "Medium: R&D lab notebooks and staff memory remain unmanaged process-knowledge stores. Source: R-021."
+    ],
+    "suggestedPosture": "Curious and respectful. The operators already know where the real records are. Use the tour to learn the workflow before proposing system moves.",
+    "evidenceRefs": [
+      "meetings/summaries/2026-05-19-plant-tour.md",
+      "project-memory/open-questions.md#dq-037",
+      "project-memory/open-questions.md#dq-042",
+      "project-memory/learnings/discoveries.json#DISC-2026-05-19-009",
+      "project-memory/risk-register.md#r-014",
+      "project-memory/risk-register.md#r-015",
+      "project-memory/risk-register.md#r-016",
+      "project-memory/risk-register.md#r-017",
+      "project-memory/risk-register.md#r-018",
+      "project-memory/risk-register.md#r-020",
+      "project-memory/risk-register.md#r-021",
+      "project-memory/source-systems/plant-floor-evidence.md",
+      "project-memory/decisions/ADR-0006-plant-floor-evidence-stream-contract.md",
+      "diagrams/mermaid/plant-floor-source-of-record.mmd",
+      "natively/cortex/insights/2026-05-27-plant-floor-evidence-stream-contract.json",
+      "meetings/summaries/_RUN_REPORT_2026-05-21-daily-meeting-intelligence-sweep.md"
+    ],
+    "liveContextMarkdown": "## Plant Tour Follow-up\n\nPrimary point: the first tour showed that the legal and R&D records are often outside MES. This follow-up should map where those records actually live and what would have to change to make them governed.\n\nNew canonical asset: project-memory/source-systems/plant-floor-evidence.md breaks the evidence streams into paper charge sheets, pilot reactor, QC readings, tank transfer logs, CIPP submittals, lab notebooks, Optiva formula transit, Salesforce LSRs, retains/rework, and NIR readings. Diagram: diagrams/mermaid/plant-floor-source-of-record.mmd.\n\nNew proposed ADR: ADR-0006 says Traceability Gold should not certify a combined plant-floor view until each evidence stream has owner, storage, authority, digital coverage, lineage key, and open-decision fields.\n\nAsk about pilot reactor, paper charge sheets, thumb drives, lab notebooks, and tank transfer logs. Do not imply MES already contains the full truth.\n\nCarry R-014 through R-018 plus R-020/R-021 into the May 27 follow-up. The posture is source-of-record validation first, automation second.",
+    "decisionsPending": [
+      "Decide whether ADR-0006 should be accepted as the prerequisite evidence-stream pattern before Traceability Gold is certified.",
+      "Decide which plant-floor source-of-record gaps need separate follow-up ADRs after the May 27 follow-up."
+    ],
+    "relatedPriorMeetings": [
+      "2026-05-20 Power BI Source Mapping",
+      "2026-05-20 Intercompany Item Mapping"
+    ]
+  },
+  {
+    "id": "power-bi-model-consolidation-review",
+    "title": "Power BI Model Consolidation Review",
+    "startsAt": null,
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller",
+      "Eudias Kifem",
+      "Matt Francis"
+    ],
+    "summary": "Prepare Steve for a review of the 2026-05-20 Power BI model documentation sweep. The sweep documented 30 accessible semantic models and found the three company Sales BI models are clones with around 50 byte-identical measures plus about 23 same-name measures with divergent DAX.",
+    "whyItMatters": "This gives hard evidence for why IP Corp should move toward governed shared semantic models instead of copied per-company report models. The risk is not just sprawl; it is same KPI name, different math.",
+    "currentState": [
+      "30 semantic models documented across 7 non-empty workspaces with full DAX where measures exist.",
+      "NAC relationships were backfilled after service principal query/build rights were granted; 27 of 30 models now have relationship metadata.",
+      "Interplastic Sales BI remains on sql2012test.diverdata while MP and NAC Sales use ipc_powerdata.",
+      "The Sales clone family is a prime shared semantic model candidate, but company financial isolation remains non-negotiable.",
+      "R-019 now captures the risk that same-name measures across cloned Sales models have divergent DAX, making report migration unsafe without a certified semantic model contract.",
+      "ADR-0005 proposes the Gold domain semantic model as the control surface that should absorb canonical measures and access rules."
+    ],
+    "relatedWork": [
+      "Gold sales model design",
+      "Measure drift cleanup",
+      "RLS reference implementation",
+      "PBI audit phase 2"
+    ],
+    "openQuestions": [
+      "Which same-name divergent measures are benign source-column aliases versus real KPI drift?",
+      "Should the 3 Sales clone models consolidate into one shared semantic model or one governed template per company?",
+      "When should Interplastic Sales BI move off DiverData and onto PowerData/Fabric?",
+      "Who signs off on the canonical definitions for margin, sales amount, sales quantity, and time-intelligence measures?",
+      "Which cloned Sales measures are canonical, which are local exceptions, and who signs off on the certified measure set?",
+      "Should the consolidation review produce an explicit exception log for reports that cannot yet use the Gold semantic model?"
+    ],
+    "openCommitments": [
+      "Steve: phase 2 report-page screenshots and UX/DAX-lint audits remain deferred. Source: meetings/summaries/_RUN_REPORT_2026-05-20-pbi-model-documentation-sweep.md.",
+      "Steve/Patrick/Eudias: decide consolidation path for Sales clones and resolve drift measures. Source: meetings/summaries/_RUN_REPORT_2026-05-20-pbi-model-documentation-sweep.md."
+    ],
+    "talkingPoints": [
+      "Lead with evidence: same measure names already mean different math across Sales models.",
+      "Do not flatten company isolation just to consolidate. The model design must include RLS or workspace separation explicitly.",
+      "Use the sweep as a starting inventory, not an audit score. UX/page screenshots are still phase 2.",
+      "Prioritize canonical measure definitions before report rewrites.",
+      "Do not migrate cloned Sales reports as-is; first decide the canonical measure contract and preserve exceptions deliberately.",
+      "Same measure name does not mean same business definition. Treat divergent DAX as decision debt, not just cleanup."
+    ],
+    "risks": [
+      "High: same KPI names with divergent DAX can create silent cross-company inconsistency.",
+      "Medium: Interplastic Sales remaining on DiverData creates source drift against MP/NAC PowerData models.",
+      "Medium: consolidation without access design could violate financial-isolation doctrine.",
+      "High: same-name Power BI measures with divergent DAX can make certified reporting appear consistent while returning different business answers. Source: R-019."
+    ],
+    "suggestedPosture": "Evidence-led. Show the clone/drift facts, then ask for a canonical-definition owner before prescribing the final semantic model topology.",
+    "evidenceRefs": [
+      "meetings/summaries/_RUN_REPORT_2026-05-20-pbi-model-documentation-sweep.md",
+      "project-memory/learnings/discoveries.json#DISC-2026-05-20-001",
+      "project-memory/learnings/discoveries.json#DISC-2026-05-20-003",
+      "power-bi/cross-model-overlap.md",
+      "project-memory/risk-register.md#r-019",
+      "project-memory/decisions/ADR-0005-gold-domain-semantic-model-control-surface.md",
+      "meetings/summaries/2026-05-20-power-bi-source-mapping.md"
+    ],
+    "liveContextMarkdown": "## Power BI Model Consolidation Review\n\nLead with: the Sales models are cloned enough to consolidate, but drifted enough that consolidation cannot be mechanical. Same KPI names currently mean different DAX in places.\n\nAsk for: canonical measure owner, first drift list to resolve, and the access-control pattern before any shared model is proposed.\n\nDaily sweep update: R-019 raises measure drift from documentation finding to readiness risk. Keep the review focused on canonical measure ownership, not only report inventory.",
+    "decisionsPending": [
+      "Confirm whether Sales becomes the first certified Gold semantic model or remains a consolidation track behind another quick-value domain."
+    ],
+    "relatedPriorMeetings": [
+      "2026-05-20 Power BI Source Mapping"
+    ]
+  },
+  {
+    "id": "shared-knowledge-base-review",
+    "title": "Shared IP Corp Knowledge Base Review",
+    "startsAt": null,
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller",
+      "Eudias Kifem"
+    ],
+    "summary": "Prepare Steve for a likely near-term walkthrough of the IP Corp knowledge-base/readiness layer after Patrick asked for a link and Steve described a searchable interface tying together meetings, decisions, report/model analyses, measures, dimensions, overlaps, and workspace context.",
+    "whyItMatters": "This is the first clear signal that the brain/Natively read model may move from Steve-only operating layer to stakeholder-facing review surface. That improves alignment, but only if the exposed surface is sanitized: the raw brain repo is explicitly internal-only and contains credentials, raw captures, private material, and agent-operating rules that should not be shared as-is.",
+    "currentState": [
+      "A 2026-05-27 Natively export records Steve describing an IP Corp knowledge graph/interface that connects meeting transcripts, decisions, source discussions, and report/model analyses.",
+      "Steve said he wants Patrick and Eudias to have access and does not think SharePoint is the right home for the working layer.",
+      "Patrick asked Steve to send a link so he can start looking ahead.",
+      "The repo itself is not safe to expose directly because AGENTS.md marks it internal-only and contains read-only SQL credentials, raw Natively captures, and private/off-topic transcript material.",
+      "The safe path is a curated or read-only published view over the Natively contract and selected project-memory/deliverable outputs, not full filesystem access to the brain."
+    ],
+    "relatedWork": [
+      "Natively readiness contract",
+      "Power BI model documentation sweep",
+      "Fabric post-onsite synthesis",
+      "Stakeholder briefing layer",
+      "Brain portability and redaction model"
+    ],
+    "openQuestions": [
+      "What exact surface should Patrick and Eudias see: Natively read model, packaged HTML/static site, Obsidian-style vault, SharePoint-published briefings, or a controlled repo/server view?",
+      "Should the first stakeholder-facing view include raw meeting transcripts, or only curated summaries, decisions, risks, open questions, prep packets, and selected Cortex insights?",
+      "What redaction pass is required before exposing anything outside Steve's local working environment?",
+      "Should Eudias get the same scope as Patrick, or a narrower technical/Fabric-focused slice?",
+      "Who owns ongoing access control and refresh if this becomes an IP Corp-visible artifact?"
+    ],
+    "openCommitments": [
+      "Steve: prepare a safe access path before sending Patrick any link. Source: natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:57:40-12:58:45.",
+      "Patrick: review the link when Steve sends it, time permitting. Source: natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:58:45."
+    ],
+    "talkingPoints": [
+      "This is not a document dump; it is the evidence-backed operating layer behind the Fabric/MDM rollout.",
+      "The useful view is curated: decisions, open questions, source evidence, model overlaps, domain readiness, and next actions.",
+      "Raw transcripts and implementation files should stay behind the curtain unless they are deliberately promoted.",
+      "The first review should focus on whether Patrick/Eudias can find what is missing or misframed, not on debating the tool itself.",
+      "Keep access-control and redaction as part of the first delivery, not a cleanup after sharing."
+    ],
+    "risks": [
+      "High: exposing the full brain repo would leak internal credentials and private/off-topic capture content.",
+      "Medium: giving stakeholders raw transcripts can create noise and trust issues if machine diarization or extractive summaries are wrong.",
+      "Medium: SharePoint may be the wrong working surface, but any server-based alternative still needs access controls, refresh ownership, and a clear viewer contract.",
+      "Medium: a broad knowledge-base demo can distract from the immediate Fabric/post-onsite decisions unless scoped to the next useful review."
+    ],
+    "suggestedPosture": "Show the capability, not the raw machinery. Treat Patrick's link request as permission to prepare a curated, source-backed stakeholder view, while holding the full repo and raw captures behind Steve-only operational boundaries.",
+    "evidenceRefs": [
+      "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:47:34-12:48:14",
+      "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:57:40-12:58:45",
+      "AGENTS.md#sensitive-data",
+      "README.md#what-this-project-documentation-is-not",
+      "INGESTION_PLAYBOOK.md#22-why-the-brain-stays-slim",
+      "natively/status.json#runtimeBoundary"
+    ],
+    "liveContextMarkdown": "## Shared IP Corp Knowledge Base Review\n\nPatrick asked Steve to send a link to the IP Corp knowledge-base/readiness layer after Steve described a searchable interface tying together meeting transcripts, decisions, source discussions, report/model analyses, measures, dimensions, overlaps, and workspace context.\n\nLive posture: do not expose the raw brain repo. Prepare a curated stakeholder view over decisions, open questions, source-backed summaries, model overlaps, prep packets, and selected Cortex insights. Keep raw captures, credentials, internal agent rules, and private/off-topic transcript material out of the shared surface.",
+    "decisionsPending": [
+      "Choose the sanitized access mechanism before sending a link.",
+      "Decide whether Patrick and Eudias receive the same scope.",
+      "Decide whether this becomes a recurring stakeholder artifact or a one-time walkthrough."
+    ],
+    "relatedPriorMeetings": [
+      "2026-05-20 Power BI Source Mapping",
+      "2026-05-20 Fabric Weekly Stand-Up",
+      "2026-05-27 Untitled Natively capture"
+    ]
+  },
+  {
+    "id": "weekly-fabric-margin-standardization",
+    "title": "Weekly Fabric Check-in: Margin Standardization",
+    "startsAt": null,
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller",
+      "Eudias Kifem"
+    ],
+    "summary": "Prepare Steve for the next Fabric check-in thread around sales margin and rebate standardization. Eudias raised the DiverData versus IPC inconsistency and proposed using Fabric to standardize base margin first, then rebate handling after.",
+    "whyItMatters": "Margin/rebate logic is a concrete Gold-layer modeling case that will test whether Fabric becomes the place where business formulas are standardized and explainable. It also supplies a practical example for ELT: transparency beats hiding known data issues.",
+    "currentState": [
+      "Eudias owns a visualization comparing current margin/rebate logic with the proposed Fabric-standardized version.",
+      "Patrick endorsed showing existing data issues transparently rather than masking them.",
+      "The Dev/Data stand-up also exposed NAC refresh/rebate timing issues: daily incremental plus monthly 60-90 day cleanup and a 7-day daily look-back are under discussion.",
+      "Canonical post-standardization formula remains open."
+    ],
+    "relatedWork": [
+      "Gold-layer sales margin metric definition",
+      "NAC daily/monthly refresh redesign",
+      "DiverData ETL modernization",
+      "ELT dashboard transparency pattern"
+    ],
+    "openQuestions": [
+      "What is the canonical sales-margin formula after standardization?",
+      "When are rebates included, excluded, or surfaced separately?",
+      "Does NAC truly issue zero rebates on Interplastic and Molding Products products, or is that a reporting shortcut?",
+      "Who signs off on the Gold-layer metric definition?"
+    ],
+    "openCommitments": [
+      "Eudias: build visualization comparing current versus proposed margin/rebate calculation. Source: meetings/summaries/2026-05-07-weekly-fabric-check-in.md.",
+      "Patrick: demo NotebookLM to Eudias for process communication/visualization. Source: meetings/summaries/2026-05-07-weekly-fabric-check-in.md.",
+      "Steve: review and prioritize BI intake forms in Dominique Mathers' backlog. Source: meetings/transcripts/cluely-export/2026-05-11-dev-data-stand-up.md."
+    ],
+    "talkingPoints": [
+      "Treat margin/rebate standardization as a Gold-layer contract, not a one-off report fix.",
+      "Separate base margin from rebate adjustments so differences are visible and explainable.",
+      "Use the NAC refresh logic as an implementation reminder: late rebate changes need look-back handling.",
+      "Keep data-quality flags visible in reports; do not hide known inconsistency to make the demo look cleaner."
+    ],
+    "risks": [
+      "Medium: current DiverData versus IPC logic produces inconsistent reported margins.",
+      "Medium: rebate changes mid-week can be missed without a look-back window.",
+      "Medium: opaque formula changes can trigger stakeholder trust issues if report values shift without explanation."
+    ],
+    "suggestedPosture": "Concrete and formula-focused. Push toward a visible definition, a source-backed comparison, and a named business sign-off path.",
+    "evidenceRefs": [
+      "meetings/summaries/2026-05-07-weekly-fabric-check-in.md",
+      "meetings/transcripts/cluely-export/2026-05-11-dev-data-stand-up.md",
+      "project-memory/risk-register.md",
+      "project-memory/known-issues.md"
+    ],
+    "liveContextMarkdown": "## Weekly Fabric Check-in: Margin Standardization\n\nCore issue: DiverData and IPC currently calculate margin/rebate differently. Eudias proposed standardizing in Fabric: calculate base margin first, then add rebate handling after.\n\nAsk for: the exact formula, rebate timing rules, who signs off, and how the visualization will show old versus new.\n\nUse Patrick's transparency principle: show the inconsistency and use it to justify the standard, rather than hiding the problem.",
+    "decisionsPending": [
+      "Confirm the canonical post-standardization margin formula.",
+      "Confirm rebate handling and look-back rules before certified Gold reporting consumes the metric.",
+      "Name the business owner who signs off on the certified margin measure."
+    ],
+    "relatedPriorMeetings": [
+      "2026-05-07 Weekly Fabric Check-in",
+      "2026-05-11 Dev/Data Stand-up",
+      "2026-05-20 Power BI Model Documentation Sweep",
+      "2026-05-20 Power BI Source Mapping"
+    ]
+  },
+  {
+    "id": "weekly-fabric-post-onsite-synthesis",
+    "title": "Weekly Fabric Follow-up: Post-Onsite Synthesis",
+    "startsAt": null,
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller",
+      "Robin Virginia",
+      "Eudias Kifem",
+      "Mike Spencer"
+    ],
+    "summary": "Prepare Steve for the next Fabric discussion after the 2026-05-27 live capture indicated this week's Fabric stand-up should be canceled and next week's Fabric discussion should be extended or moved after Steve has time to digest onsite transcripts and organize execution material.",
+    "whyItMatters": "The capture reframes the cadence from a low-value status meeting into a synthesis session. Steve has new onsite transcript volume, product-domain/domain-approach takeaways, and Robin-related discussion to organize before the next useful Fabric conversation.",
+    "currentState": [
+      "A May 27 live capture records a recommendation to cancel this week's Fabric stand-up because there was not enough new material to bring back to the group.",
+      "Steve said he needs more time to digest a large set of onsite transcripts and topics into an actionable execution plan.",
+      "The next Fabric discussion was discussed as next Wednesday, with a possible move to Thursday or Friday to give more time after the Purview/Patrick morning sequence.",
+      "The next Fabric discussion should be extended by at least 30 minutes, possibly up to an hour.",
+      "Steve identified domain approach and starting the product domain as the biggest takeaways to organize for the next meeting.",
+      "The live capture is raw Natively evidence only; it has not been promoted to canonical project-memory or a formal meeting summary.",
+      "The later finalized Natively export confirms the same cadence reset signal and adds a clear product-domain takeaway: Steve said product domain looks promising once the onsite meeting material is organized."
+    ],
+    "relatedWork": [
+      "Fabric Weekly Stand-Up cadence",
+      "Post-onsite transcript synthesis",
+      "Product domain approach",
+      "ELT steward/domain readiness",
+      "Purview working session follow-up"
+    ],
+    "openQuestions": [
+      "Was this week's Fabric stand-up actually canceled after the live discussion?",
+      "Should next week's Fabric discussion stay on Wednesday 2026-06-03, move to Thursday/Friday, or split into a short Patrick/Steve prep plus group discussion?",
+      "Which post-onsite transcript themes must be organized before the next Fabric discussion?",
+      "Should product domain be the first substantive domain conversation, or should it be paired with a smaller proof-of-value domain?",
+      "What should Robin receive before the rescheduled/extended Fabric discussion so the cancellation does not read as drift?"
+    ],
+    "openCommitments": [
+      "Cancel or confirm cancellation of this week's Fabric stand-up. Source: natively/live-captures/2026-05-27-natively-live.jsonl at 2026-05-27T16:15:01Z and 2026-05-27T16:18:32Z.",
+      "Extend or move next week's Fabric discussion by at least 30 minutes. Source: same live capture at 2026-05-27T16:19:02Z through 2026-05-27T16:22:53Z.",
+      "Steve: organize onsite transcripts and domain takeaways into an actionable execution plan before the next Fabric discussion. Source: same live capture at 2026-05-27T16:14:46Z through 2026-05-27T16:14:58Z and 2026-05-27T16:19:15Z through 2026-05-27T16:19:31Z."
+    ],
+    "talkingPoints": [
+      "Frame the canceled stand-up as a quality control move: there is not enough new material today, and next week will be more valuable after synthesis.",
+      "Use next week's longer session to walk from onsite evidence to domain approach, not to relitigate the raw transcript pile.",
+      "Bring a short organized agenda around product domain, source-of-record gaps, steward ownership, and Gold semantic model implications.",
+      "Keep Robin informed that the cadence is being preserved but upgraded to a better-prepared discussion."
+    ],
+    "risks": [
+      "Medium: canceling a cadence without a replacement plan could look like drift after the onsite push.",
+      "Medium: raw transcript volume can delay execution if not converted into a concise domain/action plan.",
+      "Medium: product-domain enthusiasm could become too broad unless paired with a narrow proof-of-value path."
+    ],
+    "suggestedPosture": "Pragmatic and quality-focused. Do not hold a meeting just to keep cadence. Cancel the low-value instance, use the time to synthesize onsite evidence, and make the next Fabric discussion longer and more useful.",
+    "evidenceRefs": [
+      "natively/live-captures/2026-05-27-natively-live.jsonl#2026-05-27T16:14:46Z",
+      "natively/live-captures/2026-05-27-natively-live.jsonl#2026-05-27T16:15:01Z",
+      "natively/live-captures/2026-05-27-natively-live.jsonl#2026-05-27T16:19:02Z",
+      "natively/live-captures/2026-05-27-natively-live.jsonl#2026-05-27T16:22:53Z",
+      "meetings/summaries/2026-05-20-fabric-weekly-stand-up.md",
+      "natively/prep-packets/elt-data-stewards-readiness.packet.json",
+      "natively/prep-packets/plant-tour-follow-up-2026-05-27.packet.json",
+      "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:18:32-12:22:53",
+      "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:46:13-12:47:24",
+      "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:19:26-12:19:31"
+    ],
+    "liveContextMarkdown": "## Weekly Fabric Follow-up: Post-Onsite Synthesis\n\nThe May 27 live capture says this week's Fabric stand-up should be canceled rather than held without enough new material. The next Fabric discussion should be extended at least 30 minutes, and possibly moved to Thursday or Friday, after Steve has time to digest onsite transcripts and organize the domain takeaways.\n\nLive posture: quality over cadence. Use the next meeting for organized synthesis: product/domain approach, source-of-record gaps, steward ownership, and Gold semantic model implications. Confirm calendar cleanup before assuming the group knows the plan.",
+    "decisionsPending": [
+      "Confirm whether this week's Fabric stand-up was canceled.",
+      "Confirm next week's Fabric discussion date, duration, and agenda.",
+      "Decide whether product domain is the next substantive domain path or should be paired with a smaller proof-of-value domain."
+    ],
+    "relatedPriorMeetings": [
+      "2026-05-20 Fabric Weekly Stand-Up",
+      "2026-05-19 Plant Tour",
+      "2026-05-20 Power BI Source Mapping"
+    ]
+  }
+]

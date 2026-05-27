@@ -1,0 +1,364 @@
+{
+  "updatedAt": "2026-05-27T21:19:23.997Z",
+  "readinessSummary": {
+    "status": "fresh-no-new-inputs-open-items-unchanged",
+    "nextBestPacket": "prep-packets/weekly-fabric-post-onsite-synthesis.packet.json",
+    "note": "No source/export files changed after the 2026-05-27T20:22:55Z refresh. The May 27 plant-tour packet is now past and awaiting post-meeting capture; the next best live-readiness packet is the Weekly Fabric post-onsite synthesis packet, with Fabric calendar fields still needed before any calendar action can execute."
+  },
+  "upcoming": [
+    {
+      "id": "weekly-fabric-post-onsite-synthesis",
+      "title": "Weekly Fabric Follow-up: Post-Onsite Synthesis",
+      "startsAt": null,
+      "readinessStatus": "ready-final-export-reviewed-needs-calendar-confirmation",
+      "packet": "prep-packets/weekly-fabric-post-onsite-synthesis.packet.json",
+      "whyNow": "The finalized May 27 Natively export confirms this week should be canceled and next week extended or moved for post-onsite/domain synthesis."
+    },
+    {
+      "id": "m3-etq-data-flow-working-session",
+      "title": "M3 / ETQ Data Flow Working Session",
+      "startsAt": null,
+      "readinessStatus": "ready-needs-scheduling",
+      "packet": "prep-packets/m3-etq-data-flow-working-session.packet.json",
+      "whyNow": "Steve committed to a targeted session to identify the authoritative source and exact transfer path for CoA and quality attributes."
+    },
+    {
+      "id": "fabric-gold-model-access-follow-up",
+      "title": "Fabric Gold Model Access Follow-up",
+      "startsAt": null,
+      "readinessStatus": "ready-needs-date",
+      "packet": "prep-packets/fabric-gold-model-access-follow-up.packet.json",
+      "whyNow": "The May 20 source-mapping discussion aligned on one gold semantic model per domain and needs the first domain and access enforcement path locked."
+    },
+    {
+      "id": "power-bi-model-consolidation-review",
+      "title": "Power BI Model Consolidation Review",
+      "startsAt": null,
+      "readinessStatus": "ready-needs-date",
+      "packet": "prep-packets/power-bi-model-consolidation-review.packet.json",
+      "whyNow": "The documentation sweep found clone drift across report models; consolidation should happen before more reports migrate onto Fabric-facing surfaces."
+    },
+    {
+      "id": "elt-data-stewards-readiness",
+      "title": "ELT Data Steward Readiness",
+      "startsAt": null,
+      "readinessStatus": "ready-needs-mike-feedback",
+      "packet": "prep-packets/elt-data-stewards-readiness.packet.json",
+      "whyNow": "The 2026-05-20 stand-up promoted the steward workshop path: wait for Mike feedback, narrow the SharePoint list, and prepare a candidate/intake mechanism."
+    },
+    {
+      "id": "data-classification-policy-response",
+      "title": "Data Classification Policy Response",
+      "startsAt": null,
+      "readinessStatus": "ready-outcome-executed",
+      "packet": "prep-packets/data-classification-policy-response.packet.json",
+      "whyNow": "The earlier draft-response action was executed per the May 13 outcome ledger; keep packet for historical context, not as an open ask."
+    },
+    {
+      "id": "fabric-pipeline-deep-dive",
+      "title": "Fabric Pipeline Deep-Dive",
+      "startsAt": null,
+      "readinessStatus": "superseded-by-may-20-working-session",
+      "packet": "prep-packets/fabric-pipeline-deep-dive.packet.json",
+      "whyNow": "Use the May 20 gold-model and PBI-source packets for current readiness; this older packet remains a background reference."
+    },
+    {
+      "id": "weekly-fabric-check-in-margin-standardization",
+      "title": "Weekly Fabric Check-in: Margin Standardization",
+      "startsAt": null,
+      "readinessStatus": "ready-background",
+      "packet": "prep-packets/weekly-fabric-margin-standardization.packet.json",
+      "whyNow": "Margin/rebate standardization remains connected to Fabric governance but is not the immediate readiness bottleneck."
+    },
+    {
+      "id": "shared-knowledge-base-review",
+      "title": "Shared IP Corp Knowledge Base Review",
+      "startsAt": null,
+      "readinessStatus": "ready-needs-sanitized-access-decision",
+      "packet": "prep-packets/shared-knowledge-base-review.packet.json",
+      "whyNow": "Patrick asked Steve to send a link to the knowledge-base layer; direct repo sharing is unsafe, so Natively should surface a curated access packet first."
+    }
+  ],
+  "active": [],
+  "recent": [
+    {
+      "id": "plant-tour-follow-up-2026-05-27",
+      "title": "Plant Tour Follow-up / Deeper Dive",
+      "date": "2026-05-27",
+      "source": "natively/prep-packets/plant-tour-follow-up-2026-05-27.packet.json",
+      "readinessStatus": "past-packet-awaiting-post-meeting-capture",
+      "feedsPackets": [
+        "plant-tour-follow-up-2026-05-27"
+      ],
+      "feedsInsights": [
+        "cortex/insights/2026-05-27-plant-floor-evidence-stream-contract.json",
+        "cortex/insights/2026-05-26-plant-floor-evidence-map-promoted.json"
+      ]
+    },
+    {
+      "id": "pryor-w34293-ot-architecture-2026-04-15",
+      "title": "Pryor W34293 OT/Azure/SSRS Architecture Alignment",
+      "date": "2026-04-15",
+      "source": "meetings/summaries/2026-04-15-pryor-azure-ot-architecture-alignment.md",
+      "readinessStatus": "canonical-summary-promoted-2026-05-27",
+      "feedsPackets": [],
+      "feedsInsights": [
+        "cortex/insights/2026-05-27-pryor-ot-purdue-ssrs-boundary.json"
+      ]
+    },
+    {
+      "id": "nahrup-stiller-touchpoint-2026-05-27",
+      "title": "Nahrup / Stiller Touchpoint: Fabric Cadence + Knowledge Base Access",
+      "date": "2026-05-27",
+      "source": "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md",
+      "readinessStatus": "reviewed-readiness-signals-not-canonical-promotion",
+      "feedsPackets": [
+        "weekly-fabric-post-onsite-synthesis",
+        "shared-knowledge-base-review"
+      ],
+      "feedsInsights": [
+        "cortex/insights/2026-05-27-weekly-fabric-cadence-reset.json",
+        "cortex/insights/2026-05-27-stakeholder-knowledge-base-access-boundary.json"
+      ]
+    },
+    {
+      "title": "Nahrup 1-on-1 with Stiller: Post-ELT Debrief",
+      "date": "2026-05-26",
+      "source": "natively/prep-packets/nahrup-stiller-1on1-post-elt-debrief-2026-05-26.packet.json",
+      "readinessStatus": "packet-ready-awaiting-post-meeting-capture",
+      "feedsPackets": [
+        "nahrup-stiller-1on1-post-elt-debrief-2026-05-26"
+      ],
+      "feedsInsights": [
+        "cortex/insights/2026-05-24-patrick-ooo-decision-gate.json",
+        "cortex/insights/2026-05-20-steward-workshop-operating-model.json"
+      ]
+    },
+    {
+      "title": "Citrine / PCD Database Review",
+      "date": "2026-05-21",
+      "source": "natively/prep-packets/citrine-pcd-database-review.packet.json",
+      "readinessStatus": "packet-ready-no-post-meeting-capture-found",
+      "feedsPackets": [
+        "citrine-pcd-database-review"
+      ],
+      "feedsInsights": [
+        "cortex/insights/2026-05-20-citrine-historian-sample-still-unstuck.json"
+      ]
+    },
+    {
+      "title": "Co-pilot Project Update Assistance",
+      "date": "2026-05-20",
+      "source": "natively/prep-packets/copilot-project-update-assistance-2026-05-20.packet.json",
+      "readinessStatus": "packet-ready-no-post-meeting-capture-found",
+      "feedsPackets": [
+        "copilot-project-update-assistance-2026-05-20"
+      ],
+      "feedsInsights": []
+    },
+    {
+      "title": "Fabric Weekly Stand-Up",
+      "date": "2026-05-20",
+      "source": "meetings/summaries/2026-05-20-fabric-weekly-stand-up.md",
+      "readinessStatus": "promoted-to-canonical-summary",
+      "feedsPackets": [
+        "elt-data-stewards-readiness",
+        "fabric-gold-model-access-follow-up"
+      ],
+      "feedsInsights": [
+        "cortex/insights/2026-05-20-steward-workshop-operating-model.json",
+        "cortex/insights/2026-05-20-gold-domain-scope-risk.json"
+      ]
+    },
+    {
+      "title": "Fabric Deep-Dive Working Session",
+      "date": "2026-05-20",
+      "source": "natively/meeting-captures/2026-05-20/2026-05-20-fabric-deep-dive-working-session-part-1-the-and-they-can-faf3e9fc-p1.md",
+      "readinessStatus": "indexed-needs-human-summary-cleanup",
+      "feedsPackets": [
+        "fabric-gold-model-access-follow-up",
+        "power-bi-model-consolidation-review"
+      ],
+      "feedsInsights": [
+        "cortex/insights/2026-05-20-source-truth-collapse.json",
+        "cortex/insights/2026-05-20-gold-domain-scope-risk.json"
+      ]
+    },
+    {
+      "title": "Power BI Source Mapping",
+      "date": "2026-05-20",
+      "source": "meetings/summaries/2026-05-20-power-bi-source-mapping.md",
+      "readinessStatus": "promoted-to-canonical-summary",
+      "feedsPackets": [
+        "fabric-gold-model-access-follow-up",
+        "power-bi-model-consolidation-review"
+      ],
+      "feedsInsights": [
+        "cortex/insights/2026-05-20-pbi-sales-model-consolidation.json",
+        "cortex/insights/2026-05-20-gold-domain-scope-risk.json",
+        "cortex/insights/2026-05-21-gold-semantic-control-surface.json"
+      ]
+    },
+    {
+      "title": "Intercompany Item Mapping",
+      "date": "2026-05-20",
+      "source": "meetings/summaries/2026-05-20-intercompany-item-mapping.md",
+      "readinessStatus": "promoted-to-canonical-summary",
+      "feedsPackets": [
+        "fabric-gold-model-access-follow-up"
+      ],
+      "feedsInsights": [
+        "cortex/insights/2026-05-20-source-truth-collapse.json",
+        "cortex/insights/2026-05-21-intercompany-master-data-pattern.json"
+      ]
+    },
+    {
+      "title": "Power BI Model Documentation Sweep",
+      "date": "2026-05-20",
+      "source": "meetings/summaries/_RUN_REPORT_2026-05-20-pbi-model-documentation-sweep.md",
+      "readinessStatus": "promoted-to-readiness",
+      "feedsPackets": [
+        "power-bi-model-consolidation-review"
+      ],
+      "feedsInsights": [
+        "cortex/insights/2026-05-20-pbi-sales-model-consolidation.json"
+      ]
+    },
+    {
+      "title": "Historian / Citrine Update",
+      "date": "2026-05-19",
+      "source": "natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-prep-part-1-the-data-and-batch-55c993c4-p1.md",
+      "readinessStatus": "promoted-to-readiness",
+      "feedsPackets": [
+        "citrine-pcd-database-review"
+      ],
+      "feedsInsights": [
+        "cortex/insights/2026-05-20-citrine-historian-sample-still-unstuck.json"
+      ]
+    },
+    {
+      "title": "Preface Fabric Meeting",
+      "date": "2026-05-19",
+      "source": "meetings/summaries/2026-05-19-preface-fabric-meeting.md",
+      "readinessStatus": "promoted-to-readiness",
+      "feedsPackets": [
+        "m3-etq-data-flow-working-session",
+        "plant-tour-follow-up-2026-05-27"
+      ],
+      "feedsInsights": [
+        "cortex/insights/2026-05-20-source-truth-collapse.json"
+      ]
+    },
+    {
+      "title": "Plant Tour",
+      "date": "2026-05-19",
+      "source": "meetings/summaries/2026-05-19-plant-tour.md",
+      "readinessStatus": "promoted-to-readiness",
+      "feedsPackets": [
+        "plant-tour-follow-up-2026-05-27"
+      ],
+      "feedsInsights": [
+        "cortex/insights/2026-05-20-plant-floor-paper-system-of-record.json",
+        "cortex/insights/2026-05-26-plant-floor-evidence-map-promoted.json",
+        "cortex/insights/2026-05-27-plant-floor-evidence-stream-contract.json"
+      ]
+    }
+  ],
+  "missingOrStalePackets": [
+    {
+      "id": "plant-tour-follow-up-2026-05-27",
+      "severity": "medium",
+      "note": "The May 27 plant-tour follow-up packet is now past its scheduled start and no post-meeting capture, Teams export, Natively auto-export, or canonical summary has landed. Keep the packet as background until outcome evidence appears.",
+      "source": "natively/prep-packets/plant-tour-follow-up-2026-05-27.packet.json"
+    },
+    {
+      "id": "pryor-w34293-reporting-path-decision-2026-05-27",
+      "severity": "medium",
+      "note": "Canonical promotion is complete. The remaining decision is DQ-048: whether Will's Pryor reporting path replicates OT/PCD data up, hosts reports inside OT, or uses another explicitly approved pattern.",
+      "source": "meetings/summaries/2026-04-15-pryor-azure-ot-architecture-alignment.md"
+    },
+    {
+      "id": "weekly-fabric-calendar-reset-2026-05-27",
+      "severity": "medium",
+      "note": "The Fabric cadence reset remains useful, but execution failed five times because the calendar proposal lacked subject, start, and end. Resolve exact current and target event fields before retrying a calendar_event action.",
+      "source": "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:52.975Z"
+    },
+    {
+      "id": "natively-proactive-coaching-disable-gate-2026-05-27",
+      "severity": "high",
+      "note": "A 2026-05-27 capture shows the assistant emitted a SAY THIS suggestion in the same short session where Steve said proactive meeting coaching mode was disabled. Keep this as a Natively readiness warning until the disabled-mode gate is audited.",
+      "source": "natively/meeting-captures/2026-05-27/2026-05-27-disabling-proactive-coaching-mode-12b70248.md"
+    },
+    {
+      "id": "adr-0006-needs-acceptance-after-plant-follow-up",
+      "severity": "medium",
+      "note": "ADR-0006 is newly proposed. After the May 27 plant-tour follow-up, Steve should decide whether it remains proposed, needs revision, or becomes the accepted prerequisite pattern before Traceability Gold.",
+      "source": "project-memory/decisions/ADR-0006-plant-floor-evidence-stream-contract.md"
+    },
+    {
+      "id": "readiness-playbook-convention-debt-2026-05-19",
+      "severity": "low",
+      "note": "Tracked as DQ-047. Steve should decide whether to codify the May 19 Natively/plant-tour ingestion conventions in INGESTION_PLAYBOOK.md or confirm they were one-off run notes.",
+      "source": "project-memory/open-questions.md#dq-047"
+    },
+    {
+      "id": "citrine-pcd-post-meeting-capture-missing-2026-05-21",
+      "severity": "medium",
+      "note": "The 2026-05-21 09:00 CT Citrine / PCD Database Review packet exists, but no post-meeting capture, summary, or outcome is present yet. Keep the PCD read-path proposal proposed until source evidence appears.",
+      "source": "natively/prep-packets/citrine-pcd-database-review.packet.json"
+    },
+    {
+      "id": "copilot-post-meeting-capture-missing-2026-05-20",
+      "severity": "low",
+      "note": "The 2026-05-20 15:00 CT Co-pilot Project Update Assistance packet exists, but no post-meeting capture or summary is present yet. Treat it as live-only unless Steve confirms it produced IP Corp-relevant commitments.",
+      "source": "natively/prep-packets/copilot-project-update-assistance-2026-05-20.packet.json"
+    },
+    {
+      "id": "patrick-1on1-post-meeting-capture-missing-2026-05-26",
+      "severity": "medium",
+      "note": "A new 2026-05-27 Nahrup - 1-on-1 context capsule has now been promoted into a packet. The older 2026-05-26 packet remains awaiting outcome confirmation or post-meeting capture before it should be closed as executed, stale, or rescheduled.",
+      "source": "natively/prep-packets/nahrup-stiller-1on1-2026-05-27.packet.json"
+    },
+    {
+      "id": "project-state-snapshot-lags-may-20-21-promotions",
+      "severity": "low",
+      "note": "project-memory/project-state.md is still marked last refreshed 2026-05-18 and does not yet summarize the May 20/21 Gold semantic model, PBI drift, intercompany mapping, or the newly promoted plant-floor evidence map. Do not rewrite without a targeted canonical-memory pass.",
+      "source": "project-memory/project-state.md"
+    },
+    {
+      "id": "brain-stakeholder-access-boundary-2026-05-27",
+      "severity": "high",
+      "note": "The sanitized-access preparation proposal was executed, but the full brain repo remains unsafe to share. Only a curated/redacted stakeholder-facing layer should be sent to Patrick or Eudias.",
+      "source": "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:44.459Z"
+    }
+  ],
+  "cortex": {
+    "latestRun": "cortex/latest-run.json",
+    "insightsReady": [
+      "cortex/insights/2026-05-12-policy-enforcement-gap.json",
+      "cortex/insights/2026-05-12-stewardship-gate.json",
+      "cortex/insights/2026-05-20-citrine-historian-sample-still-unstuck.json",
+      "cortex/insights/2026-05-20-enforcement-stack-license-gate.json",
+      "cortex/insights/2026-05-20-gold-domain-scope-risk.json",
+      "cortex/insights/2026-05-20-pbi-sales-model-consolidation.json",
+      "cortex/insights/2026-05-20-plant-floor-paper-system-of-record.json",
+      "cortex/insights/2026-05-20-source-truth-collapse.json",
+      "cortex/insights/2026-05-20-steward-workshop-operating-model.json",
+      "cortex/insights/2026-05-21-gold-semantic-control-surface.json",
+      "cortex/insights/2026-05-21-intercompany-master-data-pattern.json",
+      "cortex/insights/2026-05-24-patrick-ooo-decision-gate.json",
+      "cortex/insights/2026-05-26-plant-floor-evidence-map-promoted.json",
+      "cortex/insights/2026-05-27-calendar-action-contract-gap.json",
+      "cortex/insights/2026-05-27-context-capsule-packet-promotion.json",
+      "cortex/insights/2026-05-27-plant-floor-evidence-stream-contract.json",
+      "cortex/insights/2026-05-27-proactive-coaching-disable-gate.json",
+      "cortex/insights/2026-05-27-pryor-ot-purdue-ssrs-boundary.json",
+      "cortex/insights/2026-05-27-stakeholder-knowledge-base-access-boundary.json",
+      "cortex/insights/2026-05-27-weekly-fabric-cadence-reset.json"
+    ],
+    "openActionProposals": [
+      "action-proposals/2026-05-27-audit-proactive-coaching-disable-gate.json",
+      "action-proposals/2026-05-27-confirm-weekly-fabric-calendar-reset.json"
+    ]
+  }
+}
