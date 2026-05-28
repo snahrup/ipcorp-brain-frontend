@@ -1,18 +1,18 @@
 {
-  "generatedAt": "2026-05-27T22:19:34.284Z",
+  "generatedAt": "2026-05-28T00:53:32.551Z",
   "sourceBrain": "C:/Users/snahrup/CascadeProjects/ipcorp-architecture-brain",
   "sourceHighWater": {
-    "brainStatusUpdatedAt": "2026-05-27T21:19:23.997Z",
-    "meetingIndexUpdatedAt": "2026-05-27T21:19:23.997Z",
-    "latestNativelyRun": "2026-05-27T21:19:23.997Z"
+    "brainStatusUpdatedAt": "2026-05-28T00:29:37.287Z",
+    "meetingIndexUpdatedAt": "2026-05-28T00:29:37.287Z",
+    "latestNativelyRun": "2026-05-28T00:29:37.287Z"
   },
   "classification": "internal-stakeholder-safe-draft",
   "redactionPolicy": "Raw captures, authentication material, internal agent rules, live-capture snippets, and workflow receipts are excluded.",
   "counts": {
     "prepPackets": 14,
-    "cortexInsights": 20,
+    "cortexInsights": 21,
     "actionProposals": 13,
-    "openQuestions": 48,
+    "openQuestions": 51,
     "risks": 22,
     "adrs": 6,
     "adrCandidates": 13
@@ -20,6 +20,7 @@
   "stitchEntryPoints": [
     "../STITCH_FRONTEND_BRIEF.md",
     "../.stitch/DESIGN.md",
+    "STITCH_UNABYSS_MOTION_PROMPT.md",
     "frontend-seed.json"
   ]
 }

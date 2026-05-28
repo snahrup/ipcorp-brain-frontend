@@ -5,7 +5,6 @@
     "title": "Confirm ELT steward decision path",
     "status": "executed",
     "createdAt": "2026-05-12T14:31:00-04:00",
-    "updatedAt": "2026-05-27T16:18:23.6708444Z",
     "sourceInsightRefs": [
       "../cortex/insights/2026-05-12-stewardship-gate.json"
     ],
@@ -27,12 +26,21 @@
       "level": "low",
       "notes": "The wording is internal and alignment-oriented, but should still be approved before use."
     },
-    "executionReadiness": null,
     "tags": [
       "elt",
       "data-stewards",
       "follow-up"
-    ]
+    ],
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-05-13T17:41:31.203Z",
+      "workflowRunId": "run-proposal-2026-05-12-confirm-elt-steward-decision-path-20260513174131",
+      "note": "Closed by Natively outcome ledger; original approval requirement remains preserved.",
+      "learningSignals": [
+        "Steve executed follow_up proposal proposal-2026-05-12-confirm-elt-steward-decision-path."
+      ]
+    },
+    "updatedAt": "2026-05-27T16:18:23.6708444Z"
   },
   {
     "id": "proposal-2026-05-12-draft-policy-response-outline",
@@ -40,7 +48,6 @@
     "title": "Draft policy response outline",
     "status": "executed",
     "createdAt": "2026-05-12T14:31:00-04:00",
-    "updatedAt": "2026-05-27T16:18:23.6708444Z",
     "sourceInsightRefs": [
       "../cortex/insights/2026-05-12-policy-enforcement-gap.json"
     ],
@@ -64,13 +71,22 @@
       "level": "medium",
       "notes": "Policy language can imply governance authority; keep the outline framed as draft input until Patrick and Steve align."
     },
-    "executionReadiness": null,
     "tags": [
       "policy",
       "purview",
       "financial-isolation",
       "task"
-    ]
+    ],
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-05-13T17:41:23.898Z",
+      "workflowRunId": "run-proposal-2026-05-12-draft-policy-response-outline-20260513174123",
+      "note": "Closed by Natively outcome ledger; original approval requirement remains preserved.",
+      "learningSignals": [
+        "Steve executed task proposal proposal-2026-05-12-draft-policy-response-outline."
+      ]
+    },
+    "updatedAt": "2026-05-27T16:18:23.6708444Z"
   },
   {
     "id": "proposal-2026-05-20-confirm-first-gold-domain",
@@ -78,7 +94,6 @@
     "title": "Confirm first Gold domain",
     "status": "executed",
     "createdAt": "2026-05-20T17:54:57.898Z",
-    "updatedAt": "2026-05-27T16:18:23.6708444Z",
     "sourceInsightRefs": [
       "../cortex/insights/2026-05-20-pbi-sales-model-consolidation.json",
       "../cortex/insights/2026-05-20-gold-domain-scope-risk.json"
@@ -103,13 +118,22 @@
       "level": "low",
       "notes": "Decision-framing question, not a committed recommendation."
     },
-    "executionReadiness": null,
     "tags": [
       "gold-model",
       "domains",
       "stewards",
       "follow-up"
-    ]
+    ],
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-05-27T15:43:50.273Z",
+      "workflowRunId": "run-proposal-2026-05-20-confirm-first-gold-domain-20260527154350",
+      "note": "Closed by Natively outcome ledger; original approval requirement remains preserved.",
+      "learningSignals": [
+        "Steve executed follow_up proposal proposal-2026-05-20-confirm-first-gold-domain."
+      ]
+    },
+    "updatedAt": "2026-05-27T16:18:23.6708444Z"
   },
   {
     "id": "proposal-2026-05-20-confirm-m3-etq-data-flow-working-session",
@@ -117,7 +141,6 @@
     "title": "Confirm M3/ETQ data-flow working session",
     "status": "executed",
     "createdAt": "2026-05-20T17:54:57.898Z",
-    "updatedAt": "2026-05-27T16:18:23.6708444Z",
     "sourceInsightRefs": [
       "../cortex/insights/2026-05-20-source-truth-collapse.json"
     ],
@@ -139,14 +162,23 @@
       "level": "low",
       "notes": "Alignment-oriented and source-backed; still requires Steve approval before use."
     },
-    "executionReadiness": null,
     "tags": [
       "fabric",
       "etq",
       "m3-cloud",
       "source-mapping",
       "follow-up"
-    ]
+    ],
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-05-27T15:44:15.643Z",
+      "workflowRunId": "run-proposal-2026-05-20-confirm-m3-etq-data-flow-working-session-20260527154415",
+      "note": "Closed by Natively outcome ledger; original approval requirement remains preserved.",
+      "learningSignals": [
+        "Steve executed follow_up proposal proposal-2026-05-20-confirm-m3-etq-data-flow-working-session."
+      ]
+    },
+    "updatedAt": "2026-05-27T16:18:23.6708444Z"
   },
   {
     "id": "proposal-2026-05-20-draft-steward-workshop-plan",
@@ -154,7 +186,6 @@
     "title": "Draft steward workshop plan",
     "status": "executed",
     "createdAt": "2026-05-20T18:49:11.764Z",
-    "updatedAt": "2026-05-27T16:18:23.6708444Z",
     "sourceInsightRefs": [
       "../cortex/insights/2026-05-12-stewardship-gate.json",
       "../cortex/insights/2026-05-20-steward-workshop-operating-model.json",
@@ -180,14 +211,23 @@
       "level": "low",
       "notes": "Internal draft proposal only; no message, calendar event, or task is executed."
     },
-    "executionReadiness": null,
     "tags": [
       "data-stewards",
       "workshop",
       "elt",
       "governance",
       "task"
-    ]
+    ],
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-05-27T15:43:54.834Z",
+      "workflowRunId": "run-proposal-2026-05-20-draft-steward-workshop-plan-20260527154354",
+      "note": "Closed by Natively outcome ledger; original approval requirement remains preserved.",
+      "learningSignals": [
+        "Steve executed task proposal proposal-2026-05-20-draft-steward-workshop-plan."
+      ]
+    },
+    "updatedAt": "2026-05-27T16:18:23.6708444Z"
   },
   {
     "id": "proposal-2026-05-20-license-audit-enforcement-stack",
@@ -195,7 +235,6 @@
     "title": "Confirm enforcement-stack license position",
     "status": "executed",
     "createdAt": "2026-05-20T17:54:57.898Z",
-    "updatedAt": "2026-05-27T16:18:23.6708444Z",
     "sourceInsightRefs": [
       "../cortex/insights/2026-05-20-enforcement-stack-license-gate.json"
     ],
@@ -217,14 +256,23 @@
       "level": "medium",
       "notes": "Licensing language can imply procurement commitments; keep it framed as discovery."
     },
-    "executionReadiness": null,
     "tags": [
       "governance",
       "security",
       "purview",
       "licensing",
       "task"
-    ]
+    ],
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-05-27T15:44:10.151Z",
+      "workflowRunId": "run-proposal-2026-05-20-license-audit-enforcement-stack-20260527154410",
+      "note": "Closed by Natively outcome ledger; original approval requirement remains preserved.",
+      "learningSignals": [
+        "Steve executed task proposal proposal-2026-05-20-license-audit-enforcement-stack."
+      ]
+    },
+    "updatedAt": "2026-05-27T16:18:23.6708444Z"
   },
   {
     "id": "proposal-2026-05-20-pcd-database-review-read-path",
@@ -232,7 +280,6 @@
     "title": "Prep PCD governed read path",
     "status": "executed",
     "createdAt": "2026-05-20T17:54:57.898Z",
-    "updatedAt": "2026-05-27T16:18:23.6708444Z",
     "sourceInsightRefs": [
       "../cortex/insights/2026-05-20-citrine-historian-sample-still-unstuck.json"
     ],
@@ -254,13 +301,22 @@
       "level": "low",
       "notes": "Prepares questions only; does not request access or create accounts."
     },
-    "executionReadiness": null,
     "tags": [
       "citrine",
       "pcd",
       "sql-access",
       "prep"
-    ]
+    ],
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-05-27T15:44:02.528Z",
+      "workflowRunId": "run-proposal-2026-05-20-pcd-database-review-read-path-20260527154402",
+      "note": "Closed by Natively outcome ledger; original approval requirement remains preserved.",
+      "learningSignals": [
+        "Steve executed note proposal proposal-2026-05-20-pcd-database-review-read-path."
+      ]
+    },
+    "updatedAt": "2026-05-27T16:18:23.6708444Z"
   },
   {
     "id": "proposal-2026-05-20-prepare-plant-tour-data-gap-questions",
@@ -268,7 +324,6 @@
     "title": "Prepare plant-tour data-gap questions",
     "status": "executed",
     "createdAt": "2026-05-20T17:54:57.898Z",
-    "updatedAt": "2026-05-27T16:18:23.6708444Z",
     "sourceInsightRefs": [
       "../cortex/insights/2026-05-20-plant-floor-paper-system-of-record.json",
       "../cortex/insights/2026-05-26-plant-floor-evidence-map-promoted.json",
@@ -297,14 +352,23 @@
       "level": "low",
       "notes": "Internal prep only; avoids sending or modifying canonical docs."
     },
-    "executionReadiness": null,
     "tags": [
       "plant-tour",
       "mes",
       "rd",
       "prep",
       "note"
-    ]
+    ],
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-05-27T15:43:25.258Z",
+      "workflowRunId": "run-proposal-2026-05-20-prepare-plant-tour-data-gap-questions-20260527154325",
+      "note": "Closed by Natively outcome ledger; original approval requirement remains preserved.",
+      "learningSignals": [
+        "Steve executed note proposal proposal-2026-05-20-prepare-plant-tour-data-gap-questions."
+      ]
+    },
+    "updatedAt": "2026-05-27T16:18:23.6708444Z"
   },
   {
     "id": "proposal-2026-05-24-confirm-patrick-1on1-pre-ooo-agenda",
@@ -312,7 +376,6 @@
     "title": "Confirm Patrick 1:1 pre-OOO agenda",
     "status": "executed",
     "createdAt": "2026-05-24T17:39:26.437Z",
-    "updatedAt": "2026-05-27T16:18:23.6708444Z",
     "sourceInsightRefs": [
       "../cortex/insights/2026-05-24-patrick-ooo-decision-gate.json"
     ],
@@ -336,14 +399,23 @@
       "level": "low",
       "notes": "The wording is agenda-setting only and cites existing evidence, but Steve should still approve it before use."
     },
-    "executionReadiness": null,
     "tags": [
       "patrick-stiller",
       "ooo-window",
       "elt",
       "stewards",
       "follow-up"
-    ]
+    ],
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-05-27T15:43:38.228Z",
+      "workflowRunId": "run-proposal-2026-05-24-confirm-patrick-1on1-pre-ooo-agenda-20260527154338",
+      "note": "Closed by Natively outcome ledger; original approval requirement remains preserved.",
+      "learningSignals": [
+        "Steve executed follow_up proposal proposal-2026-05-24-confirm-patrick-1on1-pre-ooo-agenda."
+      ]
+    },
+    "updatedAt": "2026-05-27T16:18:23.6708444Z"
   },
   {
     "id": "proposal-2026-05-27-audit-proactive-coaching-disable-gate",
@@ -351,7 +423,6 @@
     "title": "Audit proactive coaching disable gate",
     "status": "proposed",
     "createdAt": "2026-05-27T16:18:23.6708444Z",
-    "updatedAt": "2026-05-27T16:18:23.6708444Z",
     "sourceInsightRefs": [
       "../cortex/insights/2026-05-27-proactive-coaching-disable-gate.json"
     ],
@@ -375,14 +446,14 @@
       "level": "medium",
       "notes": "If disabled mode still emits proactive coaching, live meetings can get unsolicited guidance even when Steve intended a quieter mode."
     },
-    "executionReadiness": null,
     "tags": [
       "natively",
       "task",
       "readiness-risk",
       "live-coaching",
       "mode-gating"
-    ]
+    ],
+    "updatedAt": "2026-05-27T16:18:23.6708444Z"
   },
   {
     "id": "proposal-2026-05-27-confirm-weekly-fabric-calendar-reset",
@@ -390,7 +461,6 @@
     "title": "Resolve Fabric calendar reset details",
     "status": "proposed",
     "createdAt": "2026-05-27T16:26:44.1057864Z",
-    "updatedAt": "2026-05-27T19:19:17.537Z",
     "sourceInsightRefs": [
       "../cortex/insights/2026-05-27-weekly-fabric-cadence-reset.json"
     ],
@@ -413,6 +483,16 @@
       "level": "medium",
       "notes": "Calendar automation should not execute from inferred meeting intent. It needs exact event coordinates or a human-confirmed calendar lookup result first."
     },
+    "tags": [
+      "fabric-standup",
+      "calendar",
+      "follow-up",
+      "post-onsite-synthesis",
+      "natively-readiness",
+      "calendar-execution-contract",
+      "needs-event-fields"
+    ],
+    "updatedAt": "2026-05-27T19:19:17.537Z",
     "executionReadiness": {
       "status": "not_calendar_executable_until_fields_confirmed",
       "requiredFields": [
@@ -438,16 +518,7 @@
         "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:52.831Z",
         "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:52.975Z"
       ]
-    },
-    "tags": [
-      "fabric-standup",
-      "calendar",
-      "follow-up",
-      "post-onsite-synthesis",
-      "natively-readiness",
-      "calendar-execution-contract",
-      "needs-event-fields"
-    ]
+    }
   },
   {
     "id": "proposal-2026-05-27-prepare-sanitized-brain-access-path",
@@ -455,7 +526,6 @@
     "title": "Prepare sanitized brain access path",
     "status": "executed",
     "createdAt": "2026-05-27T17:17:52.810Z",
-    "updatedAt": "2026-05-27T19:19:17.537Z",
     "sourceInsightRefs": [
       "../cortex/insights/2026-05-27-stakeholder-knowledge-base-access-boundary.json"
     ],
@@ -478,7 +548,6 @@
       "level": "high",
       "notes": "Direct repo access would expose credentials, raw captures, internal operating instructions, and private/off-topic transcript content. The proposal is to prepare a sanitized view only."
     },
-    "executionReadiness": null,
     "tags": [
       "stakeholder-access",
       "redaction",
@@ -486,7 +555,15 @@
       "brain-boundary",
       "patrick-stiller",
       "eudias-kifem"
-    ]
+    ],
+    "updatedAt": "2026-05-27T19:19:17.537Z",
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-05-27T18:23:44.459Z",
+      "workflowRunId": "run-proposal-2026-05-27-prepare-sanitized-brain-access-path-20260527182344",
+      "outcomeRef": "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:44.459Z",
+      "note": "Outcome ledger shows Steve executed the sanitized-access preparation proposal. Full repo sharing remains blocked until a sanitized artifact/access path exists."
+    }
   },
   {
     "id": "proposal-2026-05-27-promote-pryor-ot-architecture-summary",
@@ -494,7 +571,6 @@
     "title": "Promote Pryor OT architecture capture",
     "status": "executed",
     "createdAt": "2026-05-27T19:24:35.144Z",
-    "updatedAt": "2026-05-27T20:14:52.377Z",
     "sourceInsightRefs": [
       "../cortex/insights/2026-05-27-pryor-ot-purdue-ssrs-boundary.json"
     ],
@@ -518,7 +594,6 @@
       "level": "medium",
       "notes": "Leaving this only in raw Natively exports risks losing a concrete OT/Purdue/SSRS decision point before Pryor deployment planning advances."
     },
-    "executionReadiness": null,
     "tags": [
       "pryor",
       "w34293",
@@ -528,6 +603,20 @@
       "purdue-model",
       "ssrs",
       "natively-readiness"
-    ]
+    ],
+    "updatedAt": "2026-05-27T20:14:52.377Z",
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-05-27T19:27:46.252Z",
+      "workflowRunId": "run-proposal-2026-05-27-promote-pryor-ot-architecture-summary-20260527192746",
+      "outcomeRef": "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T19:27:46.252Z",
+      "completedArtifacts": [
+        "meetings/summaries/2026-04-15-pryor-azure-ot-architecture-alignment.md",
+        "meetings/summaries/_RUN_REPORT_2026-05-27-pryor-canonical-promotion.md",
+        "project-memory/open-questions.md#DQ-048",
+        "project-memory/risk-register.md#R-022"
+      ],
+      "note": "Outcome ledger showed Steve executed the canonical-promotion task; the brain refresh promoted the recovered Pryor capture into meeting intelligence without overwriting canonical architecture doctrine."
+    }
   }
 ]

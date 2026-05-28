@@ -10,6 +10,20 @@ This repository is intentionally **not** the raw brain repo. It contains only th
 - Snapshot generated: see `data/export-manifest.json`
 - Data classification: internal / stakeholder-safe draft
 - Raw transcripts, credentials, internal agent rules, live captures, and workflow receipts are excluded.
+- Working app: `http://ipcorp-brain.localhost` or `http://127.0.0.1:5217`
+- Launcher: `C:\Users\snahrup\OneDrive - IP-Corporation\Desktop\Apps\IP Corp Brain Launch.bat`
+
+## Local Development
+
+```powershell
+npm install
+npm run sync:data
+npm run dev
+```
+
+The Vite server is pinned to port `5217` with `strictPort: true`.
+
+This machine currently launches the portless route over HTTP because the HTTPS portless proxy cannot start without OpenSSL. The direct Vite URL always works at `http://127.0.0.1:5217`.
 
 ## What Google Stitch Should Use
 

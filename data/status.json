@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-05-27T21:19:23.997Z",
-  "freshnessLabel": "fresh-no-new-inputs-after-pryor-promotion",
+  "updatedAt": "2026-05-28T00:29:37.287Z",
+  "freshnessLabel": "fresh-project-memory-design-direction-applied",
   "counts": {
     "meetingsIndexed": 32,
     "teamsImports": 73,
     "cluelyImports": 4,
     "otherImports": 58,
     "prepPacketsReady": 14,
-    "cortexInsights": 20,
+    "cortexInsights": 21,
     "openActionProposals": 2,
     "liveCaptures": 6,
     "liveCaptureSnippets": 8372,
@@ -20,51 +20,51 @@
     "teamsExport": {
       "status": "fresh-local-exports-reviewed-no-new-inputs",
       "latestInput": "meetings/transcripts/teams-export",
-      "note": "Reviewed local Teams export lane after automation high-water 2026-05-27T20:22:55.837Z. No Teams export changed after that high-water; no live Teams connector was used."
+      "note": "Reviewed local Teams export lane after prompt marker 2026-05-27T23:15:20.606Z. No Teams export changed; no live Teams connector was used."
     },
     "cluelyExport": {
       "status": "fresh-local-exports-reviewed-no-new-inputs",
       "latestInput": "meetings/transcripts/cluely-export",
-      "note": "Reviewed local Cluely export lane after automation high-water 2026-05-27T20:22:55.837Z. No Cluely export changed after that high-water; no live Cluely connector was used."
+      "note": "Reviewed local Cluely export lane after prompt marker 2026-05-27T23:15:20.606Z. No Cluely export changed; no live Cluely connector was used."
     },
     "notionExport": {
       "status": "fresh-local-exports-reviewed-no-new-inputs",
       "latestInput": "meetings/transcripts/notion-export",
-      "note": "Reviewed local Notion export lane after automation high-water 2026-05-27T20:22:55.837Z. No raw Notion export changed after that high-water; no live Notion connector was used."
+      "note": "Reviewed local Notion export lane after prompt marker 2026-05-27T23:15:20.606Z. No Notion export changed; no live Notion connector was used."
     },
     "projectMemory": {
-      "status": "fresh-no-new-canonical-inputs-after-pryor-promotion",
-      "latestInput": "meetings/summaries/2026-04-15-pryor-azure-ot-architecture-alignment.md",
-      "note": "No project-memory or canonical meeting file changed after the previous 20:22Z refresh. The Pryor promotion remains the latest canonical update; DQ-048 and R-022 remain open follow-up items."
+      "status": "fresh-new-design-preference-applied-to-readiness",
+      "latestInput": "project-memory/learnings/discoveries.json#DISC-2026-05-27-005",
+      "note": "One project-memory discovery changed after the prompt last-run marker: Steve wants the stakeholder-facing brain frontend to lean into Unabyss-style modern motion. Applied to the shared-knowledge-base prep packet and new Cortex insight; no canonical doctrine overwrite was needed."
     },
     "nativelyContract": {
-      "status": "refreshed-no-new-source-deltas-open-proposals-unchanged",
-      "latestInput": "natively/status.json",
-      "note": "Refreshed the Natively read-model timestamp, readiness summary, latest-run report, and source-health notes. Open proposals remain limited to proactive coaching disable-gate audit and Fabric calendar reset details. No Natively app code was modified."
+      "status": "refreshed-project-memory-delta-applied-no-new-actions",
+      "latestInput": "natively/prep-packets/shared-knowledge-base-review.packet.json",
+      "note": "Refreshed status, meeting index, Cortex latest-run, and run report. Added one Cortex insight and updated one prep packet from DISC-2026-05-27-005. No Natively app code or live connectors were used."
     },
     "liveCaptures": {
       "status": "fresh-local-captures-reviewed-no-new-snippets",
       "latestInput": "natively/live-captures/2026-05-27-natively-live.jsonl",
       "latestCapturedAt": "2026-05-27T17:01:34.903Z",
-      "note": "Reviewed live-capture files after automation high-water 2026-05-27T20:22:55.837Z. Latest May 27 snippet remains 2026-05-27T17:01:34.903Z; no live context connector was used."
+      "note": "Reviewed live-capture files after prompt marker 2026-05-27T23:15:20.606Z. No live-capture snippets were newer than the prior reviewed high-water; no live context connector was used."
     },
     "outcomes": {
       "status": "fresh-reviewed-no-new-outcomes",
       "latestInput": "natively/outcomes/2026-05-27-natively-outcomes.jsonl",
       "latestOutcomeAt": "2026-05-27T19:27:46.252Z",
-      "note": "Reviewed outcome ledgers after automation high-water 2026-05-27T20:22:55.837Z. No outcome event is newer than the previously applied Pryor canonical-promotion execution."
+      "note": "Reviewed outcome ledgers after prompt marker 2026-05-27T23:15:20.606Z. No outcome event was newer than the prior reviewed high-water; proposal style remains compact, source-backed, and approval-gated."
     },
     "nativelyAutoExport": {
       "status": "fresh-no-new-auto-exports",
       "latestInput": "natively/meeting-captures/2026-05-27/2026-05-27-fabric-stand-up-recovery-planning-39c96ede.md",
       "latestExportedAt": "2026-05-27T19:23:04.798Z",
-      "note": "No Natively auto-export source file appeared after the prior refresh high-water 2026-05-27T20:22:55.837Z."
+      "note": "No Natively auto-export source file appeared after prompt marker 2026-05-27T23:15:20.606Z. Latest auto-export remains the previously reviewed May 27 capture set."
     },
     "contextCapsules": {
       "status": "fresh-local-capsule-reviewed-no-new-capsules",
       "latestInput": "natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.json",
-      "latestGeneratedAt": "2026-05-27T17:43:33.450Z",
-      "note": "No new context capsule appeared after the prior Natively refresh. The 2026-05-27 Nahrup - 1-on-1 capsule remains promoted into a prep packet."
+      "latestGeneratedAt": "2026-05-27T17:43:33.45Z",
+      "note": "No new context capsule appeared after prompt marker 2026-05-27T23:15:20.606Z. The 2026-05-27 Nahrup - 1-on-1 capsule remains promoted into a prep packet."
     }
   },
   "contradictionsNeedingSteve": [
@@ -96,6 +96,34 @@
     }
   ],
   "readinessImprovements": [
+    {
+      "id": "brain-frontend-motion-direction-applied-2026-05-27",
+      "title": "Brain frontend direction applied",
+      "summary": "Shared packet now carries Unabyss-style motion guidance.",
+      "sourceRefs": [
+        "project-memory/learnings/discoveries.json#DISC-2026-05-27-005",
+        "natively/prep-packets/shared-knowledge-base-review.packet.json",
+        "insights/2026-05-27-brain-frontend-motion-direction.json"
+      ]
+    },
+    {
+      "id": "no-new-inputs-readiness-check-2026-05-27T23Z",
+      "title": "23Z readiness contract refreshed",
+      "summary": "No source deltas after memory high-water; weekly Fabric remains next.",
+      "sourceRefs": [
+        "natively/latest-run.md",
+        "natively/cortex/latest-run.json"
+      ]
+    },
+    {
+      "id": "no-new-inputs-readiness-check-2026-05-27T22Z",
+      "title": "Readiness contract refreshed",
+      "summary": "No material source deltas; weekly Fabric remains next packet.",
+      "sourceRefs": [
+        "natively/latest-run.md",
+        "natively/cortex/latest-run.json"
+      ]
+    },
     {
       "id": "no-new-inputs-readiness-check-2026-05-27T21Z",
       "title": "No new inputs after promotion",

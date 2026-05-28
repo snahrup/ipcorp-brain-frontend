@@ -1,9 +1,9 @@
 {
-  "updatedAt": "2026-05-27T21:19:23.997Z",
+  "updatedAt": "2026-05-28T00:29:37.287Z",
   "readinessSummary": {
-    "status": "fresh-no-new-inputs-open-items-unchanged",
+    "status": "ready-design-direction-applied",
     "nextBestPacket": "prep-packets/weekly-fabric-post-onsite-synthesis.packet.json",
-    "note": "No source/export files changed after the 2026-05-27T20:22:55Z refresh. The May 27 plant-tour packet is now past and awaiting post-meeting capture; the next best live-readiness packet is the Weekly Fabric post-onsite synthesis packet, with Fabric calendar fields still needed before any calendar action can execute."
+    "note": "One new project-memory discovery updated the shared-knowledge-base packet with frontend motion direction; no new canonical meeting promotion or action proposal was needed."
   },
   "upcoming": [
     {
@@ -74,9 +74,9 @@
       "id": "shared-knowledge-base-review",
       "title": "Shared IP Corp Knowledge Base Review",
       "startsAt": null,
-      "readinessStatus": "ready-needs-sanitized-access-decision",
+      "readinessStatus": "ready-needs-sanitized-access-decision-design-direction-applied",
       "packet": "prep-packets/shared-knowledge-base-review.packet.json",
-      "whyNow": "Patrick asked Steve to send a link to the knowledge-base layer; direct repo sharing is unsafe, so Natively should surface a curated access packet first."
+      "whyNow": "Patrick asked Steve to send a link to the knowledge-base layer; direct repo sharing is unsafe, and the stakeholder surface now has explicit Unabyss-inspired motion/source-chip direction."
     }
   ],
   "active": [],
@@ -264,6 +264,11 @@
       ]
     }
   ],
+  "cortex": {
+    "latestRun": "cortex/latest-run.json",
+    "insightsReady": 21,
+    "openActionProposals": 2
+  },
   "missingOrStalePackets": [
     {
       "id": "plant-tour-follow-up-2026-05-27",
@@ -328,37 +333,1400 @@
     {
       "id": "brain-stakeholder-access-boundary-2026-05-27",
       "severity": "high",
-      "note": "The sanitized-access preparation proposal was executed, but the full brain repo remains unsafe to share. Only a curated/redacted stakeholder-facing layer should be sent to Patrick or Eudias.",
-      "source": "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:44.459Z"
+      "note": "The sanitized-access preparation proposal was executed, and the stakeholder-facing frontend now has a captured Unabyss-style design direction. The full brain repo remains unsafe to share; only a curated/redacted layer should go to Patrick or Eudias.",
+      "source": "project-memory/learnings/discoveries.json#DISC-2026-05-27-005"
     }
   ],
-  "cortex": {
-    "latestRun": "cortex/latest-run.json",
-    "insightsReady": [
-      "cortex/insights/2026-05-12-policy-enforcement-gap.json",
-      "cortex/insights/2026-05-12-stewardship-gate.json",
-      "cortex/insights/2026-05-20-citrine-historian-sample-still-unstuck.json",
-      "cortex/insights/2026-05-20-enforcement-stack-license-gate.json",
-      "cortex/insights/2026-05-20-gold-domain-scope-risk.json",
-      "cortex/insights/2026-05-20-pbi-sales-model-consolidation.json",
-      "cortex/insights/2026-05-20-plant-floor-paper-system-of-record.json",
-      "cortex/insights/2026-05-20-source-truth-collapse.json",
-      "cortex/insights/2026-05-20-steward-workshop-operating-model.json",
-      "cortex/insights/2026-05-21-gold-semantic-control-surface.json",
-      "cortex/insights/2026-05-21-intercompany-master-data-pattern.json",
-      "cortex/insights/2026-05-24-patrick-ooo-decision-gate.json",
-      "cortex/insights/2026-05-26-plant-floor-evidence-map-promoted.json",
-      "cortex/insights/2026-05-27-calendar-action-contract-gap.json",
-      "cortex/insights/2026-05-27-context-capsule-packet-promotion.json",
-      "cortex/insights/2026-05-27-plant-floor-evidence-stream-contract.json",
-      "cortex/insights/2026-05-27-proactive-coaching-disable-gate.json",
-      "cortex/insights/2026-05-27-pryor-ot-purdue-ssrs-boundary.json",
-      "cortex/insights/2026-05-27-stakeholder-knowledge-base-access-boundary.json",
-      "cortex/insights/2026-05-27-weekly-fabric-cadence-reset.json"
-    ],
-    "openActionProposals": [
-      "action-proposals/2026-05-27-audit-proactive-coaching-disable-gate.json",
-      "action-proposals/2026-05-27-confirm-weekly-fabric-calendar-reset.json"
-    ]
-  }
+  "meetings": [
+    {
+      "id": "2026-05-27-fabric-stand-up-recovery-planning-39c96ede",
+      "title": "Fabric Stand-Up Recovery Planning",
+      "date": "2026-05-27T16:13:39.029Z",
+      "duration": "47:56",
+      "summary": "Steve and Patrick decided to cancel this week's Fabric stand-up so Steve can recover and organize the outcomes from recent on-site meetings. They also discussed Steve's recent medical episode, Patrick's support, upcoming scheduling around Purview and Fabric, and tentative plans to meet in person on Monday.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:19:58.882Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "39c96ede-9e1f-40c1-9b96-1bcc53983974",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-27/2026-05-27-fabric-stand-up-recovery-planning-39c96ede.md",
+          "natively/meeting-captures/2026-05-27/2026-05-27-fabric-stand-up-recovery-planning-39c96ede.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Steve and Patrick decided to cancel this week's Fabric stand-up so Steve can recover and organize the outcomes from recent on-site meetings. They also discussed Steve's recent medical episode, Patrick's support, upcoming scheduling around Purview and Fabric, and tentative plans to meet in person on Monday.",
+        "keyPoints": [
+          "Steve said he needs more time to digest the recent on-site meetings, transcripts, and topics into an actionable execution plan.",
+          "Patrick recommended canceling this week's Fabric stand-up because little had changed since the prior week and Steve was not fully back up to speed.",
+          "They agreed next week's Fabric discussion should be longer and likely moved to Thursday or Friday to allow more time after the Purview meeting.",
+          "Steve said the recent meetings produced useful direction, especially around how to approach domains and the upcoming product domain work.",
+          "Steve and Patrick discussed Steve's recent medical episode, including confusion, missed travel, EMT involvement, and the need for Steve to prioritize recovery.",
+          "Patrick emphasized that he is available as both a manager and friend while still respecting Steve's medical privacy and boundaries.",
+          "Patrick plans to be in town from Thursday afternoon through Thursday morning for family graduation events and is considering meeting Steve and Marjorie on Monday.",
+          "Steve described an IP Corp interface he has been building to connect meeting transcripts, decisions, and source discussions."
+        ],
+        "actionItems": [
+          "Cancel this week's Fabric stand-up.",
+          "Move next week's Fabric stand-up to Thursday or Friday if possible and extend it to about an hour.",
+          "Find a time that works for Steve, Patrick, Robin, and as many required attendees as possible, prioritizing Robin and Patrick.",
+          "Steve should continue organizing on-site meeting materials into an actionable execution plan.",
+          "Steve should attend his Thursday morning neurologist or neurosurgeon appointment and block calendar time if needed.",
+          "Patrick should confirm Monday availability with his wife for a potential visit with Steve and Marjorie.",
+          "Steve and Patrick may use Monday work hours to review the IP Corp transcript/decision interface before meeting socially."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-27-disabling-proactive-coaching-mode-12b70248",
+      "title": "Disabling Proactive Coaching Mode",
+      "date": "2026-05-27T15:59:46.132Z",
+      "duration": "1:49",
+      "summary": "Primary signals: the, access, don, and, another, are. Opening context: No.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T16:02:06.462Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "12b70248-4d2a-4eda-9af6-79efdf6bf2ca",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-27/2026-05-27-disabling-proactive-coaching-mode-12b70248.md",
+          "natively/meeting-captures/2026-05-27/2026-05-27-disabling-proactive-coaching-mode-12b70248.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: the, access, don, and, another, are. Opening context: No.",
+        "keyPoints": [
+          "**[SAY THIS]:** I don’t want us to solve this with another spreadsheet. We need a governed read path here: define the source, the access model, and the smallest usable output, then handle the SQL access gap separately. What’s the narrowest contract we can stan",
+          "What are you talking about? I don't even"
+        ],
+        "actionItems": []
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-20-fabric-weekly-stand-up-4f8f4e90",
+      "title": "Fabric Weekly Stand-Up",
+      "date": "2026-05-20T17:01:21.349Z",
+      "duration": "46:01",
+      "summary": "The group reviewed how the prior ELT discussion landed, agreed the message was understood, and focused on narrowing a broad SharePoint list into clearer, time-boxed next steps. They also discussed governance role selection, data domain definition, system-of-record complexity, and the organizational challenges created by fragmented sales leadership and legacy data structures.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T18:55:15.978Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "4f8f4e90-6fa6-4593-9144-b1f07d1efd2e",
+        "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D7000028B34E980000",
+        "matchedCalendarSubject": "Fabric Weekly Stand-Up",
+        "calendarAttendees": [
+          "Patrick Stiller",
+          "Mike Spencer",
+          "Eudias Kifem",
+          "Robin Virginia"
+        ],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-20/2026-05-20-fabric-weekly-stand-up-4f8f4e90.md",
+          "natively/meeting-captures/2026-05-20/2026-05-20-fabric-weekly-stand-up-4f8f4e90.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript",
+          "outlook-calendar"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "The group reviewed how the prior ELT discussion landed, agreed the message was understood, and focused on narrowing a broad SharePoint list into clearer, time-boxed next steps. They also discussed governance role selection, data domain definition, system-of-record complexity, and the organizational challenges created by fragmented sales leadership and legacy data structures.",
+        "keyPoints": [
+          "The SharePoint list has useful content but is too broad for the current work; it should be refreshed, categorized, and narrowed so out-of-scope items are clearly separated.",
+          "The team felt the ELT understood why the topic matters and what was being asked, even though live engagement was limited.",
+          "Mike’s follow-up feedback remains important before locking the next step, since he has been discussing the topic with ELT members separately.",
+          "A workshop was proposed to identify data steward and role candidates, using breakout groups and clear criteria so participants consider cross-functional corporate needs rather than only NAC, IP, or their own functional area.",
+          "The group agreed role criteria should emphasize enterprise-wide ownership, including consultation across divisions before recommending structures or candidates.",
+          "Data domains are still fuzzy and need definition; the first domain will likely take the longest because the team must decide scope, naming, and boundaries.",
+          "System-of-record decisions will vary by dimension: M3 may be authoritative for some customer data, Salesforce may be authoritative or transitional for other dimensions, and product data may involve Optiva or product catalog structures.",
+          "Major barriers include corporate hierarchy, pricing, product line structure, acquisition history, security boundaries, and legacy systems that have been adapted around business behavior instead of modernized strategically."
+        ],
+        "actionItems": [
+          "Wait for Mike to bring back feedback from his follow-up meetings before finalizing the next step.",
+          "Refresh the SharePoint list, categorize out-of-scope items, and repost the narrowed version for broader visibility.",
+          "Define time-boxed next-step tasks for teams to work through after the refreshed list is posted.",
+          "Plan a workshop to identify data steward and role candidates, including breakout discussions and a goal of leaving with names identified.",
+          "Prepare workshop role criteria, questions, and an application-style intake for evaluating candidates consistently.",
+          "List the initial data domains, define each domain, and decide the first domain scope and cutoff point.",
+          "Clarify system-of-record expectations by data dimension, including where M3, Salesforce, Optiva, product catalog, and reporting layers should be authoritative.",
+          "Prioritize customer hierarchy and corporate hierarchy issues as early focus areas because they affect reporting, security, and business transformation work."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-20-intercompany-item-mapping-a81c405c",
+      "title": "Intercompany Item Mapping",
+      "date": "2026-05-20T16:03:01.969Z",
+      "duration": "16:55",
+      "summary": "The group discussed how to represent Interplastic-related items in M3 while avoiding duplicate item numbers across companies and facilities. The preferred model was to keep a single shared item definition where possible, with NAC and Plastic using M3 intercompany functionality to handle transfers and accounting automatically.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T18:57:12.319Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "a81c405c-2d57-4969-862e-b62d0d0b7efc",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-20/2026-05-20-intercompany-item-mapping-a81c405c.md",
+          "natively/meeting-captures/2026-05-20/2026-05-20-intercompany-item-mapping-a81c405c.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "The group discussed how to represent Interplastic-related items in M3 while avoiding duplicate item numbers across companies and facilities. The preferred model was to keep a single shared item definition where possible, with NAC and Plastic using M3 intercompany functionality to handle transfers and accounting automatically.",
+        "keyPoints": [
+          "Interplastic appears to use one item number, with item attributes and classification fields determining how the item is used rather than creating separate numbers by company or facility.",
+          "A maintained vendor item cross-reference or item mask was identified as the appropriate M3-supported bridge if different external item references must be connected.",
+          "Using the same item master definition enables NAC to submit a distribution order and lets M3 create the intercompany accounting in the background, avoiding manual AP and AR processing.",
+          "NAC and Plastic currently classify similar materials differently, including differences between item group and item type usage, which complicates shared item design.",
+          "The group noted that some item classification fields drive downstream behavior and may not be changeable after setup, so the item master design needs to be handled carefully.",
+          "Past Molding Products cleanup required adoption of Plastic raw material codes where products were truly the same, but did not fully clean up every legacy code.",
+          "Customer, supplier, payer, ship-to, and deliver-from structures have similar ownership ambiguity: a payer or supplier number alone does not reliably identify the business unit without additional context.",
+          "Future reporting or gold model design will likely need ERD-style relationships, with some dimensions shared across domains and some relationships modeled as one-way rather than bidirectional."
+        ],
+        "actionItems": [
+          "Confirm whether a maintained vendor item cross-reference or item mask exists for the item and use that as the only mapping bridge if needed.",
+          "Validate the NAC-master / Plastic-receiving model against the actual M3 intercompany distribution order and accounting flow.",
+          "Identify which item master classification fields drive downstream behavior and which cannot be changed after setup.",
+          "Align with business stakeholders on whether the item should remain one shared definition across facilities and companies.",
+          "Model the customer, supplier, payer, ship-to, deliver-from, and warehouse-item relationships clearly for future reporting or gold model design."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-20-fabric-warehouse-reporting-discussion-part-2-and-the-can-one-faf3e9fc-p2",
+      "title": "Fabric Warehouse Reporting Discussion - Part 2: And The Can One",
+      "date": "2026-05-20T15:55:19.91Z",
+      "duration": "6:32",
+      "summary": "Primary signals: and, the, can, one, they, but. Opening context: Alright.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:00:15.626Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "faf3e9fc-ed00-4221-b0b0-22886d1347e6",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-20/2026-05-20-fabric-warehouse-reporting-discussion-part-2-and-the-can-one-faf3e9fc-p2.md",
+          "natively/meeting-captures/2026-05-20/2026-05-20-fabric-warehouse-reporting-discussion-part-2-and-the-can-one-faf3e9fc-p2.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: and, the, can, one, they, but. Opening context: Alright.",
+        "keyPoints": [
+          "think they really matter. No. It's just to give me a little",
+          "the business does, obviously. So product, I think, might",
+          "There's no reason for it being issue. It's because",
+          "Unless you're doing analysis, then they might wanna know",
+          "And how are you to define that? Because an item",
+          "To get address and some information for history."
+        ],
+        "actionItems": []
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-20-fabric-deep-dive-working-session-part-1-the-and-they-can-faf3e9fc-p1",
+      "title": "Fabric Deep-Dive Working Session - Part 1: The And They Can",
+      "date": "2026-05-20T15:01:08.993Z",
+      "duration": "54:10",
+      "summary": "Primary signals: the, and, they, can, don, okay. Opening context: You you got double booked?",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:00:15.626Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "faf3e9fc-ed00-4221-b0b0-22886d1347e6",
+        "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D7000096DEB0550000",
+        "matchedCalendarSubject": "Fabric Deep-Dive Working Session",
+        "calendarAttendees": [
+          "Patrick Stiller",
+          "Eudias Kifem",
+          "Matt Francis",
+          "Kerri Voiss",
+          "Think Pad Conference Room"
+        ],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-20/2026-05-20-fabric-deep-dive-working-session-part-1-the-and-they-can-faf3e9fc-p1.md",
+          "natively/meeting-captures/2026-05-20/2026-05-20-fabric-deep-dive-working-session-part-1-the-and-they-can-faf3e9fc-p1.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript",
+          "outlook-calendar"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: the, and, they, can, don, okay. Opening context: You you got double booked?",
+        "keyPoints": [
+          "We don't know. If they're using it correctly, we don't know how they're calculating it. And so",
+          "they can all run stuff so they could all run and see everybody's stuff. So",
+          "That's where they start price supports, but, technically, wherever they go to me is the system of record.",
+          "Which is then needed by purchasing an NAC because otherwise it can't be in the warehouse to distribute.",
+          "I’d start with the highest-volume workflow first and make sure Salesforce is the system of record for that end to end. Then I’d map the data that has to stay in sync with the ERP side so we’re not duplicating entries or creating conflicting records.",
+          "I’d start with what you’ve got today, map the handoff points, and then strip out the duplicate entry first. If we don’t remove the friction people feel right now, the new flow won’t stick."
+        ],
+        "actionItems": [
+          "Can try to do a research on how to use",
+          "You just need to turn that on. Whoever's looking for",
+          "That should give you what you need to do.",
+          "Kinda bizarre. But, yeah, that would be exactly what we would need to",
+          "Only the starting spot. We need to start somewhere.",
+          "And the only place that we would need to",
+          "know what Salesforce is all intended to do. I thought Salesforce is not just",
+          "Chris started putting together. You need to start to take over and put yourself out."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-20-monthly-it-all-hands-bccb90a3",
+      "title": "Monthly IT All Hands",
+      "date": "2026-05-20T13:10:53.479Z",
+      "duration": "19:54",
+      "summary": "The meeting focused on confirming how Power BI reports connect to warehouse data and how that should translate into a governed gold-model architecture by domain. The team aligned that live/direct-connected reports should filter and secure data in the Power BI semantic model, while upstream source mapping is needed before locking the first domain model.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:02:03.387Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "bccb90a3-a451-4197-8d81-4bb08d88fd98",
+        "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D70000D43043290000",
+        "matchedCalendarSubject": "Monthly IT All Hands",
+        "calendarAttendees": [
+          "Dominique Mathers",
+          "Dawn Kreuz",
+          "Brenda Lins",
+          "Elana Kampfer",
+          "Eudias Kifem",
+          "Jason Christensen",
+          "Jason Shawver",
+          "Jeanne Bartow",
+          "John Lee",
+          "Kelly Chapman",
+          "Kerri Voiss",
+          "Lorrie Connelly",
+          "Matt Francis",
+          "Matt Pennaz",
+          "Matt Talarico",
+          "Michael Kenney",
+          "Michael Thiel",
+          "Mike Spencer",
+          "Omar Shukri",
+          "Patrick Stiller",
+          "Peng Vang",
+          "Robin Virginia",
+          "Sara Wahlberg",
+          "Steve Nahrup",
+          "Stuart Langley",
+          "Toua Vang",
+          "Tu Nguyen",
+          "Omari Amsterdam",
+          "Seng Vang"
+        ],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-20/2026-05-20-monthly-it-all-hands-bccb90a3.md",
+          "natively/meeting-captures/2026-05-20/2026-05-20-monthly-it-all-hands-bccb90a3.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript",
+          "outlook-calendar"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "The meeting focused on confirming how Power BI reports connect to warehouse data and how that should translate into a governed gold-model architecture by domain. The team aligned that live/direct-connected reports should filter and secure data in the Power BI semantic model, while upstream source mapping is needed before locking the first domain model.",
+        "keyPoints": [
+          "Michelle is the known user of the report discussed at the start of the session.",
+          "The report appears to use a live/direct connection to the warehouse, which means the report updates as soon as source data lands and does not rely on scheduled refresh.",
+          "Because direct/live connections do not support Power Query transformation steps in the same way, filtering should happen in Power BI through DAX, report filters, and model-level rules.",
+          "The intended pattern is one governed gold model per domain that contains the facts, dimensions, joins, and row-level security rules needed by that domain’s reports.",
+          "Report builders should connect to the domain gold model rather than creating separate datasets or reaching around it to one-off sources.",
+          "If a report needs data that is missing from the gold model, the requirement should be escalated so the data engineering team can add it to the model.",
+          "The first domain onboarding step is to inventory all reports and source tables, then identify the tables that provide broad coverage across the domain.",
+          "Speaker 4’s execution package includes templates and worksheets for usage summaries, artifact inventory, governance, implementation playbooks, domain documentation, data contracts, architecture diagrams, workshops, and presentations."
+        ],
+        "actionItems": [
+          "Retrieve Speaker 4’s execution package from the shared location and identify the worksheet/tab listing upstream source tables, downstream reports, governance, and ownership.",
+          "Confirm which domain will be onboarded first; customer was used as the working example but still needs formal confirmation.",
+          "Map the exact Power BI dataset name for the report in scope and identify whether it reads from a view or directly from warehouse tables.",
+          "Determine whether Michelle’s report is connected to an existing view, a gold table, or a lower-level warehouse table.",
+          "Document the initial gold model shape for the chosen domain, including core fact table, shared dimensions, joins, and model-level RLS rules.",
+          "Circulate the Kimball Data Warehouse Toolkit and Data Warehouse Lifecycle Toolkit to the team, with at least the first chapter recommended before proceeding."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-19-historian-data-extraction-update-meeting-part-2-the-and-can-data-55c993c4-p2",
+      "title": "Historian Data Extraction Update Meeting - Part 2: The And Can Data",
+      "date": "2026-05-19T18:58:54.205Z",
+      "duration": "27:41",
+      "summary": "Primary signals: the, and, can, data, for, citrine. Opening context: Here is the prep package for this upcoming meeting....--- tags: - all --- # Meeting Prep — Historian Data Extraction Update (this week, 2026-05-19 to 23) > Audience: Steve + Patrick (pre-align). Internal voice — candid, ...",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:03:23.344Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "55c993c4-176b-4868-9018-b3cd0fdc2830",
+        "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D7000065B2BA5E0000",
+        "matchedCalendarSubject": "Historian Data Extraction Update Meeting",
+        "calendarAttendees": [
+          "Bradley Grove",
+          "Ryan Mozzetti",
+          "Robert LaMontagne",
+          "Steve Nahrup",
+          "Patrick Stiller",
+          "Anne Hackman",
+          "Mark Sullivan",
+          "Jim Cecere",
+          "Dominique Mathers",
+          "Matt Francis",
+          "Caitlin Greaney"
+        ],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-update-meeting-part-2-the-and-can-data-55c993c4-p2.md",
+          "natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-update-meeting-part-2-the-and-can-data-55c993c4-p2.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript",
+          "outlook-calendar"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: the, and, can, data, for, citrine. Opening context: Here is the prep package for this upcoming meeting....--- tags: - all --- # Meeting Prep — Historian Data Extraction Update (this week, 2026-05-19 to 23) > Audience: Steve + Patrick (pre-align). Internal voice — candid, ...",
+        "keyPoints": [
+          "Here is the prep package for this upcoming meeting....--- tags: - all --- # Meeting Prep — Historian Data Extraction Update (this week, 2026-05-19 to 23) > Audience: Steve + Patrick (pre-align). Internal voice — candid, direct. > Origin: Jim Cecere's follow-up",
+          "I might not be the owner of this meeting, so I may not be able to cancel it myself. If that’s the case, can someone with access officially cancel this week’s slot and I’ll send a new invite for next week?",
+          "I was thinking we should start by narrowing down which resin properties actually matter most, and then check whether we’ve got clean enough data to train against them. If that looks solid, we can build it in layers and validate it against the batch process bef",
+          "[] **[SAY THIS]:** Yes, probably for the workflow layer, but not for the modeling engine. Cowork/Claude/Copilot can help structure the data, explain the formulas, generate comparisons, and drive the workflow. But if Citrine is doing specialized formulation mod",
+          "What that looks like in practice is: I’d take one product row end to end in Cowork, compare the flat formulation, intermediate blend, and final resin fields against the costing workbench, and see whether the numbers stay consistent across all three. If they do",
+          "Now we can say whether cowork is just organizing the data, or whether it’s actually tracing all the way down to the individual raw ingredients and keeping the intermediate blend and final resin consistent. That’s the piece I want to verify on one row before we"
+        ],
+        "actionItems": [
+          "Here is the prep package for this upcoming meeting....--- tags: - all --- # Meeting Prep — Historian Data Extraction Update (this week, 2026-05-19 to 23) > Audience: Steve + Patrick (pre-align). Internal voice — candid, direct. > Origin: Jim Cecere's follow-up request, continuing from Patrick's 2026-04-07 email reframing the extraction owner as Robert/Ryan. > Teams link: https://teams.microsoft.com/meet/21208845130301?p=8e92WNSACwr2sbKloW · Meeting ID 212 088 451 303 01 · Passcode `ia9QS3A4` --- ## 1. Why this meeting exists Jim Cecere (VP R&D) called the follow-up to figure out the **data we want, who pulls it, and how Citrine ingests it**. Patrick's 2026-04-07 note already drew the line: this is a one-time controls/historian extract, so **Robert LaMontagne or Ryan Mozzetti** owns the pull; Jim's R&D team owns what to ask for; Citrine validates the sample format/volume; Steve + Patrick own the long-term Fabric trajectory. The job in this meeting isn't to design Fabric Bronze for the historian — it's to **finalize the sample extract** and **un-stick the four-week silence** since the last on-the-record session (2026-04-10). The 2026-04-30 continuation has no transcript and produced no captured decisions, so we're effectively walking in cold on status. ## 2. Where things stand (with citations) ### Last confirmed status — 2026-04-10 Historian Data Extraction session Captured in [`meetings/summaries/2026-04-10-historian-data-extraction.md`](../../meetings/summaries/2026-04-10-historian-data-extraction.md) (full Teams transcript): - Historian data extraction is **manual, batch-by-batch** today; no automated pull exists. - Robert estimated **~3 months** for \"initial data loading\"; Patrick said full implementation would be longer, contingent on approvals. - **Phase interval batch data** should be available; Ryan was assigned to contact **Tony** for access or adjustments. - Mark Sullivan (Citrine), Ryan, Robert reviewed the **Citrine data framework** — which batch-level single-point values to extract, distinguishing inputs vs. outputs. Expert input was flagged as critical for variable selection. - Robert took the action to **reach out to Cybertrol (Cyber Control)** for an extract, keeping Patrick and Steve in the loop. - Robert was to contact **Tim** for database differences across sites and **Sabichal** for the Prior-site report. - Robert was to reach out to **Matt Finch** for fabric-upgrade approval (per Patrick). - Group agreed to reconvene in two weeks → that became the 2026-04-30 session. ### What we DON'T have — 2026-04-30 continuation [`meetings/summaries/2026-04-30-historian-data-extraction-cont.md`](../../meetings/summaries/2026-04-30-historian-data-extraction-cont.md) is a STUB. Calendar metadata only — Patrick, Mozzetti, Robert, Hackman, Sullivan, Mathers, Grove. No transcript. **We don't know what was decided.** Treat this as Open Question #1 in the meeting: \"Robert / Pat, can you catch us up on what came out of the 30th — I don't have notes from that one.\" ### Patrick's 2026-04-07 role split (the doctrine for this meeting) > *\"Since this is a one-time extract within the controls/historian domain, Robert or Ryan should take charge of this extraction process… The immediate priority is to deliver a sample extract for Citrine to validate format, volume, and ingestion requirements… The long-term goal will be moving this data into Fabric, which will still require additional coordination with Robert.\"* Translation: - **Robert / Ryan**: own the extract. - **Citrine team** (Mark Sullivan + Alicia Andrews-Vafai / Anne Hackman): validate format/volume/ingestion once the sample lands. - **Jim Cecere**: owns the R&D-side \"what do we want?\" — the variable selection from the 04-10 framework discussion. - **Steve + Patrick**: own the Fabric trajectory and the network/security plumbing. ### Citrine context refresher From [`project-memory/systems-landscape.md`](../../project-memory/systems-landscape.md) (Citrine entry): - Cloud-based materials-informatics / AI property-prediction platform from **Citrine Informatics**. - Primary data source today is **Optiva** (PLM formulas, ingredients, raw-material specs) via SQL export. - Historian feeds the **process-data** side of the picture that Citrine doesn't have yet — temperatures, viscosity curves, AV trajectories, hold times. - SAML SSO already wired up week of 2026-01-09. Mark Sullivan is the Citrine PM; Alicia Andrews-Vafai / Anne Hackman are the materials-informatics engineers on Citrine's side. - Known integration gotcha from 2026-04-30 Citrine working session: **`levels` parameter silent-failure** in the Citrine Excel ingest tool — if set too shallow, you miss recursive children (Alkyd batches case). Don't accept \"looks fine\" without verifying every batch type is represented. ### What the Plant Tour (yesterday, 2026-05-19) adds From [`meetings/summaries/2026-05-19-plant-tour.md`](../../meetings/summaries/2026-05-19-plant-tour.md), three things land directly on this meeting: - **Viscometer auto-populates MES; AV (acid value) is manual entry.** That means for any batch-level extract for Citrine, the curve points are MES-resident, but anything AV-dependent has manual-entry timestamp gaps to be aware of. (`DISC-2026-05-19-017`) - **Pilot reactor batches aren't in MES at all.** Andre creates batch numbers manually. (`DISC-2026-05-19-009`). If R&D wants pilot-scale process data in Citrine, the data isn't reachable from the historian/MES stack alone. - **Total Automation Project completed ~18 months ago** — the historian-adjacent PLC layer is current-generation; we're not dealing with a 30-year-old system. (`DISC-2026-05-19-016`) ### Today's separate Preface Fabric Meeting context (2026-05-19) Not central to this meeting, but worth carrying in your back pocket: see [`meetings/summaries/2026-05-19-preface-fabric-meeting.md`](../../meetings/summaries/2026-05-19-preface-fabric-meeting.md) — the M3 Cloud → Fabric path and the SQL Server mirroring conversation are the **same architectural pattern** we'll eventually want for the historian. If Jim or Robert asks \"what happens after the sample?\" the answer is **Fabric Bronze via mirroring or a direct pull, parallel to what we just scoped for SQL Server sources** — not a new bespoke pipeline. ## 3. Attendees + signals | Person | Role | What they'll likely push for | Signal to watch for | |---|---|---|---| | **Jim Cecere** | VP R&D, Interplastic | A concrete timeline for getting Citrine *useful data* — he's the demand pull. May press on \"is this sample going to be enough or do we need more?\" | Frustration with extraction taking longer than R&D feels it should. He's the one with the budget at stake. | | **Patrick Stiller** | IT Manager, our day-to-day | Keep the controls/historian work with Robert/Ryan; protect Steve's bandwidth for Fabric/governance. May echo \"this is a one-time thing.\" | If Patrick wants to pull back from Cybertrol coordination, that's a flag we should catch. | | **Robert LaMontagne** | OT Contact / Process Control Manager | Owns the actual extract. Will report on Cybertrol outreach, Tony/Tim/Sabichal status. | If he hedges on the 3-month estimate from 04-10, that's the real news. | | **Ryan Mozzetti** | Controls engineer (assumed — no stakeholder-map entry yet — see Open Question below) | Tactical execution — what comes out of the historian, in what shape. | If Ryan got blocked on Tony or on phase-interval data, surface it. | | **Steve (you)** | Architect / Fabric owner | Connect the sample-extract work to the Fabric Bronze trajectory without taking the extraction work back onto your plate. | Don't accidentally re-own the extract. Robert/Ryan lead. | **Likely also in the room** (from the recurring Historian working group + Citrine cadence): Mark Sullivan, Bradley Grove, Dominique Mathers, possibly Anne Hackman. Calendar will confirm. ## 4. Your goal for the meeting > **Walk out with a named sample extract spec, a named owner, and a target date.** Everything else is bonus. A \"sample extract spec\" means: which **tags / variables**, for which **batch types**, over what **time window**, in what **file format**, delivered to **whom**. If we leave without those five things named, the next meeting is a re-run. Secondary goal: **set up the long-term Fabric ingestion conversation as a follow-up**, not in this meeting. Avoid letting the discussion balloon into \"and then how do we Fabric.\" Anchor that as a Patrick-and-Steve follow-up. ## 5. Talking points (in order) 1. **Opener (≤ 90 seconds):** \"Jim, thanks for setting this up. Quick frame — the 4-10 session put the framework on the table and the 4-30 continuation got into more detail. I want to use today to lock the sample extract scope and the timeline, then keep the long-term Fabric path as a separate Patrick-and-me follow-up.\" 2. **Status check (pull from Robert):** \"Robert, can you catch us up since the 30th? Where did the Cybertrol outreach land? Did we hear back on phase-interval data from Tony, and on the site differences from Tim?\" *(Why this matters: we have no transcript from 4-30 in the brain. This question fills the gap and gets the room oriented.)* 3. **Citrine validation framing:** \"Mark / Anne — Patrick's 4-7 note set the priority as a **sample** that Citrine validates for format, volume, and ingestion. What's the minimum sample size that lets you tell us whether the shape works? And is there anything beyond batch-level single-point values you need to see to give us a clean yes/no?\" 4. **The five-thing spec:** Walk the room through the five things we need to leave with: - **Variables / tags** — the input/output list from the 04-10 framework discussion. Has Mark + Ryan + Robert finalized it? - **Batch types** — every type that matters, including (deliberately) at least one Alkyd batch, given the levels-parameter silent-failure we hit on 04-30 in the Citrine working session. - **Time window** — how far back, how many batches, calendar window or batch-count. - **Format** — what file type Citrine prefers for sample ingest (CSV / parquet / Excel via their tool). - **Delivery target** — secure transfer mechanism + named recipient on Citrine's side. 5. **Fabric trajectory framing (one minute, no longer):** \"On the long-term — once we have a working sample, Patrick and I will design the Bronze ingestion path. It'll likely parallel what we're now scoping for SQL Server sources via Fabric mirroring. I'll come back to this group with that plan; it doesn't need to slow down the sample work.\" 6. **Close — confirm next steps + owner + date:** Read them back. Robert / Ryan: extraction owner. Date: explicit. Mark / Anne: validation owner. Next meeting: when. ## 6. Questions to ask (in priority order) 1. **Robert:** What came out of the 30th — what's the current status of the Cybertrol outreach for the extract? 2. **Robert / Ryan:** Did Tony come through on phase-interval data access? If not, where's it stuck? 3. **Robert:** Status on Tim (site DB differences) and Sabichal (Prior site report) — those were open from 04-10. 4. **Robert:** Did Matt Finch sign off on the fabric upgrade approval you were going to ask him about? 5. **Mark / Anne (Citrine):** Minimum viable sample for you to give a thumbs-up on format/volume? What's the worst-case \"this sample doesn't tell us enough\" answer look like? 6. **Ryan / Mark:** Has the input vs. output variable list been finalized since 04-10? If yes, where's it documented? 7. **Jim:** Is there a hard date — internal R&D milestone, board commitment, anything — driving urgency on the Citrine side that we should be aware of? 8. **Patrick:** Do we need to formalize the Cybertrol scope under SOW W34130 or is this a small-enough one-time pull that an email suffices? ## 7. Things to NOT promise / red lines - **Don't take ownership of the extract.** Robert / Ryan own it per Patrick's 4-7 doctrine. If pressure builds for you to \"just do it,\" push back: the controls/historian domain is theirs. - **Don't commit to a Fabric Bronze production date** for historian data. The Fabric historian Bronze design is a *separate* downstream thread that happens after the sample-validate handshake; it's not on the table today. - **Don't accept \"we'll figure out the variables later\"** — that's how we end up rerunning the 04-10 framework conversation in 6 weeks. Push for a named list out of today. - **Don't accept \"the extract is fine, looks good\"** without an explicit Alkyd-batch check (per the 04-30 Citrine session silent-failure pattern with the `levels` parameter). - **Don't agree to add the historian to the weekly MDM status email scope** — keep it separate as a controls/historian extract until it actually becomes part of the Fabric program. ## 8. Risks / watch-outs entering the room - **Risk: silent four-week drift.** The 2026-04-30 session is a stub in the brain — we don't know if real progress happened or if it was a status holding pattern. If it was the latter, this meeting needs to be the one that breaks it. - **Risk: variable list never gets finalized.** The 04-10 framework discussion never named the inputs/outputs concretely. If we don't pin that down today, the sample extract is unactionable. - **Risk: Cybertrol is the bottleneck.** Robert took the action on 04-10 to reach out to Cybertrol; we don't know the status. If Cybertrol hasn't engaged, that's a hard blocker and Jim needs to know — it's not a \"data team is slow\" story, it's a vendor-dependency story. - **Risk: levels-parameter silent failure** ([`DISC-2026-05-04-368` neighborhood — Citrine working session 04-30 risks](../../project-memory/learnings/discoveries.json)) — Citrine's Excel ingest tool can quietly drop recursive children. Don't accept a sample that hasn't been Alkyd-verified. - **Risk: pilot reactor batches.** If R&D wants pilot-scale process data via Citrine, the historian alone doesn't have it — and MES doesn't have it either (`DISC-2026-05-19-009`). Surface this only if relevant; don't volunteer it into a meeting that's already loaded. ## 9. Open follow-ups owed back to the brain after the meeting - Add **Ryan Mozzetti** to `project-memory/stakeholder-map.md` — currently missing despite being on the recurring Historian working-group attendee list. - Capture a real summary of the meeting under `meetings/summaries/2026-05-MM-historian-data-extraction-update.md` (replacing the 04-30 stub-pattern by writing this one properly). - If the 04-30 session is recapped verbally, capture those facts as discoveries — they're currently a transcript-less black hole in the brain. - If a variable list / sample spec is agreed, that's an `_ADR_CANDIDATES.md` entry (or even a real ADR), not just a discovery — it constrains the historian-Bronze design downstream. - Resolve / advance `DQ-018` (BatchWorks) if Robert clarifies the OT system inventory naturally — the meeting may surface adjacent context. ## 10. Quick-reference card (print this if helpful) ``` GOAL: Sample extract spec + owner + date. DON'T: Take ownership. Promise Bronze date. Skip Alkyd check. ASK FIRST: \"Robert, what came out of the 30th?\" ASK SECOND: \"Mark/Anne, minimum viable sample for validation?\" CLOSE WITH: Read back owner + spec + date. Set next meeting. ROLES: Robert/Ryan = extract. Citrine team = validate. Jim's team = variable list. Patrick + me = Fabric. ``` --- ## Sources cited in this prep - [`meetings/summaries/2026-04-10-historian-data-extraction.md`](../../meetings/summaries/2026-04-10-historian-data-extraction.md) — last full-transcript session - [`meetings/summaries/2026-04-30-historian-data-extraction-cont.md`](../../meetings/summaries/2026-04-30-historian-data-extraction-cont.md) — stub (no transcript) - [`meetings/recurring/historian-data-extraction.md`](../../meetings/recurring/historian-data-extraction.md) — working group attribute table - [`meetings/recurring/citrine-platform-weekly-status.md`](../../meetings/recurring/citrine-platform-weekly-status.md) — Citrine cadence + participants - [`project-memory/systems-landscape.md`](../../project-memory/systems-landscape.md) — Citrine system detail - [`project-memory/stakeholder-map.md`](../../project-memory/stakeholder-map.md) — Jim Cecere, Bradley Grove, Robert LaMontagne, Mark Sullivan, Anne Hackman, Alicia Andrews-Vafai - [`project-memory/glossary.md`](../../project-memory/glossary.md) — Citrine entry (do not confuse with Informatica) - [`project-memory/project-state.md`](../../project-memory/project-state.md) — Citrine R&D Platform row - [`meetings/summaries/2026-05-19-plant-tour.md`](../../meetings/summaries/2026-05-19-plant-tour.md) — viscometer/AV manual entry, pilot reactor absence from MES, Total Automation Project recency - [`meetings/summaries/2026-05-19-preface-fabric-meeting.md`](../../meetings/summaries/2026-05-19-preface-fabric-meeting.md) — SQL Server mirroring pattern carries over to historian downstream - Patrick Stiller email, 2026-04-07: \"Historian Data Extract for Citrine – One-Time Example\" (verbatim in the email chain Steve provided 2026-05-19) - Jim Cecere email (follow-up requesting this update meeting) — also from Steve 2026-05-19 --- ## Email draft for Patrick — see companion file Separate file at [`deliverables/status-emails/2026-05-19-historian-extraction-prep-to-patrick.md`](../status-emails/2026-05-19-historian-extraction-prep-to-patrick.md) — Steve's voice, ready to send.",
+          "[codex-temp] Yes. Send me anything that comes up and I’ll turn it into: - a short line you can say immediately - a correction if someone’s off - a follow-up question if the room needs one I’ll keep it live, direct, and speakable.",
+          "Yeah, let’s cancel this week and come back together next week when everyone’s back. I’ll send something out to find a time that works.",
+          "I might not be the owner of this meeting, so I may not be able to cancel it myself. If that’s the case, can someone with access officially cancel this week’s slot and I’ll send a new invite for next week?",
+          "ask if anything has been done on that front.",
+          "that partially on my fault. We've been swapped here, so I need to get some time",
+          "So circle back and do this.",
+          "I’ll circle back with Robert and Ryan and get some time on the calendar so we can pull it up and go through it together. Once we’ve got that, I can pin down where the gap is and move it forward."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-19-historian-data-extraction-prep-part-1-the-data-and-batch-55c993c4-p1",
+      "title": "Historian Data Extraction Prep - Part 1: The Data And Batch",
+      "date": "2026-05-19T17:49:00.536Z",
+      "duration": "5:58",
+      "summary": "Primary signals: the, data, and, batch, extraction, for. Opening context: I need you to prepare for the Historian Data Extraction Update Meeting",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:03:23.344Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "55c993c4-176b-4868-9018-b3cd0fdc2830",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-prep-part-1-the-data-and-batch-55c993c4-p1.md",
+          "natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-prep-part-1-the-data-and-batch-55c993c4-p1.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: the, data, and, batch, extraction, for. Opening context: I need you to prepare for the Historian Data Extraction Update Meeting",
+        "keyPoints": [
+          "I need you to prepare for the Historian Data Extraction Update Meeting",
+          "I need you to prepare for the Historian Data Extraction Update Meeting",
+          "[jade-helm] **[SAY THIS]:** “I want to make sure today’s update lands on extraction readiness, not just status. The key question is whether we have a repeatable path from Historian process data plus MES batch/output data into Fabric Bronze, tied by batch ID.” ",
+          "ok, i want you to put this into your immediate memory and just wait for me to turn on the proactive setting so that you can help me during it and listen to it in real-time....got it?",
+          "[codex-temp] Got it. I’ve got the Historian Data Extraction Update Meeting context loaded. I’ll stay quiet until you turn on proactive mode. Once it’s on, I’ll listen for questions, blockers, scope drift, or technical weak spots and give you short, speakable g"
+        ],
+        "actionItems": [
+          "[jade-helm] **[SAY THIS]:** “I want to make sure today’s update lands on extraction readiness, not just status. The key question is whether we have a repeatable path from Historian process data plus MES batch/output data into Fabric Bronze, tied by batch ID.” **[ASK THESE]:** - “Robert, did Cyber Control or the internal controls team confirm what extract format and access path we can actually get?” - “Do we have batch phase interval data available, or is that still blocked on Tony/Ted?” - “Are site differences documented yet, especially Prior versus the other sites?” - “What’s the first usable slice: one site, one product family, one set of trusted inputs/outputs?” **[DATA]:** Prior meeting said extraction was still manual, batch-by-batch; upgrade/load timeline was roughly 3 months initial loading, longer for full implementation. **[HEADS UP]:** Don’t let this drift into “Fabric can handle it.” The blocker is upstream OT access, extract repeatability, and batch-ID linkage between Historian inputs and MES/M3 outputs."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-19-data-source-etl-simplification-part-4-basically-completely-don-email-8a4bf8ec-p4",
+      "title": "Data Source ETL Simplification - Part 4: Basically Completely Don Email",
+      "date": "2026-05-19T17:27:41.681Z",
+      "duration": "0:21",
+      "summary": "Primary signals: basically, completely, don, email, explain, find. Opening context: time. I completely",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:04:55.735Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "8a4bf8ec-b9ae-423b-87c1-8b6d387fecd2",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-4-basically-completely-don-email-8a4bf8ec-p4.md",
+          "natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-4-basically-completely-don-email-8a4bf8ec-p4.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: basically, completely, don, email, explain, find. Opening context: time. I completely",
+        "keyPoints": [],
+        "actionItems": []
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-19-data-source-etl-simplification-part-3-and-can-for-get-8a4bf8ec-p3",
+      "title": "Data Source ETL Simplification - Part 3: And Can For Get",
+      "date": "2026-05-19T16:25:08.984Z",
+      "duration": "1:02:28",
+      "summary": "Primary signals: and, can, for, get, ice, literally. Opening context: Band things for laptops.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:04:55.735Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "8a4bf8ec-b9ae-423b-87c1-8b6d387fecd2",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-3-and-can-for-get-8a4bf8ec-p3.md",
+          "natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-3-and-can-for-get-8a4bf8ec-p3.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: and, can, for, get, ice, literally. Opening context: Band things for laptops.",
+        "keyPoints": [
+          "I literally have to put my laptop on ice.",
+          "I literally have to get out with ice packs.",
+          "Freezer, and put it underneath. I if I can get you a. No. I",
+          "processor. Think it's just it's I can",
+          "report on? Of course, you could. I just well, I don't wanna, like, say one thing and",
+          "I did reschedule for meeting because I"
+        ],
+        "actionItems": []
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-19-data-source-etl-simplification-part-2-the-did-they-nice-8a4bf8ec-p2",
+      "title": "Data Source ETL Simplification - Part 2: The Did They Nice",
+      "date": "2026-05-19T13:24:08.908Z",
+      "duration": "5:32",
+      "summary": "Primary signals: the, did, they, nice, was, appreciate. Opening context: Alright. I'm good. It's about five. Yeah. I just Nice job. It's",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:04:55.735Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "8a4bf8ec-b9ae-423b-87c1-8b6d387fecd2",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-2-the-did-they-nice-8a4bf8ec-p2.md",
+          "natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-2-the-did-they-nice-8a4bf8ec-p2.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: the, did, they, nice, was, appreciate. Opening context: Alright. I'm good. It's about five. Yeah. I just Nice job. It's",
+        "keyPoints": [
+          "Alright. I'm good. It's about five. Yeah. I just Nice job. It's",
+          "Of course. I did very little. You had you had it under control of doing such",
+          "Yeah. I mean, they're really nice. Yeah. They are.",
+          "I just wanna let you know you did a good job on that. I appreciate it. Thanks.",
+          "plant. I was like, come over. I'll give you a tour. I'm like, well,",
+          "I've already been in the jump seat. Yeah."
+        ],
+        "actionItems": []
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-19-whiteboard-session-part-1-the-and-was-one-8a4bf8ec-p1",
+      "title": "Whiteboard session - Part 1: The And Was One",
+      "date": "2026-05-19T12:29:29.406Z",
+      "duration": "40:01",
+      "summary": "Primary signals: the, and, was, one, can, down. Opening context: Yeah.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:04:55.735Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "8a4bf8ec-b9ae-423b-87c1-8b6d387fecd2",
+        "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D70000BB5AF55C0000",
+        "matchedCalendarSubject": "Whiteboard session",
+        "calendarAttendees": [
+          "Eudias Kifem",
+          "Patrick Stiller"
+        ],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-19/2026-05-19-whiteboard-session-part-1-the-and-was-one-8a4bf8ec-p1.md",
+          "natively/meeting-captures/2026-05-19/2026-05-19-whiteboard-session-part-1-the-and-was-one-8a4bf8ec-p1.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript",
+          "outlook-calendar"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: the, and, was, one, can, down. Opening context: Yeah.",
+        "keyPoints": [
+          "can we say the other day that somebody got hurt in a plant?",
+          "I caught, like, the tail end of it. And I was like,",
+          "There was one in the right time. It was possible.",
+          "Yeah, it was just a short trailer from here to here. I only caught the tail end of it.",
+          "Agreed. The win is it stayed lightweight and still got to the point. If you want to tighten it next time, make sure it ends with: - the owner - the next step - the timing That keeps an ad hoc conversation from staying fuzzy.",
+          "So that's already one degree. Which we can't change that anyway. We can't change"
+        ],
+        "actionItems": [
+          "Agreed. The win is it stayed lightweight and still got to the point. If you want to tighten it next time, make sure it ends with: - the owner - the next step - the timing That keeps an ad hoc conversation from staying fuzzy."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-19-memorial-day-message-discussion-0362607f",
+      "title": "Memorial Day Message Discussion",
+      "date": "2026-05-19T10:16:15.221Z",
+      "duration": "3:29",
+      "summary": "A brief on-air exchange centered on Memorial Day appreciation, a food aside, and a handoff into Fox & Friends. A separate fragment referenced missing weapons and noted that none were reported.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-20T12:22:20.117Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "0362607f-8eb9-49a9-9f37-07fe2cff7c43",
+        "matchedCalendarEventId": null,
+        "matchedCalendarSubject": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-19/2026-05-19-memorial-day-message-discussion-0362607f.md",
+          "natively/meeting-captures/2026-05-19/2026-05-19-memorial-day-message-discussion-0362607f.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "A brief on-air exchange centered on Memorial Day appreciation, a food aside, and a handoff into Fox & Friends. A separate fragment referenced missing weapons and noted that none were reported.",
+        "keyPoints": [
+          "Memorial Day messaging focused on gratitude for heroes and their daily service.",
+          "A light food discussion came up, including comments on the menu, breakfast timing, and barbecue.",
+          "The segment transitioned into Fox & Friends with an explicit start cue.",
+          "A separate line asked which weapons were missing; the response indicated none.",
+          "There was a brief reference to being with a companion."
+        ],
+        "actionItems": []
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-18-nahrup-1-on-1-ebd66650",
+      "title": "Nahrup - 1-on-1",
+      "date": "2026-05-18T15:36:34.826Z",
+      "duration": "27:42",
+      "summary": "The discussion was mostly logistical, focused on checking room availability, AV/setup readiness, and making room for Unisys. A brief data governance pitch was started, framing digital modernization failures as a truth-coordination problem where enterprise systems exist but data does not align.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:21:09.682Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "ebd66650-4789-48fc-9959-8f2de1dd3977",
+        "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D7000031B21ABF0000",
+        "matchedCalendarSubject": "Nahrup - 1-on-1",
+        "calendarAttendees": [
+          "Patrick Stiller",
+          "Steve Nahrup"
+        ],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-18/2026-05-18-nahrup-1-on-1-ebd66650.md",
+          "natively/meeting-captures/2026-05-18/2026-05-18-nahrup-1-on-1-ebd66650.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript",
+          "outlook-calendar"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "The discussion was mostly logistical, focused on checking room availability, AV/setup readiness, and making room for Unisys. A brief data governance pitch was started, framing digital modernization failures as a truth-coordination problem where enterprise systems exist but data does not align.",
+        "keyPoints": [
+          "Room 13 or a nearby room needed to be checked for availability and setup readiness.",
+          "The 11:30 setup window was open, and the group planned to verify whether the room was still occupied.",
+          "AV functionality was a concern before moving forward with the setup.",
+          "Unisys needed to be accommodated, likely with meeting or demo space.",
+          "A nearby apartment complex was referenced as a location the group planned to visit or discuss later.",
+          "Steve briefly mentioned being able to show where the router is if needed.",
+          "The data governance brief framed the problem as organizations spending millions on enterprise technology but still lacking coordinated, matching data across systems.",
+          "The proposed fix or solution for the data governance brief was not completed during the discussion."
+        ],
+        "actionItems": [
+          "Confirm the room assignment and availability for Unisys.",
+          "Verify AV and setup readiness for the 11:30 room or event.",
+          "Follow up on the nearby property or apartment complex visit if still relevant.",
+          "Complete the data governance brief by writing the solution side after the truth-coordination problem statement."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-18-guest-wi-fi-password-help-d4eddbe3",
+      "title": "Guest Wi-Fi Password Help",
+      "date": "2026-05-18T14:28:43.884Z",
+      "duration": "17:38",
+      "summary": "Steve was dealing with a personal/environmental connectivity issue and asked about the SC guest Wi-Fi password. The password was confirmed as “Kettlebell,” with some incidental audio-check and ambient-trigger behavior from Natively.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:06:20.072Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "d4eddbe3-5815-4ec9-9018-1c686b42b9b3",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-18/2026-05-18-guest-wi-fi-password-help-d4eddbe3.md",
+          "natively/meeting-captures/2026-05-18/2026-05-18-guest-wi-fi-password-help-d4eddbe3.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Steve was dealing with a personal/environmental connectivity issue and asked about the SC guest Wi-Fi password. The password was confirmed as “Kettlebell,” with some incidental audio-check and ambient-trigger behavior from Natively.",
+        "keyPoints": [
+          "Steve asked whether Natively could hear him, and Natively confirmed audio was working.",
+          "Steve asked Natively what was on his screen, but no useful screen-related answer was captured.",
+          "Steve asked for the SC guest Wi-Fi password while in a physical location.",
+          "The SC guest Wi-Fi password was confirmed as “Kettlebell.”",
+          "Steve thought he may have connected to the network before, but suspected the password had changed.",
+          "There was possible confusion between being connected via hardwired ethernet and actually being on Wi-Fi.",
+          "Natively produced at least one irrelevant clarification prompt triggered by fragmented or ambient speech."
+        ],
+        "actionItems": [
+          "Review Natively trigger sensitivity to reduce false prompt activations during ambient speech."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-13-security-policy-review-discussion-610cbc15",
+      "title": "Security Policy Review Discussion",
+      "date": "2026-05-13T17:06:41.628Z",
+      "duration": "9:16",
+      "summary": "The discussion aligned on keeping security sub-policies intentionally high-level for audit safety while preserving the distinction between governance policy and operational standards. The group also refined the ELT framing for next week around data domains, ownership, approval boundaries, and avoiding a technical deep dive.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:08:18.861Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "610cbc15-fc91-412c-9b0a-5aeb329ae513",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-13/2026-05-13-security-policy-review-discussion-610cbc15.md",
+          "natively/meeting-captures/2026-05-13/2026-05-13-security-policy-review-discussion-610cbc15.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "The discussion aligned on keeping security sub-policies intentionally high-level for audit safety while preserving the distinction between governance policy and operational standards. The group also refined the ELT framing for next week around data domains, ownership, approval boundaries, and avoiding a technical deep dive.",
+        "keyPoints": [
+          "Security sub-policies should remain sparse and auditor-safe, with details handled through standards or future annual updates rather than over-defined policy language.",
+          "The ELT presentation should focus on decisions: domain owners, approval paths, ownership boundaries, and the next checkpoint, not technical architecture.",
+          "Data classification should be presented as a high-level governance and security framing, with specifics belonging in the data classification standard.",
+          "The data domain slide should show the current working set, identify the top three domains, and ask ELT for input on boundaries and ownership expectations.",
+          "Jared is expected to support the effort because he has been through similar governance work before; Phil may challenge or redirect the conversation, and Steve plans to manage that if needed.",
+          "A Snowflake-first cleanup approach was rejected because it beautifies data without fixing source-system hygiene, standardization, or governance.",
+          "Multi-company complexity, especially NAC as a reseller and M3 spanning the platform, makes product domain ownership and naming conventions more difficult.",
+          "A product domain model should include both a technical owner and a business owner so R&D teams do not independently create inconsistent product structures."
+        ],
+        "actionItems": [
+          "Finalize the security sub-policies at the intended high level before the ELT presentation.",
+          "Confirm named stewards and approval paths for each security sub-policy.",
+          "Have Robin add Steve to the Purview discussion.",
+          "Prepare the ELT data domain slide with the current domain working set, top three domains, and explicit domain-owner time commitment.",
+          "Formalize the recommendation for dual ownership by domain: technical owner plus business owner.",
+          "Resolve the NAC distribution product naming convention, such as a dash-D suffix or equivalent, before it creates downstream M3 issues.",
+          "Keep the ELT presentation focused on governance boundaries and ownership decisions, with procedural details kept out of scope.",
+          "Avoid any Snowflake-first data cleanup plan unless source-system standardization and governance are addressed first."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-13-elt-scenario-presentation-prep-de627cc5",
+      "title": "ELT Scenario Presentation Prep",
+      "date": "2026-05-13T16:57:47.846Z",
+      "duration": "7:29",
+      "summary": "The prep discussion focused on how to incorporate the 12 previously shared data scenarios into the onsite ELT presentation next week. The group leaned toward highlighting a smaller subset of scenarios and using them to drive operating-model ownership decisions rather than technical discussion.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:09:03.238Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "de627cc5-c819-4577-a3fd-b2bfb595da65",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-13/2026-05-13-elt-scenario-presentation-prep-de627cc5.md",
+          "natively/meeting-captures/2026-05-13/2026-05-13-elt-scenario-presentation-prep-de627cc5.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "The prep discussion focused on how to incorporate the 12 previously shared data scenarios into the onsite ELT presentation next week. The group leaned toward highlighting a smaller subset of scenarios and using them to drive operating-model ownership decisions rather than technical discussion.",
+        "keyPoints": [
+          "The onsite ELT meeting is scheduled for next week and will use the 12 scenarios shared the prior week as pre-read material.",
+          "The scenarios should be integrated into the existing ELT presentation rather than treated as a separate technical deep dive.",
+          "A shortlist of six scenarios was identified as the likely set to highlight during the presentation.",
+          "An ELT stakeholder will have time to review the material before the onsite, which should improve the quality of the discussion.",
+          "The scenarios should be framed as decision exercises about business ownership, not Fabric or IT examples.",
+          "Each highlighted scenario should connect to three ownership questions: who owns the definition, who resolves conflicts, and who approves the standard.",
+          "The desired outcome is clear steward names and domain ownership assignments that can support MDM decisions by July."
+        ],
+        "actionItems": [
+          "Confirm the exact six scenarios to highlight before finalizing the deck structure.",
+          "Restructure scenario slides around definition ownership, conflict resolution, and standard approval.",
+          "Prepare ELT framing that positions the scenarios as operating-model choices rather than technical content.",
+          "Ensure the early reviewer receives the right pre-read context focused on ownership decisions.",
+          "Set the onsite expectation that steward names and domain ownership commitments should be clear enough to drive July MDM decisions."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-13-durable-intelligence-layer-9c6c3b18",
+      "title": "Durable Intelligence Layer",
+      "date": "2026-05-13T16:02:31.951Z",
+      "duration": "4:40",
+      "summary": "The meeting walked through Natively's architecture split between the background durable intelligence layer and the lightweight human-facing interface. The discussion centered on how pre-meeting synthesis, approval-based action, and gradual autonomy create a calm product experience that earns user trust over time.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:10:34.076Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "9c6c3b18-7869-48d7-8e34-2d7f895e64f7",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-13/2026-05-13-durable-intelligence-layer-9c6c3b18.md",
+          "natively/meeting-captures/2026-05-13/2026-05-13-durable-intelligence-layer-9c6c3b18.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "The meeting walked through Natively's architecture split between the background durable intelligence layer and the lightweight human-facing interface. The discussion centered on how pre-meeting synthesis, approval-based action, and gradual autonomy create a calm product experience that earns user trust over time.",
+        "keyPoints": [
+          "The brain is the durable intelligence layer responsible for deep observations, long-term memory, meeting prep packets, and action proposals.",
+          "Slow synthesis is completed hours before meetings so Natively does not need to perform heavy processing during live use.",
+          "Natively is the fast interaction surface that displays prepared context, actionable signals, and approval cards.",
+          "The clean dashboard experience depends directly on Natively only reading prepared brain output instead of gathering or processing live data.",
+          "Approval cards must clearly explain the proposal, why it matters now, supporting evidence, and what will happen if approved.",
+          "Trust is built through visible user judgment: approve, snooze, or approve and execute, with a full decision trail.",
+          "Autonomy progresses from Day 1 recommendations to Week 2 pattern learning, Month 3 bundled approvals, and Year 1 autonomous execution for low-risk work.",
+          "The product philosophy is restraint: Natively stays light and calm because the brain carries the system's intelligence burden."
+        ],
+        "actionItems": [
+          "Define the formal four-question approval card specification.",
+          "Turn the autonomy progression model into concrete product milestones.",
+          "Assign clear ownership for the brain's pre-meeting synthesis pipeline.",
+          "Verify that the Natively UI reads only from prepared brain output and does not trigger live processing on open."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-12-desktop-agent-demo-walkthrough-part-3-car-the-all-already-fcfccf65-p3",
+      "title": "Desktop Agent Demo Walkthrough - Part 3: Car The All Already",
+      "date": "2026-05-12T20:13:16.256Z",
+      "duration": "9:50",
+      "summary": "Primary signals: car, the, all, already, alright, everything. Opening context: Alright. Everything's already in the car.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:16:19.416Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "fcfccf65-f100-4c15-aff7-5fca709392e1",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-12/2026-05-12-desktop-agent-demo-walkthrough-part-3-car-the-all-already-fcfccf65-p3.md",
+          "natively/meeting-captures/2026-05-12/2026-05-12-desktop-agent-demo-walkthrough-part-3-car-the-all-already-fcfccf65-p3.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: car, the, all, already, alright, everything. Opening context: Alright. Everything's already in the car.",
+        "keyPoints": [
+          "Alright. Everything's already in the car."
+        ],
+        "actionItems": []
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-12-focus-deep-work-part-2-the-and-agent-can-fcfccf65-p2",
+      "title": "Focus: Deep Work - Part 2: The And Agent Can",
+      "date": "2026-05-12T19:24:57.162Z",
+      "duration": "29:20",
+      "summary": "Primary signals: the, and, agent, can, memory, are. Opening context: MCP server for",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:16:19.416Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "fcfccf65-f100-4c15-aff7-5fca709392e1",
+        "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D7000096DEB0520000",
+        "matchedCalendarSubject": "Focus: Deep Work",
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-12/2026-05-12-focus-deep-work-part-2-the-and-agent-can-fcfccf65-p2.md",
+          "natively/meeting-captures/2026-05-12/2026-05-12-focus-deep-work-part-2-the-and-agent-can-fcfccf65-p2.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript",
+          "outlook-calendar"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: the, and, agent, can, memory, are. Opening context: MCP server for",
+        "keyPoints": [
+          "matches the b two of this autonomous agent That's who who should care?",
+          "which is the b two of this autonomous agent.",
+          "Here here is how you handle the memory,",
+          "What annoys you. And the agent feels this over time.",
+          "Telegram. Just tell my agent to do so. Optionally, you can add part",
+          "itself decides once worth remembering. And the great part is that no dental"
+        ],
+        "actionItems": [
+          "Check out what they're doing.",
+          "just have to ask",
+          "to do one thing,",
+          "to do one thing.",
+          "you send the first message. But here,",
+          "Telegram. Just tell my agent to do so. Optionally, you can add part",
+          "And can check regular somethings."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-12-focus-deep-work-part-1-now-screen-fuck-natively-fcfccf65-p1",
+      "title": "Focus: Deep Work - Part 1: Now Screen Fuck Natively",
+      "date": "2026-05-12T17:02:16.01Z",
+      "duration": "2:14:03",
+      "summary": "Primary signals: now, screen, fuck, natively. Opening context: What's on my screen right now?",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:16:19.416Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "fcfccf65-f100-4c15-aff7-5fca709392e1",
+        "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D7000096DEB0520000",
+        "matchedCalendarSubject": "Focus: Deep Work",
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-12/2026-05-12-focus-deep-work-part-1-now-screen-fuck-natively-fcfccf65-p1.md",
+          "natively/meeting-captures/2026-05-12/2026-05-12-focus-deep-work-part-1-now-screen-fuck-natively-fcfccf65-p1.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript",
+          "outlook-calendar"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: now, screen, fuck, natively. Opening context: What's on my screen right now?",
+        "keyPoints": [],
+        "actionItems": []
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-05-12-untitled-session-9f69fdfd",
+      "title": "Untitled Session",
+      "date": "2026-05-12T13:51:34.234Z",
+      "duration": "0:00",
+      "summary": "Natively preserved the raw transcript for follow-up processing. Opening context: what's going on here?.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-20T12:22:31.166Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "9f69fdfd-fcb0-4a8e-be1e-af2e123a7abe",
+        "matchedCalendarEventId": null,
+        "matchedCalendarSubject": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-05-12/2026-05-12-untitled-session-9f69fdfd.md",
+          "natively/meeting-captures/2026-05-12/2026-05-12-untitled-session-9f69fdfd.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Natively preserved the raw transcript for follow-up processing. Opening context: what's going on here?.",
+        "keyPoints": [],
+        "actionItems": []
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-04-15-pryor-azure-ot-architecture-alignment-d558f168",
+      "title": "Pryor Azure OT Architecture Alignment",
+      "date": "2026-04-15T16:20:27.834Z",
+      "duration": "12:21",
+      "summary": "The group aligned on how Project W34293 should connect IP Pryor's OT environment to Azure while preserving the Purdue model. The discussion also covered how current corporate SSRS reporting will need to adapt once Pryor moves into the Purdue architecture.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:21:10.374Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "d558f168-e9db-4ad2-b5e5-68dfc6a5ff77",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-04-15/2026-04-15-pryor-azure-ot-architecture-alignment-d558f168.md",
+          "natively/meeting-captures/2026-04-15/2026-04-15-pryor-azure-ot-architecture-alignment-d558f168.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "The group aligned on how Project W34293 should connect IP Pryor's OT environment to Azure while preserving the Purdue model. The discussion also covered how current corporate SSRS reporting will need to adapt once Pryor moves into the Purdue architecture.",
+        "keyPoints": [
+          "Purdue model remains the required architecture until explicit direction changes; any device or VM deployment must fit that model.",
+          "Preferred connectivity pattern is OT-side collection with a DMZ relay that sends data outbound to Azure, avoiding direct OT-to-internet access.",
+          "Stuart confirmed DMZ egress can be restricted by explicit IP and URL whitelist, consistent with current Sophos and WSUS firewall practices.",
+          "The Azure destination can be provided as a specific endpoint URL using shared key access, giving Stuart a concrete whitelist target.",
+          "The two-NIC device design was clarified: internet access should come through the DMZ side, not by bridging OT directly to the internet.",
+          "Will's current SSRS reports run on corporate SSRS outside the Purdue model, so the team must decide whether to replicate OT/PCD data up or host reports inside OT.",
+          "PCD should remain on the control side, with MES-style replication and callbacks following patterns used at other sites; log shipping may be needed for tables that cannot replicate cleanly.",
+          "Vendor access is moving from WatchGuard VPN to Cato VPN, limiting vendors to the jump server while internal engineers retain standard access."
+        ],
+        "actionItems": [
+          "Provide Stuart the exact Azure endpoint URL from the demo configuration for whitelist review.",
+          "Loop Chew into device configuration planning with Stuart to validate Purdue model compliance.",
+          "Audit Will's SSRS reports to identify which data sources are OT/PCD-side versus IT-side.",
+          "Confirm whether Pryor PCD/MES SQL tables support standard replication or require log shipping.",
+          "Schedule a deeper network architecture session with Adam and OT engineers as deployment planning advances.",
+          "Follow up with Teal on Cato VPN SSO behavior, Interplastic account retirement, and password expiration details."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-04-15-getting-up-to-speed-5c665b44",
+      "title": "Getting Up To Speed",
+      "date": "2026-04-15T16:20:14.428Z",
+      "duration": "0:01",
+      "summary": "Primary signals: get, speed. Opening context: Get you a",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-20T12:22:33.444Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "5c665b44-1d0a-47d5-9495-43e7c83d5ada",
+        "matchedCalendarEventId": null,
+        "matchedCalendarSubject": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-04-15/2026-04-15-getting-up-to-speed-5c665b44.md",
+          "natively/meeting-captures/2026-04-15/2026-04-15-getting-up-to-speed-5c665b44.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: get, speed. Opening context: Get you a",
+        "keyPoints": [],
+        "actionItems": []
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-04-14-chaotic-morning-casual-check-in-part-2-the-and-stuff-can-8c8cc1ba-p2",
+      "title": "Chaotic Morning Casual Check-In - Part 2: The And Stuff Can",
+      "date": "2026-04-14T13:50:20.931Z",
+      "duration": "34:31",
+      "summary": "Primary signals: the, and, stuff, can, but, need. Opening context: Kim,",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:20:52.493Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "8c8cc1ba-7aa3-49c8-94cb-12f065b87fff",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-04-14/2026-04-14-chaotic-morning-casual-check-in-part-2-the-and-stuff-can-8c8cc1ba-p2.md",
+          "natively/meeting-captures/2026-04-14/2026-04-14-chaotic-morning-casual-check-in-part-2-the-and-stuff-can-8c8cc1ba-p2.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: the, and, stuff, can, but, need. Opening context: Kim,",
+        "keyPoints": [
+          "like I could help you within two seconds. And you know all the back end stuff, so it's like",
+          "images and just paste them onto the canvas, and then you highlight",
+          "And to Google, and then I just add it to my home screen. So it feels exactly like an actual",
+          "specifically to get you the information about capacity planning and like",
+          "But, yeah. I think that if we if I can get those done and over to you,",
+          "I need to do some stuff in Excel. And then like,"
+        ],
+        "actionItems": [
+          "I I think right now, what we need to put in there",
+          "yeah. Because we need to set up the fabric capacity to",
+          "we need to have those things sinking",
+          "have an agent over here and be, like, okay. So I need to go I need you to do this.",
+          "ask for it to design a website,",
+          "That's crazy. I didn't think they were gonna be able to do that.",
+          "nearly enough. So I think I just need to",
+          "framework UI walked through. Yeah. I know. I that's the thing. I need to, like,"
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-04-14-mdm-demonstration-part-1-the-and-was-but-8c8cc1ba-p1",
+      "title": "MDM - Demonstration - Part 1: The And Was But",
+      "date": "2026-04-14T12:58:45.195Z",
+      "duration": "51:13",
+      "summary": "Primary signals: the, and, was, but, mean, not. Opening context: Fuck.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:20:52.493Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "8c8cc1ba-7aa3-49c8-94cb-12f065b87fff",
+        "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D700003E9D971F0000",
+        "matchedCalendarSubject": "MDM - Demonstration",
+        "calendarAttendees": [
+          "Patrick Stiller",
+          "Steve Nahrup"
+        ],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-04-14/2026-04-14-mdm-demonstration-part-1-the-and-was-but-8c8cc1ba-p1.md",
+          "natively/meeting-captures/2026-04-14/2026-04-14-mdm-demonstration-part-1-the-and-was-but-8c8cc1ba-p1.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript",
+          "outlook-calendar"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: the, and, was, but, mean, not. Opening context: Fuck.",
+        "keyPoints": [
+          "Based on the context, you're in a **Data Architecture Discovery Session** — an introductory meeting to get **Steve** up to speed on the company's various data systems and databases. **Key topics being covered:** - High-level overview of all data sources - Unde",
+          "And they didn't have, like, any money, and it was just like",
+          "to a certain extent, you can't blame anyone for that. At least at least the initial",
+          "they were talking about, like, the sprawl and, like, all that stuff. And I was like, that's",
+          "right when they got started getting into ontology and stuff, I had a feeling that you were like",
+          "they just wanna get you in the room and sell you on for pretty much anything. We'll show you"
+        ],
+        "actionItems": [
+          "Based on the context, you're in a **Data Architecture Discovery Session** — an introductory meeting to get **Steve** up to speed on the company's various data systems and databases. **Key topics being covered:** - High-level overview of all data sources - Understanding the existing database landscape - Mapping out what systems will need to be integrated or reviewed It's essentially an onboarding/orientation session for Steve around the company's data infrastructure. From related meetings, the picture that's emerged is that the company's data management is in rough shape — described as *\"a disaster\"* with no systematic management in place — so this is likely the first step in a broader data architecture cleanup effort.",
+          "I still need to do some work in there.",
+          "things that we need to focus more on you.",
+          "he was just like, do you need to be d eight k on your car every",
+          "Like, you just need to",
+          "mindful of other things. But if it has to do with like",
+          "you don't know how to do it.",
+          "I need to vet him."
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-04-13-email-draft-data-governance-presentation-5c58d3cf",
+      "title": "Email Draft Data Governance Presentation",
+      "date": "2026-04-13T18:10:44.229Z",
+      "duration": "1:21",
+      "summary": "User requested a draft email to Robin, Patrick, and Mike Spencer with a data governance PDF attached, pending approval before send. Request was repeated with no resolution reached.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-20T12:22:36.713Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "5c58d3cf-a5b6-438c-a17a-e9ebd7126f67",
+        "matchedCalendarEventId": null,
+        "matchedCalendarSubject": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-04-13/2026-04-13-email-draft-data-governance-presentation-5c58d3cf.md",
+          "natively/meeting-captures/2026-04-13/2026-04-13-email-draft-data-governance-presentation-5c58d3cf.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "User requested a draft email to Robin, Patrick, and Mike Spencer with a data governance PDF attached, pending approval before send. Request was repeated with no resolution reached.",
+        "keyPoints": [
+          "Email recipients: Robin, Patrick, and Mike Spencer",
+          "Attachment: IP_Corp_Data_Governance.pdf (located at C:/Users/snahrup/CascadeProjects/ELT_Slide_Deck/presentation/)",
+          "User wants to review and approve the email body before it is sent",
+          "Request was submitted twice â€” no draft or response was produced",
+          "User expressed frustration at the lack of progress"
+        ],
+        "actionItems": [
+          "Draft email body to Robin, Patrick, and Mike Spencer referencing the IP Corp Data Governance deck",
+          "Attach IP_Corp_Data_Governance.pdf to the draft",
+          "Surface draft to user for approval before sending"
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-04-13-reviewing-infographic-and-data-assets-part-2-the-can-data-demo-1755aed1-p2",
+      "title": "Reviewing Infographic and Data Assets - Part 2: The Can Data Demo",
+      "date": "2026-04-13T16:11:14.738Z",
+      "duration": "0:29",
+      "summary": "Primary signals: the, can, data, demo, get, implementation. Opening context: He's pushing to lock down the MDM implementation strategy, specifically how we’re mapping the data sources. He wants to move past the planning phase and get a clear decision on the infrastructure demo before we commit to...",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:23:04.798Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "1755aed1-d1b9-474d-bc25-850e15d1821a",
+        "matchedCalendarEventId": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-04-13/2026-04-13-reviewing-infographic-and-data-assets-part-2-the-can-data-demo-1755aed1-p2.md",
+          "natively/meeting-captures/2026-04-13/2026-04-13-reviewing-infographic-and-data-assets-part-2-the-can-data-demo-1755aed1-p2.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: the, can, data, demo, get, implementation. Opening context: He's pushing to lock down the MDM implementation strategy, specifically how we’re mapping the data sources. He wants to move past the planning phase and get a clear decision on the infrastructure demo before we commit to...",
+        "keyPoints": [
+          "He's pushing to lock down the MDM implementation strategy, specifically how we’re mapping the data sources. He wants to move past the planning phase and get a clear decision on the infrastructure demo before we commit to the next steps.",
+          "Let’s focus the demo on the core data mapping workflow so we can validate the infrastructure approach today. If we get consensus on that, we can move straight to the implementation phase."
+        ],
+        "actionItems": []
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-04-13-nahrup-1-on-1-part-1-the-and-was-okay-1755aed1-p1",
+      "title": "Nahrup - 1-on-1 - Part 1: The And Was Okay",
+      "date": "2026-04-13T15:36:35.983Z",
+      "duration": "21:32",
+      "summary": "Primary signals: the, and, was, okay, one, don. Opening context: Log in to this once and",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-27T19:23:04.798Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "1755aed1-d1b9-474d-bc25-850e15d1821a",
+        "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D7000031B21ABF0000",
+        "matchedCalendarSubject": "Nahrup - 1-on-1",
+        "calendarAttendees": [
+          "Patrick Stiller",
+          "Steve Nahrup"
+        ],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-04-13/2026-04-13-nahrup-1-on-1-part-1-the-and-was-okay-1755aed1-p1.md",
+          "natively/meeting-captures/2026-04-13/2026-04-13-nahrup-1-on-1-part-1-the-and-was-okay-1755aed1-p1.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript",
+          "outlook-calendar"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: the, and, was, okay, one, don. Opening context: Log in to this once and",
+        "keyPoints": [
+          "t r d so I have t r d sandbox was the first one you sent me.",
+          "and then if you just And then we'll look at that one.",
+          "And then she, like, totally broke down the pillars.",
+          "He is likely referencing the **MDM (Master Data Management) project**. Based on your recent meetings, he is pushing for a \"decide and execute\" approach to the MDM implementation—specifically regarding how you map data sources (like Salesforce) to your internal",
+          "**SAY THIS:** \"Are you asking about the book on data governance frameworks? I’ve been looking into those to help structure our MDM rollout.\" **HEADS UP:** If he’s not talking about a technical manual, he might be referring to the industry-standard text on Data",
+          "Was this before or after the historian data extract?"
+        ],
+        "actionItems": [
+          "until last Yeah. I I wouldn't I wouldn't ask you for that.",
+          "Oh, the master data map review.",
+          "we need to get purview in place.",
+          "And then we need to get data in place",
+          "Then we need to",
+          "we need to get that"
+        ]
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-04-13-untitled-session-c1408936",
+      "title": "Untitled Session",
+      "date": "2026-04-13T10:08:29.254Z",
+      "duration": "0:00",
+      "summary": "Primary signals: address, make, properly, question, repeat, sure. Opening context: Could you repeat that? I want to make sure I address your question properly.",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-20T12:22:39.732Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "c1408936-fb1b-4a53-93c4-5a3013821df8",
+        "matchedCalendarEventId": null,
+        "matchedCalendarSubject": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-04-13/2026-04-13-untitled-session-c1408936.md",
+          "natively/meeting-captures/2026-04-13/2026-04-13-untitled-session-c1408936.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: address, make, properly, question, repeat, sure. Opening context: Could you repeat that? I want to make sure I address your question properly.",
+        "keyPoints": [],
+        "actionItems": []
+      },
+      "transcript": [],
+      "usage": []
+    },
+    {
+      "id": "2026-04-13-untitled-session-a5427a04",
+      "title": "Untitled Session",
+      "date": "2026-04-13T03:44:09.347Z",
+      "duration": "1:09",
+      "summary": "Primary signals: the, can, session, each, monitor, and. Opening context: can you describe what's on each of my screens and let me know how many active monitor screens there are currently?",
+      "source": "manual",
+      "importMetadata": {
+        "sourceFormat": "generic",
+        "importedAt": "2026-05-20T12:22:40.917Z",
+        "fidelity": "exact",
+        "brainSource": "natively-auto-export",
+        "sourceMeetingId": "a5427a04-4bb5-4481-8776-3a5e94ddd0f1",
+        "matchedCalendarEventId": null,
+        "matchedCalendarSubject": null,
+        "calendarAttendees": [],
+        "relatedArtifacts": [
+          "natively/meeting-captures/2026-04-13/2026-04-13-untitled-session-a5427a04.md",
+          "natively/meeting-captures/2026-04-13/2026-04-13-untitled-session-a5427a04.json"
+        ],
+        "enrichmentSources": [
+          "natively-transcript"
+        ]
+      },
+      "detailedSummary": {
+        "overview": "Primary signals: the, can, session, each, monitor, and. Opening context: can you describe what's on each of my screens and let me know how many active monitor screens there are currently?",
+        "keyPoints": [],
+        "actionItems": []
+      },
+      "transcript": [],
+      "usage": []
+    }
+  ]
 }

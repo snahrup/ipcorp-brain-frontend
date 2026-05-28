@@ -234,7 +234,8 @@
       "elt",
       "stewards",
       "canonical-summary"
-    ]
+    ],
+    "updatedAt": "2026-05-20T18:49:56.985Z"
   },
   {
     "id": "insight-2026-05-20-pbi-sales-model-consolidation",
@@ -472,7 +473,8 @@
       "power-bi",
       "rls",
       "governance"
-    ]
+    ],
+    "updatedAt": "2026-05-21T19:45:00.000Z"
   },
   {
     "id": "insight-2026-05-21-intercompany-master-data-pattern",
@@ -520,7 +522,8 @@
       "intercompany",
       "item-master",
       "source-truth"
-    ]
+    ],
+    "updatedAt": "2026-05-21T19:45:00.000Z"
   },
   {
     "id": "insight-2026-05-24-patrick-ooo-decision-gate",
@@ -570,7 +573,8 @@
       "data-stewards",
       "readiness",
       "natively"
-    ]
+    ],
+    "updatedAt": "2026-05-24T17:39:26.437Z"
   },
   {
     "id": "insight-2026-05-26-plant-floor-evidence-map-promoted",
@@ -620,6 +624,59 @@
       "traceability",
       "natively-readiness"
     ]
+  },
+  {
+    "id": "insight-2026-05-27-brain-frontend-motion-direction",
+    "type": "stakeholder_experience",
+    "title": "Stakeholder brain frontend now has a visual direction",
+    "summary": "Steve added a concrete product-design preference for the stakeholder-facing brain frontend: keep Stitch creative freedom, but borrow Unabyss-style dark layered surfaces, crisp source/status chips, and motion that makes scattered context feel gathered into an intelligence layer. That should shape the sanitized access path without changing the Natively live runtime boundary.",
+    "createdAt": "2026-05-28T00:29:37.287Z",
+    "confidence": 0.74,
+    "reasoning": {
+      "trigger": "A new project-memory discovery after the prior readiness refresh records Steve's Unabyss-style motion direction for the stakeholder-facing brain frontend.",
+      "observations": [
+        "DISC-2026-05-27-005 says the brain frontend should preserve Stitch's creative freedom while borrowing Unabyss's modern look and motion energy.",
+        "The same discovery names dark refined surfaces, layered depth, crisp source/status chips, and context-gathering motion as the important design cues.",
+        "The existing shared-knowledge-base packet already treats Patrick and Eudias access as a likely near-term review surface, not raw repo access.",
+        "The runtime boundary still says Natively is a live touchpoint and should read prepared brain artifacts rather than call Teams, Outlook email, Notion, Cluely, Semantica, or source databases for context."
+      ],
+      "connections": [
+        "This connects the stakeholder access request to an actual interface direction: the sanitized view should feel like an intelligence layer, not a folder of exported documents.",
+        "It connects to the existing redaction boundary because strong presentation can make a curated surface useful without exposing raw captures, credentials, or internal agent rules.",
+        "It connects to Natively readiness because live meeting packets can point users at a polished read model while the heavy ingestion and reasoning stay in the brain repo.",
+        "It connects to source/status chips already present in the readiness contract: citations, packet freshness, action status, and source health should become first-class visible UI affordances."
+      ],
+      "chain": [
+        "Patrick asked for a link, creating pressure to expose a stakeholder-facing brain surface.",
+        "The full repo cannot be the surface because it contains internal-only rules, credentials, raw captures, and private/off-topic material.",
+        "DISC-2026-05-27-005 narrows the product direction for the safe surface: modern layered motion around gathered context and source-backed status.",
+        "Therefore the next stakeholder review packet should carry both constraints: curated/redacted access first, and Unabyss-inspired motion/design only as a presentation layer over the brain contract."
+      ],
+      "alternativesConsidered": [
+        "Treat the preference as unrelated frontend taste; rejected because it specifically names the stakeholder-facing brain frontend and complements the shared-access packet.",
+        "Create a new executable build task immediately; rejected because this automation must not modify Natively app code or adjacent frontend repos without Steve explicitly asking in this run.",
+        "Fold the preference into the existing stakeholder-access insight only; rejected because Natively benefits from a distinct, compact design-readiness signal that can be consumed by a frontend handoff later."
+      ],
+      "confidenceFactors": [
+        "High confidence that the preference exists because it is already logged as DISC-2026-05-27-005 in project-memory.",
+        "Moderate confidence on implementation implications because no final UI spec or meeting date is attached to the discovery.",
+        "High confidence that no live/runtime boundary should change because AGENTS.md and natively/status.json keep Natively decoupled from live source gathering.",
+        "Moderated by the source being a conversation preference rather than a meeting transcript or formal design brief."
+      ]
+    },
+    "recommendedAction": "When the sanitized stakeholder brain surface is built or reviewed, use the Unabyss-style motion direction as presentation guidance while keeping the content source-backed, redacted, and generated from the Natively/brain read models.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-27-prepare-sanitized-brain-access-path.json"
+    ],
+    "tags": [
+      "stakeholder-frontend",
+      "natively-readiness",
+      "brain-boundary",
+      "design-direction",
+      "source-backed-ui",
+      "redaction"
+    ],
+    "updatedAt": "2026-05-28T00:29:37.287Z"
   },
   {
     "id": "insight-2026-05-27-calendar-action-contract-gap",
@@ -719,7 +776,8 @@
       "stewardship",
       "fabric",
       "runtime-boundary"
-    ]
+    ],
+    "updatedAt": "2026-05-27T18:21:25.952Z"
   },
   {
     "id": "insight-2026-05-27-plant-floor-evidence-stream-contract",
@@ -924,7 +982,8 @@
       "redaction",
       "power-bi-models",
       "fabric"
-    ]
+    ],
+    "updatedAt": "2026-05-27T17:17:52.810Z"
   },
   {
     "id": "insight-2026-05-27-weekly-fabric-cadence-reset",
