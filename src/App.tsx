@@ -72,6 +72,8 @@ type Detail =
   | { kind: "adr"; value: Adr | AdrCandidate; label: string }
   | { kind: "meeting"; value: MeetingEntry };
 
+type HeroMode = "visual" | "flow";
+
 const navItems: Array<{ key: ViewKey; label: string; icon: typeof Brain }> = [
   { key: "readiness", label: "Readiness", icon: Brain },
   { key: "meetings", label: "Meetings", icon: CalendarDays },
@@ -865,9 +867,11 @@ function DetailContent({ detail }: { detail: Detail }) {
 }
 
 function PacketDetail({ packet }: { packet: PrepPacket }) {
+  const [heroMode, setHeroMode] = useState<HeroMode>("visual");
+
   return (
     <div className="drawer-stack">
-      <DrawerHeader icon={<FileCheck2 />} kicker="Prep Packet" title={packet.title} />
+      <SynthesisHero packet={packet} mode={heroMode} onModeChange={setHeroMode} />
       <p className="lead-copy">{packet.summary}</p>
       <InfoBlock title="Why It Matters" body={packet.whyItMatters} />
       <ListBlock title="Current State" items={packet.currentState} />
@@ -948,12 +952,26 @@ function RiskDetail({ risk }: { risk: Risk }) {
 }
 
 function MeetingDetail({ meeting }: { meeting: MeetingEntry }) {
+  const [heroMode, setHeroMode] = useState<HeroMode>("visual");
   const linkedPacket = meeting.packet
     ? packetById.get(meeting.packet.replace("prep-packets/", "").replace(".packet.json", ""))
     : undefined;
   return (
     <div className="drawer-stack">
-      <DrawerHeader icon={<CalendarDays />} kicker={formatDate(meeting.startsAt ?? meeting.date)} title={meeting.title} />
+      {linkedPacket ? (
+        <SynthesisHero
+          packet={linkedPacket}
+          meeting={meeting}
+          mode={heroMode}
+          onModeChange={setHeroMode}
+        />
+      ) : (
+        <DrawerHeader
+          icon={<CalendarDays />}
+          kicker={formatDate(meeting.startsAt ?? meeting.date)}
+          title={meeting.title}
+        />
+      )}
       <InfoBlock title="Readiness" body={meeting.readinessStatus} />
       <InfoBlock title="Why Now" body={meeting.whyNow} />
       <EvidenceRefs refs={[meeting.source, meeting.packet].filter(Boolean) as string[]} />
@@ -965,6 +983,126 @@ function MeetingDetail({ meeting }: { meeting: MeetingEntry }) {
         </div>
       )}
     </div>
+  );
+}
+
+function SynthesisHero({
+  packet,
+  meeting,
+  mode,
+  onModeChange
+}: {
+  packet: PrepPacket;
+  meeting?: MeetingEntry;
+  mode: HeroMode;
+  onModeChange: (mode: HeroMode) => void;
+}) {
+  const highlights = getHeroHighlights(packet);
+  const title = meeting?.title ?? packet.title;
+  const sourceCount = packet.evidenceRefs?.length ?? 0;
+  const questionCount = packet.openQuestions?.length ?? 0;
+  const riskCount = packet.risks?.length ?? 0;
+  const commitmentCount = packet.openCommitments?.length ?? 0;
+
+  return (
+    <section className={`synthesis-hero mode-${mode}`}>
+      <div className="synthesis-bg" style={{ backgroundImage: `url(${contextEngine})` }} />
+      <div className="synthesis-topline">
+        <div className="hero-mode-switch" role="group" aria-label="Meeting hero style">
+          <button
+            className={mode === "visual" ? "is-selected" : ""}
+            onClick={() => onModeChange("visual")}
+          >
+            Visual Brief
+          </button>
+          <button
+            className={mode === "flow" ? "is-selected" : ""}
+            onClick={() => onModeChange("flow")}
+          >
+            Context Flow
+          </button>
+        </div>
+        <SmallChip>Sanitized, no raw transcript excerpts</SmallChip>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {mode === "visual" ? (
+          <motion.div
+            className="visual-brief"
+            key="visual"
+            initial={{ opacity: 0, y: 12, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -8, filter: "blur(8px)" }}
+            transition={{ duration: 0.24 }}
+          >
+            <div className="visual-copy">
+              <span className="mono-kicker">{meeting ? "Meeting Synthesis" : "Packet Synthesis"}</span>
+              <h2>{title}</h2>
+              <p>{packet.summary}</p>
+              <div className="chip-row">
+                <SmallChip>{sourceCount} evidence refs</SmallChip>
+                <SmallChip>{questionCount} open questions</SmallChip>
+                <SmallChip>{riskCount} risks</SmallChip>
+                <SmallChip>{commitmentCount} commitments</SmallChip>
+              </div>
+            </div>
+            <div className="visual-panels">
+              <HeroHighlight icon={<Sparkles size={19} />} label="What changed" body={highlights.changed} />
+              <HeroHighlight icon={<CircleAlert size={19} />} label="Needs review" body={highlights.review} />
+              <HeroHighlight icon={<Archive size={19} />} label="Proof trail" body={highlights.proof} />
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            className="context-flow-hero"
+            key="flow"
+            initial={{ opacity: 0, y: 12, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -8, filter: "blur(8px)" }}
+            transition={{ duration: 0.24 }}
+          >
+            <div className="source-stack">
+              {(packet.relatedPriorMeetings ?? ["Meeting context", "Project memory", "Source evidence"])
+                .slice(0, 4)
+                .map((source, index) => (
+                  <motion.div
+                    className="source-card-mini"
+                    key={source}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <CalendarDays size={16} />
+                    <span>{source}</span>
+                  </motion.div>
+                ))}
+            </div>
+            <div className="hero-synthesis-lens">
+              <Layers3 size={30} />
+              <strong>Synthesized packet</strong>
+              <span>Context, risks, questions, posture</span>
+            </div>
+            <div className="flow-output">
+              <HeroHighlight icon={<Activity size={18} />} label="Current state" body={highlights.changed} />
+              <HeroHighlight icon={<MessageSquareText size={18} />} label="Decision ask" body={highlights.review} />
+              <HeroHighlight icon={<ShieldCheck size={18} />} label="Safe boundary" body="Stakeholder-ready summary only. Raw captures and private working notes stay out of this view." />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
+  );
+}
+
+function HeroHighlight({ icon, label, body }: { icon: ReactNode; label: string; body: string }) {
+  return (
+    <article className="hero-highlight">
+      <div>
+        {icon}
+        <span className="mono-kicker">{label}</span>
+      </div>
+      <p>{body}</p>
+    </article>
   );
 }
 
@@ -1190,6 +1328,27 @@ function AmbientCanvas({ reduceMotion }: { reduceMotion: boolean }) {
       <Network className="ambient-icon" size={420} />
     </div>
   );
+}
+
+function getHeroHighlights(packet: PrepPacket) {
+  const changed =
+    packet.currentState?.[0] ??
+    packet.whyItMatters ??
+    packet.summary;
+  const review =
+    packet.openQuestions?.[0] ??
+    packet.decisionsPending?.[0] ??
+    packet.risks?.[0] ??
+    "No urgent review item is attached to this packet yet.";
+  const proof =
+    packet.evidenceRefs?.[0] ??
+    "Evidence references are attached when the packet has source-backed context.";
+
+  return {
+    changed: clampText(changed, 210),
+    review: clampText(review, 210),
+    proof: clampText(proof, 180)
+  };
 }
 
 function stripMarkdown(value: string) {
