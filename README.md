@@ -52,3 +52,46 @@ The app is a working intelligence surface, not a marketing site:
 ## Non-Negotiable Boundary
 
 Do not add raw captures, SQL credentials, internal `AGENTS.md` / `CLAUDE.md` content, or private transcript text to this repository. If the frontend needs more context, add a sanitized field to the data contract first.
+
+## Development (Post-2026-05 Audit)
+
+```powershell
+npm install
+npm run lint:fix          # Biome (required before commit)
+npm run typecheck
+npm run dev               # 127.0.0.1:5217 (strictPort enforced)
+npm run build
+npm run test              # Playwright (expanding)
+npm run ci                # Full local gate
+```
+
+### Tooling
+- **Biome** is the single linter + formatter + import sorter (`biome.json`).
+- Pre-commit hook runs `lint:fix` on staged changes.
+- TypeScript strict + noEmit checks on every build.
+- Playwright for E2E (critical flows only — no unit tests needed for this surface).
+
+### Key Documentation
+- `CLAUDE.md` — Project rules, mission, and agent instructions (read on every session).
+- `context/design-system.md` — Visual DNA, motion philosophy, and component rules (read before touching CSS or layout).
+- `DATA_CONTRACT.md` — Exact types and redaction policy.
+- `STITCH_FRONTEND_BRIEF.md` + `.stitch/DESIGN.md` — Creative direction for any design iteration.
+
+### Syncing Fresh Data
+The `scripts/sync-data.mjs` pulls from the private `ipcorp-architecture-brain` repo (natively/ contract layer only). See the script header for current requirements. After a sync, commit the updated `data/*.json` + `export-manifest.json`.
+
+## Architecture Notes (2026-05)
+
+- Single-page React + Vite + framer-motion (heavy but intentional for the "context assembly" feeling).
+- All domain data lives in the sanitized `data/frontend-seed.json` (bundled at build time).
+- The app is currently being refactored out of a 1.8k LOC monolith (`App.tsx`) into proper views + primitives while preserving 100% of the existing visual and interaction behavior.
+- Design system is fully custom (no Tailwind) — tokens and complex glassmorphism live in `src/App.css`.
+
+## Contributing / Handoff
+
+1. Never bypass the data contract.
+2. Run `npm run ci` locally and fix everything before pushing.
+3. Visual or interaction changes should be reviewed against `context/design-system.md`.
+4. Update this README + CLAUDE.md + relevant context/ files when patterns stabilize.
+
+This package is the living reference implementation for the IP Corp Architecture Brain stakeholder surface. Treat it with the same care as the brain itself.

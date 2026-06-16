@@ -28,3 +28,43 @@ live-captures/
 context-capsules/
 workflow-runs/
 
+# AI design skill working artifacts (local session outputs only — never commit)
+.hallmark/
+.stitch/
+.interface-design/
+hallmark-select.html
+*.hallmark-*.png
+
+.gstack/
+
+# Codebase Mapper (auto-generated)
+CODEBASE.md
+CODEBASE.html
+.codebase-map-dirty
+
+# --- migration guard (auto-added): keep junk & secrets out of git ---
+node_modules/
+.venv/
+venv/
+__pycache__/
+dist/
+build/
+out/
+target/
+.next/
+.turbo/
+.cache/
+*.log
+.env
+.env.*
+!.env.example
+!.env.sample
+*.key
+*.pem
+*.pfx
+*.crt
+id_rsa
+id_ed25519
+credentials.json
+credentials.toml
+*.secret

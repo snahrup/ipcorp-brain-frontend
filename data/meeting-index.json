@@ -87,9 +87,7 @@
       "date": "2026-05-27",
       "source": "natively/prep-packets/plant-tour-follow-up-2026-05-27.packet.json",
       "readinessStatus": "past-packet-awaiting-post-meeting-capture",
-      "feedsPackets": [
-        "plant-tour-follow-up-2026-05-27"
-      ],
+      "feedsPackets": ["plant-tour-follow-up-2026-05-27"],
       "feedsInsights": [
         "cortex/insights/2026-05-27-plant-floor-evidence-stream-contract.json",
         "cortex/insights/2026-05-26-plant-floor-evidence-map-promoted.json"
@@ -102,9 +100,7 @@
       "source": "meetings/summaries/2026-04-15-pryor-azure-ot-architecture-alignment.md",
       "readinessStatus": "canonical-summary-promoted-2026-05-27",
       "feedsPackets": [],
-      "feedsInsights": [
-        "cortex/insights/2026-05-27-pryor-ot-purdue-ssrs-boundary.json"
-      ]
+      "feedsInsights": ["cortex/insights/2026-05-27-pryor-ot-purdue-ssrs-boundary.json"]
     },
     {
       "id": "nahrup-stiller-touchpoint-2026-05-27",
@@ -112,10 +108,7 @@
       "date": "2026-05-27",
       "source": "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md",
       "readinessStatus": "reviewed-readiness-signals-not-canonical-promotion",
-      "feedsPackets": [
-        "weekly-fabric-post-onsite-synthesis",
-        "shared-knowledge-base-review"
-      ],
+      "feedsPackets": ["weekly-fabric-post-onsite-synthesis", "shared-knowledge-base-review"],
       "feedsInsights": [
         "cortex/insights/2026-05-27-weekly-fabric-cadence-reset.json",
         "cortex/insights/2026-05-27-stakeholder-knowledge-base-access-boundary.json"
@@ -126,9 +119,7 @@
       "date": "2026-05-26",
       "source": "natively/prep-packets/nahrup-stiller-1on1-post-elt-debrief-2026-05-26.packet.json",
       "readinessStatus": "packet-ready-awaiting-post-meeting-capture",
-      "feedsPackets": [
-        "nahrup-stiller-1on1-post-elt-debrief-2026-05-26"
-      ],
+      "feedsPackets": ["nahrup-stiller-1on1-post-elt-debrief-2026-05-26"],
       "feedsInsights": [
         "cortex/insights/2026-05-24-patrick-ooo-decision-gate.json",
         "cortex/insights/2026-05-20-steward-workshop-operating-model.json"
@@ -139,21 +130,15 @@
       "date": "2026-05-21",
       "source": "natively/prep-packets/citrine-pcd-database-review.packet.json",
       "readinessStatus": "packet-ready-no-post-meeting-capture-found",
-      "feedsPackets": [
-        "citrine-pcd-database-review"
-      ],
-      "feedsInsights": [
-        "cortex/insights/2026-05-20-citrine-historian-sample-still-unstuck.json"
-      ]
+      "feedsPackets": ["citrine-pcd-database-review"],
+      "feedsInsights": ["cortex/insights/2026-05-20-citrine-historian-sample-still-unstuck.json"]
     },
     {
       "title": "Co-pilot Project Update Assistance",
       "date": "2026-05-20",
       "source": "natively/prep-packets/copilot-project-update-assistance-2026-05-20.packet.json",
       "readinessStatus": "packet-ready-no-post-meeting-capture-found",
-      "feedsPackets": [
-        "copilot-project-update-assistance-2026-05-20"
-      ],
+      "feedsPackets": ["copilot-project-update-assistance-2026-05-20"],
       "feedsInsights": []
     },
     {
@@ -161,10 +146,7 @@
       "date": "2026-05-20",
       "source": "meetings/summaries/2026-05-20-fabric-weekly-stand-up.md",
       "readinessStatus": "promoted-to-canonical-summary",
-      "feedsPackets": [
-        "elt-data-stewards-readiness",
-        "fabric-gold-model-access-follow-up"
-      ],
+      "feedsPackets": ["elt-data-stewards-readiness", "fabric-gold-model-access-follow-up"],
       "feedsInsights": [
         "cortex/insights/2026-05-20-steward-workshop-operating-model.json",
         "cortex/insights/2026-05-20-gold-domain-scope-risk.json"
@@ -175,10 +157,7 @@
       "date": "2026-05-20",
       "source": "natively/meeting-captures/2026-05-20/2026-05-20-fabric-deep-dive-working-session-part-1-the-and-they-can-faf3e9fc-p1.md",
       "readinessStatus": "indexed-needs-human-summary-cleanup",
-      "feedsPackets": [
-        "fabric-gold-model-access-follow-up",
-        "power-bi-model-consolidation-review"
-      ],
+      "feedsPackets": ["fabric-gold-model-access-follow-up", "power-bi-model-consolidation-review"],
       "feedsInsights": [
         "cortex/insights/2026-05-20-source-truth-collapse.json",
         "cortex/insights/2026-05-20-gold-domain-scope-risk.json"
@@ -189,10 +168,7 @@
       "date": "2026-05-20",
       "source": "meetings/summaries/2026-05-20-power-bi-source-mapping.md",
       "readinessStatus": "promoted-to-canonical-summary",
-      "feedsPackets": [
-        "fabric-gold-model-access-follow-up",
-        "power-bi-model-consolidation-review"
-      ],
+      "feedsPackets": ["fabric-gold-model-access-follow-up", "power-bi-model-consolidation-review"],
       "feedsInsights": [
         "cortex/insights/2026-05-20-pbi-sales-model-consolidation.json",
         "cortex/insights/2026-05-20-gold-domain-scope-risk.json",
@@ -204,9 +180,7 @@
       "date": "2026-05-20",
       "source": "meetings/summaries/2026-05-20-intercompany-item-mapping.md",
       "readinessStatus": "promoted-to-canonical-summary",
-      "feedsPackets": [
-        "fabric-gold-model-access-follow-up"
-      ],
+      "feedsPackets": ["fabric-gold-model-access-follow-up"],
       "feedsInsights": [
         "cortex/insights/2026-05-20-source-truth-collapse.json",
         "cortex/insights/2026-05-21-intercompany-master-data-pattern.json"
@@ -217,46 +191,31 @@
       "date": "2026-05-20",
       "source": "meetings/summaries/_RUN_REPORT_2026-05-20-pbi-model-documentation-sweep.md",
       "readinessStatus": "promoted-to-readiness",
-      "feedsPackets": [
-        "power-bi-model-consolidation-review"
-      ],
-      "feedsInsights": [
-        "cortex/insights/2026-05-20-pbi-sales-model-consolidation.json"
-      ]
+      "feedsPackets": ["power-bi-model-consolidation-review"],
+      "feedsInsights": ["cortex/insights/2026-05-20-pbi-sales-model-consolidation.json"]
     },
     {
       "title": "Historian / Citrine Update",
       "date": "2026-05-19",
       "source": "natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-prep-part-1-the-data-and-batch-55c993c4-p1.md",
       "readinessStatus": "promoted-to-readiness",
-      "feedsPackets": [
-        "citrine-pcd-database-review"
-      ],
-      "feedsInsights": [
-        "cortex/insights/2026-05-20-citrine-historian-sample-still-unstuck.json"
-      ]
+      "feedsPackets": ["citrine-pcd-database-review"],
+      "feedsInsights": ["cortex/insights/2026-05-20-citrine-historian-sample-still-unstuck.json"]
     },
     {
       "title": "Preface Fabric Meeting",
       "date": "2026-05-19",
       "source": "meetings/summaries/2026-05-19-preface-fabric-meeting.md",
       "readinessStatus": "promoted-to-readiness",
-      "feedsPackets": [
-        "m3-etq-data-flow-working-session",
-        "plant-tour-follow-up-2026-05-27"
-      ],
-      "feedsInsights": [
-        "cortex/insights/2026-05-20-source-truth-collapse.json"
-      ]
+      "feedsPackets": ["m3-etq-data-flow-working-session", "plant-tour-follow-up-2026-05-27"],
+      "feedsInsights": ["cortex/insights/2026-05-20-source-truth-collapse.json"]
     },
     {
       "title": "Plant Tour",
       "date": "2026-05-19",
       "source": "meetings/summaries/2026-05-19-plant-tour.md",
       "readinessStatus": "promoted-to-readiness",
-      "feedsPackets": [
-        "plant-tour-follow-up-2026-05-27"
-      ],
+      "feedsPackets": ["plant-tour-follow-up-2026-05-27"],
       "feedsInsights": [
         "cortex/insights/2026-05-20-plant-floor-paper-system-of-record.json",
         "cortex/insights/2026-05-26-plant-floor-evidence-map-promoted.json",
@@ -357,9 +316,7 @@
           "natively/meeting-captures/2026-05-27/2026-05-27-fabric-stand-up-recovery-planning-39c96ede.md",
           "natively/meeting-captures/2026-05-27/2026-05-27-fabric-stand-up-recovery-planning-39c96ede.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Steve and Patrick decided to cancel this week's Fabric stand-up so Steve can recover and organize the outcomes from recent on-site meetings. They also discussed Steve's recent medical episode, Patrick's support, upcoming scheduling around Purview and Fabric, and tentative plans to meet in person on Monday.",
@@ -405,9 +362,7 @@
           "natively/meeting-captures/2026-05-27/2026-05-27-disabling-proactive-coaching-mode-12b70248.md",
           "natively/meeting-captures/2026-05-27/2026-05-27-disabling-proactive-coaching-mode-12b70248.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Primary signals: the, access, don, and, another, are. Opening context: No.",
@@ -435,20 +390,12 @@
         "sourceMeetingId": "4f8f4e90-6fa6-4593-9144-b1f07d1efd2e",
         "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D7000028B34E980000",
         "matchedCalendarSubject": "Fabric Weekly Stand-Up",
-        "calendarAttendees": [
-          "Patrick Stiller",
-          "Mike Spencer",
-          "Eudias Kifem",
-          "Robin Virginia"
-        ],
+        "calendarAttendees": ["Patrick Stiller", "Mike Spencer", "Eudias Kifem", "Robin Virginia"],
         "relatedArtifacts": [
           "natively/meeting-captures/2026-05-20/2026-05-20-fabric-weekly-stand-up-4f8f4e90.md",
           "natively/meeting-captures/2026-05-20/2026-05-20-fabric-weekly-stand-up-4f8f4e90.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript",
-          "outlook-calendar"
-        ]
+        "enrichmentSources": ["natively-transcript", "outlook-calendar"]
       },
       "detailedSummary": {
         "overview": "The group reviewed how the prior ELT discussion landed, agreed the message was understood, and focused on narrowing a broad SharePoint list into clearer, time-boxed next steps. They also discussed governance role selection, data domain definition, system-of-record complexity, and the organizational challenges created by fragmented sales leadership and legacy data structures.",
@@ -495,9 +442,7 @@
           "natively/meeting-captures/2026-05-20/2026-05-20-intercompany-item-mapping-a81c405c.md",
           "natively/meeting-captures/2026-05-20/2026-05-20-intercompany-item-mapping-a81c405c.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "The group discussed how to represent Interplastic-related items in M3 while avoiding duplicate item numbers across companies and facilities. The preferred model was to keep a single shared item definition where possible, with NAC and Plastic using M3 intercompany functionality to handle transfers and accounting automatically.",
@@ -541,9 +486,7 @@
           "natively/meeting-captures/2026-05-20/2026-05-20-fabric-warehouse-reporting-discussion-part-2-and-the-can-one-faf3e9fc-p2.md",
           "natively/meeting-captures/2026-05-20/2026-05-20-fabric-warehouse-reporting-discussion-part-2-and-the-can-one-faf3e9fc-p2.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Primary signals: and, the, can, one, they, but. Opening context: Alright.",
@@ -586,10 +529,7 @@
           "natively/meeting-captures/2026-05-20/2026-05-20-fabric-deep-dive-working-session-part-1-the-and-they-can-faf3e9fc-p1.md",
           "natively/meeting-captures/2026-05-20/2026-05-20-fabric-deep-dive-working-session-part-1-the-and-they-can-faf3e9fc-p1.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript",
-          "outlook-calendar"
-        ]
+        "enrichmentSources": ["natively-transcript", "outlook-calendar"]
       },
       "detailedSummary": {
         "overview": "Primary signals: the, and, they, can, don, okay. Opening context: You you got double booked?",
@@ -665,10 +605,7 @@
           "natively/meeting-captures/2026-05-20/2026-05-20-monthly-it-all-hands-bccb90a3.md",
           "natively/meeting-captures/2026-05-20/2026-05-20-monthly-it-all-hands-bccb90a3.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript",
-          "outlook-calendar"
-        ]
+        "enrichmentSources": ["natively-transcript", "outlook-calendar"]
       },
       "detailedSummary": {
         "overview": "The meeting focused on confirming how Power BI reports connect to warehouse data and how that should translate into a governed gold-model architecture by domain. The team aligned that live/direct-connected reports should filter and secure data in the Power BI semantic model, while upstream source mapping is needed before locking the first domain model.",
@@ -726,10 +663,7 @@
           "natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-update-meeting-part-2-the-and-can-data-55c993c4-p2.md",
           "natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-update-meeting-part-2-the-and-can-data-55c993c4-p2.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript",
-          "outlook-calendar"
-        ]
+        "enrichmentSources": ["natively-transcript", "outlook-calendar"]
       },
       "detailedSummary": {
         "overview": "Primary signals: the, and, can, data, for, citrine. Opening context: Here is the prep package for this upcoming meeting....--- tags: - all --- # Meeting Prep — Historian Data Extraction Update (this week, 2026-05-19 to 23) > Audience: Steve + Patrick (pre-align). Internal voice — candid, ...",
@@ -774,9 +708,7 @@
           "natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-prep-part-1-the-data-and-batch-55c993c4-p1.md",
           "natively/meeting-captures/2026-05-19/2026-05-19-historian-data-extraction-prep-part-1-the-data-and-batch-55c993c4-p1.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Primary signals: the, data, and, batch, extraction, for. Opening context: I need you to prepare for the Historian Data Extraction Update Meeting",
@@ -813,9 +745,7 @@
           "natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-4-basically-completely-don-email-8a4bf8ec-p4.md",
           "natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-4-basically-completely-don-email-8a4bf8ec-p4.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Primary signals: basically, completely, don, email, explain, find. Opening context: time. I completely",
@@ -844,9 +774,7 @@
           "natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-3-and-can-for-get-8a4bf8ec-p3.md",
           "natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-3-and-can-for-get-8a4bf8ec-p3.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Primary signals: and, can, for, get, ice, literally. Opening context: Band things for laptops.",
@@ -882,9 +810,7 @@
           "natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-2-the-did-they-nice-8a4bf8ec-p2.md",
           "natively/meeting-captures/2026-05-19/2026-05-19-data-source-etl-simplification-part-2-the-did-they-nice-8a4bf8ec-p2.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Primary signals: the, did, they, nice, was, appreciate. Opening context: Alright. I'm good. It's about five. Yeah. I just Nice job. It's",
@@ -916,18 +842,12 @@
         "sourceMeetingId": "8a4bf8ec-b9ae-423b-87c1-8b6d387fecd2",
         "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D70000BB5AF55C0000",
         "matchedCalendarSubject": "Whiteboard session",
-        "calendarAttendees": [
-          "Eudias Kifem",
-          "Patrick Stiller"
-        ],
+        "calendarAttendees": ["Eudias Kifem", "Patrick Stiller"],
         "relatedArtifacts": [
           "natively/meeting-captures/2026-05-19/2026-05-19-whiteboard-session-part-1-the-and-was-one-8a4bf8ec-p1.md",
           "natively/meeting-captures/2026-05-19/2026-05-19-whiteboard-session-part-1-the-and-was-one-8a4bf8ec-p1.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript",
-          "outlook-calendar"
-        ]
+        "enrichmentSources": ["natively-transcript", "outlook-calendar"]
       },
       "detailedSummary": {
         "overview": "Primary signals: the, and, was, one, can, down. Opening context: Yeah.",
@@ -966,9 +886,7 @@
           "natively/meeting-captures/2026-05-19/2026-05-19-memorial-day-message-discussion-0362607f.md",
           "natively/meeting-captures/2026-05-19/2026-05-19-memorial-day-message-discussion-0362607f.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "A brief on-air exchange centered on Memorial Day appreciation, a food aside, and a handoff into Fox & Friends. A separate fragment referenced missing weapons and noted that none were reported.",
@@ -999,18 +917,12 @@
         "sourceMeetingId": "ebd66650-4789-48fc-9959-8f2de1dd3977",
         "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D7000031B21ABF0000",
         "matchedCalendarSubject": "Nahrup - 1-on-1",
-        "calendarAttendees": [
-          "Patrick Stiller",
-          "Steve Nahrup"
-        ],
+        "calendarAttendees": ["Patrick Stiller", "Steve Nahrup"],
         "relatedArtifacts": [
           "natively/meeting-captures/2026-05-18/2026-05-18-nahrup-1-on-1-ebd66650.md",
           "natively/meeting-captures/2026-05-18/2026-05-18-nahrup-1-on-1-ebd66650.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript",
-          "outlook-calendar"
-        ]
+        "enrichmentSources": ["natively-transcript", "outlook-calendar"]
       },
       "detailedSummary": {
         "overview": "The discussion was mostly logistical, focused on checking room availability, AV/setup readiness, and making room for Unisys. A brief data governance pitch was started, framing digital modernization failures as a truth-coordination problem where enterprise systems exist but data does not align.",
@@ -1053,9 +965,7 @@
           "natively/meeting-captures/2026-05-18/2026-05-18-guest-wi-fi-password-help-d4eddbe3.md",
           "natively/meeting-captures/2026-05-18/2026-05-18-guest-wi-fi-password-help-d4eddbe3.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Steve was dealing with a personal/environmental connectivity issue and asked about the SC guest Wi-Fi password. The password was confirmed as “Kettlebell,” with some incidental audio-check and ambient-trigger behavior from Natively.",
@@ -1094,9 +1004,7 @@
           "natively/meeting-captures/2026-05-13/2026-05-13-security-policy-review-discussion-610cbc15.md",
           "natively/meeting-captures/2026-05-13/2026-05-13-security-policy-review-discussion-610cbc15.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "The discussion aligned on keeping security sub-policies intentionally high-level for audit safety while preserving the distinction between governance policy and operational standards. The group also refined the ELT framing for next week around data domains, ownership, approval boundaries, and avoiding a technical deep dive.",
@@ -1143,9 +1051,7 @@
           "natively/meeting-captures/2026-05-13/2026-05-13-elt-scenario-presentation-prep-de627cc5.md",
           "natively/meeting-captures/2026-05-13/2026-05-13-elt-scenario-presentation-prep-de627cc5.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "The prep discussion focused on how to incorporate the 12 previously shared data scenarios into the onsite ELT presentation next week. The group leaned toward highlighting a smaller subset of scenarios and using them to drive operating-model ownership decisions rather than technical discussion.",
@@ -1188,9 +1094,7 @@
           "natively/meeting-captures/2026-05-13/2026-05-13-durable-intelligence-layer-9c6c3b18.md",
           "natively/meeting-captures/2026-05-13/2026-05-13-durable-intelligence-layer-9c6c3b18.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "The meeting walked through Natively's architecture split between the background durable intelligence layer and the lightweight human-facing interface. The discussion centered on how pre-meeting synthesis, approval-based action, and gradual autonomy create a calm product experience that earns user trust over time.",
@@ -1233,15 +1137,11 @@
           "natively/meeting-captures/2026-05-12/2026-05-12-desktop-agent-demo-walkthrough-part-3-car-the-all-already-fcfccf65-p3.md",
           "natively/meeting-captures/2026-05-12/2026-05-12-desktop-agent-demo-walkthrough-part-3-car-the-all-already-fcfccf65-p3.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Primary signals: car, the, all, already, alright, everything. Opening context: Alright. Everything's already in the car.",
-        "keyPoints": [
-          "Alright. Everything's already in the car."
-        ],
+        "keyPoints": ["Alright. Everything's already in the car."],
         "actionItems": []
       },
       "transcript": [],
@@ -1267,10 +1167,7 @@
           "natively/meeting-captures/2026-05-12/2026-05-12-focus-deep-work-part-2-the-and-agent-can-fcfccf65-p2.md",
           "natively/meeting-captures/2026-05-12/2026-05-12-focus-deep-work-part-2-the-and-agent-can-fcfccf65-p2.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript",
-          "outlook-calendar"
-        ]
+        "enrichmentSources": ["natively-transcript", "outlook-calendar"]
       },
       "detailedSummary": {
         "overview": "Primary signals: the, and, agent, can, memory, are. Opening context: MCP server for",
@@ -1315,10 +1212,7 @@
           "natively/meeting-captures/2026-05-12/2026-05-12-focus-deep-work-part-1-now-screen-fuck-natively-fcfccf65-p1.md",
           "natively/meeting-captures/2026-05-12/2026-05-12-focus-deep-work-part-1-now-screen-fuck-natively-fcfccf65-p1.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript",
-          "outlook-calendar"
-        ]
+        "enrichmentSources": ["natively-transcript", "outlook-calendar"]
       },
       "detailedSummary": {
         "overview": "Primary signals: now, screen, fuck, natively. Opening context: What's on my screen right now?",
@@ -1348,9 +1242,7 @@
           "natively/meeting-captures/2026-05-12/2026-05-12-untitled-session-9f69fdfd.md",
           "natively/meeting-captures/2026-05-12/2026-05-12-untitled-session-9f69fdfd.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Natively preserved the raw transcript for follow-up processing. Opening context: what's going on here?.",
@@ -1379,9 +1271,7 @@
           "natively/meeting-captures/2026-04-15/2026-04-15-pryor-azure-ot-architecture-alignment-d558f168.md",
           "natively/meeting-captures/2026-04-15/2026-04-15-pryor-azure-ot-architecture-alignment-d558f168.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "The group aligned on how Project W34293 should connect IP Pryor's OT environment to Azure while preserving the Purdue model. The discussion also covered how current corporate SSRS reporting will need to adapt once Pryor moves into the Purdue architecture.",
@@ -1427,9 +1317,7 @@
           "natively/meeting-captures/2026-04-15/2026-04-15-getting-up-to-speed-5c665b44.md",
           "natively/meeting-captures/2026-04-15/2026-04-15-getting-up-to-speed-5c665b44.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Primary signals: get, speed. Opening context: Get you a",
@@ -1458,9 +1346,7 @@
           "natively/meeting-captures/2026-04-14/2026-04-14-chaotic-morning-casual-check-in-part-2-the-and-stuff-can-8c8cc1ba-p2.md",
           "natively/meeting-captures/2026-04-14/2026-04-14-chaotic-morning-casual-check-in-part-2-the-and-stuff-can-8c8cc1ba-p2.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Primary signals: the, and, stuff, can, but, need. Opening context: Kim,",
@@ -1501,18 +1387,12 @@
         "sourceMeetingId": "8c8cc1ba-7aa3-49c8-94cb-12f065b87fff",
         "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D700003E9D971F0000",
         "matchedCalendarSubject": "MDM - Demonstration",
-        "calendarAttendees": [
-          "Patrick Stiller",
-          "Steve Nahrup"
-        ],
+        "calendarAttendees": ["Patrick Stiller", "Steve Nahrup"],
         "relatedArtifacts": [
           "natively/meeting-captures/2026-04-14/2026-04-14-mdm-demonstration-part-1-the-and-was-but-8c8cc1ba-p1.md",
           "natively/meeting-captures/2026-04-14/2026-04-14-mdm-demonstration-part-1-the-and-was-but-8c8cc1ba-p1.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript",
-          "outlook-calendar"
-        ]
+        "enrichmentSources": ["natively-transcript", "outlook-calendar"]
       },
       "detailedSummary": {
         "overview": "Primary signals: the, and, was, but, mean, not. Opening context: Fuck.",
@@ -1558,9 +1438,7 @@
           "natively/meeting-captures/2026-04-13/2026-04-13-email-draft-data-governance-presentation-5c58d3cf.md",
           "natively/meeting-captures/2026-04-13/2026-04-13-email-draft-data-governance-presentation-5c58d3cf.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "User requested a draft email to Robin, Patrick, and Mike Spencer with a data governance PDF attached, pending approval before send. Request was repeated with no resolution reached.",
@@ -1599,9 +1477,7 @@
           "natively/meeting-captures/2026-04-13/2026-04-13-reviewing-infographic-and-data-assets-part-2-the-can-data-demo-1755aed1-p2.md",
           "natively/meeting-captures/2026-04-13/2026-04-13-reviewing-infographic-and-data-assets-part-2-the-can-data-demo-1755aed1-p2.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Primary signals: the, can, data, demo, get, implementation. Opening context: He's pushing to lock down the MDM implementation strategy, specifically how we’re mapping the data sources. He wants to move past the planning phase and get a clear decision on the infrastructure demo before we commit to...",
@@ -1629,18 +1505,12 @@
         "sourceMeetingId": "1755aed1-d1b9-474d-bc25-850e15d1821a",
         "matchedCalendarEventId": "000000005DB5AC7FC22F1A4A9E1B52DD21FB7F2607002DAA81ED104913488EDAFEFEEF86D4D700000000010D00002DAA81ED104913488EDAFEFEEF86D4D7000031B21ABF0000",
         "matchedCalendarSubject": "Nahrup - 1-on-1",
-        "calendarAttendees": [
-          "Patrick Stiller",
-          "Steve Nahrup"
-        ],
+        "calendarAttendees": ["Patrick Stiller", "Steve Nahrup"],
         "relatedArtifacts": [
           "natively/meeting-captures/2026-04-13/2026-04-13-nahrup-1-on-1-part-1-the-and-was-okay-1755aed1-p1.md",
           "natively/meeting-captures/2026-04-13/2026-04-13-nahrup-1-on-1-part-1-the-and-was-okay-1755aed1-p1.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript",
-          "outlook-calendar"
-        ]
+        "enrichmentSources": ["natively-transcript", "outlook-calendar"]
       },
       "detailedSummary": {
         "overview": "Primary signals: the, and, was, okay, one, don. Opening context: Log in to this once and",
@@ -1684,9 +1554,7 @@
           "natively/meeting-captures/2026-04-13/2026-04-13-untitled-session-c1408936.md",
           "natively/meeting-captures/2026-04-13/2026-04-13-untitled-session-c1408936.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Primary signals: address, make, properly, question, repeat, sure. Opening context: Could you repeat that? I want to make sure I address your question properly.",
@@ -1716,9 +1584,7 @@
           "natively/meeting-captures/2026-04-13/2026-04-13-untitled-session-a5427a04.md",
           "natively/meeting-captures/2026-04-13/2026-04-13-untitled-session-a5427a04.json"
         ],
-        "enrichmentSources": [
-          "natively-transcript"
-        ]
+        "enrichmentSources": ["natively-transcript"]
       },
       "detailedSummary": {
         "overview": "Primary signals: the, can, session, each, monitor, and. Opening context: can you describe what's on each of my screens and let me know how many active monitor screens there are currently?",

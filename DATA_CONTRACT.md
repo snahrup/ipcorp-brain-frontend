@@ -1,5 +1,9 @@
 # Data Contract
 
+**Canonical runtime types live in `src/data.ts`.** This document defines the stakeholder contract, redaction policy, and high-level shape. The implementation in `data.ts` may contain additional optional fields for UI convenience — those are derived and safe.
+
+**Last aligned**: 2026-05-28 (post-audit tooling + docs pass). Current snapshot counts in `data/export-manifest.json`.
+
 The frontend consumes sanitized read models under `data/`.
 
 ## Files

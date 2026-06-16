@@ -110,28 +110,19 @@
       "id": "no-new-inputs-readiness-check-2026-05-27T23Z",
       "title": "23Z readiness contract refreshed",
       "summary": "No source deltas after memory high-water; weekly Fabric remains next.",
-      "sourceRefs": [
-        "natively/latest-run.md",
-        "natively/cortex/latest-run.json"
-      ]
+      "sourceRefs": ["natively/latest-run.md", "natively/cortex/latest-run.json"]
     },
     {
       "id": "no-new-inputs-readiness-check-2026-05-27T22Z",
       "title": "Readiness contract refreshed",
       "summary": "No material source deltas; weekly Fabric remains next packet.",
-      "sourceRefs": [
-        "natively/latest-run.md",
-        "natively/cortex/latest-run.json"
-      ]
+      "sourceRefs": ["natively/latest-run.md", "natively/cortex/latest-run.json"]
     },
     {
       "id": "no-new-inputs-readiness-check-2026-05-27T21Z",
       "title": "No new inputs after promotion",
       "summary": "Source lanes reviewed; readiness contract refreshed without new promotions.",
-      "sourceRefs": [
-        "natively/latest-run.md",
-        "natively/cortex/latest-run.json"
-      ]
+      "sourceRefs": ["natively/latest-run.md", "natively/cortex/latest-run.json"]
     },
     {
       "id": "open-proposal-state-still-bounded-2026-05-27T21Z",

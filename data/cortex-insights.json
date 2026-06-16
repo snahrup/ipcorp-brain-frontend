@@ -36,16 +36,8 @@
       ]
     },
     "recommendedAction": "Create a concise joint-response outline for Patrick and Steve that separates policy, rollout communication, and taxonomy, then lists the missing enforcement controls for Mike to decide.",
-    "actionProposalRefs": [
-      "../../action-proposals/2026-05-12-draft-policy-response-outline.json"
-    ],
-    "tags": [
-      "policy",
-      "purview",
-      "financial-isolation",
-      "security",
-      "governance"
-    ]
+    "actionProposalRefs": ["../../action-proposals/2026-05-12-draft-policy-response-outline.json"],
+    "tags": ["policy", "purview", "financial-isolation", "security", "governance"]
   },
   {
     "id": "insight-2026-05-12-stewardship-gate",
@@ -86,13 +78,7 @@
     "actionProposalRefs": [
       "../../action-proposals/2026-05-12-confirm-elt-steward-decision-path.json"
     ],
-    "tags": [
-      "elt",
-      "data-stewards",
-      "governance",
-      "fabric-mdm",
-      "readiness"
-    ]
+    "tags": ["elt", "data-stewards", "governance", "fabric-mdm", "readiness"]
   },
   {
     "id": "insight-2026-05-20-citrine-historian-sample-still-unstuck",
@@ -130,16 +116,8 @@
       ]
     },
     "recommendedAction": "Use the PCD review to name exact tables/views, access owner, and read mechanism for Citrine-facing data.",
-    "actionProposalRefs": [
-      "../../action-proposals/2026-05-20-pcd-database-review-read-path.json"
-    ],
-    "tags": [
-      "citrine",
-      "historian",
-      "pcd",
-      "sql-access",
-      "ingestion"
-    ]
+    "actionProposalRefs": ["../../action-proposals/2026-05-20-pcd-database-review-read-path.json"],
+    "tags": ["citrine", "historian", "pcd", "sql-access", "ingestion"]
   },
   {
     "id": "insight-2026-05-20-enforcement-stack-license-gate",
@@ -180,13 +158,7 @@
     "actionProposalRefs": [
       "../../action-proposals/2026-05-20-license-audit-enforcement-stack.json"
     ],
-    "tags": [
-      "purview",
-      "security",
-      "rls",
-      "licensing",
-      "governance"
-    ]
+    "tags": ["purview", "security", "rls", "licensing", "governance"]
   },
   {
     "id": "insight-2026-05-20-gold-domain-scope-risk",
@@ -225,16 +197,8 @@
       ]
     },
     "recommendedAction": "Ask Patrick/Eudias/Mike to choose both the first strategic long-tail domain and the first fast proof-of-value domain before taking the domain list to stewards.",
-    "actionProposalRefs": [
-      "../../action-proposals/2026-05-20-confirm-first-gold-domain.json"
-    ],
-    "tags": [
-      "domains",
-      "gold",
-      "elt",
-      "stewards",
-      "canonical-summary"
-    ],
+    "actionProposalRefs": ["../../action-proposals/2026-05-20-confirm-first-gold-domain.json"],
+    "tags": ["domains", "gold", "elt", "stewards", "canonical-summary"],
     "updatedAt": "2026-05-20T18:49:56.985Z"
   },
   {
@@ -273,16 +237,8 @@
       ]
     },
     "recommendedAction": "Run a model-consolidation review that resolves drift measures and chooses between one shared Sales semantic model versus a governed template per company with explicit RLS/workspace boundaries.",
-    "actionProposalRefs": [
-      "../../action-proposals/2026-05-20-confirm-first-gold-domain.json"
-    ],
-    "tags": [
-      "power-bi",
-      "gold",
-      "sales",
-      "dax",
-      "semantic-models"
-    ]
+    "actionProposalRefs": ["../../action-proposals/2026-05-20-confirm-first-gold-domain.json"],
+    "tags": ["power-bi", "gold", "sales", "dax", "semantic-models"]
   },
   {
     "id": "insight-2026-05-20-plant-floor-paper-system-of-record",
@@ -323,13 +279,7 @@
     "actionProposalRefs": [
       "../../action-proposals/2026-05-20-prepare-plant-tour-data-gap-questions.json"
     ],
-    "tags": [
-      "plant-tour",
-      "mdm",
-      "mes",
-      "rd",
-      "traceability"
-    ]
+    "tags": ["plant-tour", "mdm", "mes", "rd", "traceability"]
   },
   {
     "id": "insight-2026-05-20-source-truth-collapse",
@@ -370,13 +320,7 @@
     "actionProposalRefs": [
       "../../action-proposals/2026-05-20-confirm-m3-etq-data-flow-working-session.json"
     ],
-    "tags": [
-      "fabric",
-      "source-mapping",
-      "etq",
-      "m3-cloud",
-      "bronze"
-    ]
+    "tags": ["fabric", "source-mapping", "etq", "m3-cloud", "bronze"]
   },
   {
     "id": "insight-2026-05-20-steward-workshop-operating-model",
@@ -416,16 +360,8 @@
       ]
     },
     "recommendedAction": "Draft a one-page steward workshop plan with objective, attendees, domain options, breakout prompts, candidate criteria, and a desired output of named owner/steward candidates.",
-    "actionProposalRefs": [
-      "../../action-proposals/2026-05-20-draft-steward-workshop-plan.json"
-    ],
-    "tags": [
-      "elt",
-      "data-stewards",
-      "workshop",
-      "governance",
-      "domains"
-    ]
+    "actionProposalRefs": ["../../action-proposals/2026-05-20-draft-steward-workshop-plan.json"],
+    "tags": ["elt", "data-stewards", "workshop", "governance", "domains"]
   },
   {
     "id": "insight-2026-05-21-gold-semantic-control-surface",
@@ -464,16 +400,8 @@
       ]
     },
     "recommendedAction": "Use follow-up meetings to confirm the first Gold domain, the certified semantic model owner, and the rule that reports should not bypass the domain model without an approved exception.",
-    "actionProposalRefs": [
-      "../../action-proposals/2026-05-20-confirm-first-gold-domain.json"
-    ],
-    "tags": [
-      "gold",
-      "semantic-model",
-      "power-bi",
-      "rls",
-      "governance"
-    ],
+    "actionProposalRefs": ["../../action-proposals/2026-05-20-confirm-first-gold-domain.json"],
+    "tags": ["gold", "semantic-model", "power-bi", "rls", "governance"],
     "updatedAt": "2026-05-21T19:45:00.000Z"
   },
   {
@@ -516,13 +444,7 @@
     "actionProposalRefs": [
       "../../action-proposals/2026-05-20-confirm-m3-etq-data-flow-working-session.json"
     ],
-    "tags": [
-      "mdm",
-      "m3",
-      "intercompany",
-      "item-master",
-      "source-truth"
-    ],
+    "tags": ["mdm", "m3", "intercompany", "item-master", "source-truth"],
     "updatedAt": "2026-05-21T19:45:00.000Z"
   },
   {
@@ -566,14 +488,7 @@
     "actionProposalRefs": [
       "../../action-proposals/2026-05-24-confirm-patrick-1on1-pre-ooo-agenda.json"
     ],
-    "tags": [
-      "patrick-stiller",
-      "ooo-window",
-      "elt",
-      "data-stewards",
-      "readiness",
-      "natively"
-    ],
+    "tags": ["patrick-stiller", "ooo-window", "elt", "data-stewards", "readiness", "natively"],
     "updatedAt": "2026-05-24T17:39:26.437Z"
   },
   {
@@ -616,14 +531,7 @@
     "actionProposalRefs": [
       "../../action-proposals/2026-05-20-prepare-plant-tour-data-gap-questions.json"
     ],
-    "tags": [
-      "plant-tour",
-      "source-of-record",
-      "mes",
-      "rd",
-      "traceability",
-      "natively-readiness"
-    ]
+    "tags": ["plant-tour", "source-of-record", "mes", "rd", "traceability", "natively-readiness"]
   },
   {
     "id": "insight-2026-05-27-brain-frontend-motion-direction",
@@ -868,13 +776,7 @@
     "actionProposalRefs": [
       "../../action-proposals/2026-05-27-audit-proactive-coaching-disable-gate.json"
     ],
-    "tags": [
-      "natively",
-      "live-coaching",
-      "readiness-risk",
-      "mode-gating",
-      "automation-outcome"
-    ]
+    "tags": ["natively", "live-coaching", "readiness-risk", "mode-gating", "automation-outcome"]
   },
   {
     "id": "insight-2026-05-27-pryor-ot-purdue-ssrs-boundary",

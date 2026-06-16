@@ -1,0 +1,114 @@
+# CLAUDE.md — IP Corp Brain Frontend
+
+**Mission (Updated 2026-05-28)**: This is a premium, immersive interface to the **entire** `ipcorp-architecture-brain` knowledge base. Its job is to make the connections, processing, and synthesis across the full repo feel tangible, elegant, and intellectually powerful — especially through sophisticated 3D knowledge graphs.
+
+The frontend must deliver distinct, high-quality experiential textures per major area of the brain while maintaining a calm, refined, production-grade aesthetic.
+
+This is no longer a thin sanitized viewer. It is the primary way Steve and others will explore and derive value from the full brain.
+
+## Project Tree (Key Surfaces)
+
+- `SYNTHESIS_COCKPIT_VISION.md` — **Master vision document** (direction, philosophy, non-negotiables, history, and what "good" means)
+- `BRAIN_INGESTION_PIPELINE.md` — The canonical ongoing ingestion & synthesis process (the real foundation)
+- `src/App.tsx` (current monolith — being refactored into views + primitives)
+- `src/data.ts` + `data/frontend-seed.json` (the authoritative sanitized read model)
+- `scripts/sync-data.mjs` (one-way export from the private brain — must stay portable)
+- `DATA_CONTRACT.md` (canonical types + redaction rules)
+- `GRAPH_DATA_STANDARDS.md` (how content should be born graph-ready)
+- `.stitch/DESIGN.md` + `STITCH_FRONTEND_BRIEF.md` (design direction — never invent ops telemetry)
+- `biome.json` (lint + format source of truth)
+- `vite.config.ts` (port 5217 strictPort — non-negotiable for portless)
+
+## Core Rules
+
+1. **Redaction is non-negotiable**
+   - Never commit raw transcripts, SQL credentials, auth material, internal AGENTS.md / CLAUDE.md content, or live capture snippets.
+   - All data enters only through the sanitized `natively/` exports in the source brain.
+   - If the UI needs a new field, add it to the data contract + sync script first.
+
+2. **Port & Launcher Discipline**
+   - Dev server **must** stay on `127.0.0.1:5217` with `strictPort: true`.
+   - The portless alias is `ipcorp-brain`.
+   - Launcher lives outside the repo (`~/Desktop/Apps/IP Corp Brain Launch.bat`).
+
+3. **Design System Fidelity**
+   - The authoritative design DNA lives in `context/design-system.md` (extracted via hallmark + interface-design).
+   - Palette (Unabyss rebrand, 2026-05-29): near-black + **green `#22C55E` primary** + **gold `#FDCF5A` secondary**, white pill CTAs, Lexend + JetBrains Mono. (The legacy `--amber` token now aliases green.) See `context/design-system.md` for the full Unabyss spec.
+   - Motion explains assembly and reasoning (framer-motion is intentional).
+   - Never turn this into a generic ops dashboard with fake charts or node graphs.
+
+4. **Tooling**
+   - Biome is the single source for lint + format + import sorting.
+   - Always run `npm run lint:fix` before committing (pre-commit hook enforces).
+   - TypeScript strict mode is on. No `any` without explicit suppression + comment.
+   - Playwright is the E2E layer. All critical flows must have tests.
+
+5. **Handoff to Stitch / Future Implementers**
+   - The frontend is a living reference, not a throwaway prototype.
+   - Changes to information architecture must be reflected in `DATA_CONTRACT.md` and the seed.
+   - Visual direction may evolve, but the contract objects (PrepPacket, CortexInsight, ActionProposal, etc.) are stable.
+
+## Development Commands
+
+```powershell
+npm install
+npm run sync:data          # only works when the private brain is present on this machine
+npm run dev                # http://127.0.0.1:5217 (or ipcorp-brain.localhost via portless)
+npm run lint:fix
+npm run typecheck
+npm run build
+npm run test
+```
+
+## Current State (as of late May 2026)
+
+- **Highest priority**: The repeatable, production-grade Brain Ingestion & Synthesis Pipeline (see new `BRAIN_INGESTION_PIPELINE.md`). This is the foundation. Every new artifact must be processed deeply and consistently before it can meaningfully contribute to the graphs.
+- The real rich 3D graph engine (`src/features/knowledge-graph/KnowledgeGraph.tsx` + `BrainExplorer`) using the full provenance-backed `brain-graph.json` already exists and is wired.
+- `generate-brain-graph.ts` does strong multi-pass extraction (especially when `BRAIN_PATH` is present) with §24 vocabulary and good provenance, but needs evolution toward clearer stages + GraphRAG-style hierarchical synthesis.
+- Frontend layout is still traditional (sidebar + views). An aggressive "graph + orb as the undeniable center" redesign has begun but is secondary to getting the ingestion process right first.
+- Monolithic `App.tsx` reduction and test coverage remain important but lower priority than the pipeline.
+
+## Learnings (append-only, dated)
+
+- [2026-05-28] Biome chosen over ESLint+Prettier stack for speed and simplicity on Windows + small team.
+- [2026-05-28] All AI skill working dirs (.hallmark, .stitch, .interface-design) must stay out of the repo — they are local design iteration artifacts.
+- [2026-05-28] The 1.5 MB context-engine.png background is part of the "atmospheric workbench" genre chosen during hallmark polish; keep unless a lighter replacement is approved.
+- [2026-05-29] The repeatable Brain Ingestion & Synthesis Pipeline is the true foundation — deeper frontend work (especially making the 3D graph the dominant interface) must be gated behind a mature, documented, source-type-aware ongoing process. Microsoft GraphRAG patterns + our existing custom extraction are the right combination for maximum depth.
+- [2026-05-29] Pipeline lineage is an EDGE concept, not a node one — nodes in `brain-graph.json` carry no `provenance` field (only `sourceRefs` + numeric `confidence`). Derive node-level lineage by aggregating the node's incident edges (`getNodeLineageSummary` in `src/lib/pipelineLineage.ts`). Never wire a lineage panel to `node.provenance` — it is always undefined.
+- [2026-05-29] Honest lineage derivation lives ONLY in `src/lib/pipelineLineage.ts` (single source of truth: `deriveLineage`, `getNodeLineageSummary`, `getOriginColor`, `PIPELINE_STAGES`). Map `provenance.sourceFile` → extractor using the patterns the generator actually emits — including descriptor forms like `"meeting summaries / run reports"`, `"prep-packets + meeting records"`, and `"ADR file"` (no hyphen). Only `generator-heuristic` / `confidence: "heuristic"` edges may be flagged heuristic; unknown-but-sourced edges are `unclassified-source`, never faked as a clean stage chain. Stage 5 (hierarchical synthesis) is NOT implemented — no surface may imply a node passed through it (`PIPELINE_STAGES[].implemented`).
+
+- [2026-05-29] **Design rebranded to the Unabyss language** (unabyss.com) via the `dembrandt` CLI (`npx dembrandt unabyss.com --design-md --save-output`). Green `#22C55E` primary + gold `#FDCF5A` secondary, white pill CTAs, Lexend + JetBrains Mono, hairline elevation, tight radii + pills, ease-out motion. Token foundation + shared base layer (`.eyebrow`, `.btn-pill`, `.btn-ghost`, `u-*` keyframes) live in `src/App.css :root`; `--amber` aliases green so legacy usages re-skin. Full spec in `context/design-system.md`. `dembrandt` is a great tool for extracting any site's design tokens — also available as an MCP.
+- [2026-05-29] 3d-force-graph's `graph.controls()` returns `undefined` when there's no WebGL context (headless browsers / gstack browse). Always guard `.controls()` access (see `KnowledgeGraph.tsx`) so the cockpit degrades gracefully instead of white-screening. Headless QA tools cannot render the 3D WebGL graph — verify the live graph in a real browser on :5217.
+
+- [2026-05-29] Steve's standing preference: at meaningful checkpoints (a feature/foundation landing, before a commit/handoff), run `/codex-a` (Codex adversarial challenge, `/codex challenge`) for an independent sanity review. Note: most active work here lives in UNTRACKED files (`src/lib`, `src/features`, `src/components`), so a plain `git diff` misses them — point Codex at the specific files by path.
+
+- [2026-05-29] When a CSS build error comes from an "orphaned" block (declarations with no selector), do NOT just delete it — it's usually a real rule whose selector got separated by a bad prior edit. Check `git show HEAD:<file>` for the intended rule and re-attach the selector. I deleted an orphaned grid block thinking it was dead; it was the `.app-shell` 2-column grid (`display: grid; grid-template-columns: var(--nav-width) minmax(0,1fr)`), and removing it collapsed the whole cockpit into one full-width nav column. The shell layout = narrow `.sidebar` (nav, 324px / 88px collapsed) + `.workspace` (content/graph, 1fr).
+
+- [2026-05-29] **`data/brain-graph.json` is ~95% structurally broken**: 1286 of 1360 links reference node ids that don't exist, so 3d-force-graph throws `node not found` on the first dangling edge and aborts the ENTIRE render (blank canvas). Root cause is a `generate-brain-graph.ts` id-consistency bug — its full-depth extraction pass emits edges with one id scheme (date-based meeting ids like `meeting-2026-05-06-fabric-weekly-stand-up`, bare system names like `oates`/`optiva`/`salesforce`) while node creation uses another (slug meeting ids like `meeting-fabric-weekly-stand-up`, and only 7 `sys-`/`m3-` system nodes). Frontend mitigation: `KnowledgeGraph.getFilteredGraph` now clones data, normalizes source/target to string ids, drops dangling edges, and salvages bare system ids via a `sys-` remap — so the graph renders (74 valid edges) instead of crashing. The RICH graph needs the generator's id logic fixed + a re-run on the brain machine (`BRAIN_PATH`). Do NOT fabricate the missing nodes (violates the real-data non-negotiable).
+- [2026-05-29] trope-cua screenshots use GDI `PrintWindow`, which canNOT capture Chrome's GPU-composited WebGL surface — it returns a black frame even when the 3D graph is rendering fine. Use it for the 2D chrome, but confirm WebGL/3D render in a real browser (or via console/DOM checks), not the trope screenshot.
+
+- [2026-05-29] **The blank 3D graph's true root cause was a one-character API bug**: `3d-force-graph` is a factory — you MUST call `ForceGraph3D()(domElement)` (call the factory, THEN pass the element). The code called `ForceGraph3D(domElement)` (missing the first `()`), which silently returns the uninitialized factory function — **no canvas, no console error** — so the whole graph was blank. Fixed in `KnowledgeGraph.tsx`. (A `3d-force-graph` version bump in this session's package.json likely changed/tightened the API.) Also removed the `isCreatingRef` StrictMode guard (its cleanup reset the flag AFTER `_destructor()`, so a destructor throw left it stuck `true` and blocked re-creation) and wrapped `_destructor()` in try/catch. DEBUG METHOD THAT WORKED: trope GDI screenshots are black for WebGL and gstack headless has no WebGL — the only way to see/inspect the real WebGL render was the **chrome-devtools MCP** (CDP, headed Chrome with real WebGL): `evaluate_script` to check `document.querySelectorAll('canvas').length` + `typeof ForceGraph3D(...)`, and `take_screenshot` which actually captures the GPU surface. Use chrome-devtools for any WebGL/3D debugging here.
+
+- [2026-05-30] The 3D graph is now a **hierarchical/clustered hybrid** (fixes 208-node label clutter): `clusterGraph()` in `KnowledgeGraph.tsx` collapses each layer into one super-node ("Meetings · 94") for the overview, and `expandedLayer` state drills a clicked cluster into its member nodes (rendered as dots with hover/select labels). Gotchas fixed along the way: (1) the old "performance preset" sliced the base to top-55 BEFORE clustering, corrupting counts — removed for the "full" lens (clustering IS the perf fix); (2) `sim.alphaTarget(0.02)` pinned the force sim perpetually warm so it never settled, drifted nodes off-screen, and blocked `onEngineStop` — removed; (3) cluster super-nodes are pinned in a fixed ring (`fx/fy/fz`) so the overview is compact + always framed; `onEngineStop` → `zoomToFit` frames it; auto-rotate set to 0 (drift). NOTE: 3d-force-graph node clicks can't be reproduced with synthetic DOM PointerEvents (its raycaster needs real pointer state) — verify drill-in with a real click or by temporarily defaulting `expandedLayer`.
+
+- [2026-05-30] **3D graph reliability rule: build the WebGL instance ONCE, then only swap `graphData()` — NEVER tear it down per change.** The whole graph was being destroyed (`graph._destructor()`) and rebuilt on every lens switch, layer toggle, drill-in, AND search keystroke (all crammed into one effect's dep array). That leaked WebGL contexts (browsers cap ~16 → graph went blank after ~16 interactions = the recurring "it broke again" bug), flashed + re-exploded on every change, and left stale-closure `setTimeout`s calling `graphData()` on already-destroyed instances. Fix in `KnowledgeGraph.tsx`: a mount effect (deps `[]`) creates the instance once and binds handlers that read live state via refs (`activeLensRef`/`graphPresetRef`/`showExperimentalRef`/`onNodeClickRef`/`getFilteredRef`); a separate data-sync effect only calls `graph.graphData(...)`. Emphasis resets are now accessor-only (`.nodeVal().linkWidth()`) — re-calling `graphData()` re-seeds positions and caused a jarring re-layout ~4s after every node click. Also guarded arrow-key camera nav so it ignores keystrokes while an `<input>` is focused, and suppressed the "heavy data / switch to Performance" banner on the clustered `full` lens (it's ~7 nodes, never heavy). VERIFIED via chrome-devtools by patching `HTMLCanvasElement.getContext`: **0 new WebGL contexts across 22 interactions**, canvas count stayed 1, zero console errors, overview + detailed lenses both render. When touching this graph, do not reintroduce per-change teardown.
+
+- [2026-05-30] **Master-detail reflow lesson: NEVER animate a layout property (width/right/grid-template-columns) of the graph region — 3d-force-graph's continuous rAF render loop saturates the main thread and STARVES main-thread layout transitions (they stall at the start value indefinitely; killing the transition makes the value snap correctly).** Symptom: the dossier-open reflow "didn't happen" / applied seconds late / was wildly flaky. Only COMPOSITOR properties (`transform`, `opacity`) animate reliably while the WebGL graph renders. The working pattern (`BrainExplorer` + `App.css .explorer-stage`): the dossier is a fixed-width panel that slides in via `transform: translateX()` (compositor, smooth); the `.graph-region` width changes INSTANTLY (no transition) to 60.5%; the graph's CONTENT re-frames via its own camera (`reframe-graph` event → `zoomToFit`, smooth because the render loop owns it). Also removed the per-click `cameraPosition()` fly (a long camera tween fought the reflow for the main thread). A `ResizeObserver` on the canvas container keeps the WebGL canvas sized to the region. Selection is driven by a `select-node` window event (so search/orb/jumps all reuse one path) + `onNodeClick`. Verified reliable 3/3 open/close cycles via chrome-devtools, 0 new WebGL contexts.
+
+- [2026-05-30] **The 3D graph was replaced with a 2D knowledge map (`force-graph`, the 2D sibling of `3d-force-graph`, same author/API).** Decision driven by Steve: the recurring failures were all 3D/WebGL (context leaks, render-loop starving CSS reflow, headless can't render, raycaster click issues) AND 3D is worse for the actual GOAL — making significance/clustering/patterns legible. 2D fixed all of it. Design: **node size = significance (global degree), color = category (LAYER_COLORS), position = a custom CLUSTER force** that pulls each node toward a per-category anchor arranged in a ring (`categoryAnchor`), so categories resolve into distinct, readable clusters with faint cross-category edges as bridges. Key force values (tuned live): charge strength -70 / distanceMax 360, link strength 0.03 / distance 60 (links barely pull so big interconnected categories don't merge), cluster force strength 0.32, CLUSTER_RADIUS 430. Labels only for hubs (degree ≥ 30) + on hover/zoom (avoids the label wall). Hover lights up a node's links + neighbors. The whole graph normalizes the broken `brain-graph.json` ids once at module load (`CLEAN_LINKS` via `resolveId` + drop-dangling) and computes `DEGREE`. The master-detail reflow + dossier are ENGINE-AGNOSTIC (driven by BrainExplorer state + a ResizeObserver on the canvas), so they worked unchanged after the swap. `three`, `three-spritetext`, `3d-force-graph` are now unused deps (can be removed). Verified: clustered map renders, reflow 741px + canvas 739px, no JS errors, build green.
+
+- [2026-05-30] **The map clusters by SEMANTIC TOPIC, not category** (Steve: "that's not how my brain works"). `src/lib/topicClusters.ts` owns it: normalizes the messy graph once (`CLEAN_LINKS`/`DEGREE`/`NODE_BY_ID`), runs **Louvain** community detection (`graphology` + `graphology-communities-louvain`, resolution 1.5, high-conf edges weighted 3×, seeded RNG so topics are STABLE across reloads), then **propagates** weakly-connected nodes into the topic they're most linked to (seeded label propagation, 6 passes) so they don't dump into a giant "Other". Each topic gets a label from its top-2 highest-degree members, a palette color, and a ring anchor. Exposes `topicColorOf/topicAnchorOf/topicIdOf/TOPICS`. KnowledgeGraph then colors nodes by topic + uses a cluster force pulling each node to its topic anchor → distinct, cross-category topic clusters (a meeting, its decision, and the system it touched all sit together). The 54 "Unconnected" orphans (nodes whose edges were all dangling/dropped — a `generate-brain-graph.ts` id bug, not real) are hidden by default. Resolution sweep results are in the git history of this file's session. Node size = degree (significance), labels only for hubs (degree ≥ 28) + hover/zoom.
+
+- [2026-05-31] **liquid-dom (WebGPU "liquid glass") integrated as a progressive enhancement.** Steve chose the real `@liquid-dom/*` libs over a CSS approximation knowing the constraints. Required **migrating the app React 18 → 19** (clean: entry already used `createRoot`, typecheck passed with ZERO code changes; framer-motion 12 / lucide 0.468 / vite-plugin-react 5 already React-19-ready). `src/components/LiquidGlass.tsx` wraps content in `LiquidCanvas→GlassContainer→Frame→Glass→Html`, gated by `isLiquidGlassSupported()` (checks `navigator.gpu` AND `'drawElement' in CanvasRenderingContext2D.prototype` — the Canvas Draw Element flag probe). **When unsupported it renders a `.liquid-glass-fallback` passthrough + the normal frosted `.dossier-inner` (backdrop-filter) — so it NEVER blanks for anyone.** Applied to the dossier panel. **CRITICAL LIMITATION: the real WebGPU render only works behind `chrome://flags/#canvas-draw-element` (per-user, experimental HTML-in-Canvas). chrome-devtools MCP / trope can't render+screenshot it (no flag / GDI-black), so the GPU path is UNVERIFIED in-session — only the fallback is proven. Steve must enable the flag to confirm + tune glass params (blur/refraction/tint).** Verified: fallback renders, reflow 741px, canvas count stays 1 (no broken GPU canvas), typecheck + build green, zero console errors.
+
+## When Working Here
+
+- **Master vision document**: `SYNTHESIS_COCKPIT_VISION.md` is the single source of truth for direction, philosophy, non-negotiables, design objectives, and what "good" actually means. Read it before starting any significant work.
+- **Ingestion pipeline first**: Before any new frontend work, data model changes, or graph features, ensure the change respects (and ideally improves) the ongoing Brain Ingestion & Synthesis Pipeline defined in `BRAIN_INGESTION_PIPELINE.md`. New source types must have a clear, documented path through the stages.
+- Read `DATA_CONTRACT.md` + `GRAPH_DATA_STANDARDS.md` + `BRAIN_INGESTION_PIPELINE.md` + `SYNTHESIS_COCKPIT_VISION.md` before touching data flow, synthesis logic, or major UI architecture.
+- The 3D graph + Orbital is the primary value surface. Any work should ultimately make the graphs more accurate, deeper, or more usable as a synthesis tool.
+- Run the full `npm run ci` locally before handing off a PR.
+- After any visual or interaction change, consider a quick hallmark or design-review pass.
+- This is internal tooling that must feel calm, precise, and trustworthy — not marketing.
+
+Add new learnings at the bottom of this file as one-line dated bullets when a correction or strong preference is discovered.

@@ -1,23 +1,18 @@
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
-  Activity,
   Archive,
   ArrowRight,
   Brain,
   CalendarDays,
-  CheckCircle2,
   ChevronRight,
   CircleAlert,
   Clock3,
-  DatabaseZap,
   FileCheck2,
-  FileText,
-  Gauge,
   GitBranch,
-  Layers3,
   ListChecks,
   LockKeyhole,
+  type LucideIcon,
   MessageSquareText,
-  Network,
   PanelLeftClose,
   PanelLeftOpen,
   RadioTower,
@@ -27,469 +22,852 @@ import {
   Split,
   TriangleAlert,
   Workflow,
-  Zap
 } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import contextEngine from "./assets/context-engine.png";
+import { AdminSettings } from "./components/AdminSettings";
+import { DetailDrawer } from "./components/drawer";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { OrbitalAssistant } from "./components/OrbitalAssistant";
 import {
-  ActionProposal,
-  Adr,
-  AdrCandidate,
-  CortexInsight,
-  MeetingEntry,
-  OpenQuestion,
-  PrepPacket,
-  Risk,
+  ConfidenceBar,
+  DrawerHeader,
+  EmptyState,
+  FilterSummary,
+  InfoBlock,
+  ListBlock,
+  MetaGrid,
+  MetaPill,
+  ReasoningPreview,
+  SectionHeader,
+  StatusChip,
+} from "./components/ui";
+import { ViewHero } from "./components/ui/ViewHero";
+import {
+  type ActionProposal,
+  type Adr,
+  type AdrCandidate,
   brain,
+  type CortexInsight,
+  type MeetingEntry,
+  nextBestPacket,
+  type OpenQuestion,
+  openProposals,
+  type PrepPacket,
+  packetById,
+  type Risk,
+  type SourceHealthItem,
+  sortedInsights,
+} from "./data";
+import { BrainExplorer } from "./features/brain-explorer/BrainExplorer";
+import { getAdminSettings } from "./lib/adminSettings";
+import {
+  createSearchIndex,
+  filterByQuery,
+  filterSearchResults,
+  type SearchResult,
+  type ViewKey,
+} from "./lib/search";
+import {
   clampText,
   compactNumber,
   formatDate,
+  formatPriority,
+  formatStatus,
   labelize,
-  nextBestPacket,
-  openProposals,
-  packetById,
-  sortedInsights
-} from "./data";
+  stripMarkdown,
+  toneForStatus,
+} from "./lib/utils";
+import { viewCopy } from "./lib/viewConfig";
+import type { Detail } from "./types/brain";
+import { InsightsGraph } from "./views/InsightsGraph";
+import { MeetingsView } from "./views/MeetingsView";
+import { QuestionsView } from "./views/QuestionsView";
+import { RisksView } from "./views/RisksView";
+import { SourceHealthView } from "./views/SourceHealthView";
 
-type ViewKey =
-  | "readiness"
-  | "meetings"
-  | "packets"
-  | "insights"
-  | "actions"
-  | "questions"
-  | "risks"
-  | "decisions"
-  | "sources";
+type NavItem = {
+  key: ViewKey;
+  label: string;
+  helper: string;
+  icon: LucideIcon;
+  count?: number;
+};
 
-type Detail =
-  | { kind: "packet"; value: PrepPacket }
-  | { kind: "insight"; value: CortexInsight }
-  | { kind: "proposal"; value: ActionProposal }
-  | { kind: "question"; value: OpenQuestion }
-  | { kind: "risk"; value: Risk }
-  | { kind: "adr"; value: Adr | AdrCandidate; label: string }
-  | { kind: "meeting"; value: MeetingEntry };
+type NavSection = {
+  label: string;
+  items: NavItem[];
+};
 
-type HeroMode = "visual" | "flow";
+const allMeetings = uniqueMeetings([
+  ...brain.meetingIndex.upcoming,
+  ...brain.meetingIndex.active,
+  ...brain.meetingIndex.recent,
+]);
 
-const navItems: Array<{ key: ViewKey; label: string; icon: typeof Brain }> = [
-  { key: "readiness", label: "Readiness", icon: Brain },
-  { key: "meetings", label: "Meetings", icon: CalendarDays },
-  { key: "packets", label: "Prep Packets", icon: FileCheck2 },
-  { key: "insights", label: "Cortex Insights", icon: Sparkles },
-  { key: "actions", label: "Actions", icon: ListChecks },
-  { key: "questions", label: "Open Questions", icon: MessageSquareText },
-  { key: "risks", label: "Risks", icon: TriangleAlert },
-  { key: "decisions", label: "Decisions", icon: GitBranch },
-  { key: "sources", label: "Source Health", icon: RadioTower }
+const sourceHealthEntries = Object.entries(brain.status.sourceHealth ?? {}) as Array<
+  [string, SourceHealthItem]
+>;
+
+const rawNavSections: NavSection[] = [
+  {
+    label: "Orient",
+    items: [
+      {
+        key: "readiness",
+        label: "Start Here",
+        helper: "What needs attention now",
+        icon: Brain,
+      },
+      {
+        key: "meetings",
+        label: "Meetings",
+        helper: "Upcoming, active, recent signals",
+        icon: CalendarDays,
+        count: allMeetings.length,
+      },
+    ],
+  },
+  {
+    label: "Prepare",
+    items: [
+      {
+        key: "packets",
+        label: "Prep Packets",
+        helper: "Briefs ready to use in meetings",
+        icon: FileCheck2,
+        count: brain.prepPackets.length,
+      },
+      {
+        key: "insights",
+        label: "Insights",
+        helper: "Synthesized patterns and reasoning",
+        icon: Sparkles,
+        count: brain.cortexInsights.length,
+      },
+    ],
+  },
+  {
+    label: "Resolve",
+    items: [
+      {
+        key: "actions",
+        label: "Actions",
+        helper: "Gated proposals and next moves",
+        icon: ListChecks,
+        count: brain.actionProposals.length,
+      },
+      {
+        key: "questions",
+        label: "Questions",
+        helper: "Open asks, owners, and targets",
+        icon: MessageSquareText,
+        count: brain.openQuestions.length,
+      },
+      {
+        key: "risks",
+        label: "Risks",
+        helper: "Exposure, severity, mitigation",
+        icon: TriangleAlert,
+        count: brain.risks.length,
+      },
+      {
+        key: "decisions",
+        label: "Decisions",
+        helper: "ADRs and candidates",
+        icon: GitBranch,
+        count: brain.adrs.adrs.length + brain.adrs.candidates.length,
+      },
+    ],
+  },
+  {
+    label: "Trust",
+    items: [
+      {
+        key: "sources",
+        label: "Source Health",
+        helper: "Freshness, boundaries, redaction",
+        icon: RadioTower,
+        count: sourceHealthEntries.length,
+      },
+    ],
+  },
 ];
 
-const countCards = [
-  { label: "Prep Packets", value: brain.manifest.counts.prepPackets, tone: "amber", icon: FileCheck2 },
-  { label: "Cortex Insights", value: brain.manifest.counts.cortexInsights, tone: "sky", icon: Sparkles },
-  { label: "Action Proposals", value: brain.manifest.counts.actionProposals, tone: "mint", icon: ListChecks },
-  { label: "Open Questions", value: brain.manifest.counts.openQuestions, tone: "violet", icon: MessageSquareText },
-  { label: "Active Risks", value: brain.manifest.counts.risks, tone: "orange", icon: TriangleAlert },
-  { label: "Proposed ADRs", value: brain.manifest.counts.adrs, tone: "indigo", icon: GitBranch }
-];
+// Apply admin visibility settings
+const adminSettings = getAdminSettings();
+const navSections = rawNavSections
+  .filter((section) => !adminSettings.hiddenNavSections.includes(section.label))
+  .map((section) => ({
+    ...section,
+    items: section.items.filter((item) => !adminSettings.hiddenNavItems.includes(item.key)),
+  }));
 
-const latestInsight = sortedInsights[0];
+const learningCards = [
+  {
+    icon: FileCheck2,
+    label: "Prep Packet",
+    body: "A meeting-ready brief: current state, questions, risks, posture, and proof trail.",
+  },
+  {
+    icon: Sparkles,
+    label: "Cortex Insight",
+    body: "A synthesized pattern with confidence, observations, connections, and a recommended next move.",
+  },
+  {
+    icon: GitBranch,
+    label: "ADR",
+    body: "Architecture decision record. Use it when an architecture choice needs reviewable memory.",
+  },
+  {
+    icon: ShieldCheck,
+    label: "Stakeholder-safe",
+    body: "The app shows curated artifacts only; raw captures, credentials, and private notes are excluded.",
+  },
+];
 
 export default function App() {
-  const [activeView, setActiveView] = useState<ViewKey>("readiness");
+  const [activeView, setActiveView] = useState<ViewKey>("insights"); // GRAPH-CENTRIC REDESIGN: The rich 3D KnowledgeGraph (full provenance 1360-link brain) + OrbitalAssistant is the PRIMARY, DOMINANT, ALWAYS-CENTRAL interface. Traditional navigation is demoted to a thin contextual rail or orb commands. All other content surfaces as graph-triggered context, lenses, or docked panels.
   const [detail, setDetail] = useState<Detail | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [query, setQuery] = useState("");
+  const [searchSelectedIndex, setSearchSelectedIndex] = useState(-1);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const reduceMotion = useReducedMotion();
 
-  const filteredPackets = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) return brain.prepPackets;
-    return brain.prepPackets.filter((packet) =>
-      [packet.title, packet.summary, packet.suggestedPosture, ...(packet.relatedWork ?? [])]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalized)
-    );
-  }, [query]);
+  const searchIndex = useMemo(createSearchIndex, []);
+  const searchResults = useMemo(
+    () => filterSearchResults(searchIndex, query),
+    [query, searchIndex]
+  );
 
-  const filteredInsights = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) return sortedInsights;
-    return sortedInsights.filter((insight) =>
-      [insight.title, insight.summary, insight.type, ...(insight.tags ?? [])]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalized)
-    );
-  }, [query]);
+  const openDetail = (nextDetail: Detail) => setDetail(nextDetail);
 
-  const showDetail = (nextDetail: Detail) => setDetail(nextDetail);
+  // Close drawer on Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && detail) {
+        setDetail(null);
+      }
+
+      // Secret admin shortcut: Ctrl+Shift+A (or Cmd+Shift+A on Mac)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        setIsAdminOpen(true);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [detail]);
+
+  const navigate = (view: ViewKey) => {
+    setActiveView(view);
+    setDetail(null);
+  };
+
+  // Listen for graph navigation hints from other views (e.g. Questions, Risks) so they feel connected to the central 3D experience
+  useEffect(() => {
+    const handler = (e: any) => {
+      if (e.detail?.suggestLens) {
+        // For now just switch to the graph view — the lens can be chosen manually or we can extend later
+        setActiveView("insights");
+      }
+    };
+    window.addEventListener("navigate-to-graph", handler);
+    return () => window.removeEventListener("navigate-to-graph", handler);
+  }, []);
+
+  const openSearchResult = (result: SearchResult) => {
+    setActiveView(result.view);
+    setQuery("");
+    setSearchSelectedIndex(-1);
+    setDetail(result.detail ?? null);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!query.trim() || searchResults.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSearchSelectedIndex((prev) => Math.min(prev + 1, Math.min(searchResults.length - 1, 7)));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSearchSelectedIndex((prev) => Math.max(prev - 1, 0));
+    } else if (e.key === "Enter" && searchSelectedIndex >= 0) {
+      e.preventDefault();
+      openSearchResult(searchResults[searchSelectedIndex]);
+    } else if (e.key === "Escape") {
+      setQuery("");
+      setSearchSelectedIndex(-1);
+    }
+  };
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${sidebarOpen ? "nav-open" : "nav-collapsed"}`}>
       <AmbientCanvas reduceMotion={Boolean(reduceMotion)} />
-      <aside className={`sidebar ${sidebarOpen ? "is-open" : "is-closed"}`}>
-        <button
-          className="sidebar-toggle"
-          onClick={() => setSidebarOpen((value) => !value)}
-          aria-label={sidebarOpen ? "Collapse navigation" : "Expand navigation"}
-        >
-          {sidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
-        </button>
-        <div className="brand-lockup">
-          <div className="brand-mark">
-            <Brain size={22} />
-          </div>
-          {sidebarOpen && (
-            <div>
-              <strong>Context OS</strong>
-              <span>IP Corp Architecture</span>
-            </div>
-          )}
-        </div>
-        <nav className="nav-list" aria-label="Primary">
-          {navItems.map((item) => (
-            <button
-              className={`nav-item ${activeView === item.key ? "is-active" : ""}`}
-              key={item.key}
-              onClick={() => setActiveView(item.key)}
-              title={item.label}
-            >
-              <item.icon size={20} />
-              {sidebarOpen && <span>{item.label}</span>}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-footer">
-          <StatusDot label="Stakeholder-safe draft" tone="mint" compact={!sidebarOpen} />
-          {sidebarOpen && (
-            <p>
-              Curated surface only. Raw captures, credentials, and internal agent rules stay out of
-              this app.
-            </p>
-          )}
-        </div>
-      </aside>
+      <Sidebar
+        activeView={activeView}
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen((value) => !value)}
+        onNavigate={navigate}
+      />
 
       <main className="workspace">
-        <Topbar query={query} setQuery={setQuery} />
+        <Topbar
+          activeView={activeView}
+          query={query}
+          results={searchResults}
+          onQueryChange={setQuery}
+          onOpenResult={openSearchResult}
+          onClear={() => {
+            setQuery("");
+            setSearchSelectedIndex(-1);
+          }}
+          searchSelectedIndex={searchSelectedIndex}
+          onSearchKeyDown={handleSearchKeyDown}
+        />
+
         <AnimatePresence mode="wait">
           <motion.section
             key={activeView}
-            initial={reduceMotion ? false : { opacity: 0, y: 16, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={reduceMotion ? undefined : { opacity: 0, y: -10, filter: "blur(8px)" }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             className="view-frame"
+            initial={reduceMotion ? false : { opacity: 0, y: 18, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={reduceMotion ? undefined : { opacity: 0, y: -12, filter: "blur(8px)" }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           >
-            {activeView === "readiness" && <ReadinessView showDetail={showDetail} />}
-            {activeView === "meetings" && <MeetingsView showDetail={showDetail} />}
-            {activeView === "packets" && (
-              <PacketsView packets={filteredPackets} showDetail={showDetail} />
+            {activeView === "readiness" && (
+              <ReadinessView openDetail={openDetail} navigate={navigate} />
             )}
+            {activeView === "meetings" && (
+              <MeetingsView
+                openDetail={openDetail}
+                onFocusInGraph={(meetingId) => {
+                  // Switch to the main 3D graph experience and request meeting provenance focus
+                  setActiveView("insights");
+                  // Give the graph a moment to mount, then request focus
+                  setTimeout(() => {
+                    window.dispatchEvent(
+                      new CustomEvent("focus-meeting-in-graph", { detail: { meetingId } })
+                    );
+                  }, 420);
+                }}
+              />
+            )}
+            {activeView === "packets" && <PacketsView openDetail={openDetail} query={query} />}
             {activeView === "insights" && (
-              <InsightsView insights={filteredInsights} showDetail={showDetail} />
+              /* GRAPH IS THE PRODUCT — full-bleed synthesis cockpit. 
+                 The rich 3D KnowledgeGraph with 1360 provenance-backed links is the primary, always-central interface.
+                 All other brain content (packets, ADRs, risks, meetings, sources) now surfaces as contextual panels, 
+                 orb commands, or graph-triggered overlays instead of separate "views". */
+              <div className="graph-cockpit full-bleed">
+                <ErrorBoundary>
+                  <BrainExplorer />
+                </ErrorBoundary>
+              </div>
             )}
-            {activeView === "actions" && <ActionsView showDetail={showDetail} />}
-            {activeView === "questions" && <QuestionsView showDetail={showDetail} />}
-            {activeView === "risks" && <RisksView showDetail={showDetail} />}
-            {activeView === "decisions" && <DecisionsView showDetail={showDetail} />}
+            {activeView === "actions" && <ActionsView openDetail={openDetail} query={query} />}
+            {activeView === "questions" && <QuestionsView openDetail={openDetail} query={query} />}
+            {activeView === "risks" && <RisksView openDetail={openDetail} query={query} />}
+            {activeView === "decisions" && <DecisionsView openDetail={openDetail} query={query} />}
             {activeView === "sources" && <SourceHealthView />}
           </motion.section>
         </AnimatePresence>
       </main>
 
       <DetailDrawer detail={detail} onClose={() => setDetail(null)} />
+      <AdminSettings isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
+
+      {/* Floating Orbital Assistant — always present across every view.
+          Has full access to the rich brain-graph (1360 provenance-backed links).
+          Can fly the camera, switch lenses, emphasize real connections, and surface excerpts. */}
+      <OrbitalAssistant />
     </div>
   );
 }
 
-function Topbar({
-  query,
-  setQuery
+function Sidebar({
+  activeView,
+  isOpen,
+  onToggle,
+  onNavigate,
 }: {
-  query: string;
-  setQuery: (value: string) => void;
+  activeView: ViewKey;
+  isOpen: boolean;
+  onToggle: () => void;
+  onNavigate: (view: ViewKey) => void;
 }) {
+  const activeLabel = viewCopy[activeView].label;
+
+  return (
+    <aside className="sidebar" aria-label="Primary navigation">
+      <button
+        data-testid="sidebar-toggle"
+        className="sidebar-toggle"
+        onClick={onToggle}
+        aria-label={isOpen ? "Collapse navigation" : "Expand navigation"}
+      >
+        {isOpen ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
+      </button>
+
+      <div className="brand-lockup">
+        <div className="brand-mark" aria-hidden="true">
+          <Brain size={22} />
+        </div>
+        {isOpen && (
+          <div className="brand-copy">
+            <strong>Context OS</strong>
+            <span>IP Corp Architecture Brain</span>
+          </div>
+        )}
+      </div>
+
+      <div className="nav-position-card" aria-live="polite">
+        <span className="mono-kicker">You are here</span>
+        {isOpen ? <strong>{activeLabel}</strong> : <strong>{activeLabel.slice(0, 1)}</strong>}
+      </div>
+
+      <nav className="nav-list">
+        {navSections.map((section) => (
+          <div className="nav-section" key={section.label}>
+            {isOpen && <span className="nav-section-label">{section.label}</span>}
+            {section.items.map((item) => (
+              <button
+                className={`nav-item ${activeView === item.key ? "is-active" : ""}`}
+                key={item.key}
+                onClick={() => onNavigate(item.key)}
+                title={`${item.label}: ${item.helper}`}
+                data-testid={`nav-${item.key}`}
+              >
+                {activeView === item.key && (
+                  <motion.span className="nav-active-bg" layoutId="nav-active-bg" />
+                )}
+                <item.icon size={20} />
+                {isOpen && (
+                  <span className="nav-item-copy">
+                    <strong>{item.label}</strong>
+                    <small>{item.helper}</small>
+                  </span>
+                )}
+                {item.count !== undefined && (
+                  <span className="nav-count">{compactNumber(item.count)}</span>
+                )}
+              </button>
+            ))}
+          </div>
+        ))}
+      </nav>
+
+      <div className="sidebar-footer">
+        <StatusChip
+          label="Stakeholder-safe"
+          tone="green"
+          icon={<LockKeyhole size={13} />}
+          compact={!isOpen}
+        />
+        {isOpen && <p>{brain.manifest.redactionPolicy}</p>}
+      </div>
+    </aside>
+  );
+}
+
+function Topbar({
+  activeView,
+  query,
+  results,
+  onQueryChange,
+  onOpenResult,
+  onClear,
+  searchSelectedIndex,
+  onSearchKeyDown,
+}: {
+  activeView: ViewKey;
+  query: string;
+  results: SearchResult[];
+  onQueryChange: (value: string) => void;
+  onOpenResult: (result: SearchResult) => void;
+  onClear: () => void;
+  searchSelectedIndex: number;
+  onSearchKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+}) {
+  const meta = viewCopy[activeView];
+
   return (
     <header className="topbar">
-      <div className="topbar-title">
-        <span className="mono-kicker">Architecture Brain</span>
-        <strong>IP Corp Brain</strong>
+      <div className="topbar-context">
+        <span className="mono-kicker">{meta.eyebrow}</span>
+        <strong>{meta.label}</strong>
+        <small>{meta.summary}</small>
       </div>
-      <div className="search-box">
-        <Search size={17} />
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search packets, insights, risks..."
-        />
+
+      <div className="global-search-wrap">
+        <label className="search-box">
+          <Search size={17} />
+          <input
+            data-testid="global-search"
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+            onKeyDown={onSearchKeyDown}
+            aria-label="Search the entire architecture brain"
+            placeholder="Search everything: packets, meetings, risks, ADRs..."
+          />
+          {query && (
+            <button
+              type="button"
+              className="search-clear"
+              onClick={onClear}
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </label>
+
+        <AnimatePresence>
+          {query.trim() && (
+            <motion.div
+              className="search-results-panel"
+              initial={{ opacity: 0, y: 8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.98 }}
+              transition={{ duration: 0.16 }}
+            >
+              <div className="search-results-head">
+                <strong>{results.length ? `${results.length} results` : "No matches yet"}</strong>
+                <span>Global search</span>
+              </div>
+              {results.length ? (
+                <div className="search-result-list">
+                  {results.slice(0, 8).map((result, index) => (
+                    <button
+                      key={result.id}
+                      className={`search-result ${index === searchSelectedIndex ? "is-selected" : ""}`}
+                      onClick={() => onOpenResult(result)}
+                    >
+                      <result.icon size={18} />
+                      <span>
+                        <strong>{result.title}</strong>
+                        <small>
+                          {result.kind} · {result.meta}
+                        </small>
+                      </span>
+                      <ChevronRight size={16} />
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="empty-copy">
+                  Try an owner, meeting title, system name, risk term, or ADR topic.
+                </p>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
       <div className="topbar-chips">
-        <StatusDot label={brain.status.freshnessLabel} tone="amber" />
-        <StatusDot label="Stakeholder-safe draft" tone="mint" icon={<LockKeyhole size={13} />} />
+        <StatusChip label={formatStatus(brain.status.freshnessLabel)} tone="amber" />
+        <StatusChip label="Curated only" tone="green" icon={<ShieldCheck size={13} />} />
+        <span
+          className="last-updated"
+          title={`Last synced: ${formatDate(brain.manifest.generatedAt)}`}
+        >
+          Updated {formatDate(brain.manifest.generatedAt)}
+        </span>
       </div>
     </header>
   );
 }
 
-function ReadinessView({ showDetail }: { showDetail: (detail: Detail) => void }) {
+function ReadinessView({
+  openDetail,
+  navigate,
+}: {
+  openDetail: (detail: Detail) => void;
+  navigate: (view: ViewKey) => void;
+}) {
   const missing = brain.meetingIndex.missingOrStalePackets ?? [];
-  const latestMeetings = brain.meetingIndex.recent.slice(0, 4);
+  const readinessItems = [
+    {
+      icon: CircleAlert,
+      label: "Review evidence gap",
+      body: missing[0]?.note ?? "No stale packet notes are currently flagged.",
+      action: "Go to source health",
+      onClick: () => navigate("sources"),
+      tone: "warning",
+    },
+    {
+      icon: FileCheck2,
+      label: "Open next packet",
+      body: nextBestPacket.summary,
+      action: "Open packet",
+      onClick: () => openDetail({ kind: "packet", value: nextBestPacket }),
+      tone: "primary",
+    },
+    {
+      icon: ListChecks,
+      label: "Clear gated actions",
+      body: `${openProposals.length} proposal${openProposals.length === 1 ? "" : "s"} require review before execution.`,
+      action: "Review actions",
+      onClick: () => navigate("actions"),
+      tone: "success",
+    },
+  ];
 
   return (
     <div className="view-stack">
-      <section className="hero-grid">
-        <div className="hero-panel">
-          <div className="hero-text">
-            <div className="hero-chips">
-              <StatusDot label={brain.status.freshnessLabel} tone="amber" />
-              <StatusDot label="Stakeholder-safe draft" tone="mint" icon={<ShieldCheck size={13} />} />
+      <ViewHero view="readiness">
+        <div className="readiness-hero-grid">
+          <div className="hero-copy-card">
+            <span className="mono-kicker">Start here</span>
+            <h1>{viewCopy.readiness.title}</h1>
+            <p>{viewCopy.readiness.summary}</p>
+            <div className="hero-actions">
+              <button
+                data-testid="open-next-packet"
+                className="primary-action"
+                onClick={() => openDetail({ kind: "packet", value: nextBestPacket })}
+              >
+                Open next packet <ArrowRight size={17} />
+              </button>
+              <button className="ghost-action" onClick={() => navigate("meetings")}>
+                View meeting signals
+              </button>
             </div>
-            <h1>Brain Readiness Workspace</h1>
-            <p>
-              A calm operating surface for the IP Corp engagement: what is current, what needs
-              review, what evidence supports it, and which packet is ready next.
-            </p>
           </div>
-          <ContextSignalMap />
+          <ContextFlowCard />
         </div>
-        <div className="next-panel">
-          <span className="mono-kicker">Next Best Packet</span>
-          <h2>{nextBestPacket.title}</h2>
-          <p>{nextBestPacket.summary}</p>
-          <button
-            className="primary-action"
-            onClick={() => showDetail({ kind: "packet", value: nextBestPacket })}
-          >
-            Open prep packet <ArrowRight size={17} />
-          </button>
-        </div>
-      </section>
+      </ViewHero>
 
-      <section className="count-ribbon" aria-label="Brain snapshot">
-        {countCards.map((card) => (
+      <section className="guided-strip" aria-label="Recommended next steps">
+        {readinessItems.map((item, index) => (
           <motion.button
-            className={`count-pill tone-${card.tone}`}
-            key={card.label}
-            whileHover={{ y: -3 }}
-            whileTap={{ scale: 0.98 }}
+            className={`guided-card tone-${item.tone}`}
+            key={item.label}
+            onClick={item.onClick}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+            whileHover={{ y: -4 }}
           >
-            <card.icon size={22} />
-            <strong>{compactNumber(card.value)}</strong>
-            <span>{card.label}</span>
+            <span className="step-index">0{index + 1}</span>
+            <item.icon size={22} />
+            <strong>{item.label}</strong>
+            <p>{clampText(item.body, 150)}</p>
+            <span className="card-cta">
+              {item.action} <ArrowRight size={15} />
+            </span>
           </motion.button>
         ))}
       </section>
 
-      <section className="content-grid">
-        <PacketAssemblyCard packet={nextBestPacket} showDetail={showDetail} />
-        <AttentionColumn missing={missing} showDetail={showDetail} />
+      <section className="metric-grid" aria-label="Brain inventory">
+        <MetricCard
+          icon={FileCheck2}
+          label="Prep packets"
+          value={brain.prepPackets.length}
+          helper="Meeting-ready briefs"
+          tone="amber"
+        />
+        <MetricCard
+          icon={Sparkles}
+          label="Insights"
+          value={brain.cortexInsights.length}
+          helper="Reasoning trails"
+          tone="sky"
+        />
+        <MetricCard
+          icon={ListChecks}
+          label="Open proposals"
+          value={openProposals.length}
+          helper="Need review"
+          tone="green"
+        />
+        <MetricCard
+          icon={MessageSquareText}
+          label="Questions"
+          value={brain.openQuestions.length}
+          helper="Owner-tracked asks"
+          tone="violet"
+        />
+        <MetricCard
+          icon={TriangleAlert}
+          label="Risks"
+          value={brain.risks.length}
+          helper="Active exposure"
+          tone="orange"
+        />
+        <MetricCard
+          icon={RadioTower}
+          label="Sources"
+          value={sourceHealthEntries.length}
+          helper="Health lanes"
+          tone="blue"
+        />
       </section>
 
-      <section className="content-grid lower-grid">
-        <InsightPreview insight={latestInsight} showDetail={showDetail} />
-        <TimelinePanel meetings={latestMeetings} showDetail={showDetail} />
+      <section className="two-column-grid">
+        <article className="glass-card next-packet-card">
+          <SectionHeader
+            eyebrow="Next best packet"
+            title={nextBestPacket.title}
+            icon={FileCheck2}
+          />
+          <p>{nextBestPacket.summary}</p>
+          <div className="packet-health-row">
+            <MetaPill label="Questions" value={String(nextBestPacket.openQuestions?.length ?? 0)} />
+            <MetaPill label="Risks" value={String(nextBestPacket.risks?.length ?? 0)} />
+            <MetaPill
+              label="Evidence refs"
+              value={String(nextBestPacket.evidenceRefs?.length ?? 0)}
+            />
+          </div>
+          <button
+            className="primary-action small"
+            onClick={() => openDetail({ kind: "packet", value: nextBestPacket })}
+          >
+            Open the brief <ArrowRight size={16} />
+          </button>
+        </article>
+
+        <article className="glass-card explain-card">
+          <SectionHeader eyebrow="What means what" title="Plain-English guide" icon={Brain} />
+          <div className="definition-grid">
+            {learningCards.map((card) => (
+              <DefinitionCard key={card.label} {...card} />
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <section className="two-column-grid align-start">
+        <LatestInsightCard openDetail={openDetail} />
+        <MeetingSignalsCard openDetail={openDetail} />
       </section>
     </div>
   );
 }
 
-function ContextSignalMap() {
-  const sources = ["Teams", "Cluely", "Notion", "Project Memory", "Natively", "Outcomes"];
-  return (
-    <div className="signal-map" aria-label="Context source flow">
-      <div className="signal-image" style={{ backgroundImage: `url(${contextEngine})` }} />
-      <div className="signal-core">
-        <Sparkles size={24} />
-        <span>Synthesis</span>
-      </div>
-      {sources.map((source, index) => (
-        <motion.div
-          className={`source-orb source-${index}`}
-          key={source}
-          initial={{ opacity: 0, scale: 0.82 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: index * 0.08, duration: 0.5 }}
-        >
-          {source}
-        </motion.div>
-      ))}
-      <div className="flow-line line-a" />
-      <div className="flow-line line-b" />
-      <div className="flow-line line-c" />
-    </div>
-  );
-}
-
-function PacketAssemblyCard({
-  packet,
-  showDetail
-}: {
-  packet: PrepPacket;
-  showDetail: (detail: Detail) => void;
-}) {
-  const strands = [
-    { label: "Meetings", value: `${packet.relatedPriorMeetings?.length ?? 3} refs`, icon: CalendarDays },
-    { label: "Risks", value: `${packet.risks?.length ?? 0} active`, icon: TriangleAlert },
-    { label: "Questions", value: `${packet.openQuestions?.length ?? 0} open`, icon: MessageSquareText },
-    { label: "Evidence", value: `${packet.evidenceRefs?.length ?? 0} refs`, icon: FileText }
+function ContextFlowCard() {
+  const flow = [
+    { label: "Capture", icon: RadioTower, text: "Teams, Natively, Cluely, memory" },
+    { label: "Synthesize", icon: Workflow, text: "Connections, gaps, reasoning" },
+    { label: "Prepare", icon: FileCheck2, text: "Packets, posture, talking points" },
+    { label: "Decide", icon: GitBranch, text: "ADRs, actions, follow-up" },
   ];
 
   return (
-    <article className="glass-card assembly-card">
-      <div className="section-heading">
-        <div>
-          <span className="mono-kicker">Assembled Packet</span>
-          <h2>{packet.title}</h2>
-        </div>
-        <button className="icon-button" onClick={() => showDetail({ kind: "packet", value: packet })}>
-          <ChevronRight size={19} />
-        </button>
+    <article className="context-flow-card" aria-label="How this app flows">
+      <div className="context-image" style={{ backgroundImage: `url(${contextEngine})` }} />
+      <div className="flow-card-header">
+        <StatusChip label={formatStatus(brain.status.freshnessLabel)} tone="amber" />
+        <StatusChip label="No raw transcript text" tone="green" icon={<ShieldCheck size={13} />} />
       </div>
-      <div className="assembly-flow">
-        <div className="strand-list">
-          {strands.map((strand, index) => (
-            <motion.div
-              className="strand"
-              key={strand.label}
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.07 }}
-            >
-              <strand.icon size={17} />
-              <span>{strand.label}</span>
-              <strong>{strand.value}</strong>
-            </motion.div>
-          ))}
-        </div>
-        <div className="synthesis-node">
-          <Workflow size={28} />
-          <span>Context synthesis</span>
-        </div>
-        <div className="packet-node">
-          <FileCheck2 size={22} />
-          <span>Live-ready packet</span>
-        </div>
-      </div>
-      <div className="proof-list">
-        {(packet.currentState ?? []).slice(0, 3).map((state) => (
-          <div className="proof-row" key={state}>
-            <CheckCircle2 size={18} />
-            <span>{state}</span>
-          </div>
+      <div className="flow-steps">
+        {flow.map((step, index) => (
+          <motion.div
+            className="flow-step"
+            key={step.label}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.07 }}
+          >
+            <span>{index + 1}</span>
+            <step.icon size={18} />
+            <strong>{step.label}</strong>
+            <small>{step.text}</small>
+          </motion.div>
         ))}
       </div>
     </article>
   );
 }
 
-function AttentionColumn({
-  missing,
-  showDetail
+function MetricCard({
+  icon: Icon,
+  label,
+  value,
+  helper,
+  tone,
 }: {
-  missing: NonNullable<typeof brain.meetingIndex.missingOrStalePackets>;
-  showDetail: (detail: Detail) => void;
+  icon: LucideIcon;
+  label: string;
+  value: number;
+  helper: string;
+  tone: string;
 }) {
   return (
-    <aside className="attention-column">
-      <article className="glass-card attention-card">
-        <span className="mono-kicker amber-dot">Needs Attention</span>
-        <h3>{missing[0]?.id === "plant-tour-follow-up-2026-05-27" ? "Plant-tour evidence gap" : "Open evidence gap"}</h3>
-        <p>{missing[0]?.note ?? "No stale packet notes were found."}</p>
-        <div className="mini-proof">{missing[0]?.source}</div>
-      </article>
-      <article className="glass-card governance-card">
-        <div className="section-heading compact">
-          <div>
-            <span className="mono-kicker">Decisions Needing Review</span>
-            <h3>{brain.manifest.counts.adrs} proposed ADRs</h3>
-          </div>
-          <GitBranch size={25} />
-        </div>
-        {brain.adrs.adrs.slice(-3).map((adr) => (
-          <button
-            className="decision-row"
-            key={adr.number}
-            onClick={() => showDetail({ kind: "adr", value: adr, label: `ADR-${adr.number.slice(-4)}` })}
-          >
-            <span>ADR-{adr.number.slice(-4)}</span>
-            <strong>{adr.title}</strong>
-            <small>{adr.status}</small>
-          </button>
-        ))}
-      </article>
-      <article className="glass-card proposal-card">
-        <span className="mono-kicker">Approval Queue</span>
-        {openProposals.map((proposal) => (
-          <button
-            key={proposal.id}
-            className="proposal-link"
-            onClick={() => showDetail({ kind: "proposal", value: proposal })}
-          >
-            <Zap size={16} />
-            <span>{proposal.title}</span>
-          </button>
-        ))}
-      </article>
-    </aside>
+    <motion.article className={`metric-card tone-${tone}`} whileHover={{ y: -3 }}>
+      <Icon size={21} />
+      <div>
+        <strong>{compactNumber(value)}</strong>
+        <span>{label}</span>
+      </div>
+      <small>{helper}</small>
+    </motion.article>
   );
 }
 
-function InsightPreview({
-  insight,
-  showDetail
+function DefinitionCard({
+  icon: Icon,
+  label,
+  body,
 }: {
-  insight: CortexInsight;
-  showDetail: (detail: Detail) => void;
+  icon: LucideIcon;
+  label: string;
+  body: string;
 }) {
   return (
-    <article className="glass-card insight-preview">
-      <div className="section-heading">
-        <div>
-          <span className="mono-kicker">Featured Cortex Insight</span>
-          <h2>{insight.title}</h2>
-        </div>
-        <ConfidenceDial value={insight.confidence} />
-      </div>
+    <div className="definition-card">
+      <Icon size={18} />
+      <strong>{label}</strong>
+      <p>{body}</p>
+    </div>
+  );
+}
+
+function LatestInsightCard({ openDetail }: { openDetail: (detail: Detail) => void }) {
+  const insight = sortedInsights[0];
+  if (!insight) return null;
+
+  return (
+    <article className="glass-card insight-feature-card">
+      <SectionHeader eyebrow="Latest insight" title={insight.title} icon={Sparkles} />
+      <ConfidenceBar value={insight.confidence} />
       <p>{insight.summary}</p>
-      <ReasoningSteps insight={insight} compact />
-      <button className="ghost-action" onClick={() => showDetail({ kind: "insight", value: insight })}>
+      <ReasoningPreview insight={insight} />
+      <button
+        className="ghost-action"
+        onClick={() => openDetail({ kind: "insight", value: insight })}
+      >
         Open reasoning trail <ArrowRight size={16} />
       </button>
     </article>
   );
 }
 
-function TimelinePanel({
-  meetings,
-  showDetail
-}: {
-  meetings: MeetingEntry[];
-  showDetail: (detail: Detail) => void;
-}) {
+function MeetingSignalsCard({ openDetail }: { openDetail: (detail: Detail) => void }) {
+  const meetings = brain.meetingIndex.recent.slice(0, 4);
+
   return (
-    <article className="glass-card timeline-panel">
-      <div className="section-heading compact">
-        <div>
-          <span className="mono-kicker">Recent Evidence Stream</span>
-          <h3>Meeting signals</h3>
-        </div>
-        <Clock3 size={20} />
-      </div>
-      <div className="timeline-list">
+    <article className="glass-card signal-card">
+      <SectionHeader eyebrow="Recent evidence stream" title="Meeting signals" icon={Clock3} />
+      <div className="signal-list">
         {meetings.map((meeting) => (
           <button
-            className="timeline-item"
-            key={`${meeting.title}-${meeting.date ?? meeting.startsAt}`}
-            onClick={() => showDetail({ kind: "meeting", value: meeting })}
+            className="signal-row"
+            key={`${meeting.id ?? meeting.title}-${meeting.date ?? meeting.startsAt ?? "no-date"}`}
+            onClick={() => openDetail({ kind: "meeting", value: meeting })}
           >
-            <span>{formatDate(meeting.date ?? meeting.startsAt)}</span>
-            <strong>{meeting.title}</strong>
-            <small>{meeting.readinessStatus}</small>
+            <span className="signal-dot" />
+            <span>
+              <strong>{meeting.title}</strong>
+              <small>
+                {formatDate(meeting.startsAt ?? meeting.date)} ·{" "}
+                {formatStatus(meeting.readinessStatus)}
+              </small>
+            </span>
+            <ChevronRight size={16} />
           </button>
         ))}
       </div>
@@ -497,820 +875,478 @@ function TimelinePanel({
   );
 }
 
-function MeetingsView({ showDetail }: { showDetail: (detail: Detail) => void }) {
-  return (
-    <ViewScaffold
-      eyebrow="Meetings"
-      title="Readiness by meeting"
-      summary="Upcoming, active, and recent meeting signals with packet links and missing post-capture evidence."
-    >
-      <div className="three-column">
-        <MeetingColumn title="Upcoming" meetings={brain.meetingIndex.upcoming} showDetail={showDetail} />
-        <MeetingColumn title="Active" meetings={brain.meetingIndex.active} showDetail={showDetail} empty="No active meeting is currently indexed." />
-        <MeetingColumn title="Recent" meetings={brain.meetingIndex.recent} showDetail={showDetail} />
-      </div>
-    </ViewScaffold>
-  );
-}
-
-function MeetingColumn({
-  title,
-  meetings,
-  showDetail,
-  empty = "No meetings found."
-}: {
-  title: string;
-  meetings: MeetingEntry[];
-  showDetail: (detail: Detail) => void;
-  empty?: string;
-}) {
-  return (
-    <section className="glass-card column-card">
-      <div className="section-heading compact">
-        <h3>{title}</h3>
-        <span className="count-badge">{meetings.length}</span>
-      </div>
-      {meetings.length === 0 ? (
-        <p className="muted-copy">{empty}</p>
-      ) : (
-        meetings.map((meeting) => (
-          <button
-            className="stacked-row"
-            key={`${title}-${meeting.title}-${meeting.date ?? meeting.startsAt}`}
-            onClick={() => showDetail({ kind: "meeting", value: meeting })}
-          >
-            <span>{formatDate(meeting.startsAt ?? meeting.date)}</span>
-            <strong>{meeting.title}</strong>
-            <small>{meeting.readinessStatus}</small>
-            {meeting.packet && <em>{meeting.packet}</em>}
-          </button>
-        ))
-      )}
-    </section>
-  );
-}
+// Old monolithic Meetings/MeetingColumn code fully removed (moved to src/views/MeetingsView.tsx).
 
 function PacketsView({
-  packets,
-  showDetail
+  openDetail,
+  query,
 }: {
-  packets: PrepPacket[];
-  showDetail: (detail: Detail) => void;
+  openDetail: (detail: Detail) => void;
+  query: string;
 }) {
+  const packets = useMemo(
+    () =>
+      filterByQuery(brain.prepPackets, query, (packet) => [
+        packet.title,
+        packet.summary,
+        packet.suggestedPosture,
+        ...(packet.relatedWork ?? []),
+        ...(packet.openQuestions ?? []),
+      ]),
+    [query]
+  );
+
   return (
-    <ViewScaffold
-      eyebrow="Prep Packets"
-      title="Meeting packets assembled from context"
-      summary="Each packet keeps posture, talking points, open commitments, risks, and evidence refs in one reviewable surface."
-    >
-      <div className="packet-grid">
-        {packets.map((packet) => (
-          <motion.button
-            className="packet-card glass-card"
+    <div className="view-stack">
+      <ViewHero view="packets" />
+      <FilterSummary
+        query={query}
+        count={packets.length}
+        total={brain.prepPackets.length}
+        noun="packets"
+      />
+      <section className="packet-grid">
+        {packets.map((packet, index) => (
+          <motion.article
+            className="glass-card packet-card"
             key={packet.id}
-            onClick={() => showDetail({ kind: "packet", value: packet })}
-            whileHover={{ y: -4 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.035 }}
           >
-            <span className="mono-kicker">{formatDate(packet.startsAt)}</span>
-            <h3>{packet.title}</h3>
-            <p>{clampText(packet.summary, 190)}</p>
-            <div className="chip-row">
-              <SmallChip>{packet.openQuestions?.length ?? 0} questions</SmallChip>
-              <SmallChip>{packet.risks?.length ?? 0} risks</SmallChip>
-              <SmallChip>{packet.evidenceRefs?.length ?? 0} refs</SmallChip>
+            <div className="packet-card-header">
+              <StatusChip
+                label={packet.startsAt ? formatDate(packet.startsAt) : "Date not set"}
+                tone="neutral"
+                icon={<CalendarDays size={13} />}
+              />
+              <button
+                className="icon-button"
+                onClick={() => openDetail({ kind: "packet", value: packet })}
+                aria-label={`Open ${packet.title}`}
+              >
+                <ChevronRight size={18} />
+              </button>
             </div>
-          </motion.button>
+            <h2>{packet.title}</h2>
+            <p>{clampText(packet.summary, 210)}</p>
+            <div className="packet-health-row">
+              <MetaPill label="Questions" value={String(packet.openQuestions?.length ?? 0)} />
+              <MetaPill label="Risks" value={String(packet.risks?.length ?? 0)} />
+              <MetaPill label="Evidence" value={String(packet.evidenceRefs?.length ?? 0)} />
+            </div>
+            {packet.suggestedPosture && (
+              <div className="posture-box">
+                <span className="mono-kicker">Suggested posture</span>
+                <p>{clampText(packet.suggestedPosture, 160)}</p>
+              </div>
+            )}
+          </motion.article>
         ))}
-      </div>
-    </ViewScaffold>
+      </section>
+    </div>
   );
 }
 
 function InsightsView({
-  insights,
-  showDetail
+  openDetail,
+  query,
 }: {
-  insights: CortexInsight[];
-  showDetail: (detail: Detail) => void;
+  openDetail: (detail: Detail) => void;
+  query: string;
 }) {
+  const [mode, setMode] = useState<"list" | "graph">("graph");
+
+  const insights = useMemo(
+    () =>
+      filterByQuery(sortedInsights, query, (insight) => [
+        insight.title,
+        insight.summary,
+        insight.type,
+        ...(insight.tags ?? []),
+        insight.recommendedAction,
+      ]),
+    [query]
+  );
+
   return (
-    <ViewScaffold
-      eyebrow="Cortex Insights"
-      title="Reasoning trails"
-      summary="Non-obvious observations with trigger, chain, alternatives, confidence factors, and action links."
-    >
-      <div className="insight-grid">
-        {insights.map((insight) => (
-          <motion.button
-            className="insight-card glass-card"
-            key={insight.id}
-            onClick={() => showDetail({ kind: "insight", value: insight })}
-            whileHover={{ y: -3 }}
+    <div className="view-stack">
+      <ViewHero view="insights" />
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 8,
+        }}
+      >
+        <FilterSummary
+          query={query}
+          count={insights.length}
+          total={sortedInsights.length}
+          noun="insights"
+        />
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+            borderRadius: "var(--radius-pill)",
+            padding: 3,
+          }}
+        >
+          <button
+            onClick={() => setMode("graph")}
+            style={{
+              padding: "6px 16px",
+              borderRadius: "var(--radius-pill)",
+              border: "none",
+              background: mode === "graph" ? "var(--accent-dim)" : "transparent",
+              color: mode === "graph" ? "var(--accent)" : "var(--muted)",
+              fontSize: 13,
+              cursor: "pointer",
+            }}
           >
-            <div className="section-heading compact">
-              <span className="mono-kicker">{labelize(insight.type)}</span>
-              <ConfidenceDial value={insight.confidence} compact />
-            </div>
-            <h3>{insight.title}</h3>
-            <p>{clampText(insight.summary, 210)}</p>
-            <div className="tag-strip">
-              {(insight.tags ?? []).slice(0, 4).map((tag) => (
-                <SmallChip key={tag}>{tag}</SmallChip>
-              ))}
-            </div>
-          </motion.button>
-        ))}
+            Knowledge Graph
+          </button>
+          <button
+            onClick={() => setMode("list")}
+            style={{
+              padding: "6px 16px",
+              borderRadius: "var(--radius-pill)",
+              border: "none",
+              background: mode === "list" ? "var(--accent-dim)" : "transparent",
+              color: mode === "list" ? "var(--accent)" : "var(--muted)",
+              fontSize: 13,
+              cursor: "pointer",
+            }}
+          >
+            List
+          </button>
+        </div>
       </div>
-    </ViewScaffold>
+
+      {mode === "graph" ? (
+        <InsightsGraph
+          onSelectInsight={(insight) => openDetail({ kind: "insight", value: insight })}
+        />
+      ) : (
+        <section className="insight-layout">
+          {insights[0] && (
+            <article className="glass-card insight-lead">
+              <SectionHeader eyebrow="Highest recency" title={insights[0].title} icon={Sparkles} />
+              <ConfidenceBar value={insights[0].confidence} />
+              <p>{insights[0].summary}</p>
+              <ReasoningPreview insight={insights[0]} />
+              <button
+                className="primary-action small"
+                onClick={() => openDetail({ kind: "insight", value: insights[0] })}
+              >
+                Inspect insight <ArrowRight size={16} />
+              </button>
+            </article>
+          )}
+          <div className="insight-list">
+            {insights.map((insight, index) => (
+              <motion.button
+                className="insight-row"
+                key={insight.id}
+                onClick={() => openDetail({ kind: "insight", value: insight })}
+                initial={{ opacity: 0, x: 12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.025 }}
+              >
+                <span className="insight-type">
+                  <Sparkles size={16} /> {labelize(insight.type)}
+                </span>
+                <span className="insight-copy">
+                  <strong>{insight.title}</strong>
+                  <small>
+                    {formatDate(insight.createdAt)} · {Math.round(insight.confidence * 100)}%
+                    confidence
+                  </small>
+                </span>
+                <ChevronRight size={17} />
+              </motion.button>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
   );
 }
 
-function ActionsView({ showDetail }: { showDetail: (detail: Detail) => void }) {
-  const groups = ["proposed", "executed", "blocked"];
+function ActionsView({
+  openDetail,
+  query,
+}: {
+  openDetail: (detail: Detail) => void;
+  query: string;
+}) {
+  const proposals = useMemo(
+    () =>
+      filterByQuery(brain.actionProposals, query, (proposal) => [
+        proposal.title,
+        proposal.status,
+        proposal.type,
+        proposal.proposal?.suggestedAction,
+        proposal.proposal?.whyNow,
+        proposal.risk?.notes,
+        ...(proposal.tags ?? []),
+      ]),
+    [query]
+  );
+  const gated = proposals.filter(
+    (proposal) => proposal.approval?.required || proposal.status === "proposed"
+  );
+  const remaining = proposals.filter((proposal) => !gated.includes(proposal));
+
   return (
-    <ViewScaffold
-      eyebrow="Action Proposals"
-      title="Approval-gated next actions"
-      summary="Every proposal defaults to review. The interface explains action text, why now, approval requirement, risk, and evidence refs."
-    >
-      <div className="three-column">
-        {groups.map((status) => {
-          const proposals = brain.actionProposals.filter((proposal) => proposal.status === status);
-          return (
-            <section className="glass-card column-card" key={status}>
-              <div className="section-heading compact">
-                <h3>{labelize(status)}</h3>
-                <span className="count-badge">{proposals.length}</span>
-              </div>
-              {proposals.map((proposal) => (
-                <button
-                  className="stacked-row"
-                  key={proposal.id}
-                  onClick={() => showDetail({ kind: "proposal", value: proposal })}
-                >
-                  <span>{labelize(proposal.type)}</span>
-                  <strong>{proposal.title}</strong>
-                  <small>{proposal.proposal?.whyNow ?? proposal.approval?.reason}</small>
-                </button>
-              ))}
-            </section>
-          );
-        })}
-      </div>
-    </ViewScaffold>
+    <div className="view-stack">
+      <ViewHero view="actions" />
+      <FilterSummary
+        query={query}
+        count={proposals.length}
+        total={brain.actionProposals.length}
+        noun="actions"
+      />
+      <section className="action-layout">
+        <ActionLane
+          title="Review before execution"
+          helper="These items need a human yes/no or wording review."
+          proposals={gated}
+          openDetail={openDetail}
+          tone="amber"
+        />
+        <ActionLane
+          title="Other proposals"
+          helper="Useful context, lower urgency, or already handled."
+          proposals={remaining}
+          openDetail={openDetail}
+          tone="green"
+        />
+      </section>
+    </div>
   );
 }
 
-function QuestionsView({ showDetail }: { showDetail: (detail: Detail) => void }) {
-  const critical = brain.openQuestions.filter((question) =>
-    question.priority.toLowerCase().includes("critical")
-  );
-  const others = brain.openQuestions.filter((question) => !critical.includes(question));
-  return (
-    <ViewScaffold
-      eyebrow="Open Questions"
-      title="Decision questions still shaping the engagement"
-      summary="Questions remain open until a cited source answers them. This view makes ownership and next targets visible."
-    >
-      <div className="split-grid">
-        <QuestionList title="Critical" questions={critical} showDetail={showDetail} />
-        <QuestionList title="All Other Open Questions" questions={others} showDetail={showDetail} />
-      </div>
-    </ViewScaffold>
-  );
-}
-
-function QuestionList({
+function ActionLane({
   title,
-  questions,
-  showDetail
+  helper,
+  proposals,
+  openDetail,
+  tone,
 }: {
   title: string;
-  questions: OpenQuestion[];
-  showDetail: (detail: Detail) => void;
+  helper: string;
+  proposals: ActionProposal[];
+  openDetail: (detail: Detail) => void;
+  tone: string;
 }) {
   return (
-    <section className="glass-card list-card">
-      <div className="section-heading compact">
-        <h3>{title}</h3>
-        <span className="count-badge">{questions.length}</span>
+    <article className={`glass-card action-lane tone-${tone}`}>
+      <div className="column-heading">
+        <span className="mono-kicker">{proposals.length} items</span>
+        <h2>{title}</h2>
+        <p>{helper}</p>
       </div>
-      {questions.map((question) => (
-        <button
-          className="stacked-row"
-          key={question.id}
-          onClick={() => showDetail({ kind: "question", value: question })}
-        >
-          <span>{question.id}</span>
-          <strong>{question.question}</strong>
-          <small>{question.answerOwner} | {question.target}</small>
-        </button>
-      ))}
-    </section>
-  );
-}
-
-function RisksView({ showDetail }: { showDetail: (detail: Detail) => void }) {
-  return (
-    <ViewScaffold
-      eyebrow="Risks"
-      title="Risk register"
-      summary="A quiet view of what is exposed, who owns mitigation, and where the brain still needs source-backed closure."
-    >
-      <div className="risk-grid">
-        {brain.risks.map((risk) => (
-          <motion.button
-            className={`risk-card glass-card severity-${risk.severity.toLowerCase()}`}
-            key={risk.id}
-            onClick={() => showDetail({ kind: "risk", value: risk })}
-            whileHover={{ y: -3 }}
-          >
-            <div className="section-heading compact">
-              <span className="mono-kicker">{risk.id}</span>
-              <SmallChip>{risk.severity}</SmallChip>
-            </div>
-            <h3>{risk.risk}</h3>
-            <p>{risk.exposed}</p>
-            <small>{risk.owner}</small>
-          </motion.button>
-        ))}
-      </div>
-    </ViewScaffold>
-  );
-}
-
-function DecisionsView({ showDetail }: { showDetail: (detail: Detail) => void }) {
-  return (
-    <ViewScaffold
-      eyebrow="Decisions"
-      title="ADR review lane"
-      summary="Proposed ADRs and candidates stay visible without treating governance work like an outage."
-    >
-      <div className="split-grid">
-        <section className="glass-card list-card">
-          <div className="section-heading compact">
-            <h3>Proposed ADRs</h3>
-            <span className="count-badge">{brain.adrs.adrs.length}</span>
-          </div>
-          {brain.adrs.adrs.map((adr) => (
-            <button
-              className="stacked-row"
-              key={adr.number}
-              onClick={() => showDetail({ kind: "adr", value: adr, label: `ADR-${adr.number.slice(-4)}` })}
+      <div className="action-list">
+        {proposals.length ? (
+          proposals.map((proposal, index) => (
+            <motion.button
+              className="action-card"
+              key={proposal.id}
+              onClick={() => openDetail({ kind: "proposal", value: proposal })}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.035 }}
             >
-              <span>ADR-{adr.number.slice(-4)}</span>
-              <strong>{adr.title}</strong>
-              <small>{adr.decider}</small>
-            </button>
-          ))}
-        </section>
-        <section className="glass-card list-card">
-          <div className="section-heading compact">
-            <h3>Candidate Queue</h3>
-            <span className="count-badge">{brain.adrs.candidates.length}</span>
-          </div>
-          {brain.adrs.candidates.map((candidate, index) => (
-            <button
-              className="stacked-row"
-              key={`${candidate.dateFlagged}-${index}`}
-              onClick={() => showDetail({ kind: "adr", value: candidate, label: "Candidate ADR" })}
-            >
-              <span>{candidate.dateFlagged}</span>
-              <strong>{stripMarkdown(candidate.topic)}</strong>
-              <small>{candidate.status}</small>
-            </button>
-          ))}
-        </section>
+              <div className="card-topline">
+                <StatusChip
+                  label={formatStatus(proposal.status)}
+                  tone={toneForStatus(proposal.status)}
+                />
+                {proposal.risk?.level && (
+                  <StatusChip label={`Risk: ${proposal.risk.level}`} tone="orange" />
+                )}
+              </div>
+              <strong>{proposal.title}</strong>
+              <p>
+                {clampText(proposal.proposal?.suggestedAction ?? proposal.proposal?.whyNow, 150)}
+              </p>
+              {proposal.approval?.required && (
+                <small>
+                  Approval required: {proposal.approval.reason ?? "Reason not captured"}
+                </small>
+              )}
+            </motion.button>
+          ))
+        ) : (
+          <EmptyState message="No actions in this lane." />
+        )}
       </div>
-    </ViewScaffold>
+    </article>
   );
 }
 
-function SourceHealthView() {
-  const entries = Object.entries(brain.status.sourceHealth);
-  return (
-    <ViewScaffold
-      eyebrow="Source Health"
-      title="Context freshness and runtime boundary"
-      summary="Natively reads prepared brain artifacts. It does not gather Teams, Outlook, Notion, Cluely, Semantica, or source database context live."
-    >
-      <div className="source-grid">
-        {entries.map(([key, item]) => (
-          <article className="glass-card source-card" key={key}>
-            <div className="section-heading compact">
-              <span className="mono-kicker">{labelize(key)}</span>
-              <ShieldCheck size={19} />
-            </div>
-            <h3>{labelize(item.status ?? "Unknown")}</h3>
-            <p>{item.note}</p>
-            <div className="mini-proof">{item.latestInput}</div>
-          </article>
-        ))}
-      </div>
-      <article className="glass-card boundary-card">
-        <div className="section-heading">
-          <div>
-            <span className="mono-kicker">Runtime Boundary</span>
-            <h2>Natively is a live touchpoint only</h2>
-          </div>
-          <Split size={26} />
-        </div>
-        <p>{brain.status.runtimeBoundary?.boundaryStatement}</p>
-        <div className="boundary-grid">
-          <BoundaryList title="Reads Prepared Artifacts" items={brain.status.runtimeBoundary?.nativelyReadsFrom ?? []} />
-          <BoundaryList title="Does Not Call Live" items={brain.status.runtimeBoundary?.nativelyShouldNotCallLive ?? []} />
-        </div>
-      </article>
-    </ViewScaffold>
+function DecisionsView({
+  openDetail,
+  query,
+}: {
+  openDetail: (detail: Detail) => void;
+  query: string;
+}) {
+  const adrs = useMemo(
+    () =>
+      filterByQuery(brain.adrs.adrs, query, (adr) => [
+        adr.title,
+        adr.status,
+        adr.decider,
+        adr.date,
+        adr.supersedes,
+      ]),
+    [query]
   );
-}
+  const candidates = useMemo(
+    () =>
+      filterByQuery(brain.adrs.candidates, query, (candidate) => [
+        candidate.topic,
+        candidate.status,
+        candidate.source,
+        candidate.dateFlagged,
+      ]),
+    [query]
+  );
 
-function DetailDrawer({ detail, onClose }: { detail: Detail | null; onClose: () => void }) {
   return (
-    <AnimatePresence>
-      {detail && (
-        <>
-          <motion.button
-            className="drawer-scrim"
-            aria-label="Close details"
-            onClick={onClose}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+    <div className="view-stack">
+      <ViewHero view="decisions" />
+      <FilterSummary
+        query={query}
+        count={adrs.length + candidates.length}
+        total={brain.adrs.adrs.length + brain.adrs.candidates.length}
+        noun="decisions"
+      />
+      <section className="decision-layout">
+        <article className="glass-card decision-register">
+          <SectionHeader
+            eyebrow="Architecture decision records"
+            title="Proposed ADRs"
+            icon={GitBranch}
           />
-          <motion.aside
-            className="detail-drawer"
-            initial={{ x: "100%", opacity: 0.6 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: "100%", opacity: 0 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <button className="drawer-close" onClick={onClose}>
-              Close
-            </button>
-            <DetailContent detail={detail} />
-          </motion.aside>
-        </>
-      )}
-    </AnimatePresence>
-  );
-}
-
-function DetailContent({ detail }: { detail: Detail }) {
-  if (detail.kind === "packet") return <PacketDetail packet={detail.value} />;
-  if (detail.kind === "insight") return <InsightDetail insight={detail.value} />;
-  if (detail.kind === "proposal") return <ProposalDetail proposal={detail.value} />;
-  if (detail.kind === "question") return <QuestionDetail question={detail.value} />;
-  if (detail.kind === "risk") return <RiskDetail risk={detail.value} />;
-  if (detail.kind === "meeting") return <MeetingDetail meeting={detail.value} />;
-  return <AdrDetail adr={detail.value} label={detail.label} />;
-}
-
-function PacketDetail({ packet }: { packet: PrepPacket }) {
-  const [heroMode, setHeroMode] = useState<HeroMode>("visual");
-
-  return (
-    <div className="drawer-stack">
-      <SynthesisHero packet={packet} mode={heroMode} onModeChange={setHeroMode} />
-      <p className="lead-copy">{packet.summary}</p>
-      <InfoBlock title="Why It Matters" body={packet.whyItMatters} />
-      <ListBlock title="Current State" items={packet.currentState} />
-      <ListBlock title="Open Questions" items={packet.openQuestions} />
-      <ListBlock title="Open Commitments" items={packet.openCommitments} />
-      <ListBlock title="Talking Points" items={packet.talkingPoints} />
-      <ListBlock title="Risks" items={packet.risks} />
-      <InfoBlock title="Suggested Posture" body={packet.suggestedPosture} />
-      <EvidenceRefs refs={packet.evidenceRefs} />
-    </div>
-  );
-}
-
-function InsightDetail({ insight }: { insight: CortexInsight }) {
-  return (
-    <div className="drawer-stack">
-      <DrawerHeader icon={<Sparkles />} kicker={labelize(insight.type)} title={insight.title} />
-      <ConfidenceDial value={insight.confidence} />
-      <p className="lead-copy">{insight.summary}</p>
-      <ReasoningSteps insight={insight} />
-      <InfoBlock title="Recommended Action" body={insight.recommendedAction} />
-      <EvidenceRefs refs={insight.actionProposalRefs} title="Action Proposal Links" />
-    </div>
-  );
-}
-
-function ProposalDetail({ proposal }: { proposal: ActionProposal }) {
-  return (
-    <div className="drawer-stack">
-      <DrawerHeader icon={<ListChecks />} kicker={labelize(proposal.type)} title={proposal.title} />
-      <div className="chip-row">
-        <SmallChip>{proposal.status}</SmallChip>
-        <SmallChip>{proposal.approval?.required ? "Approval required" : "No approval required"}</SmallChip>
-        {proposal.risk?.level && <SmallChip>Risk: {proposal.risk.level}</SmallChip>}
-      </div>
-      <InfoBlock title="Suggested Action" body={proposal.proposal?.suggestedAction} />
-      <InfoBlock title="Suggested Wording" body={proposal.proposal?.suggestedWording} />
-      <InfoBlock title="Why Now" body={proposal.proposal?.whyNow} />
-      <InfoBlock title="Approval Boundary" body={proposal.approval?.reason} />
-      <InfoBlock title="Risk Notes" body={proposal.risk?.notes} />
-      <EvidenceRefs refs={proposal.evidenceRefs} />
-    </div>
-  );
-}
-
-function QuestionDetail({ question }: { question: OpenQuestion }) {
-  return (
-    <div className="drawer-stack">
-      <DrawerHeader icon={<MessageSquareText />} kicker={question.id} title={question.question} />
-      <MetaGrid
-        items={[
-          ["Priority", question.priority],
-          ["Owner", question.answerOwner],
-          ["Target", question.target],
-          ["Status", question.status]
-        ]}
-      />
-    </div>
-  );
-}
-
-function RiskDetail({ risk }: { risk: Risk }) {
-  return (
-    <div className="drawer-stack">
-      <DrawerHeader icon={<TriangleAlert />} kicker={risk.id} title={risk.risk} />
-      <MetaGrid
-        items={[
-          ["Severity", risk.severity],
-          ["Likelihood", risk.likelihood],
-          ["Owner", risk.owner],
-          ["Last reviewed", risk.lastReviewed ?? "Unknown"]
-        ]}
-      />
-      <InfoBlock title="Exposed" body={risk.exposed} />
-      <InfoBlock title="Mitigation" body={risk.mitigation} />
+          <div className="decision-list">
+            {adrs.map((adr) => (
+              <button
+                className="decision-card"
+                key={adr.number}
+                onClick={() =>
+                  openDetail({ kind: "adr", value: adr, label: `ADR-${adr.number.slice(-4)}` })
+                }
+              >
+                <span className="decision-number">ADR-{adr.number.slice(-4)}</span>
+                <strong>{adr.title}</strong>
+                <small>
+                  {formatStatus(adr.status)} · {adr.decider} · {formatDate(adr.date)}
+                </small>
+                <ChevronRight size={17} />
+              </button>
+            ))}
+          </div>
+        </article>
+        <article className="glass-card decision-register">
+          <SectionHeader eyebrow="Possible future decisions" title="ADR candidates" icon={Split} />
+          <div className="decision-list">
+            {candidates.map((candidate, index) => (
+              <button
+                className="decision-card"
+                key={`${candidate.topic}-${index}`}
+                onClick={() =>
+                  openDetail({ kind: "adr", value: candidate, label: "ADR candidate" })
+                }
+              >
+                <span className="decision-number">Candidate</span>
+                <strong>{stripMarkdown(candidate.topic)}</strong>
+                <small>
+                  {formatStatus(candidate.status)} · {formatDate(candidate.dateFlagged)}
+                </small>
+                <ChevronRight size={17} />
+              </button>
+            ))}
+          </div>
+        </article>
+      </section>
     </div>
   );
 }
 
 function MeetingDetail({ meeting }: { meeting: MeetingEntry }) {
-  const [heroMode, setHeroMode] = useState<HeroMode>("visual");
-  const linkedPacket = meeting.packet
-    ? packetById.get(meeting.packet.replace("prep-packets/", "").replace(".packet.json", ""))
-    : undefined;
+  const linkedPacket = getLinkedPacket(meeting);
+
   return (
     <div className="drawer-stack">
-      {linkedPacket ? (
-        <SynthesisHero
-          packet={linkedPacket}
-          meeting={meeting}
-          mode={heroMode}
-          onModeChange={setHeroMode}
+      <DrawerHeader
+        icon={CalendarDays}
+        eyebrow={formatDate(meeting.startsAt ?? meeting.date)}
+        title={meeting.title}
+      />
+      <div className="drawer-hero-strip">
+        <StatusChip
+          label={formatStatus(meeting.readinessStatus)}
+          tone={toneForStatus(meeting.readinessStatus)}
         />
-      ) : (
-        <DrawerHeader
-          icon={<CalendarDays />}
-          kicker={formatDate(meeting.startsAt ?? meeting.date)}
-          title={meeting.title}
-        />
-      )}
-      <InfoBlock title="Readiness" body={meeting.readinessStatus} />
-      <InfoBlock title="Why Now" body={meeting.whyNow} />
-      <EvidenceRefs refs={[meeting.source, meeting.packet].filter(Boolean) as string[]} />
+        {linkedPacket && (
+          <StatusChip label="Linked packet" tone="green" icon={<FileCheck2 size={13} />} />
+        )}
+      </div>
+      <InfoBlock title="Why now" body={meeting.whyNow} />
+      <ListBlock title="Feeds packets" items={meeting.feedsPackets} monospace />
+      <ListBlock title="Feeds insights" items={meeting.feedsInsights} monospace />
       {linkedPacket && (
-        <div className="nested-callout">
-          <span className="mono-kicker">Linked Packet</span>
+        <div className="nested-card">
+          <span className="mono-kicker">Linked packet</span>
           <h3>{linkedPacket.title}</h3>
           <p>{clampText(linkedPacket.summary, 220)}</p>
         </div>
       )}
+      <ListBlock
+        title="Evidence refs"
+        items={[meeting.source, meeting.packet].filter(Boolean) as string[]}
+        monospace
+      />
     </div>
   );
 }
 
-function SynthesisHero({
-  packet,
-  meeting,
-  mode,
-  onModeChange
-}: {
-  packet: PrepPacket;
-  meeting?: MeetingEntry;
-  mode: HeroMode;
-  onModeChange: (mode: HeroMode) => void;
-}) {
-  const highlights = getHeroHighlights(packet);
-  const title = meeting?.title ?? packet.title;
-  const sourceCount = packet.evidenceRefs?.length ?? 0;
-  const questionCount = packet.openQuestions?.length ?? 0;
-  const riskCount = packet.risks?.length ?? 0;
-  const commitmentCount = packet.openCommitments?.length ?? 0;
-
-  return (
-    <section className={`synthesis-hero mode-${mode}`}>
-      <div className="synthesis-bg" style={{ backgroundImage: `url(${contextEngine})` }} />
-      <div className="synthesis-topline">
-        <div className="hero-mode-switch" role="group" aria-label="Meeting hero style">
-          <button
-            className={mode === "visual" ? "is-selected" : ""}
-            onClick={() => onModeChange("visual")}
-          >
-            Visual Brief
-          </button>
-          <button
-            className={mode === "flow" ? "is-selected" : ""}
-            onClick={() => onModeChange("flow")}
-          >
-            Context Flow
-          </button>
-        </div>
-        <SmallChip>Sanitized, no raw transcript excerpts</SmallChip>
-      </div>
-
-      <AnimatePresence mode="wait">
-        {mode === "visual" ? (
-          <motion.div
-            className="visual-brief"
-            key="visual"
-            initial={{ opacity: 0, y: 12, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -8, filter: "blur(8px)" }}
-            transition={{ duration: 0.24 }}
-          >
-            <div className="visual-copy">
-              <span className="mono-kicker">{meeting ? "Meeting Synthesis" : "Packet Synthesis"}</span>
-              <h2>{title}</h2>
-              <p>{packet.summary}</p>
-              <div className="chip-row">
-                <SmallChip>{sourceCount} evidence refs</SmallChip>
-                <SmallChip>{questionCount} open questions</SmallChip>
-                <SmallChip>{riskCount} risks</SmallChip>
-                <SmallChip>{commitmentCount} commitments</SmallChip>
-              </div>
-            </div>
-            <div className="visual-panels">
-              <HeroHighlight icon={<Sparkles size={19} />} label="What changed" body={highlights.changed} />
-              <HeroHighlight icon={<CircleAlert size={19} />} label="Needs review" body={highlights.review} />
-              <HeroHighlight icon={<Archive size={19} />} label="Proof trail" body={highlights.proof} />
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            className="context-flow-hero"
-            key="flow"
-            initial={{ opacity: 0, y: 12, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -8, filter: "blur(8px)" }}
-            transition={{ duration: 0.24 }}
-          >
-            <div className="source-stack">
-              {(packet.relatedPriorMeetings ?? ["Meeting context", "Project memory", "Source evidence"])
-                .slice(0, 4)
-                .map((source, index) => (
-                  <motion.div
-                    className="source-card-mini"
-                    key={source}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    <CalendarDays size={16} />
-                    <span>{source}</span>
-                  </motion.div>
-                ))}
-            </div>
-            <div className="hero-synthesis-lens">
-              <Layers3 size={30} />
-              <strong>Synthesized packet</strong>
-              <span>Context, risks, questions, posture</span>
-            </div>
-            <div className="flow-output">
-              <HeroHighlight icon={<Activity size={18} />} label="Current state" body={highlights.changed} />
-              <HeroHighlight icon={<MessageSquareText size={18} />} label="Decision ask" body={highlights.review} />
-              <HeroHighlight icon={<ShieldCheck size={18} />} label="Safe boundary" body="Stakeholder-ready summary only. Raw captures and private working notes stay out of this view." />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </section>
-  );
-}
-
-function HeroHighlight({ icon, label, body }: { icon: ReactNode; label: string; body: string }) {
-  return (
-    <article className="hero-highlight">
-      <div>
-        {icon}
-        <span className="mono-kicker">{label}</span>
-      </div>
-      <p>{body}</p>
-    </article>
-  );
-}
-
 function AdrDetail({ adr, label }: { adr: Adr | AdrCandidate; label: string }) {
-  const isProposed = "number" in adr;
+  const isAdr = "number" in adr;
+
   return (
     <div className="drawer-stack">
       <DrawerHeader
-        icon={<GitBranch />}
-        kicker={label}
-        title={isProposed ? adr.title : stripMarkdown(adr.topic)}
+        icon={GitBranch}
+        eyebrow={label}
+        title={isAdr ? adr.title : stripMarkdown(adr.topic)}
       />
-      {isProposed ? (
+      {isAdr ? (
         <MetaGrid
           items={[
-            ["Status", adr.status],
-            ["Date", adr.date],
+            ["Status", formatStatus(adr.status)],
+            ["Date", formatDate(adr.date)],
             ["Decider", adr.decider],
-            ["Supersedes", adr.supersedes ?? "None"]
+            ["Supersedes", adr.supersedes ?? "None"],
           ]}
         />
       ) : (
         <MetaGrid
           items={[
-            ["Status", adr.status],
-            ["Flagged", adr.dateFlagged],
-            ["Source", adr.source]
+            ["Status", formatStatus(adr.status)],
+            ["Date flagged", formatDate(adr.dateFlagged)],
+            ["Source", adr.source],
           ]}
         />
       )}
-    </div>
-  );
-}
-
-function ReasoningSteps({ insight, compact = false }: { insight: CortexInsight; compact?: boolean }) {
-  const sections = [
-    ["Trigger", insight.reasoning.trigger ? [insight.reasoning.trigger] : []],
-    ["Observations", insight.reasoning.observations ?? []],
-    ["Connections", insight.reasoning.connections ?? []],
-    ["Chain", insight.reasoning.chain ?? []],
-    ["Alternatives", insight.reasoning.alternativesConsidered ?? []],
-    ["Confidence Factors", insight.reasoning.confidenceFactors ?? []]
-  ].filter(([, items]) => items.length > 0);
-
-  return (
-    <div className={`reasoning-rail ${compact ? "is-compact" : ""}`}>
-      {sections.slice(0, compact ? 3 : sections.length).map(([title, items], sectionIndex) => (
-        <motion.div
-          className="reasoning-step"
-          key={title as string}
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: sectionIndex * 0.04 }}
-        >
-          <span>{title as string}</span>
-          {(items as string[]).slice(0, compact ? 1 : 6).map((item) => (
-            <p key={item}>{item}</p>
-          ))}
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
-function ViewScaffold({
-  eyebrow,
-  title,
-  summary,
-  children
-}: {
-  eyebrow: string;
-  title: string;
-  summary: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="view-stack">
-      <div className="view-header">
-        <span className="mono-kicker">{eyebrow}</span>
-        <h1>{title}</h1>
-        <p>{summary}</p>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function DrawerHeader({
-  icon,
-  kicker,
-  title
-}: {
-  icon: ReactNode;
-  kicker: string;
-  title: string;
-}) {
-  return (
-    <div className="drawer-header">
-      <div className="drawer-icon">{icon}</div>
-      <span className="mono-kicker">{kicker}</span>
-      <h2>{title}</h2>
-    </div>
-  );
-}
-
-function StatusDot({
-  label,
-  tone,
-  icon,
-  compact = false
-}: {
-  label: string;
-  tone: "amber" | "mint" | "sky" | "violet";
-  icon?: ReactNode;
-  compact?: boolean;
-}) {
-  return (
-    <span className={`status-dot tone-${tone}`} title={label}>
-      {icon ?? <span className="pulse-dot" />}
-      {!compact && label}
-    </span>
-  );
-}
-
-function SmallChip({ children }: { children: ReactNode }) {
-  return <span className="small-chip">{children}</span>;
-}
-
-function ConfidenceDial({ value, compact = false }: { value: number; compact?: boolean }) {
-  const percent = Math.round(value * 100);
-  return (
-    <div className={`confidence-dial ${compact ? "is-compact" : ""}`} style={{ "--score": percent } as React.CSSProperties}>
-      <Gauge size={compact ? 15 : 20} />
-      <strong>{percent}%</strong>
-    </div>
-  );
-}
-
-function InfoBlock({ title, body }: { title: string; body?: string }) {
-  if (!body) return null;
-  return (
-    <section className="info-block">
-      <span className="mono-kicker">{title}</span>
-      <p>{body}</p>
-    </section>
-  );
-}
-
-function ListBlock({ title, items }: { title: string; items?: string[] }) {
-  if (!items?.length) return null;
-  return (
-    <section className="info-block">
-      <span className="mono-kicker">{title}</span>
-      <ul className="detail-list">
-        {items.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-function EvidenceRefs({
-  refs,
-  title = "Evidence References"
-}: {
-  refs?: string[];
-  title?: string;
-}) {
-  if (!refs?.length) return null;
-  return (
-    <section className="info-block">
-      <span className="mono-kicker">{title}</span>
-      <div className="evidence-list">
-        {refs.map((ref) => (
-          <div className="evidence-ref" key={ref}>
-            <Archive size={15} />
-            <span>{ref}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function MetaGrid({ items }: { items: Array<[string, string]> }) {
-  return (
-    <div className="meta-grid">
-      {items.map(([label, value]) => (
-        <div key={label}>
-          <span>{label}</span>
-          <strong>{value}</strong>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function BoundaryList({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div className="boundary-list">
-      <span className="mono-kicker">{title}</span>
-      {items.map((item) => (
-        <div className="proof-row" key={item}>
-          <DatabaseZap size={16} />
-          <span>{item}</span>
-        </div>
-      ))}
     </div>
   );
 }
@@ -1318,39 +1354,38 @@ function BoundaryList({ title, items }: { title: string; items: string[] }) {
 function AmbientCanvas({ reduceMotion }: { reduceMotion: boolean }) {
   return (
     <div className="ambient-canvas" aria-hidden="true">
-      <div className="grain" />
-      <div className="ambient-gradient one" />
-      <div className="ambient-gradient two" />
+      <div className="ambient-glow one" />
+      <div className="ambient-glow two" />
       {!reduceMotion &&
         Array.from({ length: 8 }).map((_, index) => (
           <span className={`ambient-thread thread-${index}`} key={index} />
         ))}
-      <Network className="ambient-icon" size={420} />
+      <Brain className="ambient-icon" size={620} strokeWidth={0.75} />
     </div>
   );
 }
 
-function getHeroHighlights(packet: PrepPacket) {
-  const changed =
-    packet.currentState?.[0] ??
-    packet.whyItMatters ??
-    packet.summary;
-  const review =
-    packet.openQuestions?.[0] ??
-    packet.decisionsPending?.[0] ??
-    packet.risks?.[0] ??
-    "No urgent review item is attached to this packet yet.";
-  const proof =
-    packet.evidenceRefs?.[0] ??
-    "Evidence references are attached when the packet has source-backed context.";
-
-  return {
-    changed: clampText(changed, 210),
-    review: clampText(review, 210),
-    proof: clampText(proof, 180)
-  };
+function uniqueMeetings(meetings: MeetingEntry[]) {
+  const seen = new Set<string>();
+  return meetings.filter((meeting) => {
+    const key = meeting.id ?? `${meeting.title}-${meeting.startsAt ?? meeting.date ?? ""}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
-function stripMarkdown(value: string) {
-  return value.replace(/\*\*/g, "").replace(/`/g, "");
+function getLinkedPacket(meeting: MeetingEntry) {
+  if (!meeting.packet) return undefined;
+  const id = meeting.packet.replace("prep-packets/", "").replace(".packet.json", "");
+  return packetById.get(id);
+}
+
+function groupBy<T>(items: T[], getKey: (item: T) => string) {
+  return items.reduce<Record<string, T[]>>((groups, item) => {
+    const key = getKey(item);
+    groups[key] = groups[key] ?? [];
+    groups[key].push(item);
+    return groups;
+  }, {});
 }

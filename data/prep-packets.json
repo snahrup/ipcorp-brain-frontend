@@ -69,10 +69,7 @@
     "id": "copilot-project-update-assistance-2026-05-20",
     "title": "Co-pilot Project Update Assistance",
     "startsAt": "2026-05-20T15:00:00-05:00",
-    "attendees": [
-      "Steve Nahrup",
-      "Lorrie Connelly"
-    ],
+    "attendees": ["Steve Nahrup", "Lorrie Connelly"],
     "summary": "Prepare Steve for a short Teams meeting with Lorrie Connelly. The local Natively context capsule has no close prior meeting match, so the safest posture is to establish the meeting purpose first, then connect any project-update ask to the current IP Corp architecture path only if Lorrie frames it that way.",
     "whyItMatters": "The meeting is imminent and the local context capsule did not have a dedicated packet. A compact packet gives Natively a deterministic local briefing without pulling live Teams, Outlook email/search, Notion, Cluely, Semantica, or source-system context during the meeting.",
     "currentState": [
@@ -130,11 +127,7 @@
     "id": "data-classification-policy-response",
     "title": "Data Classification Policy Response",
     "startsAt": null,
-    "attendees": [
-      "Steve Nahrup",
-      "Patrick Stiller",
-      "Mike Spencer"
-    ],
+    "attendees": ["Steve Nahrup", "Patrick Stiller", "Mike Spencer"],
     "summary": "Prepare Steve for the joint Patrick+Steve response to Mike Spencer's IPCORP Data Classification Policy v1.1 draft. The key issue is that the draft mixes policy, transition notice, and taxonomy, while missing several enforcement and governance details that matter for Fabric/Purview.",
     "whyItMatters": "This policy becomes the bridge between Fabric/Purview controls and IP Corp's business boundaries. The current draft underspecifies NAC versus Interplastic financial isolation, policy ownership, exception authority, default handling for unlabeled data, and the Data Steward role.",
     "currentState": [
@@ -362,13 +355,7 @@
     "id": "fabric-pipeline-deep-dive",
     "title": "Fabric Pipeline Deep-Dive",
     "startsAt": null,
-    "attendees": [
-      "Steve Nahrup",
-      "Patrick Stiller",
-      "Eudias Kifem",
-      "Matt Francis",
-      "Kerri Voiss"
-    ],
+    "attendees": ["Steve Nahrup", "Patrick Stiller", "Eudias Kifem", "Matt Francis", "Kerri Voiss"],
     "summary": "Prepare Steve for the near-term technical deep-dive on Fabric pipelines. The 2026-05-11 1-on-1 captured a directional decision: standardize on Data Factory pipelines running inside Fabric and deprecate the custom-tool backend path.",
     "whyItMatters": "This is the implementation hinge between the strategy deck and actual migration mechanics. It affects FMD Framework direction, pipeline ownership, supportability, MES migration cutover design, and how historical data is preserved during plant-by-plant transitions.",
     "currentState": [
@@ -494,10 +481,7 @@
     "title": "Nahrup - 1-on-1",
     "startsAt": "2026-05-27T14:00:00-04:00",
     "endsAt": "2026-05-27T14:30:00-04:00",
-    "attendees": [
-      "Steve Nahrup",
-      "Patrick Stiller"
-    ],
+    "attendees": ["Steve Nahrup", "Patrick Stiller"],
     "summary": "Just-in-time prep for the 2026-05-27 Steve/Patrick 1:1. The local Natively context capsule frames it as a decision-triage slot before Patrick is out, with focus on Mike feedback, SharePoint/execution-package narrowing, steward workshop shape, first-domain strategy, and what must feed the plant-tour follow-up.",
     "whyItMatters": "This meeting is the live alignment bridge between the post-ELT governance push and the 2026-05-27 plant-tour follow-up. The durable Natively contract did not yet have this exact calendar instance, so the capsule needed promotion from runtime cache into a prep packet.",
     "currentState": [
@@ -579,10 +563,7 @@
     "id": "nahrup-stiller-1on1-post-elt-debrief-2026-05-26",
     "title": "Nahrup 1-on-1 with Stiller: Post-ELT Debrief",
     "startsAt": "2026-05-26T11:30:00-05:00",
-    "attendees": [
-      "Steve Nahrup",
-      "Patrick Stiller"
-    ],
+    "attendees": ["Steve Nahrup", "Patrick Stiller"],
     "summary": "First post-ELT 1:1 with Patrick before his 2026-05-28 through 2026-06-03 OOO window. Use it to lock the practical path from the May 18 ELT session into the next execution package: Mike feedback, narrowed SharePoint work list, steward workshop shape, domain strategy, and plant-tour follow-up questions.",
     "whyItMatters": "This is the last clearly visible Steve/Patrick alignment slot before Patrick is out. Decisions that need Patrick's read should land here or be intentionally parked until he returns.",
     "currentState": [
@@ -762,12 +743,7 @@
     "id": "power-bi-model-consolidation-review",
     "title": "Power BI Model Consolidation Review",
     "startsAt": null,
-    "attendees": [
-      "Steve Nahrup",
-      "Patrick Stiller",
-      "Eudias Kifem",
-      "Matt Francis"
-    ],
+    "attendees": ["Steve Nahrup", "Patrick Stiller", "Eudias Kifem", "Matt Francis"],
     "summary": "Prepare Steve for a review of the 2026-05-20 Power BI model documentation sweep. The sweep documented 30 accessible semantic models and found the three company Sales BI models are clones with around 50 byte-identical measures plus about 23 same-name measures with divergent DAX.",
     "whyItMatters": "This gives hard evidence for why IP Corp should move toward governed shared semantic models instead of copied per-company report models. The risk is not just sprawl; it is same KPI name, different math.",
     "currentState": [
@@ -821,9 +797,7 @@
       "meetings/summaries/2026-05-20-power-bi-source-mapping.md"
     ],
     "liveContextMarkdown": "## Power BI Model Consolidation Review\n\nLead with: the Sales models are cloned enough to consolidate, but drifted enough that consolidation cannot be mechanical. Same KPI names currently mean different DAX in places.\n\nAsk for: canonical measure owner, first drift list to resolve, and the access-control pattern before any shared model is proposed.\n\nDaily sweep update: R-019 raises measure drift from documentation finding to readiness risk. Keep the review focused on canonical measure ownership, not only report inventory.",
-    "relatedPriorMeetings": [
-      "2026-05-20 Power BI Source Mapping"
-    ],
+    "relatedPriorMeetings": ["2026-05-20 Power BI Source Mapping"],
     "decisionsPending": [
       "Confirm whether Sales becomes the first certified Gold semantic model or remains a consolidation track behind another quick-value domain."
     ]
@@ -832,11 +806,7 @@
     "id": "shared-knowledge-base-review",
     "title": "Shared IP Corp Knowledge Base Review",
     "startsAt": null,
-    "attendees": [
-      "Steve Nahrup",
-      "Patrick Stiller",
-      "Eudias Kifem"
-    ],
+    "attendees": ["Steve Nahrup", "Patrick Stiller", "Eudias Kifem"],
     "summary": "Prepare Steve for a likely near-term walkthrough of the IP Corp knowledge-base/readiness layer after Patrick asked for a link and Steve described a searchable interface tying together meetings, decisions, report/model analyses, measures, dimensions, overlaps, and workspace context.",
     "whyItMatters": "This is the first clear signal that the brain/Natively read model may move from Steve-only operating layer to stakeholder-facing review surface. That improves alignment, but only if the exposed surface is sanitized: the raw brain repo is explicitly internal-only and contains credentials, raw captures, private material, and agent-operating rules that should not be shared as-is.",
     "currentState": [
@@ -910,11 +880,7 @@
     "id": "weekly-fabric-margin-standardization",
     "title": "Weekly Fabric Check-in: Margin Standardization",
     "startsAt": null,
-    "attendees": [
-      "Steve Nahrup",
-      "Patrick Stiller",
-      "Eudias Kifem"
-    ],
+    "attendees": ["Steve Nahrup", "Patrick Stiller", "Eudias Kifem"],
     "summary": "Prepare Steve for the next Fabric check-in thread around sales margin and rebate standardization. Eudias raised the DiverData versus IPC inconsistency and proposed using Fabric to standardize base margin first, then rebate handling after.",
     "whyItMatters": "Margin/rebate logic is a concrete Gold-layer modeling case that will test whether Fabric becomes the place where business formulas are standardized and explainable. It also supplies a practical example for ELT: transparency beats hiding known data issues.",
     "currentState": [

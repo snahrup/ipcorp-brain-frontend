@@ -5,9 +5,7 @@
     "title": "Confirm ELT steward decision path",
     "status": "executed",
     "createdAt": "2026-05-12T14:31:00-04:00",
-    "sourceInsightRefs": [
-      "../cortex/insights/2026-05-12-stewardship-gate.json"
-    ],
+    "sourceInsightRefs": ["../cortex/insights/2026-05-12-stewardship-gate.json"],
     "evidenceRefs": [
       "meetings/summaries/2026-05-06-fabric-weekly-stand-up.md",
       "natively/prep-packets/elt-data-stewards-readiness.packet.json"
@@ -26,11 +24,7 @@
       "level": "low",
       "notes": "The wording is internal and alignment-oriented, but should still be approved before use."
     },
-    "tags": [
-      "elt",
-      "data-stewards",
-      "follow-up"
-    ],
+    "tags": ["elt", "data-stewards", "follow-up"],
     "outcome": {
       "decision": "executed",
       "timestamp": "2026-05-13T17:41:31.203Z",
@@ -48,9 +42,7 @@
     "title": "Draft policy response outline",
     "status": "executed",
     "createdAt": "2026-05-12T14:31:00-04:00",
-    "sourceInsightRefs": [
-      "../cortex/insights/2026-05-12-policy-enforcement-gap.json"
-    ],
+    "sourceInsightRefs": ["../cortex/insights/2026-05-12-policy-enforcement-gap.json"],
     "evidenceRefs": [
       "meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md",
       "natively/prep-packets/data-classification-policy-response.packet.json",
@@ -71,12 +63,7 @@
       "level": "medium",
       "notes": "Policy language can imply governance authority; keep the outline framed as draft input until Patrick and Steve align."
     },
-    "tags": [
-      "policy",
-      "purview",
-      "financial-isolation",
-      "task"
-    ],
+    "tags": ["policy", "purview", "financial-isolation", "task"],
     "outcome": {
       "decision": "executed",
       "timestamp": "2026-05-13T17:41:23.898Z",
@@ -118,12 +105,7 @@
       "level": "low",
       "notes": "Decision-framing question, not a committed recommendation."
     },
-    "tags": [
-      "gold-model",
-      "domains",
-      "stewards",
-      "follow-up"
-    ],
+    "tags": ["gold-model", "domains", "stewards", "follow-up"],
     "outcome": {
       "decision": "executed",
       "timestamp": "2026-05-27T15:43:50.273Z",
@@ -141,9 +123,7 @@
     "title": "Confirm M3/ETQ data-flow working session",
     "status": "executed",
     "createdAt": "2026-05-20T17:54:57.898Z",
-    "sourceInsightRefs": [
-      "../cortex/insights/2026-05-20-source-truth-collapse.json"
-    ],
+    "sourceInsightRefs": ["../cortex/insights/2026-05-20-source-truth-collapse.json"],
     "evidenceRefs": [
       "meetings/summaries/2026-05-19-preface-fabric-meeting.md",
       "natively/prep-packets/m3-etq-data-flow-working-session.packet.json"
@@ -162,13 +142,7 @@
       "level": "low",
       "notes": "Alignment-oriented and source-backed; still requires Steve approval before use."
     },
-    "tags": [
-      "fabric",
-      "etq",
-      "m3-cloud",
-      "source-mapping",
-      "follow-up"
-    ],
+    "tags": ["fabric", "etq", "m3-cloud", "source-mapping", "follow-up"],
     "outcome": {
       "decision": "executed",
       "timestamp": "2026-05-27T15:44:15.643Z",
@@ -211,13 +185,7 @@
       "level": "low",
       "notes": "Internal draft proposal only; no message, calendar event, or task is executed."
     },
-    "tags": [
-      "data-stewards",
-      "workshop",
-      "elt",
-      "governance",
-      "task"
-    ],
+    "tags": ["data-stewards", "workshop", "elt", "governance", "task"],
     "outcome": {
       "decision": "executed",
       "timestamp": "2026-05-27T15:43:54.834Z",
@@ -235,9 +203,7 @@
     "title": "Confirm enforcement-stack license position",
     "status": "executed",
     "createdAt": "2026-05-20T17:54:57.898Z",
-    "sourceInsightRefs": [
-      "../cortex/insights/2026-05-20-enforcement-stack-license-gate.json"
-    ],
+    "sourceInsightRefs": ["../cortex/insights/2026-05-20-enforcement-stack-license-gate.json"],
     "evidenceRefs": [
       "project-memory/decisions/ADR-0004-enforcement-stack-for-governance-boundaries.md",
       "natively/prep-packets/fabric-gold-model-access-follow-up.packet.json"
@@ -256,13 +222,7 @@
       "level": "medium",
       "notes": "Licensing language can imply procurement commitments; keep it framed as discovery."
     },
-    "tags": [
-      "governance",
-      "security",
-      "purview",
-      "licensing",
-      "task"
-    ],
+    "tags": ["governance", "security", "purview", "licensing", "task"],
     "outcome": {
       "decision": "executed",
       "timestamp": "2026-05-27T15:44:10.151Z",
@@ -301,12 +261,7 @@
       "level": "low",
       "notes": "Prepares questions only; does not request access or create accounts."
     },
-    "tags": [
-      "citrine",
-      "pcd",
-      "sql-access",
-      "prep"
-    ],
+    "tags": ["citrine", "pcd", "sql-access", "prep"],
     "outcome": {
       "decision": "executed",
       "timestamp": "2026-05-27T15:44:02.528Z",
@@ -352,13 +307,7 @@
       "level": "low",
       "notes": "Internal prep only; avoids sending or modifying canonical docs."
     },
-    "tags": [
-      "plant-tour",
-      "mes",
-      "rd",
-      "prep",
-      "note"
-    ],
+    "tags": ["plant-tour", "mes", "rd", "prep", "note"],
     "outcome": {
       "decision": "executed",
       "timestamp": "2026-05-27T15:43:25.258Z",
@@ -376,9 +325,7 @@
     "title": "Confirm Patrick 1:1 pre-OOO agenda",
     "status": "executed",
     "createdAt": "2026-05-24T17:39:26.437Z",
-    "sourceInsightRefs": [
-      "../cortex/insights/2026-05-24-patrick-ooo-decision-gate.json"
-    ],
+    "sourceInsightRefs": ["../cortex/insights/2026-05-24-patrick-ooo-decision-gate.json"],
     "evidenceRefs": [
       "deliverables/upcoming-prep-targets-2026-05-19.md",
       "meetings/summaries/2026-05-18-mdm-elt-presentation.md",
@@ -399,13 +346,7 @@
       "level": "low",
       "notes": "The wording is agenda-setting only and cites existing evidence, but Steve should still approve it before use."
     },
-    "tags": [
-      "patrick-stiller",
-      "ooo-window",
-      "elt",
-      "stewards",
-      "follow-up"
-    ],
+    "tags": ["patrick-stiller", "ooo-window", "elt", "stewards", "follow-up"],
     "outcome": {
       "decision": "executed",
       "timestamp": "2026-05-27T15:43:38.228Z",
@@ -423,9 +364,7 @@
     "title": "Audit proactive coaching disable gate",
     "status": "proposed",
     "createdAt": "2026-05-27T16:18:23.6708444Z",
-    "sourceInsightRefs": [
-      "../cortex/insights/2026-05-27-proactive-coaching-disable-gate.json"
-    ],
+    "sourceInsightRefs": ["../cortex/insights/2026-05-27-proactive-coaching-disable-gate.json"],
     "evidenceRefs": [
       "natively/live-captures/2026-05-27-natively-live.jsonl",
       "natively/meeting-captures/2026-05-27/2026-05-27-disabling-proactive-coaching-mode-12b70248.md",
@@ -446,13 +385,7 @@
       "level": "medium",
       "notes": "If disabled mode still emits proactive coaching, live meetings can get unsolicited guidance even when Steve intended a quieter mode."
     },
-    "tags": [
-      "natively",
-      "task",
-      "readiness-risk",
-      "live-coaching",
-      "mode-gating"
-    ],
+    "tags": ["natively", "task", "readiness-risk", "live-coaching", "mode-gating"],
     "updatedAt": "2026-05-27T16:18:23.6708444Z"
   },
   {
@@ -461,9 +394,7 @@
     "title": "Resolve Fabric calendar reset details",
     "status": "proposed",
     "createdAt": "2026-05-27T16:26:44.1057864Z",
-    "sourceInsightRefs": [
-      "../cortex/insights/2026-05-27-weekly-fabric-cadence-reset.json"
-    ],
+    "sourceInsightRefs": ["../cortex/insights/2026-05-27-weekly-fabric-cadence-reset.json"],
     "evidenceRefs": [
       "natively/live-captures/2026-05-27-natively-live.jsonl#2026-05-27T16:15:01Z",
       "natively/live-captures/2026-05-27-natively-live.jsonl#2026-05-27T16:19:02Z",
@@ -571,9 +502,7 @@
     "title": "Promote Pryor OT architecture capture",
     "status": "executed",
     "createdAt": "2026-05-27T19:24:35.144Z",
-    "sourceInsightRefs": [
-      "../cortex/insights/2026-05-27-pryor-ot-purdue-ssrs-boundary.json"
-    ],
+    "sourceInsightRefs": ["../cortex/insights/2026-05-27-pryor-ot-purdue-ssrs-boundary.json"],
     "evidenceRefs": [
       "natively/meeting-captures/2026-04-15/2026-04-15-pryor-azure-ot-architecture-alignment-d558f168.md#12:20:31-12:32:46",
       "natively/meeting-captures/2026-04-15/2026-04-15-pryor-azure-ot-architecture-alignment-d558f168.json",

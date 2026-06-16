@@ -1,0 +1,209 @@
+import type { LucideIcon } from "lucide-react";
+import {
+  Archive,
+  Brain,
+  CalendarDays,
+  FileCheck2,
+  GitBranch,
+  ListChecks,
+  MessageSquareText,
+  RadioTower,
+  ShieldCheck,
+  Sparkles,
+  TriangleAlert,
+} from "lucide-react";
+
+import type { ViewKey } from "./search";
+
+export const viewCopy: Record<
+  ViewKey,
+  { label: string; eyebrow: string; title: string; summary: string; action: string }
+> = {
+  readiness: {
+    label: "Start Here",
+    eyebrow: "Readiness command center",
+    title: "Start with the right work.",
+    summary:
+      "Review the evidence gap, open the next packet, and clear gated actions from one place.",
+    action: "Review the next best packet",
+  },
+  meetings: {
+    label: "Meetings",
+    eyebrow: "Signal intake",
+    title: "Use meetings to understand what changed.",
+    summary:
+      "Upcoming, active, and recent meetings are grouped by the role they play in readiness.",
+    action: "Open the linked packet",
+  },
+  packets: {
+    label: "Prep Packets",
+    eyebrow: "Meeting preparation",
+    title: "Each packet is a stakeholder-safe brief.",
+    summary:
+      "Packets combine current state, open questions, risks, talking points, posture, and evidence references.",
+    action: "Open a packet",
+  },
+  insights: {
+    label: "Insights",
+    eyebrow: "Cortex reasoning",
+    title: "Insights explain the pattern behind the work.",
+    summary:
+      "Use this area to inspect synthesized observations, confidence, tags, and recommended actions.",
+    action: "Review the reasoning trail",
+  },
+  actions: {
+    label: "Actions",
+    eyebrow: "Approval queue",
+    title: "Actions are proposed moves, not silent automation.",
+    summary:
+      "Gated proposals show suggested action, wording, risk level, and approval boundary before anything happens.",
+    action: "Review gated actions",
+  },
+  questions: {
+    label: "Questions",
+    eyebrow: "Open loop register",
+    title: "Questions make ownership and next targets explicit.",
+    summary:
+      "Use this queue to find who owns each answer, what it blocks, and when it should be resolved.",
+    action: "Find a blocking question",
+  },
+  risks: {
+    label: "Risks",
+    eyebrow: "Exposure register",
+    title: "Risks connect concern, likelihood, owner, and mitigation.",
+    summary:
+      "This board turns architecture risk into reviewable work instead of vague anxiety fog.",
+    action: "Review mitigation",
+  },
+  decisions: {
+    label: "Decisions",
+    eyebrow: "Decision memory",
+    title: "ADRs capture architecture choices and pending candidates.",
+    summary:
+      "Use this register to see proposed decisions, candidate topics, superseded items, and deciders.",
+    action: "Open an ADR",
+  },
+  sources: {
+    label: "Source Health",
+    eyebrow: "Trust and boundary checks",
+    title: "Know what the app can safely claim.",
+    summary:
+      "Source health explains freshness, input lanes, runtime boundaries, and redaction policy.",
+    action: "Inspect freshness",
+  },
+};
+
+export const learningCards = [
+  {
+    icon: FileCheck2,
+    label: "Prep Packet",
+    body: "A meeting-ready brief: current state, questions, risks, posture, and proof trail.",
+  },
+  {
+    icon: Sparkles,
+    label: "Cortex Insight",
+    body: "A synthesized pattern with confidence, observations, connections, and a recommended next move.",
+  },
+  {
+    icon: GitBranch,
+    label: "ADR",
+    body: "Architecture decision record. Use it when an architecture choice needs reviewable memory.",
+  },
+  {
+    icon: ShieldCheck,
+    label: "Stakeholder-safe",
+    body: "The app shows curated artifacts only; raw captures, credentials, and private notes are excluded.",
+  },
+];
+
+export const navSections = [
+  {
+    label: "Orient",
+    items: [
+      {
+        key: "readiness" as ViewKey,
+        label: "Start Here",
+        helper: "What needs attention now",
+        icon: Brain,
+      },
+      {
+        key: "meetings" as ViewKey,
+        label: "Meetings",
+        helper: "Upcoming, active, recent signals",
+        icon: CalendarDays,
+      },
+    ],
+  },
+  {
+    label: "Prepare",
+    items: [
+      {
+        key: "packets" as ViewKey,
+        label: "Prep Packets",
+        helper: "Briefs ready to use in meetings",
+        icon: FileCheck2,
+      },
+      {
+        key: "insights" as ViewKey,
+        label: "Insights",
+        helper: "Synthesized patterns and reasoning",
+        icon: Sparkles,
+      },
+    ],
+  },
+  {
+    label: "Resolve",
+    items: [
+      {
+        key: "actions" as ViewKey,
+        label: "Actions",
+        helper: "Gated proposals and next moves",
+        icon: ListChecks,
+      },
+      {
+        key: "questions" as ViewKey,
+        label: "Questions",
+        helper: "Open asks, owners, and targets",
+        icon: MessageSquareText,
+      },
+      {
+        key: "risks" as ViewKey,
+        label: "Risks",
+        helper: "Exposure, severity, mitigation",
+        icon: TriangleAlert,
+      },
+      {
+        key: "decisions" as ViewKey,
+        label: "Decisions",
+        helper: "ADRs and candidates",
+        icon: GitBranch,
+      },
+    ],
+  },
+  {
+    label: "Trust",
+    items: [
+      {
+        key: "sources" as ViewKey,
+        label: "Source Health",
+        helper: "Freshness, boundaries, redaction",
+        icon: RadioTower,
+      },
+    ],
+  },
+] as const;
+
+// Re-export needed icons to avoid duplication in App
+export {
+  Archive,
+  Brain,
+  CalendarDays,
+  FileCheck2,
+  GitBranch,
+  ListChecks,
+  MessageSquareText,
+  RadioTower,
+  ShieldCheck,
+  Sparkles,
+  TriangleAlert,
+} from "lucide-react";

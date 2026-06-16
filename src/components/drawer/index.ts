@@ -1,0 +1,9 @@
+export { AdrDetail } from "./AdrDetail";
+export { DetailContent } from "./DetailContent";
+export { DetailDrawer } from "./DetailDrawer";
+export { InsightDetail } from "./InsightDetail";
+export { MeetingDetail } from "./MeetingDetail";
+export { PacketDetail } from "./PacketDetail";
+export { ProposalDetail } from "./ProposalDetail";
+export { QuestionDetail } from "./QuestionDetail";
+export { RiskDetail } from "./RiskDetail";
