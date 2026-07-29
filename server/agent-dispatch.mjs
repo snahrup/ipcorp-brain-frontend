@@ -24,6 +24,11 @@ const MAX_OUTPUT = 400_000;
 /** issueKey -> run */
 const runs = new Map();
 
+// A run writes a real status, comment and worklog onto a live Jira issue, so the model
+// and reasoning effort are pinned here rather than inherited from whatever each CLI
+// happens to be configured with. Ambient config drifts: ~/.codex/config.toml was found
+// pointing model_provider at a local Ollama endpoint serving zero models, which would
+// have failed every Codex run and written a false "Blocked" onto a real issue.
 const AGENTS = {
   claude: {
     label: "Claude Code",
@@ -31,6 +36,8 @@ const AGENTS = {
     args: (promptFile) => [
       "-p",
       `@${promptFile}`,
+      "--model",
+      "opus",
       "--permission-mode",
       "acceptEdits",
       "--output-format",
@@ -40,7 +47,17 @@ const AGENTS = {
   codex: {
     label: "Codex",
     command: "codex",
-    args: (promptFile) => ["exec", "--full-auto", `@${promptFile}`],
+    args: (promptFile) => [
+      "exec",
+      "--full-auto",
+      "--model",
+      "gpt-5.6-sol",
+      "-c",
+      "model_provider=openai",
+      "-c",
+      "model_reasoning_effort=high",
+      `@${promptFile}`,
+    ],
   },
 };
 

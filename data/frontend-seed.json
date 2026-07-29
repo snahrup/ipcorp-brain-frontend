@@ -1,10 +1,10 @@
 {
   "manifest": {
-    "generatedAt": "2026-07-29T19:17:11.163Z",
-    "sourceBrain": "C:/Users/snahrup/OneDrive - IP-Corporation/ipcorp-architecture-brain",
+    "generatedAt": "2026-07-29T21:47:55.373Z",
+    "sourceBrain": "C:/Users/snahrup/CascadeProjects/ipcorp-architecture-brain",
     "sourceHighWater": {
       "brainStatusUpdatedAt": "2026-06-11T15:21:15.069Z",
-      "meetingIndexUpdatedAt": "2026-07-29T19:17:11.045Z",
+      "meetingIndexUpdatedAt": "2026-07-29T21:47:54.771Z",
       "latestNativelyRun": "2026-06-11T15:21:15.069Z"
     },
     "classification": "internal-stakeholder-safe-draft",
@@ -233,7 +233,7 @@
     }
   },
   "meetingIndex": {
-    "updatedAt": "2026-07-29T19:17:11.045Z",
+    "updatedAt": "2026-07-29T21:47:54.771Z",
     "readinessSummary": {
       "status": "rebuilt-from-brain-summaries",
       "nextBestPacket": "prep-packets/purview-advisory-follow-up.packet.json",
@@ -376,10 +376,6 @@
         "summary": "Steve presented the live MDM candidate-evaluation workbook to the room and it landed well: \"beyond what I was looking for. I love it\" (T 16:20). The room reconfirmed the domain sequencing already in progress — Customer first (\"a really good one to start with,\" C 13:59 / T 1:36), then Sales, then Finance (#3), then Product (#4, high-priority in principle but resourcing-blocked until IP Corp's product-owner hires land, expected September) — and explicitly deferred ranking domains 5-7 until after the first MVP ships. Steve walked the candidate-evaluation and domain-reference tabs live; the room a",
         "source": "Meeting notes",
         "readinessStatus": "captured",
-        "infographic": {
-          "id": "2026-07-22-fabric-bi-weekly-stand-up",
-          "file": "Fabric Bi-Weekly Stand-Up [2026-07-22].png"
-        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1191,10 +1187,6 @@
         "summary": "Steve presented the live MDM candidate-evaluation workbook to the room and it landed well: \"beyond what I was looking for. I love it\" (T 16:20). The room reconfirmed the domain sequencing already in progress — Customer first (\"a really good one to start with,\" C 13:59 / T 1:36), then Sales, then Finance (#3), then Product (#4, high-priority in principle but resourcing-blocked until IP Corp's product-owner hires land, expected September) — and explicitly deferred ranking domains 5-7 until after the first MVP ships. Steve walked the candidate-evaluation and domain-reference tabs live; the room a",
         "source": "Meeting notes",
         "readinessStatus": "captured",
-        "infographic": {
-          "id": "2026-07-22-fabric-bi-weekly-stand-up",
-          "file": "Fabric Bi-Weekly Stand-Up [2026-07-22].png"
-        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -2086,10 +2078,6 @@
         "day": "2026-04-14",
         "source": "Meeting notes",
         "readinessStatus": "captured",
-        "infographic": {
-          "id": "2026-04-14-chaotic-morning-casual-check-in-8c8cc1ba",
-          "file": "meeting-infographic.png"
-        },
         "feedsPackets": [],
         "feedsInsights": []
       },

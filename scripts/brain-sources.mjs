@@ -243,6 +243,52 @@ function matchInfographic(index, day, slug) {
  * a day has exactly one unclaimed infographic and exactly one meeting still without one,
  * the pairing is unambiguous regardless of wording.
  */
+// Words that say nothing about which meeting this is, plus the trailing capture hash.
+const PAIR_NOISE = new Set([
+  "the",
+  "and",
+  "for",
+  "with",
+  "from",
+  "a",
+  "an",
+  "of",
+  "to",
+  "in",
+  "on",
+  "up",
+  "weekly",
+  "biweekly",
+  "bi",
+  "monthly",
+  "daily",
+  "meeting",
+  "session",
+  "call",
+]);
+
+function pairTokens(slug) {
+  return new Set(
+    slug
+      .replace(/^\d{4}-\d{2}-\d{2}-/, "")
+      .replace(/-[0-9a-f]{8}$/, "")
+      .split("-")
+      .filter((t) => t.length > 2 && !PAIR_NOISE.has(t))
+  );
+}
+
+/**
+ * Same day and nothing else is not enough to say two records are the same meeting.
+ * Requires the two names to share at least one meaningful word, because attaching one
+ * meeting's picture to another meeting's record is worse than attaching none.
+ */
+function looksLikeSameMeeting(meetingId, folder) {
+  const a = pairTokens(meetingId);
+  const b = pairTokens(folder);
+  for (const t of a) if (b.has(t)) return true;
+  return false;
+}
+
 function pairLeftoversByDay(meetings, infographics, claimed) {
   const freeByDay = new Map();
   for (const entry of infographics) {
@@ -255,13 +301,22 @@ function pairLeftoversByDay(meetings, infographics, claimed) {
     needByDay.set(meeting.day, [...(needByDay.get(meeting.day) ?? []), meeting]);
   }
   let paired = 0;
+  const rejected = [];
   for (const [day, free] of freeByDay) {
     const need = needByDay.get(day) ?? [];
-    if (free.length === 1 && need.length === 1) {
-      need[0].infographic = { id: free[0].folder, file: free[0].file };
-      claimed.add(free[0].folder);
-      paired += 1;
+    if (free.length !== 1 || need.length !== 1) continue;
+    if (!looksLikeSameMeeting(need[0].id, free[0].folder)) {
+      rejected.push(`${need[0].id} !~ ${free[0].folder}`);
+      continue;
     }
+    need[0].infographic = { id: free[0].folder, file: free[0].file };
+    claimed.add(free[0].folder);
+    paired += 1;
+  }
+  if (rejected.length) {
+    // Say what was dropped. A silent skip reads as "nothing matched that day".
+    console.log(`  same-day pairs rejected as different meetings: ${rejected.length}`);
+    for (const r of rejected) console.log(`    ${r}`);
   }
   return paired;
 }
