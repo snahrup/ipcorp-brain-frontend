@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AgentDispatchButton } from "./AgentDispatchButton";
 import { JiraGatewayError, jiraGateway } from "./api";
 import { JiraDescriptionContent } from "./JiraDescriptionContent";
 import type { JiraInitiative, JiraIssueDetail } from "./types";
@@ -531,6 +532,8 @@ export function JiraIssueModal({
                   )}
                 </section>
               </div>
+
+              <AgentDispatchButton issueKey={detail.issue.key} onChanged={() => void loadIssue()} />
 
               <section className="wb-jira-comments">
                 <h3>

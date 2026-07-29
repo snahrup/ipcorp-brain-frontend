@@ -1,11 +1,82 @@
-import { CalendarDays, Clock3, FileCheck2, Users } from "lucide-react";
+import {
+  CalendarDays,
+  Clock3,
+  FileCheck2,
+  Image as ImageIcon,
+  Maximize2,
+  Users,
+  X,
+} from "lucide-react";
+import { useState } from "react";
 import { packetById } from "../../data";
 import { formatDate, getLinkedPacket } from "../../lib/utils";
 import type { MeetingEntry } from "../../types/brain";
 import { DrawerHeader, InfoBlock, StatusChip } from "../ui";
+import "./meeting-infographic.css";
+
+const INFOGRAPHIC_URL = "http://127.0.0.1:8817/api/meetings/infographic";
 
 interface MeetingDetailProps {
   meeting: MeetingEntry;
+}
+
+/**
+ * The one-page visual summary produced for this meeting. It is the artifact people
+ * actually look at, so it sits in the record rather than in a separate folder nobody
+ * opens. Click to view it full size.
+ */
+function MeetingInfographic({ meeting }: { meeting: MeetingEntry }) {
+  const [expanded, setExpanded] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const art = meeting.infographic;
+  if (!art || failed) return null;
+
+  const src = `${INFOGRAPHIC_URL}?id=${encodeURIComponent(art.id)}&file=${encodeURIComponent(
+    art.file
+  )}`;
+
+  return (
+    <div className="meeting-infographic">
+      <span className="mono-kicker">
+        <ImageIcon size={13} aria-hidden="true" /> Visual summary
+      </span>
+      <button
+        type="button"
+        className="meeting-infographic-frame"
+        onClick={() => setExpanded(true)}
+        aria-label="Open the visual summary full size"
+      >
+        <img src={src} alt={`Visual summary of ${meeting.title}`} onError={() => setFailed(true)} />
+        <span className="meeting-infographic-zoom">
+          <Maximize2 size={14} aria-hidden="true" />
+          View full size
+        </span>
+      </button>
+
+      {expanded && (
+        <div
+          className="meeting-infographic-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Visual summary of ${meeting.title}`}
+          onClick={() => setExpanded(false)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") setExpanded(false);
+          }}
+        >
+          <button
+            type="button"
+            className="meeting-infographic-close"
+            onClick={() => setExpanded(false)}
+            aria-label="Close"
+          >
+            <X size={18} aria-hidden="true" />
+          </button>
+          <img src={src} alt={`Visual summary of ${meeting.title}`} />
+        </div>
+      )}
+    </div>
+  );
 }
 
 function attendeeList(attendees?: string) {
@@ -40,6 +111,8 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
           <StatusChip label="Has prep notes" tone="green" icon={<FileCheck2 size={13} />} />
         )}
       </div>
+
+      <MeetingInfographic meeting={meeting} />
 
       {meeting.summary && <InfoBlock title="What happened" body={meeting.summary} />}
       {meeting.whyNow && <InfoBlock title="Why it mattered" body={meeting.whyNow} />}

@@ -1,126 +1,189 @@
 import {
   AlertCircle,
   ArrowRight,
+  CalendarClock,
   CheckCircle2,
-  Clock3,
-  HelpCircle,
+  CircleDot,
   Inbox,
-  PauseCircle,
-  ShieldAlert,
-  Sparkles,
+  LoaderCircle,
+  RefreshCw,
   TriangleAlert,
 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { WorkspaceHero } from "../../components/workbench/WorkspaceHero";
-import { formatDate } from "../../data";
-import type { Detail } from "../../types/brain";
-import type { TeamWorkItem, WorkState } from "../../types/workbench";
-import { getPreparedDisplayState, getSnapshotFreshness } from "./truthState";
+import { jiraGateway } from "../../features/jira/api";
+import { JiraIssueModal } from "../../features/jira/JiraIssueModal";
+import { priorityRank, statusTone, TONE_LABEL } from "../../features/jira/jiraStatus";
+import type { JiraInitiative, JiraIssue } from "../../features/jira/types";
 
-const sectionMeta: Record<WorkState, { label: string; helper: string; icon: typeof Sparkles }> = {
-  "needs-you": {
-    label: "Needs you",
-    helper: "Waiting on your review.",
-    icon: Inbox,
-  },
-  "in-progress": {
-    label: "In progress",
-    helper: "Already has an owner.",
-    icon: Sparkles,
-  },
-  waiting: {
-    label: "Waiting",
-    helper: "Blocked on an answer or a source.",
-    icon: PauseCircle,
-  },
-  done: {
-    label: "Done",
-    helper: "Recently resolved.",
-    icon: CheckCircle2,
-  },
-};
+const DAY_MS = 86_400_000;
 
-const kindIcon = {
-  question: HelpCircle,
-  risk: TriangleAlert,
-  proposal: Sparkles,
-  decision: CheckCircle2,
-} as const;
+function day(value?: string | null) {
+  if (!value) return null;
+  const parsed = Date.parse(`${value.slice(0, 10)}T00:00:00Z`);
+  return Number.isFinite(parsed) ? parsed : null;
+}
 
-const urgencyTone = {
-  overdue: "blocked",
-  soon: "attention",
-  normal: "default",
-} as const;
+function dueLabel(due: number | null, todayUtc: number) {
+  if (due === null) return null;
+  const diff = Math.round((due - todayUtc) / DAY_MS);
+  if (diff < -1) return `${Math.abs(diff)} days overdue`;
+  if (diff === -1) return "1 day overdue";
+  if (diff === 0) return "Due today";
+  if (diff === 1) return "Due tomorrow";
+  if (diff <= 7) return `Due in ${diff} days`;
+  return new Date(due).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
 
-function WorkTile({
-  item,
-  onOpenDetail,
-}: {
-  item: TeamWorkItem;
-  onOpenDetail: (detail: Detail) => void;
-}) {
-  const Icon = kindIcon[item.kind] ?? Sparkles;
-  const tone = urgencyTone[item.urgency];
+function StatusChip({ issue }: { issue: JiraIssue }) {
+  const tone = statusTone(issue.status.name, issue.status.category);
   return (
-    <button
-      type="button"
-      className="wb-tile"
-      onClick={() => item.detail && onOpenDetail(item.detail)}
-      disabled={!item.detail}
-    >
+    <span className="wb-status-chip" data-tone={tone}>
+      {issue.status.name || TONE_LABEL[tone]}
+    </span>
+  );
+}
+
+function IssueTile({
+  issue,
+  todayUtc,
+  onOpen,
+}: {
+  issue: JiraIssue;
+  todayUtc: number;
+  onOpen: (key: string) => void;
+}) {
+  const due = day(issue.dueDate);
+  const overdue = due !== null && due < todayUtc;
+  const label = dueLabel(due, todayUtc);
+  return (
+    <button type="button" className="wb-tile" onClick={() => onOpen(issue.key)}>
       <span className="wb-tile-top">
-        <span className="wb-tile-icon">
-          <Icon size={16} aria-hidden="true" />
-        </span>
-        {item.urgency !== "normal" && (
-          <span className="wb-pill" data-tone={tone}>
-            {item.urgency === "overdue" ? "Needs attention" : "Soon"}
+        <span className="wb-issue-key">{issue.key}</span>
+        <StatusChip issue={issue} />
+      </span>
+      <strong className="wb-tile-title">{issue.summary}</strong>
+      <span className="wb-tile-meta">
+        {label && (
+          <span className="wb-pill" data-tone={overdue ? "blocked" : undefined}>
+            <CalendarClock size={12} aria-hidden="true" />
+            {label}
           </span>
         )}
-      </span>
-      <strong className="wb-tile-title">{item.title}</strong>
-      {item.summary && <span className="wb-tile-summary">{item.summary}</span>}
-      <span className="wb-tile-meta">
-        {item.owner && <span className="wb-pill">{item.owner}</span>}
-        {item.dueLabel && <span className="wb-pill">{item.dueLabel}</span>}
-        {item.updatedAt && <span className="wb-pill">{formatDate(item.updatedAt)}</span>}
+        {issue.priority?.name && <span className="wb-pill">{issue.priority.name}</span>}
+        {issue.subtasks.length > 0 && (
+          <span className="wb-pill">{issue.subtasks.length} subtasks</span>
+        )}
       </span>
     </button>
   );
 }
 
-export function TodayView({
-  items,
-  generatedAt,
-  onOpenDetail,
-  onOpenWork,
-}: {
-  items: TeamWorkItem[];
-  generatedAt: string;
-  onOpenDetail: (detail: Detail) => void;
-  onOpenWork: () => void;
-}) {
-  const freshness = getSnapshotFreshness(generatedAt);
-  const isCurrent = freshness.state === "current";
-  const preparedItems = items.map((item) => ({
-    ...item,
-    state: getPreparedDisplayState(item),
-  }));
+export function TodayView({ onOpenWork }: { onOpenWork: () => void }) {
+  const [initiative, setInitiative] = useState<JiraInitiative | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedIssueKey, setSelectedIssueKey] = useState<string | null>(null);
 
-  // Items whose own source lane has stopped producing are prepared history. Promoting a
-  // months-old proposal to "First up" would misrepresent it as today's priority.
-  const currentItems = preparedItems.filter((item) => !item.isHistorical);
-  const historicalItems = preparedItems.filter((item) => item.isHistorical);
-  const historicalAgeDays = historicalItems.find((item) => item.sourceAgeDays)?.sourceAgeDays;
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      setInitiative(await jiraGateway.initiative());
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Jira could not be reached from this machine right now."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const firstUp =
-    (isCurrent &&
-      (currentItems.find((item) => item.state === "needs-you") ??
-        currentItems.find((item) => item.state === "in-progress") ??
-        currentItems.find((item) => item.state === "waiting"))) ||
-    undefined;
+  useEffect(() => {
+    void load();
+  }, [load]);
 
-  const count = (state: WorkState) => currentItems.filter((item) => item.state === state).length;
+  const todayUtc = useMemo(() => {
+    const now = new Date();
+    return Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  }, []);
+
+  const groups = useMemo(() => {
+    const open = (initiative?.issues ?? []).filter((issue) => {
+      const tone = statusTone(issue.status.name, issue.status.category);
+      return tone !== "done" && tone !== "dropped";
+    });
+
+    const sort = (a: JiraIssue, b: JiraIssue) => {
+      const da = day(a.dueDate) ?? Number.POSITIVE_INFINITY;
+      const db = day(b.dueDate) ?? Number.POSITIVE_INFINITY;
+      if (da !== db) return da - db;
+      return priorityRank(a.priority?.name) - priorityRank(b.priority?.name);
+    };
+
+    const overdue: JiraIssue[] = [];
+    const soon: JiraIssue[] = [];
+    const active: JiraIssue[] = [];
+    const later: JiraIssue[] = [];
+
+    for (const issue of open) {
+      const due = day(issue.dueDate);
+      const tone = statusTone(issue.status.name, issue.status.category);
+      if (due !== null && due < todayUtc) overdue.push(issue);
+      else if (due !== null && due <= todayUtc + 7 * DAY_MS) soon.push(issue);
+      else if (tone === "active" || tone === "review") active.push(issue);
+      else later.push(issue);
+    }
+
+    return {
+      open,
+      overdue: overdue.sort(sort),
+      soon: soon.sort(sort),
+      active: active.sort(sort),
+      later: later.sort(sort),
+    };
+  }, [initiative, todayUtc]);
+
+  const firstUp = groups.overdue[0] ?? groups.soon[0] ?? groups.active[0] ?? groups.later[0];
+
+  const sections: Array<{
+    key: string;
+    label: string;
+    helper: string;
+    icon: typeof Inbox;
+    items: JiraIssue[];
+  }> = [
+    {
+      key: "overdue",
+      label: "Past due",
+      helper: "Due date has passed.",
+      icon: TriangleAlert,
+      items: groups.overdue,
+    },
+    {
+      key: "soon",
+      label: "Due this week",
+      helper: "Lands in the next seven days.",
+      icon: CalendarClock,
+      items: groups.soon,
+    },
+    {
+      key: "active",
+      label: "In progress",
+      helper: "Started, no near due date.",
+      icon: CircleDot,
+      items: groups.active,
+    },
+    {
+      key: "later",
+      label: "Queued",
+      helper: "Not started and not due yet.",
+      icon: Inbox,
+      items: groups.later,
+    },
+  ];
 
   return (
     <div className="wb-page" data-testid="today-view">
@@ -128,10 +191,10 @@ export function TodayView({
         kicker="Today"
         title="Start with what needs attention."
         stats={[
-          { label: "Needs you", value: count("needs-you"), tone: "attention" },
-          { label: "In progress", value: count("in-progress") },
-          { label: "Waiting", value: count("waiting") },
-          { label: "Open items", value: currentItems.length },
+          { label: "Past due", value: groups.overdue.length, tone: "attention" },
+          { label: "Due this week", value: groups.soon.length },
+          { label: "In progress", value: groups.active.length },
+          { label: "Open issues", value: groups.open.length },
         ]}
         action={
           <button className="wb-hero-button" type="button" onClick={onOpenWork}>
@@ -141,34 +204,30 @@ export function TodayView({
         }
       />
 
-      {freshness.state === "unavailable" && (
-        <div className="wb-inline-notice wb-stale-notice" role="alert">
-          <AlertCircle size={18} aria-hidden="true" />
-          <span>
-            The prepared source did not provide a usable as-of time, so current priorities are
-            unavailable.
-          </span>
-        </div>
-      )}
-
-      {!isCurrent ? (
-        <section className="wb-safe-empty" aria-label="Current priorities unavailable">
-          <Clock3 size={24} aria-hidden="true" />
-          <div>
-            <strong>Nothing current to start with</strong>
-            <p>Open Work to review everything that is prepared.</p>
-            <button className="wb-button-secondary" type="button" onClick={onOpenWork}>
-              Open Work
-              <ArrowRight size={17} />
+      {loading && !initiative ? (
+        <section className="wb-jira-state" aria-live="polite">
+          <LoaderCircle className="wb-spin" size={26} aria-hidden="true" />
+          <p>Reading your Jira work.</p>
+        </section>
+      ) : error ? (
+        <section className="wb-jira-state wb-jira-state-error" role="alert">
+          <AlertCircle size={28} aria-hidden="true" />
+          <h2>Jira could not be reached</h2>
+          <p>{error}</p>
+          <div className="wb-jira-state-actions">
+            <button className="wb-button-primary" type="button" onClick={() => void load()}>
+              <RefreshCw size={16} />
+              Try again
             </button>
+            <span>Nothing is shown from another source in its place.</span>
           </div>
         </section>
-      ) : currentItems.length === 0 ? (
-        <section className="wb-safe-empty" aria-label="Today is empty">
+      ) : groups.open.length === 0 ? (
+        <section className="wb-safe-empty">
           <CheckCircle2 size={24} aria-hidden="true" />
           <div>
-            <strong>Nothing is waiting on you right now</strong>
-            <p>Jira, Outlook, and Teams are checked separately.</p>
+            <strong>No open Jira issues</strong>
+            <p>Everything in MT is Done or Cancelled.</p>
           </div>
         </section>
       ) : (
@@ -176,88 +235,84 @@ export function TodayView({
           {firstUp && (
             <section className="wb-firstup-card">
               <div className="wb-firstup-badge">
-                <Sparkles size={15} aria-hidden="true" />
+                <CircleDot size={15} aria-hidden="true" />
                 First up
               </div>
-              <h2>{firstUp.title}</h2>
-              <p>{firstUp.summary}</p>
+              <h2>
+                <span className="wb-issue-key">{firstUp.key}</span> {firstUp.summary}
+              </h2>
               <div className="wb-firstup-meta">
-                {firstUp.owner && <span className="wb-pill">{firstUp.owner}</span>}
-                {firstUp.dueLabel && <span className="wb-pill">{firstUp.dueLabel}</span>}
-                <span className="wb-pill">Nothing sends from this card</span>
+                <StatusChip issue={firstUp} />
+                {dueLabel(day(firstUp.dueDate), todayUtc) && (
+                  <span
+                    className="wb-pill"
+                    data-tone={
+                      (day(firstUp.dueDate) ?? Number.POSITIVE_INFINITY) < todayUtc
+                        ? "blocked"
+                        : undefined
+                    }
+                  >
+                    {dueLabel(day(firstUp.dueDate), todayUtc)}
+                  </span>
+                )}
+                {firstUp.priority?.name && <span className="wb-pill">{firstUp.priority.name}</span>}
+                {firstUp.assignee && (
+                  <span className="wb-pill">{firstUp.assignee.displayName}</span>
+                )}
               </div>
-              {firstUp.detail && (
-                <button
-                  className="wb-button-primary"
-                  type="button"
-                  onClick={() => onOpenDetail(firstUp.detail as Detail)}
-                >
-                  Review the context
-                  <ArrowRight size={17} />
-                </button>
-              )}
+              <button
+                className="wb-button-primary"
+                type="button"
+                onClick={() => setSelectedIssueKey(firstUp.key)}
+              >
+                Open the issue
+                <ArrowRight size={17} />
+              </button>
             </section>
           )}
 
-          {(Object.keys(sectionMeta) as WorkState[]).map((state) => {
-            const meta = sectionMeta[state];
-            const Icon = meta.icon;
-            const sectionItems = currentItems.filter(
-              (item) => item.state === state && item.id !== firstUp?.id
-            );
-            if (sectionItems.length === 0) return null;
+          {sections.map((section) => {
+            const items = section.items.filter((issue) => issue.key !== firstUp?.key);
+            if (items.length === 0) return null;
+            const Icon = section.icon;
             return (
-              <section key={state}>
+              <section key={section.key}>
                 <div className="wb-band">
                   <span className="wb-tile-icon">
                     <Icon size={16} aria-hidden="true" />
                   </span>
-                  <h2>{meta.label}</h2>
-                  <span className="wb-band-count">{sectionItems.length}</span>
-                  <span className="wb-band-helper">{meta.helper}</span>
+                  <h2>{section.label}</h2>
+                  <span className="wb-band-count">{items.length}</span>
+                  <span className="wb-band-helper">{section.helper}</span>
                 </div>
                 <div className="wb-card-grid">
-                  {sectionItems.slice(0, 9).map((item) => (
-                    <WorkTile item={item} key={item.id} onOpenDetail={onOpenDetail} />
+                  {items.slice(0, 9).map((issue) => (
+                    <IssueTile
+                      key={issue.key}
+                      issue={issue}
+                      todayUtc={todayUtc}
+                      onOpen={setSelectedIssueKey}
+                    />
                   ))}
                 </div>
+                {items.length > 9 && (
+                  <button type="button" className="wb-link-button" onClick={onOpenWork}>
+                    See all {items.length} in Work
+                  </button>
+                )}
               </section>
             );
           })}
-
-          <details className="wb-quiet-note">
-            <summary>
-              <ShieldAlert size={15} aria-hidden="true" />
-              <span>What this view covers</span>
-            </summary>
-            <p>
-              This is prepared team context, not a live Jira, Outlook, or Teams sync. Those are
-              checked separately and never substituted here.
-            </p>
-          </details>
-
-          {historicalItems.length > 0 && (
-            <details className="wb-quiet-note">
-              <summary>
-                <Clock3 size={15} aria-hidden="true" />
-                <span>
-                  {historicalItems.length} earlier prepared{" "}
-                  {historicalItems.length === 1 ? "item" : "items"}
-                  {historicalAgeDays ? ` from ${historicalAgeDays} days ago` : ""}
-                </span>
-              </summary>
-              <p>
-                These came from a lane that has not produced since, so they are kept as context and
-                never treated as current priorities.
-              </p>
-              <div className="wb-card-grid" style={{ marginTop: 12 }}>
-                {historicalItems.slice(0, 6).map((item) => (
-                  <WorkTile item={item} key={item.id} onOpenDetail={onOpenDetail} />
-                ))}
-              </div>
-            </details>
-          )}
         </>
+      )}
+
+      {selectedIssueKey && initiative && (
+        <JiraIssueModal
+          issueKey={selectedIssueKey}
+          initiative={initiative}
+          onClose={() => setSelectedIssueKey(null)}
+          onIssueUpdated={() => void load()}
+        />
       )}
     </div>
   );

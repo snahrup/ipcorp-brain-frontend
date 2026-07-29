@@ -143,14 +143,14 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
           const ty = node.y + r + 1.5 / globalScale;
           const tw = ctx.measureText(label).width;
           ctx.globalAlpha = dimmed ? 0.14 : 0.9;
-          ctx.fillStyle = "rgba(10,10,11,0.72)";
+          ctx.fillStyle = "rgba(14, 35, 56, 0.76)";
           ctx.fillRect(
             node.x - tw / 2 - 2 / globalScale,
             ty,
             tw + 4 / globalScale,
             fontSize + 2 / globalScale
           );
-          ctx.fillStyle = isHl ? "#ffffff" : "rgba(230,233,239,0.92)";
+          ctx.fillStyle = isHl ? "#ffffff" : "rgba(232, 238, 245, 0.94)";
           ctx.fillText(label, node.x, ty + 1 / globalScale);
         }
         ctx.globalAlpha = 1;
@@ -282,7 +282,7 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
           display: "flex",
           gap: 8,
           alignItems: "center",
-          background: "rgba(10,12,16,0.82)",
+          background: "rgba(14, 35, 56, 0.86)",
           padding: "6px 8px",
           borderRadius: 999,
           border: "1px solid rgba(255,255,255,0.08)",
@@ -301,7 +301,7 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
             padding: "4px 8px",
             fontSize: 12,
             fontFamily: "var(--font-mono)",
-            color: "#fafafa",
+            color: "#F7F9FC",
             width: 190,
           }}
         />
@@ -312,9 +312,9 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
             fontSize: 10,
             padding: "4px 10px",
             borderRadius: 999,
-            background: strongOnly ? "#1A82C5" : "transparent",
-            color: strongOnly ? "#FFFFFF" : "#77C7FF",
-            border: "1px solid #1A82C5",
+            background: strongOnly ? "#1B5E9E" : "transparent",
+            color: strongOnly ? "#FFFFFF" : "#7FC4F2",
+            border: "1px solid #1B5E9E",
             cursor: "pointer",
             fontWeight: strongOnly ? 600 : 500,
             whiteSpace: "nowrap",
@@ -339,7 +339,7 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
           textTransform: "uppercase",
           letterSpacing: "0.04em",
           padding: "5px 12px",
-          background: "rgba(10,12,16,0.85)",
+          background: "rgba(14, 35, 56, 0.88)",
           color: "rgba(255,255,255,0.75)",
           border: "1px solid rgba(255,255,255,0.14)",
           borderRadius: 999,
@@ -358,7 +358,7 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
           bottom: 16,
           left: 16,
           zIndex: 20,
-          background: "rgba(10,12,16,0.88)",
+          background: "rgba(14, 35, 56, 0.9)",
           border: "1px solid rgba(255,255,255,0.08)",
           borderRadius: 12,
           padding: "10px 12px",
@@ -376,11 +376,11 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
             lineHeight: 1.5,
           }}
         >
-          Grouped by <span style={{ color: "#fafafa", fontWeight: 600 }}>topic</span> — related
+          Grouped by <span style={{ color: "#F7F9FC", fontWeight: 600 }}>topic</span> — related
           meetings, decisions & systems cluster together.{" "}
-          <span style={{ color: "#fafafa", fontWeight: 600 }}>Bigger</span> = more connected.{" "}
-          <span style={{ color: "#77C7FF" }}>Hover</span> to trace links,{" "}
-          <span style={{ color: "#77C7FF" }}>click</span> to open.
+          <span style={{ color: "#F7F9FC", fontWeight: 600 }}>Bigger</span> = more connected.{" "}
+          <span style={{ color: "#7FC4F2" }}>Hover</span> to trace links,{" "}
+          <span style={{ color: "#7FC4F2" }}>click</span> to open.
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {TOPICS.map((topic) => {
@@ -402,7 +402,7 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
                   padding: "3px 6px",
                   borderRadius: 7,
                   background: "transparent",
-                  color: isHidden ? "rgba(255,255,255,0.35)" : "#e6e9ef",
+                  color: isHidden ? "rgba(255,255,255,0.35)" : "#E8EEF5",
                   border: "1px solid transparent",
                   cursor: "pointer",
                   textAlign: "left",
@@ -464,7 +464,7 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
             textTransform: "uppercase",
             letterSpacing: "0.04em",
             padding: "3px 9px",
-            background: "rgba(10,12,16,0.8)",
+            background: "rgba(14, 35, 56, 0.84)",
             color: "rgba(255,255,255,0.5)",
             borderRadius: 999,
             border: "1px solid rgba(255,255,255,0.08)",

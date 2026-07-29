@@ -2,13 +2,15 @@
   width: 100%;
   min-height: 0;
   display: grid;
-  gap: 18px;
-  padding: 4px 6px 20px;
+  gap: 10px;
+  padding: 2px 6px 14px;
   border-bottom: 1px solid var(--line);
 }
 
+/* The mark is 1400x624. At the old 226px it rendered about 100px tall and dominated
+   the whole rail. Sized to read as confident identity, not as a banner. */
 .wb-sidebar .wb-brand-corporate-logo {
-  width: min(100%, 226px);
+  width: min(100%, 152px);
   height: auto;
   display: block;
   object-fit: contain;
@@ -17,54 +19,47 @@
 
 .wb-sidebar .wb-brand-context {
   min-width: 0;
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
+  display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  padding-top: 2px;
+  border-top: 1px solid var(--line);
 }
 
-.wb-sidebar .wb-brand-context > img {
-  width: 36px;
-  height: 36px;
-  display: block;
-  object-fit: contain;
-}
-
-.wb-sidebar .wb-brand-context > span {
+.wb-sidebar .wb-brand-product-line {
   min-width: 0;
   display: grid;
-  gap: 2px;
+  gap: 1px;
+  margin-right: auto;
+  padding-top: 8px;
 }
 
-.wb-sidebar .wb-brand-context small {
-  color: var(--text-soft);
-  font-family: var(--font-body);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.045em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.wb-sidebar .wb-brand-context strong {
-  overflow: hidden;
+.wb-sidebar .wb-brand-product-line strong {
   color: var(--navy-2);
   font-family: var(--font-heading);
-  font-size: 22px;
-  font-weight: 750;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  line-height: 1.15;
 }
 
-.wb-sidebar .wb-brand-context em {
+.wb-sidebar .wb-brand-product-line em {
   color: var(--text-soft);
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 10.5px;
   font-style: normal;
   font-weight: 500;
   line-height: 1.2;
+}
+
+.wb-sidebar .wb-brand-platform {
+  width: 22px;
+  height: 22px;
+  display: block;
+  flex: none;
+  margin-top: 8px;
+  object-fit: contain;
+  opacity: 0.85;
 }
 
 .wb-brand-compact-crop {

@@ -357,14 +357,7 @@ export default function App() {
             exit={reduceMotion ? undefined : { opacity: 0, y: -12, filter: "blur(8px)" }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           >
-            {activeView === "today" && (
-              <TodayView
-                items={workbenchSnapshot.workItems}
-                generatedAt={workbenchSnapshot.generatedAt}
-                onOpenDetail={openDetail}
-                onOpenWork={() => navigate("work")}
-              />
-            )}
+            {activeView === "today" && <TodayView onOpenWork={() => navigate("work")} />}
             {activeView === "work" && (
               <WorkView
                 items={workbenchSnapshot.workItems}

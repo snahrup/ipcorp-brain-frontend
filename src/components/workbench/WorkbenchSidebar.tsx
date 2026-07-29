@@ -104,13 +104,20 @@ export function WorkbenchSidebar({
         </span>
 
         {expanded && (
+          // The active view already names itself in the page header, so repeating it
+          // here made the brand block twice as tall as it needed to be. One quiet line
+          // of product identity is enough.
           <div className="wb-brand-context">
-            <img src="/fabric-icons/fabric.png" alt="" aria-hidden="true" />
-            <span>
-              <small>Workbench</small>
-              <strong>{activeItem.label}</strong>
+            <span className="wb-brand-product-line">
+              <strong>Workbench</strong>
               <em>Team workspace</em>
             </span>
+            <img
+              className="wb-brand-platform"
+              src="/fabric-icons/fabric.png"
+              alt="Microsoft Fabric"
+              title="Powered by Microsoft Fabric"
+            />
           </div>
         )}
       </div>

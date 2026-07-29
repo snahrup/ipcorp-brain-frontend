@@ -1,7 +1,10 @@
 import {
   AlertCircle,
+  CalendarRange,
   CheckCircle2,
   Columns3,
+  GanttChartSquare,
+  GitBranch,
   List,
   LoaderCircle,
   RefreshCw,
@@ -11,7 +14,10 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { jiraGateway } from "./api";
+import "./jira-views.css";
+import { JiraDependencyMap } from "./JiraDependencyMap";
 import { JiraIssueModal } from "./JiraIssueModal";
+import { JiraTimeline } from "./JiraTimeline";
 import { MdmReconciliationModal } from "./MdmReconciliationModal";
 import type { JiraInitiative, JiraIssue, JiraStatus } from "./types";
 
@@ -36,7 +42,7 @@ export function JiraWorkSurface() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"list" | "board">("list");
+  const [mode, setMode] = useState<"list" | "board" | "timeline" | "gantt" | "deps">("list");
   const [query, setQuery] = useState("");
   const [showDone, setShowDone] = useState(false);
   const [selectedIssueKey, setSelectedIssueKey] = useState<string | null>(null);
@@ -164,6 +170,30 @@ export function JiraWorkSurface() {
           >
             <Columns3 size={17} /> Board
           </button>
+          <button
+            type="button"
+            aria-pressed={mode === "timeline"}
+            className={mode === "timeline" ? "is-active" : ""}
+            onClick={() => setMode("timeline")}
+          >
+            <CalendarRange size={17} /> Timeline
+          </button>
+          <button
+            type="button"
+            aria-pressed={mode === "gantt"}
+            className={mode === "gantt" ? "is-active" : ""}
+            onClick={() => setMode("gantt")}
+          >
+            <GanttChartSquare size={17} /> Gantt
+          </button>
+          <button
+            type="button"
+            aria-pressed={mode === "deps"}
+            className={mode === "deps" ? "is-active" : ""}
+            onClick={() => setMode("deps")}
+          >
+            <GitBranch size={17} /> Dependencies
+          </button>
         </fieldset>
 
         <label className="wb-jira-search">
@@ -218,6 +248,14 @@ export function JiraWorkSurface() {
             <p>Clear the filter or include Done issues. No placeholder cards are shown.</p>
           </div>
         </section>
+      ) : mode === "timeline" || mode === "gantt" ? (
+        <JiraTimeline
+          issues={visibleIssues}
+          mode={mode}
+          onOpenIssue={(key) => setSelectedIssueKey(key)}
+        />
+      ) : mode === "deps" ? (
+        <JiraDependencyMap issues={visibleIssues} onOpenIssue={(key) => setSelectedIssueKey(key)} />
       ) : mode === "list" ? (
         <section className="wb-jira-list" aria-label="Live MDM Jira issue list">
           <div className="wb-jira-list-head">

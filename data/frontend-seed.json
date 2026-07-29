@@ -1,10 +1,10 @@
 {
   "manifest": {
-    "generatedAt": "2026-07-29T15:37:07.358Z",
+    "generatedAt": "2026-07-29T19:17:11.163Z",
     "sourceBrain": "C:/Users/snahrup/OneDrive - IP-Corporation/ipcorp-architecture-brain",
     "sourceHighWater": {
       "brainStatusUpdatedAt": "2026-06-11T15:21:15.069Z",
-      "meetingIndexUpdatedAt": "2026-07-29T15:37:07.245Z",
+      "meetingIndexUpdatedAt": "2026-07-29T19:17:11.045Z",
       "latestNativelyRun": "2026-06-11T15:21:15.069Z"
     },
     "classification": "internal-stakeholder-safe-draft",
@@ -233,7 +233,7 @@
     }
   },
   "meetingIndex": {
-    "updatedAt": "2026-07-29T15:37:07.245Z",
+    "updatedAt": "2026-07-29T19:17:11.045Z",
     "readinessSummary": {
       "status": "rebuilt-from-brain-summaries",
       "nextBestPacket": "prep-packets/purview-advisory-follow-up.packet.json",
@@ -328,6 +328,10 @@
         "summary": "First working session since 2026-07-07, after two cancellations. Joe Wagner attended alone for CDW and delivered the lab demo that had been the outstanding item for three weeks, walking the full path end to end: registering a data source, creating scans, storing credentials in Azure Key Vault, self-hosted integration runtimes for sources that are not publicly reachable, classifications and scan rule sets, the discovery and data-assets views, the enterprise glossary, governance domains and data products, access-request policies with approval workflows and attestations, health management scoring",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-29-interplastic-purview-advisory-working-session",
+          "file": "Interplastic - Purview Advisory - Working Session [2026-07-29].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -340,6 +344,10 @@
         "summary": "Working session on the MDM portfolio breakdown workbook, joined mid-conversation (transcription starts inside the wave-sequencing discussion). Steve walked the pre-wave programs (Fabric platform setup, then Purview: pay-as-you-go upgrade, authentication, lineage/catalog scans, and the security/access schema) and the Wave 1 Customer Domain MVP flow (steward workshop/orientation, report inventory, RACI, template sign-offs). Patrick relayed that Mike Spencer's organization is in a \"huge discussion about product,\" so Product cannot be the first or second domain, and product renames would be handle",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-28-mdm-domain-program-breakdown-review",
+          "file": "Nahrup - Patrick — MDM Domain Program Breakdown Review [2026-07-28].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -353,6 +361,10 @@
         "summary": "Extremely short Monday standup — the shortest on record for this series. Matt Francis's opening remark was cut off mid-sentence (\"Hanna getting through that\") before Patrick took over: with Kerri Voiss, Jason Christensen, and Eudias Kifem all out, and Mike Spencer tied up in another meeting, only Patrick, Matt, and Steve were present. Patrick noted he had nothing further to report — he is still waiting to hear back from Mike Spencer on the MDM role assignments — and, given the thin attendance, called the meeting immediately rather than attempt a round-robin. No topics were opened, no reports w",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-28-weekly-dev-data-stand-up",
+          "file": "Weekly Dev-Data Stand-up [2026-07-28].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -364,6 +376,10 @@
         "summary": "Steve presented the live MDM candidate-evaluation workbook to the room and it landed well: \"beyond what I was looking for. I love it\" (T 16:20). The room reconfirmed the domain sequencing already in progress — Customer first (\"a really good one to start with,\" C 13:59 / T 1:36), then Sales, then Finance (#3), then Product (#4, high-priority in principle but resourcing-blocked until IP Corp's product-owner hires land, expected September) — and explicitly deferred ranking domains 5-7 until after the first MVP ships. Steve walked the candidate-evaluation and domain-reference tabs live; the room a",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-22-fabric-bi-weekly-stand-up",
+          "file": "Fabric Bi-Weekly Stand-Up [2026-07-22].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -375,6 +391,10 @@
         "summary": "Steve and Patrick walked the live candidate workbook end to end and converged it to presentation-ready minus one formatting pass. Patrick established the single-data-owner principle (one owner per domain who delegates to stewards, never multiple owners), relayed Robin's approval to leave domains 5–7 undetailed, and dictated a series of candidate-level content edits: full-name pros and cons for the Sales owners (Kevin Casey, Erik Levy), Salesforce oversight as Omari's pro, M3 depth for Sarah and Lorrie, Cole Cwynar's end-to-end product arc (R&D at Fort Wright → process engineer → NAC sales), an",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-21-mdm-candidate-matrix-cleanup",
+          "file": "MDM Candidate Matrix Cleanup [2026-07-21].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -387,6 +407,10 @@
         "summary": "Steve and Patrick worked the program/project/task breakdown into concrete shape. Pre-Wave 1 splits into two cross-domain programs — Core Technology Setup (Fabric) and Purview — followed by the Wave 1 Domain MVP program (first domain \"all but assured\" Customer, officially unpicked pending steward weigh-in), with Wave 2+ replicated from the MVP template and no parallel domain execution until domains 3–4. They settled the workspace access model (stewards/owners get gold-warehouse access only), the delivery approach (team does the heavy lifting; stewards validate — glossary built internally as a b",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-20-mdm-mural-board-follow-up",
+          "file": "MDM Mural Board Follow-up - Program-Project-Task Breakdown [2026-07-20].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -399,6 +423,10 @@
         "summary": "The group worked through the role-candidate matrix domain by domain, assigning priority rankings live for Customer, Sales, Product, and Finance, deliberately leaving Quality and Manufacturing unranked (\"those first four are hefty enough\"). A recurring definitional debate (is Customer a domain, a department, or a data master?) was closed pragmatically by Patrick: keep the current domain list as-is because it is already \"canonized with Robin and Mike\"; Customer stays separate from Sales. Mandy Rolph was added as a Sales data-owner candidate; Christina Hanna was removed from Manufacturing; Brian ",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-20-mdm-domains-roles-pro-con-review",
+          "file": "MDM Domains & Roles - Pro-Con Review [2026-07-20].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -412,6 +440,10 @@
         "summary": "Short Monday standup held the same morning as that day's two MDM sessions (the 12:30 Mural Board Follow-up and the 1:30/2:30 PM Domains & Roles Pro/Con Review). Patrick opened by walking the BI access-provisioning flow: access requests go to Mandy to decide who should have access, then the help desk adds the person to the group script; Eudias approves and confirms the target group. NAC inventory and sales each already have an existing rule/group. Patrick asked Eudias to send the group list to the whole team (not just him) as a bus-factor hedge since he'd be out. Eudias is nearly done with repo",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-20-dev-data-standup",
+          "file": "Weekly Dev-Data Stand-up [2026-07-20].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -425,6 +457,10 @@
         "summary": "Steve and Patrick agreed the MDM Gantt/mural board the team had assembled was a premature, internal-only working model — not a stakeholder-facing commitment on dates or named domains. Relaying guidance from Robin Virginia, Patrick proposed pausing on time-boxing and instead breaking the work into a formal program/project/task hierarchy: MDM is the overall portfolio; each domain becomes a program wave (Domain 1 = MVP, then Domain 2, 3, 4...); projects sit under programs, tasks under projects; learnings from the MVP wave feed the next wave. They also discussed, without assigning blame, that Domi",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-16-nahrup-1on1-with-patrick",
+          "file": "Nahrup 1-on-1 with Patrick (mural-board Gantt reset) [2026-07-16].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -480,6 +516,10 @@
         "summary": "Recurring CDW \"Purview Advisory Services\" working session (engagement project #26508) supporting IP Corp's MDM / data-governance / data-classification effort in Microsoft Purview. Taylor Perez (CDW) introduced Joe Wagner, a CDW senior delivery engineer and Purview/M365 specialist newly assigned to the engagement. Steve reframed the scope for Joe: run Purview in parallel with Microsoft Fabric to deliver ownership, classification, and end-to-end lineage (source → target), plus a data catalog so people can find data owners, definitions, and who to contact per domain. The team clarified that data-",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-07-interplastic-purview-advisory-working-session",
+          "file": "Interplastic - Purview Advisory - Working Session [2026-07-07].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -491,6 +531,10 @@
         "summary": "Recurring cross-functional demand/portfolio review led by Dominique Mathers (PMO). The meeting is a resource-management working session, not an architecture decision forum: the group walked the project roadmap updating RAG status and % complete, then updated per-person monthly resource allocations (July/Aug/Sept), PTO/time-off, \"keep-the-lights-on\" load, and capacity (red/yellow) flags. Substance relevant to the architecture-brain is limited to status/allocation deltas on Steve Nahrup's MDM and Data Governance workstreams, the M3 Cloud / M3 Fusion programs (still not started / awaiting approva",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-07-bi-weekly-demand-management",
+          "file": "Bi-Weekly Demand Management Meeting [2026-07-07].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -504,6 +548,10 @@
         "summary": "Short holiday-week standup. Steve opened with a seven-item MDM list: the Wednesday MDM touch-base with Mike's group is confirmed moved to every-other-week; he wants a final run-through on the RACI matrix this week. Patrick rated the RACI a 5–6/10 priority for himself because he is prioritizing getting the domains and people (stewards/owners) list ordered first; Steve and Patrick agreed the data-domain schema diagram Steve already sent (and the schemes behind it) rank above the RACI. Patrick committed to booking more MDM strategic-planning sessions this week to keep building toward the Gantt/ro",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-06-dev-data-standup",
+          "file": "Dev-Data Stand-up [2026-07-06].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -528,6 +576,10 @@
         "summary": "\"Mass Price Update Discussion\" was a Teams meeting (organizer Robin Virginia; attendees included Steve Nahrup, Kelly Chapman, Patrick Stiller, Sara Wahlberg, Brenda Lins, Omari Amsterdam, and DigitalMass partners Jeff Cook and Alex Mracek) covering the mass update of price agreements and their propagation to open orders. A recording exists but no Teams transcript was generated, so the full discussion is not captured — see the Needs-Cluely note.",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-06-30-mass-price-update-teams",
+          "file": "Mass Price Update Discussion (Teams conversation) [2026-06-30].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -787,6 +839,10 @@
         "attendees": "Steve Nahrup, Eudias Kifem, Patrick Stiller",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-06-11-fabric-gold-layer-reporting-walkthrough-35cebfe3",
+          "file": "meeting-infographic.png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -876,6 +932,10 @@
         "attendees": "Taylor Perez, Nick Atkins, Patrick Stiller, Steve Nahrup, Michael Kenney, Eudias Kifem, Dominique Mathers, Zach Stafiej - Duration: 80:38 captured across 3 Natively parts; part 2 is non-meeting noise",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-06-03-interplastic-purview-advisory-working-session-6a66b9db",
+          "file": "meeting-infographic.png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -901,6 +961,10 @@
         "attendees": "Steve Nahrup, Patrick Stiller (speaker mapping inferred by Natively)",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-05-27-fabric-stand-up-recovery-planning-39c96ede",
+          "file": "meeting-infographic.png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -952,6 +1016,10 @@
         "attendees": "speaker identities not fully resolved from Natively diarization",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-05-20-power-bi-source-mapping-bccb90a3",
+          "file": "meeting-infographic.png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -964,6 +1032,10 @@
         "attendees": "speaker identities not fully resolved from Natively diarization",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-05-20-intercompany-item-mapping-a81c405c",
+          "file": "meeting-infographic.png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1071,6 +1143,10 @@
         "summary": "First working session since 2026-07-07, after two cancellations. Joe Wagner attended alone for CDW and delivered the lab demo that had been the outstanding item for three weeks, walking the full path end to end: registering a data source, creating scans, storing credentials in Azure Key Vault, self-hosted integration runtimes for sources that are not publicly reachable, classifications and scan rule sets, the discovery and data-assets views, the enterprise glossary, governance domains and data products, access-request policies with approval workflows and attestations, health management scoring",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-29-interplastic-purview-advisory-working-session",
+          "file": "Interplastic - Purview Advisory - Working Session [2026-07-29].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1083,6 +1159,10 @@
         "summary": "Working session on the MDM portfolio breakdown workbook, joined mid-conversation (transcription starts inside the wave-sequencing discussion). Steve walked the pre-wave programs (Fabric platform setup, then Purview: pay-as-you-go upgrade, authentication, lineage/catalog scans, and the security/access schema) and the Wave 1 Customer Domain MVP flow (steward workshop/orientation, report inventory, RACI, template sign-offs). Patrick relayed that Mike Spencer's organization is in a \"huge discussion about product,\" so Product cannot be the first or second domain, and product renames would be handle",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-28-mdm-domain-program-breakdown-review",
+          "file": "Nahrup - Patrick — MDM Domain Program Breakdown Review [2026-07-28].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1096,6 +1176,10 @@
         "summary": "Extremely short Monday standup — the shortest on record for this series. Matt Francis's opening remark was cut off mid-sentence (\"Hanna getting through that\") before Patrick took over: with Kerri Voiss, Jason Christensen, and Eudias Kifem all out, and Mike Spencer tied up in another meeting, only Patrick, Matt, and Steve were present. Patrick noted he had nothing further to report — he is still waiting to hear back from Mike Spencer on the MDM role assignments — and, given the thin attendance, called the meeting immediately rather than attempt a round-robin. No topics were opened, no reports w",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-28-weekly-dev-data-stand-up",
+          "file": "Weekly Dev-Data Stand-up [2026-07-28].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1107,6 +1191,10 @@
         "summary": "Steve presented the live MDM candidate-evaluation workbook to the room and it landed well: \"beyond what I was looking for. I love it\" (T 16:20). The room reconfirmed the domain sequencing already in progress — Customer first (\"a really good one to start with,\" C 13:59 / T 1:36), then Sales, then Finance (#3), then Product (#4, high-priority in principle but resourcing-blocked until IP Corp's product-owner hires land, expected September) — and explicitly deferred ranking domains 5-7 until after the first MVP ships. Steve walked the candidate-evaluation and domain-reference tabs live; the room a",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-22-fabric-bi-weekly-stand-up",
+          "file": "Fabric Bi-Weekly Stand-Up [2026-07-22].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1118,6 +1206,10 @@
         "summary": "Steve and Patrick walked the live candidate workbook end to end and converged it to presentation-ready minus one formatting pass. Patrick established the single-data-owner principle (one owner per domain who delegates to stewards, never multiple owners), relayed Robin's approval to leave domains 5–7 undetailed, and dictated a series of candidate-level content edits: full-name pros and cons for the Sales owners (Kevin Casey, Erik Levy), Salesforce oversight as Omari's pro, M3 depth for Sarah and Lorrie, Cole Cwynar's end-to-end product arc (R&D at Fort Wright → process engineer → NAC sales), an",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-21-mdm-candidate-matrix-cleanup",
+          "file": "MDM Candidate Matrix Cleanup [2026-07-21].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1130,6 +1222,10 @@
         "summary": "Steve and Patrick worked the program/project/task breakdown into concrete shape. Pre-Wave 1 splits into two cross-domain programs — Core Technology Setup (Fabric) and Purview — followed by the Wave 1 Domain MVP program (first domain \"all but assured\" Customer, officially unpicked pending steward weigh-in), with Wave 2+ replicated from the MVP template and no parallel domain execution until domains 3–4. They settled the workspace access model (stewards/owners get gold-warehouse access only), the delivery approach (team does the heavy lifting; stewards validate — glossary built internally as a b",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-20-mdm-mural-board-follow-up",
+          "file": "MDM Mural Board Follow-up - Program-Project-Task Breakdown [2026-07-20].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1142,6 +1238,10 @@
         "summary": "The group worked through the role-candidate matrix domain by domain, assigning priority rankings live for Customer, Sales, Product, and Finance, deliberately leaving Quality and Manufacturing unranked (\"those first four are hefty enough\"). A recurring definitional debate (is Customer a domain, a department, or a data master?) was closed pragmatically by Patrick: keep the current domain list as-is because it is already \"canonized with Robin and Mike\"; Customer stays separate from Sales. Mandy Rolph was added as a Sales data-owner candidate; Christina Hanna was removed from Manufacturing; Brian ",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-20-mdm-domains-roles-pro-con-review",
+          "file": "MDM Domains & Roles - Pro-Con Review [2026-07-20].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1155,6 +1255,10 @@
         "summary": "Short Monday standup held the same morning as that day's two MDM sessions (the 12:30 Mural Board Follow-up and the 1:30/2:30 PM Domains & Roles Pro/Con Review). Patrick opened by walking the BI access-provisioning flow: access requests go to Mandy to decide who should have access, then the help desk adds the person to the group script; Eudias approves and confirms the target group. NAC inventory and sales each already have an existing rule/group. Patrick asked Eudias to send the group list to the whole team (not just him) as a bus-factor hedge since he'd be out. Eudias is nearly done with repo",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-20-dev-data-standup",
+          "file": "Weekly Dev-Data Stand-up [2026-07-20].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1168,6 +1272,10 @@
         "summary": "Steve and Patrick agreed the MDM Gantt/mural board the team had assembled was a premature, internal-only working model — not a stakeholder-facing commitment on dates or named domains. Relaying guidance from Robin Virginia, Patrick proposed pausing on time-boxing and instead breaking the work into a formal program/project/task hierarchy: MDM is the overall portfolio; each domain becomes a program wave (Domain 1 = MVP, then Domain 2, 3, 4...); projects sit under programs, tasks under projects; learnings from the MVP wave feed the next wave. They also discussed, without assigning blame, that Domi",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-16-nahrup-1on1-with-patrick",
+          "file": "Nahrup 1-on-1 with Patrick (mural-board Gantt reset) [2026-07-16].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1223,6 +1331,10 @@
         "summary": "Recurring CDW \"Purview Advisory Services\" working session (engagement project #26508) supporting IP Corp's MDM / data-governance / data-classification effort in Microsoft Purview. Taylor Perez (CDW) introduced Joe Wagner, a CDW senior delivery engineer and Purview/M365 specialist newly assigned to the engagement. Steve reframed the scope for Joe: run Purview in parallel with Microsoft Fabric to deliver ownership, classification, and end-to-end lineage (source → target), plus a data catalog so people can find data owners, definitions, and who to contact per domain. The team clarified that data-",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-07-interplastic-purview-advisory-working-session",
+          "file": "Interplastic - Purview Advisory - Working Session [2026-07-07].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1234,6 +1346,10 @@
         "summary": "Recurring cross-functional demand/portfolio review led by Dominique Mathers (PMO). The meeting is a resource-management working session, not an architecture decision forum: the group walked the project roadmap updating RAG status and % complete, then updated per-person monthly resource allocations (July/Aug/Sept), PTO/time-off, \"keep-the-lights-on\" load, and capacity (red/yellow) flags. Substance relevant to the architecture-brain is limited to status/allocation deltas on Steve Nahrup's MDM and Data Governance workstreams, the M3 Cloud / M3 Fusion programs (still not started / awaiting approva",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-07-bi-weekly-demand-management",
+          "file": "Bi-Weekly Demand Management Meeting [2026-07-07].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1247,6 +1363,10 @@
         "summary": "Short holiday-week standup. Steve opened with a seven-item MDM list: the Wednesday MDM touch-base with Mike's group is confirmed moved to every-other-week; he wants a final run-through on the RACI matrix this week. Patrick rated the RACI a 5–6/10 priority for himself because he is prioritizing getting the domains and people (stewards/owners) list ordered first; Steve and Patrick agreed the data-domain schema diagram Steve already sent (and the schemes behind it) rank above the RACI. Patrick committed to booking more MDM strategic-planning sessions this week to keep building toward the Gantt/ro",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-07-06-dev-data-standup",
+          "file": "Dev-Data Stand-up [2026-07-06].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1271,6 +1391,10 @@
         "summary": "\"Mass Price Update Discussion\" was a Teams meeting (organizer Robin Virginia; attendees included Steve Nahrup, Kelly Chapman, Patrick Stiller, Sara Wahlberg, Brenda Lins, Omari Amsterdam, and DigitalMass partners Jeff Cook and Alex Mracek) covering the mass update of price agreements and their propagation to open orders. A recording exists but no Teams transcript was generated, so the full discussion is not captured — see the Needs-Cluely note.",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-06-30-mass-price-update-teams",
+          "file": "Mass Price Update Discussion (Teams conversation) [2026-06-30].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1530,6 +1654,10 @@
         "attendees": "Steve Nahrup, Eudias Kifem, Patrick Stiller",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-06-11-fabric-gold-layer-reporting-walkthrough-35cebfe3",
+          "file": "meeting-infographic.png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1619,6 +1747,10 @@
         "attendees": "Taylor Perez, Nick Atkins, Patrick Stiller, Steve Nahrup, Michael Kenney, Eudias Kifem, Dominique Mathers, Zach Stafiej - Duration: 80:38 captured across 3 Natively parts; part 2 is non-meeting noise",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-06-03-interplastic-purview-advisory-working-session-6a66b9db",
+          "file": "meeting-infographic.png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1644,6 +1776,10 @@
         "attendees": "Steve Nahrup, Patrick Stiller (speaker mapping inferred by Natively)",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-05-27-fabric-stand-up-recovery-planning-39c96ede",
+          "file": "meeting-infographic.png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1695,6 +1831,10 @@
         "attendees": "speaker identities not fully resolved from Natively diarization",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-05-20-power-bi-source-mapping-bccb90a3",
+          "file": "meeting-infographic.png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1707,6 +1847,10 @@
         "attendees": "speaker identities not fully resolved from Natively diarization",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-05-20-intercompany-item-mapping-a81c405c",
+          "file": "meeting-infographic.png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1928,6 +2072,10 @@
         "attendees": "exact list unavailable; speakers/names referenced include Steve, Stuart, Zach, Adam, Ted, Will, Chew, and Teal",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-04-15-pryor-azure-ot-architecture-alignment-d558f168",
+          "file": "meeting-infographic.png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1938,6 +2086,10 @@
         "day": "2026-04-14",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-04-14-chaotic-morning-casual-check-in-8c8cc1ba",
+          "file": "meeting-infographic.png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },

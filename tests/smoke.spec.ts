@@ -173,6 +173,8 @@ async function mockTeamLibrary(page: Page) {
 
 test.describe("IP Corp Workbench - team-safe smoke", () => {
   test("starts on the focused Today workspace", async ({ page }) => {
+    // Today now reads the live MT board rather than a prepared snapshot.
+    await mockJira(page);
     await page.goto("/");
 
     await expect(page.getByTestId("today-view")).toBeVisible();
@@ -180,9 +182,9 @@ test.describe("IP Corp Workbench - team-safe smoke", () => {
       page.getByRole("heading", { name: "Start with what needs attention." })
     ).toBeVisible();
     await expect(page.getByRole("img", { name: "IP Corporation" })).toBeVisible();
-    // The hero now carries the orienting counts instead of a wall of freshness copy.
-    await expect(page.getByText("Needs you", { exact: true }).first()).toBeVisible();
-    await expect(page.getByText("Open items", { exact: true })).toBeVisible();
+    // The hero carries the orienting counts instead of a wall of freshness copy.
+    await expect(page.getByText("Past due", { exact: true })).toBeVisible();
+    await expect(page.getByText("Open issues", { exact: true })).toBeVisible();
     await expect(page.getByTestId("nav-today")).toHaveAttribute("aria-current", "page");
   });
 

@@ -47,23 +47,32 @@ export interface Topic {
 }
 
 // Distinct, dark-bg-friendly palette for topics.
+/**
+ * Cluster colours, drawn from the IP Corporation system rather than a generic rainbow.
+ *
+ * The old palette reached for pink, lime, fuchsia and amber, which read as a different
+ * product from the rest of the Workbench. This is a blue-led ramp: clusters separate by
+ * lightness and by a small amount of hue drift across steel, teal and slate, all of which
+ * sit next to the navy canvas without fighting it. The semantic red, amber and green stay
+ * out of it entirely so they keep meaning status everywhere else.
+ */
 const TOPIC_PALETTE = [
-  "#1B5E9E",
-  "#77c7ff",
-  "#446084",
-  "#1A82C5",
-  "#ff8a5b",
-  "#34d399",
-  "#f472b6",
-  "#60a5fa",
-  "#a3e635",
-  "#2dd4bf",
-  "#fbbf24",
-  "#e879f9",
-  "#fb7185",
-  "#818cf8",
-  "#5fa8d3",
-  "#facc15",
+  "#1B5E9E", // action blue
+  "#7FC4F2", // light sky
+  "#446084", // brand blue 2
+  "#2E8FC8", // mid azure
+  "#9FB0C2", // supporting pale blue
+  "#1D4570", // deep corporate blue
+  "#5FA8D3", // soft steel blue
+  "#334862", // brand blue
+  "#4FB3AE", // muted teal
+  "#B7C6D6", // pale slate
+  "#2A4A6B", // supporting blue
+  "#86A8CC", // dusty blue
+  "#3C7A99", // slate teal
+  "#6E8CAE", // mid slate
+  "#14314F", // navy 2
+  "#A8C6DE", // ice blue
 ];
 
 const TOPIC_OF: Record<string, string> = {};
@@ -189,7 +198,7 @@ function makeRng(seed: number): () => number {
     const topic: Topic = {
       id: "other",
       label: "Unconnected",
-      color: "#7a818f",
+      color: "#9FB0C2",
       anchor: anchorAt(bigComms.length),
       size: members.length,
     };
@@ -204,7 +213,7 @@ export function topicIdOf(nodeId: string): string | undefined {
 }
 export function topicColorOf(nodeId: string): string {
   const t = TOPIC_OF[nodeId];
-  return (t ? TOPIC_BY_ID.get(t)?.color : undefined) || "#7a818f";
+  return (t ? TOPIC_BY_ID.get(t)?.color : undefined) || "#9FB0C2";
 }
 export function topicAnchorOf(nodeId: string): { x: number; y: number } | null {
   const t = TOPIC_OF[nodeId];

@@ -1,0 +1,323 @@
+/* Timeline, Gantt and dependency map for the Jira work surface. */
+
+/* ---------- status chips ---------- */
+
+.wb-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.wb-status-chip::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.wb-status-chip[data-tone="todo"] {
+  background: #f0f2f4;
+  border-color: #e1e4e8;
+  color: #5a6169;
+}
+
+.wb-status-chip[data-tone="active"] {
+  background: rgba(27, 94, 158, 0.11);
+  border-color: rgba(27, 94, 158, 0.25);
+  color: #1b5e9e;
+}
+
+.wb-status-chip[data-tone="review"] {
+  background: rgba(68, 96, 132, 0.12);
+  border-color: rgba(68, 96, 132, 0.26);
+  color: #37506f;
+}
+
+.wb-status-chip[data-tone="waiting"] {
+  background: rgba(176, 118, 26, 0.13);
+  border-color: rgba(176, 118, 26, 0.28);
+  color: #8a5c12;
+}
+
+.wb-status-chip[data-tone="blocked"] {
+  background: rgba(200, 16, 46, 0.1);
+  border-color: rgba(200, 16, 46, 0.26);
+  color: #a30d25;
+}
+
+.wb-status-chip[data-tone="done"] {
+  background: rgba(30, 123, 77, 0.12);
+  border-color: rgba(30, 123, 77, 0.26);
+  color: #14603a;
+}
+
+.wb-status-chip[data-tone="dropped"] {
+  background: #f4f5f6;
+  border-color: #e1e4e8;
+  color: #9aa0a6;
+  text-decoration: line-through;
+}
+
+/* ---------- timeline / gantt ---------- */
+
+.wb-gantt {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  overflow: hidden;
+}
+
+.wb-gantt-head {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  background: #fafbfc;
+}
+
+.wb-gantt-head-label {
+  flex: none;
+  width: 262px;
+  padding: 9px 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-soft);
+  border-right: 1px solid var(--line);
+}
+
+.wb-gantt-axis {
+  position: relative;
+  flex: 1;
+  height: 34px;
+}
+
+.wb-gantt-tick {
+  position: absolute;
+  top: 9px;
+  transform: translateX(-50%);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+.wb-gantt-body {
+  display: flex;
+  max-height: 62vh;
+  overflow: auto;
+}
+
+.wb-gantt-labels {
+  flex: none;
+  width: 262px;
+  border-right: 1px solid var(--line);
+  background: #fff;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.wb-gantt-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0 12px;
+  border: 0;
+  border-bottom: 1px solid #f0f2f4;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.wb-gantt-label:hover {
+  background: #fafbfc;
+}
+
+.wb-gantt-key {
+  flex: none;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.wb-gantt-name {
+  font-size: 12px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wb-gantt-plot {
+  position: relative;
+  flex: 1;
+  min-width: 620px;
+}
+
+.wb-gantt-gridline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #f0f2f4;
+}
+
+.wb-gantt-today {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #c8102e;
+  opacity: 0.65;
+  z-index: 3;
+}
+
+.wb-gantt-links {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wb-gantt-bar {
+  position: absolute;
+  height: 20px;
+  min-width: 10px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: var(--radius-xs);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  z-index: 2;
+  opacity: 0.94;
+}
+
+.wb-gantt-bar:hover {
+  opacity: 1;
+  box-shadow: 0 0 0 2px rgba(14, 35, 56, 0.2);
+}
+
+.wb-gantt-bar.is-overdue {
+  box-shadow: inset 0 0 0 2px #c8102e;
+}
+
+/* ---------- dependency map ---------- */
+
+.wb-depmap {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  overflow: hidden;
+}
+
+.wb-depmap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  background: #fafbfc;
+  font-size: 11.5px;
+  color: var(--text-soft);
+}
+
+.wb-depmap-hint {
+  margin-left: auto;
+}
+
+.wb-depmap-scroll {
+  overflow: auto;
+  max-height: 66vh;
+}
+
+.wb-depmap-canvas {
+  position: relative;
+}
+
+.wb-depmap-edges {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.wb-depnode {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    box-shadow 0.12s ease,
+    opacity 0.12s ease;
+}
+
+.wb-depnode:hover,
+.wb-depnode.is-focus {
+  box-shadow: 0 4px 14px rgba(14, 35, 56, 0.14);
+  z-index: 2;
+}
+
+.wb-depnode.is-dim {
+  opacity: 0.32;
+}
+
+.wb-depnode-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wb-depnode-key {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.wb-depnode-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.wb-depnode-name {
+  font-size: 11.5px;
+  line-height: 1.3;
+  color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.wb-depnode-meta {
+  font-size: 10px;
+  color: var(--text-soft);
+}

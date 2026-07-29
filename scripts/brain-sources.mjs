@@ -186,8 +186,92 @@ export function buildAdrs(brain) {
   return adrs.length ? { adrs, candidates } : null;
 }
 
+/**
+ * Index the meeting infographics so a meeting record can carry its own picture.
+ *
+ * Folder names mostly match the summary slug exactly. The older capture lane appended a
+ * short hash, so anything that does not match exactly falls back to same-day matching
+ * with a token-overlap check, which is strict enough not to attach the wrong picture.
+ */
+function indexInfographics(brain) {
+  const root = path.join(brain, "natively/meeting-infographics");
+  if (!fs.existsSync(root)) return [];
+  const out = [];
+  for (const folder of fs.readdirSync(root)) {
+    const dir = path.join(root, folder);
+    if (!fs.statSync(dir).isDirectory()) continue;
+    const png = fs.readdirSync(dir).find((f) => f.toLowerCase().endsWith(".png"));
+    if (!png) continue;
+    const day = (folder.match(/^(\d{4}-\d{2}-\d{2})/) || [])[1];
+    if (!day) continue;
+    // Drop the trailing hash the old lane appended so slugs compare cleanly.
+    const slug = folder.slice(11).replace(/-[0-9a-f]{6,}$/i, "");
+    out.push({ folder, file: png, day, tokens: new Set(slug.split("-").filter(Boolean)) });
+  }
+  return out;
+}
+
+function matchInfographic(index, day, slug) {
+  const sameDay = index.filter((entry) => entry.day === day);
+  if (sameDay.length === 0) return null;
+
+  const exact = sameDay.find(
+    (entry) => `${entry.day}-${entry.folder.slice(11)}` === `${day}-${slug}`
+  );
+  if (exact) return exact;
+
+  const wanted = new Set(slug.split("-").filter(Boolean));
+  let best = null;
+  let bestScore = 0;
+  for (const entry of sameDay) {
+    let shared = 0;
+    for (const token of wanted) if (entry.tokens.has(token)) shared += 1;
+    const score = shared / Math.min(wanted.size, entry.tokens.size || 1);
+    if (score > bestScore) {
+      bestScore = score;
+      best = entry;
+    }
+  }
+  return bestScore >= 0.5 && best ? best : null;
+}
+
+/**
+ * Second pass over whatever the name match could not place.
+ *
+ * The infographic folders were named from calendar subjects while the summaries use our
+ * own slugs, so the same meeting frequently shares no words at all between the two. When
+ * a day has exactly one unclaimed infographic and exactly one meeting still without one,
+ * the pairing is unambiguous regardless of wording.
+ */
+function pairLeftoversByDay(meetings, infographics, claimed) {
+  const freeByDay = new Map();
+  for (const entry of infographics) {
+    if (claimed.has(entry.folder)) continue;
+    freeByDay.set(entry.day, [...(freeByDay.get(entry.day) ?? []), entry]);
+  }
+  const needByDay = new Map();
+  for (const meeting of meetings) {
+    if (meeting.infographic) continue;
+    needByDay.set(meeting.day, [...(needByDay.get(meeting.day) ?? []), meeting]);
+  }
+  let paired = 0;
+  for (const [day, free] of freeByDay) {
+    const need = needByDay.get(day) ?? [];
+    if (free.length === 1 && need.length === 1) {
+      need[0].infographic = { id: free[0].folder, file: free[0].file };
+      claimed.add(free[0].folder);
+      paired += 1;
+    }
+  }
+  return paired;
+}
+
 /** One entry per file in core/meetings/summaries. */
 export function buildMeetings(brain) {
+  const infographics = indexInfographics(brain);
+  // A folder may only ever be claimed by one meeting, so a day with two meetings and
+  // one picture cannot attach the same image to both.
+  const claimed = new Set();
   const dir = path.join(brain, "core/meetings/summaries");
   if (!fs.existsSync(dir)) return null;
   const out = [];
@@ -218,6 +302,13 @@ export function buildMeetings(brain) {
       .map((s) => s.trim())
       .filter((s) => s && !s.startsWith(">") && !s.startsWith("<!--"))[0];
 
+    const art = matchInfographic(
+      infographics.filter((entry) => !claimed.has(entry.folder)),
+      m[1],
+      m[2]
+    );
+    if (art) claimed.add(art.folder);
+
     out.push({
       id: `${m[1]}-${m[2]}`,
       title,
@@ -228,10 +319,12 @@ export function buildMeetings(brain) {
       summary: summary ? strip(summary).slice(0, 600) : undefined,
       source: "Meeting notes",
       readinessStatus: "captured",
+      infographic: art ? { id: art.folder, file: art.file } : undefined,
       feedsPackets: [],
       feedsInsights: [],
     });
   }
+  pairLeftoversByDay(out, infographics, claimed);
   out.sort((a, b) => (a.day < b.day ? 1 : -1));
   return out.length ? out : null;
 }

@@ -54,6 +54,8 @@ export type MeetingEntry = {
   attendees?: string;
   summary?: string;
   readinessStatus: string;
+  /** Matched meeting infographic, when one was produced for this meeting. */
+  infographic?: { id: string; file: string };
   packet?: string;
   source?: string;
   whyNow?: string;

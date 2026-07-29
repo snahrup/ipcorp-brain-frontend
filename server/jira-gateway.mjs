@@ -1,8 +1,9 @@
 import { execFile as execFileCallback } from "node:child_process";
 import { readdir, readFile, stat } from "node:fs/promises";
 import { createServer } from "node:http";
-import { extname, resolve, sep } from "node:path";
+import { extname, join, resolve, sep } from "node:path";
 import { promisify } from "node:util";
+import { dispatch as dispatchAgent, getRun, listRuns } from "./agent-dispatch.mjs";
 
 const HOST = "127.0.0.1";
 const PORT = Number.parseInt(process.env.IPCORP_JIRA_GATEWAY_PORT || "8817", 10);
@@ -13,6 +14,12 @@ const SETTINGS_PATH =
 const TEAM_LIBRARY_PATH =
   process.env.IPCORP_TEAM_LIBRARY_PATH ||
   "C:\\Users\\snahrup\\OneDrive - IP-Corporation\\IT Internal - MDM - Master Data Management\\Team Library";
+const BRAIN_REPO_PATH =
+  process.env.IPCORP_BRAIN_PATH ||
+  "C:\\Users\\snahrup\\OneDrive - IP-Corporation\\ipcorp-architecture-brain";
+const MEETING_INFOGRAPHICS_PATH =
+  process.env.IPCORP_MEETING_INFOGRAPHICS_PATH ||
+  "C:\\Users\\snahrup\\OneDrive - IP-Corporation\\ipcorp-architecture-brain\\natively\\meeting-infographics";
 const ALLOWED_ORIGINS = new Set(["http://127.0.0.1:5217", "http://localhost:5217"]);
 const ISSUE_KEY_RE = /^MT-\d+$/;
 const MAX_BODY_BYTES = 256 * 1024;
@@ -356,6 +363,50 @@ async function sendTeamLibraryFile(response, relativePath, origin) {
   response.end(data);
 }
 
+/**
+ * Serve a meeting infographic PNG.
+ *
+ * Both segments are matched against the real directory listing rather than joined from
+ * user input, so a crafted id or filename cannot walk outside the infographics folder.
+ */
+async function sendMeetingInfographic(response, id, file, origin) {
+  if (!id || !file) {
+    throw new GatewayError(400, "A meeting and a file are required.", "infographic_bad_request");
+  }
+  let folders;
+  try {
+    folders = await readdir(MEETING_INFOGRAPHICS_PATH);
+  } catch {
+    throw new GatewayError(
+      404,
+      "No meeting infographics are available.",
+      "infographic_root_missing"
+    );
+  }
+  const folder = folders.find((name) => name === id);
+  if (!folder) {
+    throw new GatewayError(404, "That meeting has no infographic.", "infographic_not_found");
+  }
+  const dir = join(MEETING_INFOGRAPHICS_PATH, folder);
+  const entries = await readdir(dir);
+  const match = entries.find((name) => name === file && name.toLowerCase().endsWith(".png"));
+  if (!match) {
+    throw new GatewayError(
+      404,
+      "That infographic image is not available.",
+      "infographic_not_found"
+    );
+  }
+  const data = await readFile(join(dir, match));
+  setAllowedOrigin(response, origin);
+  response.setHeader("Content-Type", "image/png");
+  response.setHeader("Cache-Control", "private, max-age=300");
+  response.setHeader("X-Content-Type-Options", "nosniff");
+  response.setHeader("Content-Disposition", `inline; filename="${match.replaceAll('"', "")}"`);
+  response.writeHead(200);
+  response.end(data);
+}
+
 async function getTeamLibraryPreview(relativePath) {
   const { filePath, normalized } = resolveTeamLibraryFile(relativePath);
   const extension = extname(filePath).toLowerCase();
@@ -674,6 +725,9 @@ const BOARD_FIELDS = [
   "timetracking",
   "created",
   "updated",
+  // The board query feeds the timeline, Gantt and dependency views, all of which need
+  // the blocking relationships. Without this the dependency map renders empty.
+  "issuelinks",
 ].join(",");
 
 const DETAIL_FIELDS = [BOARD_FIELDS, "description", "subtasks", "issuelinks", "comment"].join(",");
@@ -873,6 +927,44 @@ async function getPriorities() {
     id: priority.id,
     name: priority.name,
   }));
+}
+
+/** Move an issue to a status by name, using whatever transition reaches it. */
+async function transitionIssueTo(key, statusName) {
+  const transitions = await getTransitions(key);
+  const wanted = String(statusName).toLowerCase();
+  const match =
+    transitions.find((t) => t.to.toLowerCase() === wanted) ||
+    transitions.find((t) => t.name.toLowerCase() === wanted);
+  if (!match) {
+    throw new GatewayError(
+      409,
+      `${key} cannot move to ${statusName} from its current status.`,
+      "transition_unavailable",
+      { available: transitions.map((t) => t.to) }
+    );
+  }
+  await jiraRequest(`/rest/api/3/issue/${key}/transitions`, {
+    method: "POST",
+    body: JSON.stringify({ transition: { id: match.id } }),
+  });
+}
+
+async function addIssueComment(key, text) {
+  await jiraRequest(`/rest/api/3/issue/${key}/comment`, {
+    method: "POST",
+    body: JSON.stringify({ body: textToAdf(String(text)) }),
+  });
+}
+
+async function logIssueWork(key, seconds, text) {
+  await jiraRequest(`/rest/api/3/issue/${key}/worklog?adjustEstimate=leave`, {
+    method: "POST",
+    body: JSON.stringify({
+      timeSpentSeconds: Math.max(60, Math.round(seconds)),
+      comment: textToAdf(String(text)),
+    }),
+  });
 }
 
 async function getTransitions(key) {
@@ -1567,6 +1659,41 @@ async function route(request, response) {
     }
     if (request.method === "GET" && url.pathname === "/api/team-library/file") {
       return await sendTeamLibraryFile(response, url.searchParams.get("path"), origin);
+    }
+    if (request.method === "POST" && url.pathname === "/api/agents/dispatch") {
+      const body = await readJsonBody(request);
+      const key = String(body.issueKey || "");
+      if (!ISSUE_KEY_RE.test(key)) {
+        throw new GatewayError(400, "A valid MT issue key is required.", "invalid_issue_key");
+      }
+      const run = await dispatchAgent({
+        issueKey: key,
+        agent: String(body.agent || "claude"),
+        context: String(body.context || ""),
+        cwd: BRAIN_REPO_PATH,
+        deps: {
+          getIssue,
+          transition: transitionIssueTo,
+          comment: addIssueComment,
+          logWork: logIssueWork,
+        },
+      });
+      return sendJson(response, 202, { ok: true, data: run }, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/api/agents/run") {
+      const key = url.searchParams.get("issueKey") || "";
+      return sendJson(response, 200, { ok: true, data: getRun(key) }, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/api/agents/runs") {
+      return sendJson(response, 200, { ok: true, data: listRuns() }, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/api/meetings/infographic") {
+      return await sendMeetingInfographic(
+        response,
+        url.searchParams.get("id"),
+        url.searchParams.get("file"),
+        origin
+      );
     }
     if (request.method === "GET" && url.pathname === "/api/m365/reconcile-evidence") {
       const force = url.searchParams.get("force") === "true";
