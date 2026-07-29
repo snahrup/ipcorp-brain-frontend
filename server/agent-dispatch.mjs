@@ -40,9 +40,13 @@ const AGENTS = {
       "opus",
       "--permission-mode",
       "acceptEdits",
+      // Structured events are what make a readable transcript possible. Plain text
+      // interleaves prose with tool noise and cannot be separated again afterwards.
       "--output-format",
-      "text",
+      "stream-json",
+      "--verbose",
     ],
+    parse: parseClaudeEvent,
   },
   codex: {
     label: "Codex",
@@ -56,10 +60,39 @@ const AGENTS = {
       "model_provider=openai",
       "-c",
       "model_reasoning_effort=high",
+      "--json",
       `@${promptFile}`,
     ],
+    parse: parseCodexEvent,
   },
 };
+
+/** Claude stream-json: assistant turns carry text and tool_use side by side. */
+export function parseClaudeEvent(event) {
+  if (event?.type !== "assistant") return [];
+  const content = event.message?.content;
+  if (!Array.isArray(content)) return [];
+  // tool_use blocks are dropped on purpose. This view is for reading what the agent
+  // said and why, not for watching it operate.
+  return content
+    .filter((block) => block?.type === "text" && block.text?.trim())
+    .map((block) => ({ role: "agent", text: block.text.trim() }));
+}
+
+/**
+ * Codex JSONL. The event shape has moved between versions, so every known spelling of
+ * "the agent said something" is accepted and anything else is ignored.
+ */
+export function parseCodexEvent(event) {
+  const candidates = [
+    event?.item?.type === "agent_message" ? event.item.text : null,
+    event?.msg?.type === "agent_message" ? (event.msg.message ?? event.msg.text) : null,
+    event?.type === "agent_message" ? (event.message ?? event.text) : null,
+  ];
+  return candidates
+    .filter((text) => typeof text === "string" && text.trim())
+    .map((text) => ({ role: "agent", text: text.trim() }));
+}
 
 function nowIso() {
   return new Date().toISOString();
@@ -116,7 +149,15 @@ an unavailable source, or a decision only Steve can make. Do not claim DONE for 
 did not verify.`;
 }
 
-function classify(output) {
+/** Everything the agent actually said, in order, with the prompt left out. */
+function agentProse(run) {
+  return (run.messages ?? [])
+    .filter((m) => m.role === "agent")
+    .map((m) => m.text)
+    .join("\n\n");
+}
+
+export function classify(output) {
   const lines = output.trim().split(/\r?\n/).reverse();
   for (const line of lines) {
     const match = /^\s*RESULT:\s*(DONE|REVIEW|BLOCKED)\b(.*)$/i.exec(line);
@@ -165,7 +206,8 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
 
   await mkdir(RUNS_DIR, { recursive: true });
   const promptFile = join(RUNS_DIR, `${issueKey}.prompt.md`);
-  await writeFile(promptFile, buildPrompt(issue, context), "utf8");
+  const prompt = buildPrompt(issue, context);
+  await writeFile(promptFile, prompt, "utf8");
 
   const startedAt = Date.now();
   const run = {
@@ -178,6 +220,9 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
     verdict: null,
     note: null,
     output: "",
+    // The readable record: what was asked, and what came back in prose. Grows while
+    // the run is live so the modal can show it as it happens.
+    messages: [{ seq: 0, role: "sent", text: prompt, at: nowIso() }],
     exitCode: null,
     error: null,
   };
@@ -190,11 +235,33 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
   });
   run.child = child;
 
-  const append = (chunk) => {
-    run.output = (run.output + chunk.toString()).slice(-MAX_OUTPUT);
+  // Both CLIs emit one JSON object per line, but a chunk can split a line anywhere, so
+  // the remainder is carried until its newline arrives.
+  let pending = "";
+  const consume = (chunk) => {
+    const text = chunk.toString();
+    run.output = (run.output + text).slice(-MAX_OUTPUT);
+    pending += text;
+    const lines = pending.split(/\r?\n/);
+    pending = lines.pop() ?? "";
+    for (const line of lines) {
+      if (!line.trim().startsWith("{")) continue;
+      let event;
+      try {
+        event = JSON.parse(line);
+      } catch {
+        continue; // A line we cannot read is not a reason to lose the run.
+      }
+      for (const message of config.parse(event)) {
+        run.messages.push({ ...message, seq: run.messages.length, at: nowIso() });
+      }
+    }
   };
-  child.stdout?.on("data", append);
-  child.stderr?.on("data", append);
+  child.stdout?.on("data", consume);
+  // stderr is progress and warnings, not conversation. It stays in the raw output only.
+  child.stderr?.on("data", (chunk) => {
+    run.output = (run.output + chunk.toString()).slice(-MAX_OUTPUT);
+  });
 
   const killer = setTimeout(() => {
     run.error = `Stopped after ${MAX_RUNTIME_MS / 60000} minutes without finishing.`;
@@ -222,14 +289,18 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
       verdict = "BLOCKED";
       note = `The run exited with code ${code}.`;
     } else {
-      ({ verdict, note } = classify(run.output));
+      // The verdict line lives in the agent's prose. With structured output the raw
+      // stream is JSON, so classifying it directly would never find the line and every
+      // run would come back REVIEW. Fall back to raw only if nothing parsed at all.
+      ({ verdict, note } = classify(agentProse(run) || run.output));
     }
 
     run.state = "finished";
     run.verdict = verdict;
     run.note = note;
 
-    const tail = run.output.trim().split(/\r?\n/).slice(-40).join("\n");
+    // Jira readers get the agent's own words, never the raw event stream.
+    const tail = (agentProse(run) || run.output).trim().split(/\r?\n/).slice(-40).join("\n");
     try {
       await deps.comment(
         issueKey,

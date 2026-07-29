@@ -1,9 +1,21 @@
 import { AlertCircle, Bot, CheckCircle2, LoaderCircle, Play, TriangleAlert } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./agent-dispatch.css";
+import { AgentTranscript } from "./AgentTranscript";
 
 const BASE = "http://127.0.0.1:8817/api/agents";
-const POLL_MS = 5000;
+// Fast enough that the conversation reads as it happens. The payload is a small JSON
+// document from a process on this machine, so the cost of asking often is negligible.
+const POLL_MS = 1500;
+
+/** One turn of the run's conversation. Tool calls never become messages. */
+export type AgentMessage = {
+  /** Append-only position in the run, so a message has a stable identity to key on. */
+  seq: number;
+  role: "sent" | "agent";
+  text: string;
+  at: string;
+};
 
 export type AgentRun = {
   issueKey: string;
@@ -15,6 +27,7 @@ export type AgentRun = {
   verdict: "DONE" | "REVIEW" | "BLOCKED" | null;
   note: string | null;
   output: string;
+  messages?: AgentMessage[];
   exitCode: number | null;
   error: string | null;
 };
@@ -191,6 +204,10 @@ export function AgentDispatchButton({
           {error}
         </div>
       )}
+
+      {run?.messages?.length ? (
+        <AgentTranscript messages={run.messages} agentLabel={run.agentLabel} running={running} />
+      ) : null}
 
       {run && !running && run.note && (
         <details className="wb-agent-result">
