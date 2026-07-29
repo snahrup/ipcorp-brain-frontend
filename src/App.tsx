@@ -43,6 +43,7 @@ import {
 } from "./components/ui";
 import { ViewHero } from "./components/ui/ViewHero";
 import { ApprovalDock, WorkbenchHeader, WorkbenchSidebar } from "./components/workbench";
+import { MobileTabBar } from "./components/workbench/MobileTabBar";
 import {
   type ActionProposal,
   type Adr,
@@ -348,13 +349,17 @@ export default function App() {
           }}
         />
 
-        <AnimatePresence mode="wait">
+        {/* mode="wait" holds the incoming view until the outgoing one reports its exit
+            is complete. When a view owns async work that never settles, that report can
+            fail to arrive and navigation deadlocks: the header and rail update but the
+            page never changes. The entrance animation is what people actually see, so
+            the outgoing view is simply replaced. */}
+        <AnimatePresence initial={false}>
           <motion.section
             key={activeView}
             className="view-frame"
             initial={reduceMotion ? false : { opacity: 0, y: 18, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={reduceMotion ? undefined : { opacity: 0, y: -12, filter: "blur(8px)" }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           >
             {activeView === "today" && <TodayView onOpenWork={() => navigate("work")} />}
@@ -395,6 +400,8 @@ export default function App() {
           </motion.section>
         </AnimatePresence>
       </main>
+
+      <MobileTabBar activeView={activeView} onNavigate={navigate} />
 
       <DetailDrawer detail={detail} onClose={() => setDetail(null)} />
       <ApprovalDock preview={approvalPreview} onClose={() => setApprovalPreview(null)} />

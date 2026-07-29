@@ -1,0 +1,173 @@
+/* iOS-style bottom tab bar and the phone layout it belongs to. */
+
+.wb-tabbar {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .wb-tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 120;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    align-items: stretch;
+    /* Sit on the home indicator rather than above it. */
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, 0.86);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid rgba(14, 35, 56, 0.12);
+  }
+
+  .wb-tabbar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    /* Apple's minimum comfortable target. */
+    min-height: 44px;
+    padding: 4px 2px;
+    border: 0;
+    background: none;
+    color: #8a9099;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.12s ease;
+  }
+
+  .wb-tabbar-item[data-active="true"] {
+    color: var(--accent);
+  }
+
+  .wb-tabbar-item:active {
+    opacity: 0.55;
+  }
+
+  /* ---- phone layout ---- */
+
+  .wb-app,
+  .wb-app.nav-collapsed,
+  .wb-app.nav-open {
+    display: block;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The rail is replaced by the tab bar on a phone. An older 767px block turned the
+     rail into a top bar; this is more specific so the tab bar wins. */
+  .wb-app > .wb-sidebar,
+  .wb-app.nav-collapsed > .wb-sidebar,
+  .wb-app.nav-open > .wb-sidebar {
+    display: none;
+  }
+
+  .wb-workspace,
+  .wb-page {
+    min-width: 0;
+  }
+
+  /* The workspace owns the scroll, so the inset goes on the scrolling child and the
+     last card is never trapped under the fixed bar. */
+  .wb-workspace > *:last-child {
+    padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Let the header ride under the status bar in standalone mode. */
+  .wb-header {
+    padding-top: calc(8px + env(safe-area-inset-top, 0px));
+  }
+
+  .wb-page {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .wb-hero,
+  .wb-meetings-hero {
+    padding: 18px 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .wb-hero-copy h1,
+  .wb-meetings-hero-copy h1 {
+    font-size: 22px;
+  }
+
+  .wb-hero-stats,
+  .wb-meetings-stats {
+    width: 100%;
+  }
+
+  .wb-hero-stat,
+  .wb-stat {
+    flex: 1 1 calc(50% - 5px);
+    min-width: 0;
+  }
+
+  /* One full-width column reads better than a squeezed two. The component
+     stylesheets load after this one, so these need the extra specificity to win. */
+  .wb-page .wb-card-grid,
+  .wb-page .wb-meeting-grid,
+  .wb-meetings-main .wb-meeting-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Horizontal surfaces scroll inside themselves instead of stretching the page. */
+  .wb-gantt-body,
+  .wb-depmap-scroll,
+  .wb-jira-toolbar,
+  .wb-work-source-tabs,
+  .wb-segmented {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .wb-jira-toolbar,
+  .wb-work-source-tabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .wb-jira-toolbar::-webkit-scrollbar,
+  .wb-work-source-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .wb-gantt-head-label,
+  .wb-gantt-labels {
+    width: 150px;
+  }
+
+  /* Full-height sheets, the way a native modal presents on a phone. */
+  .wb-modal-backdrop {
+    padding: 0;
+  }
+
+  .wb-jira-modal {
+    max-width: 100%;
+    max-height: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* Standalone (Added to Home Screen) only. */
+@media (display-mode: standalone) {
+  /* No text selection on chrome, so a long press feels like an app not a page. */
+  .wb-tabbar,
+  .wb-header {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  body {
+    overscroll-behavior-y: none;
+  }
+}

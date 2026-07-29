@@ -41,13 +41,22 @@ export const packetById = new Map(brain.prepPackets.map((packet) => [packet.id, 
 
 export const formatDate = (value?: string | null) => {
   if (!value) return "Date not set";
-  const date = new Date(value);
+  const hasTime = value.includes("T");
+  // A bare YYYY-MM-DD parses as UTC midnight, which renders as the previous day in any
+  // negative offset. A calendar date has no timezone, so build it in local time.
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.exec(value.slice(0, 10)) && !hasTime;
+  const date = dateOnly
+    ? (() => {
+        const [y, m, d] = value.slice(0, 10).split("-").map(Number);
+        return new Date(y, m - 1, d);
+      })()
+    : new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
-    hour: value.includes("T") ? "numeric" : undefined,
-    minute: value.includes("T") ? "2-digit" : undefined,
+    hour: hasTime ? "numeric" : undefined,
+    minute: hasTime ? "2-digit" : undefined,
   }).format(date);
 };
 

@@ -10,10 +10,12 @@ type Node = {
   blockedBy: string[];
 };
 
-const COL_W = 250;
-const ROW_H = 74;
-const NODE_W = 210;
-const NODE_H = 54;
+// Sized so the issue title always fits. The old 54px box could not hold the key row,
+// three lines of title and the "waits on" line, so titles were clipped to nothing.
+const COL_W = 310;
+const ROW_H = 122;
+const NODE_W = 258;
+const NODE_H = 96;
 
 /**
  * Node canvas of the blocking relationships. Issues are laid out in dependency order:
@@ -211,6 +213,7 @@ export function JiraDependencyMap({
                 onFocus={() => setFocus(node.issue.key)}
                 onBlur={() => setFocus(null)}
                 onClick={() => onOpenIssue(node.issue.key)}
+                title={`${node.issue.key} · ${node.issue.summary}`}
               >
                 <span className="wb-depnode-top">
                   <span className="wb-depnode-key">{node.issue.key}</span>

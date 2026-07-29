@@ -88,6 +88,22 @@ export function JiraWorkSurface() {
     });
   }, [initiative, query, showDone]);
 
+  // A dependency chain is about sequence, not status. Hiding Done issues breaks the
+  // chain in the middle and leaves orphans, so this view always sees the whole board
+  // and only honours the text filter.
+  const dependencyIssues = useMemo(() => {
+    if (!initiative) return [];
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) return initiative.issues;
+    return initiative.issues.filter((issue) =>
+      [issue.key, issue.summary, issue.status.name, ...issue.labels]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery)
+    );
+  }, [initiative, query]);
+
   const visibleStatuses = useMemo(() => {
     if (!initiative) return [];
     return initiative.statuses.filter((status) => showDone || status.category !== "done");
@@ -255,7 +271,10 @@ export function JiraWorkSurface() {
           onOpenIssue={(key) => setSelectedIssueKey(key)}
         />
       ) : mode === "deps" ? (
-        <JiraDependencyMap issues={visibleIssues} onOpenIssue={(key) => setSelectedIssueKey(key)} />
+        <JiraDependencyMap
+          issues={dependencyIssues}
+          onOpenIssue={(key) => setSelectedIssueKey(key)}
+        />
       ) : mode === "list" ? (
         <section className="wb-jira-list" aria-label="Live MDM Jira issue list">
           <div className="wb-jira-list-head">
