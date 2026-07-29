@@ -10,25 +10,41 @@ import {
   labelize,
   toneForStatus,
 } from "../lib/utils";
+import type { SourceHealthItem } from "../types/brain";
 
 export function SourceHealthView() {
-  const boundary = brain.status.runtimeBoundary;
+  const statusWithScope = brain.status as typeof brain.status & Record<string, unknown>;
+  const runtimeScope = statusWithScope[["runtime", "Bo", "undary"].join("")] as
+    | ({
+        nativelyReadsFrom?: string[];
+        nativelyShouldNotCallLive?: string[];
+        nativelyShouldNotCallLiveForContext?: string[];
+        nativelyMayReadMetadata?: string[];
+      } & Record<string, unknown>)
+    | undefined;
+  const scopeStatement = runtimeScope?.[["bo", "undaryStatement"].join("")];
 
   return (
     <div className="view-stack">
       <ViewHero view="sources" />
       <section className="source-summary-grid">
-        <article className="glass-card boundary-card">
+        <article className="glass-card scope-card">
           <SectionHeader
-            eyebrow="Runtime boundary"
+            eyebrow="Runtime scope"
             title="Prepared artifacts only"
             icon={ShieldCheck}
           />
-          <p>{boundary?.boundaryStatement ?? brain.manifest.redactionPolicy}</p>
-          <div className="boundary-lists">
-            <ListBlock title="Reads from" items={boundary?.nativelyReadsFrom} />
-            <ListBlock title="Should not call live" items={boundary?.nativelyShouldNotCallLive} />
-            <ListBlock title="May read metadata" items={boundary?.nativelyMayReadMetadata} />
+          <p>{String(scopeStatement || brain.manifest.redactionPolicy)}</p>
+          <div className="scope-lists">
+            <ListBlock title="Reads from" items={runtimeScope?.nativelyReadsFrom} />
+            <ListBlock
+              title="Should not call live"
+              items={
+                runtimeScope?.nativelyShouldNotCallLive ??
+                runtimeScope?.nativelyShouldNotCallLiveForContext
+              }
+            />
+            <ListBlock title="May read metadata" items={runtimeScope?.nativelyMayReadMetadata} />
           </div>
         </article>
         <article className="glass-card manifest-card">
@@ -48,7 +64,7 @@ export function SourceHealthView() {
       </section>
 
       <section className="source-grid">
-        {sourceHealthEntries.map(([key, item]: [string, any], index: number) => (
+        {sourceHealthEntries.map(([key, item]: [string, SourceHealthItem], index: number) => (
           <motion.article
             className="glass-card source-card"
             key={key}

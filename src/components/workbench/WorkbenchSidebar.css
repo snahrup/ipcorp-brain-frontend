@@ -1,0 +1,239 @@
+.wb-sidebar .wb-brand {
+  width: 100%;
+  min-height: 0;
+  display: grid;
+  gap: 18px;
+  padding: 4px 6px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.wb-sidebar .wb-brand-corporate-logo {
+  width: min(100%, 226px);
+  height: auto;
+  display: block;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.wb-sidebar .wb-brand-context {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.wb-sidebar .wb-brand-context > img {
+  width: 36px;
+  height: 36px;
+  display: block;
+  object-fit: contain;
+}
+
+.wb-sidebar .wb-brand-context > span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wb-sidebar .wb-brand-context small {
+  color: var(--text-soft);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.wb-sidebar .wb-brand-context strong {
+  overflow: hidden;
+  color: var(--navy-2);
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wb-sidebar .wb-brand-context em {
+  color: var(--text-soft);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.wb-brand-compact-crop {
+  width: 48px;
+  height: 48px;
+  display: block;
+  overflow: hidden;
+}
+
+.wb-sidebar .wb-brand-compact-crop img {
+  width: 108px;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  transform: translate(-4px, -1px);
+}
+
+.wb-nav-native-icon {
+  width: 22px;
+  height: 22px;
+  display: block;
+  flex: 0 0 22px;
+  object-fit: contain;
+}
+
+.wb-sidebar .wb-sidebar-footer {
+  min-height: 0;
+  display: grid;
+  gap: 24px;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--line);
+}
+
+.wb-team-safe-card {
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 10px 14px;
+  color: var(--navy-2);
+  background: #ffffff;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+}
+
+.wb-team-safe-card > svg {
+  color: var(--action-blue);
+}
+
+.wb-sidebar .wb-team-safe-card p {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 3px;
+  color: var(--navy-2);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.wb-sidebar .wb-team-safe-card small {
+  color: var(--text-soft);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.wb-powered-by {
+  display: grid;
+  grid-template-columns: auto 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.wb-sidebar .wb-powered-by small {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wb-sidebar .wb-powered-by img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.wb-sidebar .wb-powered-by strong {
+  color: var(--navy-2);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.wb-sidebar.is-collapsed .wb-brand {
+  justify-items: center;
+  padding: 2px 0 14px;
+}
+
+.wb-sidebar.is-collapsed .wb-sidebar-footer {
+  width: 100%;
+  justify-items: center;
+}
+
+.wb-sidebar.is-collapsed .wb-team-safe-card {
+  min-height: 48px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.wb-sidebar.is-collapsed .wb-team-safe-card > svg {
+  display: none;
+}
+
+@media (max-width: 1199px) {
+  .wb-sidebar .wb-brand {
+    justify-items: center;
+    padding: 2px 0 14px;
+  }
+
+  .wb-sidebar .wb-brand-corporate-logo,
+  .wb-sidebar .wb-brand-context,
+  .wb-sidebar .wb-powered-by,
+  .wb-sidebar .wb-team-safe-card > svg {
+    display: none;
+  }
+
+  .wb-sidebar .wb-brand-compact-crop {
+    display: block;
+  }
+
+  .wb-sidebar .wb-team-safe-card {
+    min-height: 48px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+  }
+}
+
+@media (min-width: 1200px) {
+  .wb-sidebar.is-expanded .wb-brand-compact-crop {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .wb-sidebar .wb-brand {
+    width: 46px;
+    min-width: 46px;
+    padding: 0 8px 0 0;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+  }
+
+  .wb-brand-compact-crop {
+    width: 42px;
+    height: 42px;
+  }
+
+  .wb-sidebar .wb-brand-compact-crop img {
+    width: 94px;
+  }
+}
+
+@media (forced-colors: active) {
+  .wb-team-safe-card,
+  .wb-nav-item {
+    border-color: CanvasText;
+  }
+}

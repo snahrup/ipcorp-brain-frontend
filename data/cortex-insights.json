@@ -934,5 +934,469 @@
       "domains",
       "post-onsite-synthesis"
     ]
+  },
+  {
+    "id": "insight-2026-05-28-meeting-visual-brief-contract",
+    "type": "product_readiness",
+    "title": "Meeting visual briefs need a packet contract",
+    "summary": "The strongest new product hook is not just a prettier stakeholder frontend; it is a per-meeting visual brief artifact generated from the same processed meeting context and shown as the meeting or packet hero. Natively already has skipped meeting-infographic status records, so the next useful step is to define the sanitized artifact contract before changing app code.",
+    "createdAt": "2026-05-28T02:27:25.8701231Z",
+    "confidence": 0.72,
+    "reasoning": {
+      "trigger": "Automation memory captured Steve's sharper product direction after the prior Natively refresh: per-meeting visual synthesis/hero artifacts should become a first-class feature, but the current frontend does not yet automate that pipeline.",
+      "observations": [
+        "The automation memory note at 2026-05-28T02:06:39.7944289Z says the strongest product hook is per-meeting visual synthesis/hero artifacts from processed meeting context.",
+        "The existing shared-knowledge-base packet already carries the broader Unabyss-style motion/source-chip direction from DISC-2026-05-27-005.",
+        "natively/meeting-infographics already contains status records, but the latest reviewed statuses are skipped because the source meetings are not calendar-backed.",
+        "The Natively runtime boundary says heavy ingestion and analysis stay in the brain repo; live meetings should consume prepared read models rather than gather context from Teams, Outlook email, Notion, Cluely, Semantica, or source databases."
+      ],
+      "connections": [
+        "This links the stakeholder access request to a concrete visual artifact: each packet can expose a concise, sanitized hero visual rather than asking users to read raw transcript or repo material first.",
+        "It also links the meeting-infographics lane to the prep-packet lane: visual generation should consume packet/summary evidence and return a bounded metadata/image artifact, not become a live source-gathering path.",
+        "The proposal fits the existing redaction boundary because the artifact can be generated from curated packet fields and evidenceRefs instead of raw captures.",
+        "It improves next-meeting readiness by giving Natively a visible, compact state object for the meeting before Steve is in the live conversation."
+      ],
+      "chain": [
+        "Patrick asked for a link to the knowledge-base layer, creating pressure for a stakeholder-facing surface.",
+        "The prior design insight captured the overall presentation direction, but not the specific per-meeting artifact contract.",
+        "The existing meeting-infographics statuses prove the concept has a lane, while their skipped state shows the lane is not yet a reliable packet-level read model.",
+        "Therefore the next low-risk move is to define the visualBrief artifact shape and approval/redaction boundary, not to change Natively app code from this automation."
+      ],
+      "alternativesConsidered": [
+        "Treat this as already covered by the frontend motion insight; rejected because the new hook is specifically a per-meeting artifact contract, not just visual styling.",
+        "Generate actual images now; rejected because this automation should not invent visual assets or modify app/runtime behavior without explicit instruction.",
+        "Ignore it until the frontend repo changes; rejected because Natively readiness benefits from carrying the contract signal before implementation."
+      ],
+      "confidenceFactors": [
+        "High confidence that the product direction exists because it is in automation memory and consistent with DISC-2026-05-27-005.",
+        "Moderate confidence on exact implementation because no finalized schema or app change request exists yet.",
+        "High confidence that the artifact must be generated from prepared brain evidence because the runtime boundary explicitly keeps live source gathering out of Natively.",
+        "Confidence is moderated because the evidence is a product-preference carry-forward note rather than a meeting transcript decision."
+      ]
+    },
+    "recommendedAction": "Define a visualBrief object for prep packets and meeting pages before implementing UI: include artifact status, sanitized source fields, sourceRefs, generated image/metadata path if available, redaction notes, and fallback behavior when no safe visual exists.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-28-define-meeting-visual-brief-contract.json"
+    ],
+    "tags": [
+      "natively-readiness",
+      "visual-brief",
+      "meeting-hero",
+      "stakeholder-frontend",
+      "packet-contract",
+      "redaction"
+    ],
+    "updatedAt": "2026-05-28T02:27:25.8701231Z"
+  },
+  {
+    "id": "insight-2026-05-28-stakeholder-read-model-boundary-adr",
+    "type": "architecture_decision",
+    "title": "Stakeholder access now needs a formal read-model boundary",
+    "summary": "The May 27 Patrick touchpoint, the repo's internal-only rules, and the Natively runtime contract now converge on one decision: Patrick/Eudias should see a curated read-only surface, not the raw architecture-brain repo. ADR-0007 captures that boundary as proposed architecture.",
+    "createdAt": "2026-05-28T10:32:07.078Z",
+    "updatedAt": "2026-05-28T10:32:07.078Z",
+    "confidence": 0.88,
+    "reasoning": {
+      "trigger": "Daily meeting intelligence sweep reviewed new post-high-water Natively material and found that the stakeholder-link request had become durable architecture/readiness work.",
+      "observations": [
+        "The May 27 Natively capture records Steve describing a searchable IP Corp layer over transcripts, decisions, source discussion, report/model analyses, measures, dimensions, overlap, and workspace context.",
+        "The same capture records a request to send a link so Patrick can start looking ahead.",
+        "AGENTS.md marks this repo as internal-only and explicitly notes sensitive SQL credentials plus scope guardrails.",
+        "Natively/status.json keeps the runtime boundary: Natively reads prepared files and should not gather live Teams, Notion, Cluely, Semantica, Outlook email/search, or source database context for live meetings."
+      ],
+      "connections": [
+        "This turns stakeholder access into a security/governance decision rather than a UI preference.",
+        "It connects to the visualBrief proposal because visual artifacts must be generated from sanitized packet fields and evidenceRefs.",
+        "It connects to the slim-brain doctrine: downstream surfaces should consume distilled read models, not raw source folders.",
+        "It connects to Power BI model consolidation because model-overlap context is valuable to stakeholders but still needs a safe publication contract."
+      ],
+      "chain": [
+        "Patrick's link request creates pressure to expose the knowledge-base layer.",
+        "The raw repo contains material that should not be exposed directly.",
+        "Natively already has compact read-model lanes: status, meeting-index, prep-packets, insights, and action proposals.",
+        "Therefore the safe architecture decision is to make a curated, redacted, read-only surface the only stakeholder-facing path.",
+        "ADR-0007 records that as proposed so Steve can accept, revise, or defer it explicitly."
+      ],
+      "alternativesConsidered": [
+        "Share the raw repo; rejected because it violates the internal-only and sensitive-data boundary.",
+        "Use SharePoint as a dump of everything; rejected because it loses packet/source status and the capture itself questioned SharePoint as the working home.",
+        "Let Natively gather live source context for stakeholders; rejected because the runtime boundary keeps heavy analysis in the brain repo."
+      ],
+      "confidenceFactors": [
+        "High confidence in the link request and stakeholder access pressure because it is present in the May 27 capture and already carried by a prep packet.",
+        "High confidence in the raw-repo exposure risk because it is stated in AGENTS.md and visible in repo contents.",
+        "Moderated because the exact publishing mechanism is still open and should remain DQ-049 until Steve decides."
+      ]
+    },
+    "recommendedAction": "Review proposed ADR-0007 and decide the first stakeholder-facing access mechanism before sending Patrick or Eudias any link.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-27-prepare-sanitized-brain-access-path.json",
+      "../../action-proposals/2026-05-28-define-meeting-visual-brief-contract.json"
+    ],
+    "sourceRefs": [
+      "../../prep-packets/shared-knowledge-base-review.packet.json",
+      "../../../meetings/summaries/2026-05-27-fabric-stand-up-recovery-planning.md",
+      "../../../project-memory/decisions/ADR-0007-stakeholder-brain-access-read-model.md",
+      "../../../project-memory/open-questions.md#DQ-049",
+      "../../../project-memory/risk-register.md#R-023"
+    ],
+    "tags": [
+      "stakeholder-access",
+      "read-model",
+      "redaction",
+      "natively-readiness",
+      "adr-0007",
+      "power-bi-models"
+    ]
+  },
+  {
+    "id": "insight-2026-05-29-stale-governance-email-request",
+    "type": "action_readiness",
+    "title": "Old governance email request needs confirmation",
+    "summary": "A newly exported Natively backfill surfaced an April 13 request from Steve to draft an email to Robin, Patrick, and Mike with the IP Corp Data Governance PDF attached. The request is concrete but stale and outbound-stakeholder-facing, so the useful action is a confirmation follow-up before any draft is created.",
+    "createdAt": "2026-05-29T15:06:16.7007635Z",
+    "confidence": 0.74,
+    "reasoning": {
+      "trigger": "The Natively export layer wrote 2026-04-13-email-draft-data-governance-presentation-5c58d3cf at 2026-05-29T14:29:31.596Z, after the prior brain-refresh high-water.",
+      "observations": [
+        "The exported capture contains two repeated Steve turns asking for an email draft to Robin, Patrick, and Mike Spencer with C:/Users/snahrup/CascadeProjects/ELT_Slide_Deck/presentation/IP_Corp_Data_Governance.pdf attached.",
+        "The Natively generated report explicitly says the capture needs deeper meeting-intelligence extraction if it contains action items worth promoting.",
+        "The local search in this run found no matching action proposal or Natively outcome for this exact April 13 email-draft request.",
+        "The request is not an architecture decision and does not change project-memory facts, but it is a source-backed action signal."
+      ],
+      "connections": [
+        "The action class is outbound-stakeholder-facing, so it inherits the repo rule that agents draft and Steve sends.",
+        "The request predates the May 18 ELT presentation and later Data Governance/MDM work, so the content may be stale even though the capture is high confidence.",
+        "Outcome learning from the existing ledgers favors compact, source-backed, approval-gated proposals and discourages executing vague or stale actions.",
+        "This is the same pattern as the Fabric calendar failure: do not execute an action when the current target state is missing."
+      ],
+      "chain": [
+        "A post-high-water export surfaced a previously unreviewed direct Steve request.",
+        "The request is concrete enough to preserve as an action signal.",
+        "The request is six weeks old and concerns external stakeholders, so direct execution would be unsafe.",
+        "Therefore Natively should show a proposed follow-up asking Steve whether to revive or close the request."
+      ],
+      "alternativesConsidered": [
+        "Promote the capture to a canonical meeting summary; rejected because it is a brief command capture, not a substantive IP Corp meeting with decisions, risks, or stakeholder discussion.",
+        "Create an email draft immediately; rejected because the request is stale and would target real stakeholders.",
+        "Ignore the capture as old noise; rejected because it is high-confidence, repeated, and contains a concrete action Steve asked for."
+      ],
+      "confidenceFactors": [
+        "High confidence in the source transcript because the reconstructed turn is short, duplicated, and speaker-resolved to Steve.",
+        "Moderate confidence that the action is still relevant because no local completion evidence was found, but the request is old and may have been handled elsewhere.",
+        "High confidence that approval is required because the proposal touches outbound stakeholder communication.",
+        "Confidence is moderated because this run did not query live Outlook or Teams by design."
+      ]
+    },
+    "recommendedAction": "Ask Steve to confirm whether the April 13 Data Governance PDF email draft is still wanted; only prepare a draft in a separate approved workflow if he says yes.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-05-29-confirm-stale-data-governance-email-request.json"
+    ],
+    "tags": [
+      "natively-readiness",
+      "action-proposal",
+      "data-governance",
+      "stakeholder-email",
+      "stale-action",
+      "approval-gated"
+    ],
+    "source_node_ids": [
+      "meeting-2026-04-13-email-draft-data-governance-presentation",
+      "proposal-2026-05-29-confirm-stale-data-governance-email-request"
+    ],
+    "explicit_relationships": [
+      {
+        "from": "insight-2026-05-29-stale-governance-email-request",
+        "to": "meeting-2026-04-13-email-draft-data-governance-presentation",
+        "type": "derived_from"
+      },
+      {
+        "from": "proposal-2026-05-29-confirm-stale-data-governance-email-request",
+        "to": "insight-2026-05-29-stale-governance-email-request",
+        "type": "triggered_by"
+      }
+    ],
+    "updatedAt": "2026-05-29T15:06:16.7007635Z"
+  },
+  {
+    "id": "insight-2026-05-31-dhs-capture-indexed-only",
+    "type": "source_classification",
+    "title": "DHS background capture stays indexed-only",
+    "summary": "The May 31 Natively auto-export captured a short DHS funding reconciliation/background broadcast segment plus Steve testing whether Natively could hear him and see the screen. It has no IP Corp architecture decisions, commitments, stakeholders, or calendar match, so it should remain indexed-only and should not feed prep packets or canonical project memory.",
+    "createdAt": "2026-05-31T17:13:28.080Z",
+    "confidence": 0.88,
+    "reasoning": {
+      "trigger": "Natively wrote the May 31 DHS Funding Reconciliation Package capture after the previous Natively brain-refresh report.",
+      "observations": [
+        "The transcript is about DHS funding, Senator Thune, the White House, and border/ICE funding, not IP Corp systems, Fabric, MDM, Power BI, or stakeholders.",
+        "The only Steve-authored turn is the repeated test question: are you able to hear me and see my screen?",
+        "Natively answered that it could read live transcript/context but did not have direct audio or screen vision unless explicitly fed by the app.",
+        "The export has no calendar match and its generated action items are false positives from the political background transcript.",
+        "The generated meeting infographic completed successfully, but the source context is not a useful IP Corp readiness artifact."
+      ],
+      "connections": [
+        "This follows the existing Citrine Office Hours filtering pattern: low-relevance or off-topic Natively captures stay indexed-only unless they affect a concrete IP Corp packet.",
+        "The screen/audio exchange is useful as Natively capability evidence, but it supports runtime QA notes rather than project-memory promotion.",
+        "Keeping this out of canonical summaries preserves the brain rule that raw captures need meeting-intelligence review before promotion."
+      ],
+      "chain": [
+        "A new auto-export appeared after the previous Natively brain-refresh report.",
+        "The transcript does not mention IP Corp, Fabric, MDM, Power BI, Patrick, Eudias, or any current engagement decision surface.",
+        "The only actionable signal is a Natively capability check, not an IP Corp meeting commitment.",
+        "Therefore the capture should be indexed for traceability but excluded from prep packets, canonical summaries, discoveries, risks, ADRs, and action proposals."
+      ],
+      "alternativesConsidered": [
+        "Promote the capture as a meeting summary; rejected because it is a 54-second background/broadcast capture with no IP Corp substance.",
+        "Create a Natively QA action proposal for screen/audio feed verification; rejected because this automation should not create app-code work from a single short self-test without a concrete IP Corp meeting blocker.",
+        "Ignore the capture completely; rejected because Natively read models need an explicit classification so future runs do not re-process it as unexplained source delta."
+      ],
+      "confidenceFactors": [
+        "High confidence that the content is non-IP because the transcript topic and named entities are unrelated to the engagement.",
+        "High confidence that no stakeholder action is safe because the capture has no calendar match, attendees, or IP Corp commitment.",
+        "Moderate confidence on the screen/audio capability implication because the answer came from Natively itself, but the capture does not prove app configuration outside this moment.",
+        "Confidence would decrease if a later Steve note says this was a deliberate Natively QA session that should feed a product task."
+      ]
+    },
+    "recommendedAction": "Keep the May 31 DHS capture indexed-only. Do not create a prep packet, canonical meeting summary, project-memory update, or action proposal unless Steve later identifies it as a deliberate Natively QA artifact that needs product follow-up.",
+    "actionProposalRefs": [],
+    "tags": [
+      "natively-readiness",
+      "source-classification",
+      "indexed-only",
+      "non-ipcorp",
+      "live-capture",
+      "runtime-boundary"
+    ],
+    "source_node_ids": [
+      "meeting-2026-05-31-dhs-funding-reconciliation-package",
+      "live-capture-2026-05-31-natively-live"
+    ],
+    "explicit_relationships": [
+      {
+        "from": "insight-2026-05-31-dhs-capture-indexed-only",
+        "to": "meeting-2026-05-31-dhs-funding-reconciliation-package",
+        "type": "derived_from"
+      },
+      {
+        "from": "insight-2026-05-31-dhs-capture-indexed-only",
+        "to": "live-capture-2026-05-31-natively-live",
+        "type": "references"
+      }
+    ],
+    "updatedAt": "2026-05-31T17:13:28.080Z"
+  },
+  {
+    "id": "insight-2026-06-02-meeting-infographic-report-quality-gap",
+    "type": "readiness_quality",
+    "title": "Generated infographic reports need a quality gate",
+    "summary": "Three new Natively meeting-infographic artifacts were generated after the prior refresh. One Pryor OT/Azure run failed during suggested-report retrieval, while two completed suggestion files returned generic or off-topic report templates instead of IP Corp meeting-specific follow-up ideas. These artifacts should stay out of live readiness context until the report-suggestion lane has a meeting-specific quality gate.",
+    "createdAt": "2026-06-02T18:51:58.739Z",
+    "confidence": 0.9,
+    "reasoning": {
+      "trigger": "Natively meeting-infographic files changed after the 2026-06-02T17:45:07.023Z automation high-water.",
+      "observations": [
+        "The 2026-05-13 ELT Scenario Presentation Prep infographic status completed at 2026-06-02T17:49:51.324Z, but report-suggestions.json contains broad templates such as strategic implementation plans, white papers, primers, and thematic syntheses rather than IP Corp-specific next actions.",
+        "The 2026-04-15 Pryor Azure OT Architecture Alignment infographic status failed at 2026-06-02T17:50:34.754Z with an RPC GET_SUGGESTED_REPORTS failure and no report-suggestions.json present.",
+        "The 2026-04-14 Chaotic Morning Casual Check-in infographic status completed at 2026-06-02T17:52:52.971Z, but report-suggestions.json contains geology-oriented templates about tectonics, minerals, and rock types that do not match the IP Corp engagement.",
+        "None of the new infographic artifacts arrived with a new transcript, canonical summary, outcome ledger event, or project-memory fact that would justify canonical promotion."
+      ],
+      "connections": [
+        "This reinforces the executed visualBrief contract proposal: generated visuals and reports need sanitized, packet-level source fields, evidenceRefs, and fallback behavior before they can become stakeholder-facing or live-context surfaces.",
+        "It connects to the Natively runtime boundary: the brain can review generated artifacts during maintenance, but Natively should consume prepared, verified readiness outputs rather than raw generated suggestions.",
+        "It connects to prior outcome learning that low-confidence or off-topic Natively captures stay indexed-only unless corroborated by IP Corp evidence.",
+        "It also protects the stakeholder-access gate because generic generated reports could make a curated read model look polished while quietly losing source specificity."
+      ],
+      "chain": [
+        "Fresh files appeared only in natively/meeting-infographics, not in Teams, Cluely, Notion, project-memory, outcomes, or live-capture source ledgers.",
+        "The status files prove generation happened after the prior high-water and identify one failed run plus two completed runs.",
+        "The completed report-suggestion payloads do not preserve IP Corp-specific content quality; one is generic and one is clearly off-topic.",
+        "Because generated suggestions are not durable meeting evidence, no meeting summary, discovery, ADR, or prep packet should be promoted from these artifacts.",
+        "A bounded task proposal is still useful because the failure/off-topic pattern can degrade Natively's live readiness surface if the app later treats generated report suggestions as trustworthy."
+      ],
+      "alternativesConsidered": [
+        "Promote the ELT and chaotic check-in suggestions into new prep packets; rejected because the suggestions are generic or off-topic and not supported by meeting-specific evidence.",
+        "Ignore the failed Pryor run because the canonical Pryor summary already exists; rejected because failed generated artifacts are a readiness health signal for the visual brief lane.",
+        "Modify Natively app code directly to block these suggestions; rejected because this automation must not edit Natively app code.",
+        "Create no action proposal; rejected because the visualBrief proposal was executed and this new evidence is a concrete quality-gate input for that task."
+      ],
+      "confidenceFactors": [
+        "Increases: all three status files include precise generatedAt/updatedAt timestamps after the automation high-water.",
+        "Increases: the Pryor status includes an explicit failure message and no report-suggestions file exists.",
+        "Increases: the completed suggestion payloads are directly inspectable and visibly lack IP Corp-specific meeting actionability.",
+        "Increases: no new canonical source export or outcome ledger event accompanied these artifacts.",
+        "Decreases: the infographic PNGs themselves were not evaluated for visual quality, only the status and report-suggestion readiness contract."
+      ]
+    },
+    "recommendedAction": "Route a bounded task to add a quality gate for generated meeting-infographic report suggestions: require meeting-specific source grounding, block generic/off-topic templates, preserve failed-run status in readiness health, and keep generated report suggestions out of live packets until they pass.",
+    "actionProposalRefs": [
+      "natively/action-proposals/2026-06-02-audit-meeting-infographic-report-quality-gate.json"
+    ],
+    "source_node_ids": [
+      "meeting-infographic-2026-05-13-elt-scenario-presentation-prep-de627cc5",
+      "meeting-infographic-2026-04-15-pryor-azure-ot-architecture-alignment-d558f168",
+      "meeting-infographic-2026-04-14-chaotic-morning-casual-check-in-8c8cc1ba",
+      "proposal-2026-05-28-define-meeting-visual-brief-contract"
+    ],
+    "explicit_relationships": [
+      {
+        "from": "insight-2026-06-02-meeting-infographic-report-quality-gap",
+        "to": "proposal-2026-05-28-define-meeting-visual-brief-contract",
+        "type": "builds_on"
+      },
+      {
+        "from": "insight-2026-06-02-meeting-infographic-report-quality-gap",
+        "to": "meeting-infographic-2026-04-15-pryor-azure-ot-architecture-alignment-d558f168",
+        "type": "triggered_by"
+      },
+      {
+        "from": "insight-2026-06-02-meeting-infographic-report-quality-gap",
+        "to": "natively-runtime-boundary",
+        "type": "enforces"
+      }
+    ],
+    "evidenceRefs": [
+      "natively/meeting-infographics/2026-05-13-elt-scenario-presentation-prep-de627cc5/status.json",
+      "natively/meeting-infographics/2026-05-13-elt-scenario-presentation-prep-de627cc5/report-suggestions.json",
+      "natively/meeting-infographics/2026-04-15-pryor-azure-ot-architecture-alignment-d558f168/status.json",
+      "natively/meeting-infographics/2026-04-14-chaotic-morning-casual-check-in-8c8cc1ba/status.json",
+      "natively/meeting-infographics/2026-04-14-chaotic-morning-casual-check-in-8c8cc1ba/report-suggestions.json",
+      "natively/action-proposals/2026-05-28-define-meeting-visual-brief-contract.json"
+    ],
+    "tags": [
+      "natively",
+      "meeting-infographics",
+      "visual-brief",
+      "quality-gate",
+      "generated-artifact",
+      "runtime-boundary",
+      "approval-gated"
+    ],
+    "updatedAt": "2026-06-02T18:51:58.739Z"
+  },
+  {
+    "id": "insight-2026-06-02-status-reminder-context-overmatch",
+    "type": "meeting_readiness",
+    "title": "Status reminder capsule over-matched Fabric prep context",
+    "summary": "A new Natively context capsule for a five-minute weekly status reminder pulled several Fabric/governance prep packets into live context even though the invite notes only describe the weekly project status deck process. The brain should publish a reminder-specific packet and keep the deeper Fabric material as background until the invite or a live capture proves those topics are actually in scope.",
+    "createdAt": "2026-06-02T13:51:47.181Z",
+    "confidence": 0.84,
+    "reasoning": {
+      "trigger": "Two new local context-capsule files appeared after the prior Natively brain-refresh high-water for an event titled Reminder: Weekly Status Update.",
+      "observations": [
+        "The capsule starts at 2026-06-02T10:00 local time and ends five minutes later, which fits a reminder slot rather than a substantive working meeting.",
+        "The invite notes only say to remember the project status deck due by 1pm CST every Thursday and to copy the Word status-report template into email.",
+        "The capsule says no open commitments surfaced and that there is no close prior meeting match.",
+        "Despite that, the capsule pulled Weekly Fabric, Data Classification Policy, ELT Data Steward, and Patrick 1:1 prep packets into its Fast Context and Relevant Memory sections."
+      ],
+      "connections": [
+        "This connects to the Natively runtime-boundary rule: the desktop app should read prepared brain surfaces, while the brain pipeline owns classification and packet promotion.",
+        "It connects to the outcome-learning pattern for bounded autonomy: ambiguous or stale context should become a proposed audit task, not an automatic action or broad live recommendation.",
+        "It connects to the stakeholder-access gate because a weekly status deck may need concise DQ-049/ADR-0007 language, but the reminder itself does not authorize a new stakeholder-facing action.",
+        "It connects to the earlier context-capsule packet-promotion insight: useful capsules should become compact packets, but pre-meeting capsule metadata should not be treated as canonical business evidence."
+      ],
+      "chain": [
+        "The capsule is local Natively evidence, so it belongs in the readiness review rather than being ignored.",
+        "The invite text is reminder/process-specific and does not support canonical meeting facts, decisions, risks, or stakeholder notes.",
+        "The packet hits are plausible background for Steve's status work, but the generic word status caused over-broad context selection.",
+        "A reminder-specific packet corrects live context without changing project memory.",
+        "Because the behavior can repeat for other reminder-only events, a proposed engineering audit is useful and should remain approval-gated."
+      ],
+      "alternativesConsidered": [
+        "Promote the capsule into a canonical meeting summary; rejected because there is no transcript, outcome, or speaker evidence.",
+        "Ignore the capsule because it is only a reminder; rejected because Natively may show it live in minutes and the readiness layer should prevent over-broad context.",
+        "Treat the Fabric packet hits as an agenda; rejected because the invite notes do not mention Fabric, governance, MDM, Purview, or Data Classification.",
+        "Modify Natively app code directly; rejected because this automation only maintains the brain/readiness contract unless Steve explicitly asks for app-code changes."
+      ],
+      "confidenceFactors": [
+        "Increases: the capsule has explicit title, start/end, attendees, generatedAt, invite notes, and source paths.",
+        "Increases: the five-minute duration and reminder wording strongly indicate a process reminder rather than a decision meeting.",
+        "Increases: the mismatch between invite text and memory hits is visible in both the Markdown and JSON capsule outputs.",
+        "Decreases: a live discussion could still pivot into Fabric/MDM status because several senior stakeholders are on the invite.",
+        "Decreases: there is no post-event capture yet, so this is a readiness hypothesis rather than meeting outcome evidence."
+      ]
+    },
+    "recommendedAction": "Use natively/prep-packets/weekly-status-update-reminder-2026-06-02.packet.json as the live context for this event, keep Fabric/MDM packets as background only, and review the context-capsule classifier/retrieval path for reminder-only events.",
+    "actionProposalRefs": [
+      "natively/action-proposals/2026-06-02-audit-context-capsule-reminder-overmatch.json"
+    ],
+    "tags": [
+      "natively-context-capsule",
+      "meeting-readiness",
+      "status-reminder",
+      "retrieval-overmatch",
+      "runtime-boundary",
+      "approval-gated"
+    ],
+    "updatedAt": "2026-06-02T13:51:47.181Z"
+  },
+  {
+    "id": "insight-2026-06-08-purview-advisory-scope-split",
+    "type": "governance_scope_alignment",
+    "title": "Purview advisory split the work into catalog governance and DLP enforcement",
+    "summary": "The June 3 CDW/Purview session clarified that Steve's immediate data-team need is MDM classification, cataloging, lineage, and Fabric metadata governance, while CDW initially framed Purview around information protection, sensitivity labels, and DLP. The useful next move is a scoped follow-up that separates the catalog/MDM track, the DLP/enforcement track, and the license/admin boundary between them.",
+    "createdAt": "2026-06-08T16:54:37.241Z",
+    "confidence": 0.82,
+    "reasoning": {
+      "trigger": "The Natively export for the 2026-06-03 Interplastic Purview Advisory Working Session had remained indexed-only with an open deep-extraction follow-up.",
+      "observations": [
+        "CDW framed the session as core Purview information protection, sensitivity labeling, and DLP. Source: natively/meeting-captures/2026-06-03/2026-06-03-interplastic-purview-advisory-working-session-part-1-the-and-but-not-6a66b9db-p1.md#09:02:37.",
+        "Steve/data-team interest was stated as master data management and categorizing, with DLP helping downstream. Source: same capture #09:03:27.",
+        "Licensing was unresolved; the room needed E5 versus E3 plus Purview add-on numbers. Source: same capture #09:04:29-09:07:36.",
+        "Steve later separated runtime enforcement through Fabric/Power BI RLS from Purview metadata around sensitivity, scope, steward, and lineage. Source: natively/meeting-captures/2026-06-03/2026-06-03-interplastic-purview-advisory-working-session-part-3-the-and-fabric-purview-6a66b9db-p3.md#10:32:51.",
+        "Existing ADR-0004 already says governance boundaries need an enforcement stack and license verification. Source: project-memory/decisions/ADR-0004-enforcement-stack-for-governance-boundaries.md."
+      ],
+      "connections": [
+        "This builds on the May 20 enforcement-stack license gate insight but narrows it: the risk is not just licenses, but whether CDW, data, and security mean the same Purview track.",
+        "The admin-boundary question connects to financial isolation doctrine because Fabric/Power BI runtime controls and workspace boundaries cannot be blurred with broad Microsoft 365 compliance administration.",
+        "The fragmented department-level classification signal gives the steward/domain workstream a concrete Purview entry point: catalog known classifications before designing every DLP rule."
+      ],
+      "chain": [
+        "If Purview is discussed only as Microsoft 365 DLP, the MDM/catalog benefits Steve needs for Fabric will be under-scoped.",
+        "If Purview is discussed only as Fabric metadata, Michael/security may miss DLP, Activity Explorer, and admin-boundary impacts.",
+        "Therefore the next advisory follow-up should explicitly split scope, ownership, licensing, and first scan/classification targets."
+      ],
+      "alternativesConsidered": [
+        "Promote this as a contradiction against project-memory/purview-implementation-strategy.md; rejected because the session clarifies scope and ownership rather than negating the canonical strategy.",
+        "Create a broad Purview overview packet; rejected because existing packets already cover strategy and the new value is the narrower scope/admin/license split.",
+        "Create no action because the May 20 license proposal was already executed; rejected because the June 3 evidence adds a separate admin-boundary and advisory-agenda issue."
+      ],
+      "confidenceFactors": [
+        "High: direct timestamped source lines support the scope split and license uncertainty.",
+        "High: the insight builds on existing ADR-0004 rather than inventing new doctrine.",
+        "Moderated: Natively labels are reconstructed and several speaker identities remain unresolved, so canonical project-memory docs were not modified."
+      ]
+    },
+    "recommendedAction": "Before the next CDW/Purview advisory session, confirm the license position, name the Fabric-admin versus Purview-compliance admin boundary, and send CDW the Fabric/Purview unified-catalog link Steve referenced.",
+    "actionProposalRefs": [
+      "../../action-proposals/2026-06-08-confirm-purview-advisory-scope-and-admin-boundary.json"
+    ],
+    "source_node_ids": [
+      "meeting-2026-06-03-interplastic-purview-advisory-working-session",
+      "ADR-0004-enforcement-stack-for-governance-boundaries",
+      "insight-2026-05-20-enforcement-stack-license-gate"
+    ],
+    "explicit_relationships": [
+      {
+        "type": "derived_from",
+        "source": "natively/meeting-captures/2026-06-03/2026-06-03-interplastic-purview-advisory-working-session-part-1-the-and-but-not-6a66b9db-p1.md",
+        "target": "insight-2026-06-08-purview-advisory-scope-split"
+      },
+      {
+        "type": "derived_from",
+        "source": "natively/meeting-captures/2026-06-03/2026-06-03-interplastic-purview-advisory-working-session-part-3-the-and-fabric-purview-6a66b9db-p3.md",
+        "target": "insight-2026-06-08-purview-advisory-scope-split"
+      },
+      {
+        "type": "builds_on",
+        "source": "insight-2026-05-20-enforcement-stack-license-gate",
+        "target": "insight-2026-06-08-purview-advisory-scope-split"
+      },
+      {
+        "type": "informs",
+        "source": "insight-2026-06-08-purview-advisory-scope-split",
+        "target": "natively/prep-packets/purview-advisory-follow-up.packet.json"
+      }
+    ],
+    "tags": ["purview", "mdm", "fabric", "dlp", "licensing", "governance", "natively"]
   }
 ]

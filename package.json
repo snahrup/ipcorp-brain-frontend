@@ -2,13 +2,17 @@
   "name": "ipcorp-brain-frontend",
   "private": true,
   "version": "0.1.0",
-  "description": "Stakeholder-safe Context OS frontend for the IP Corp Architecture Brain — readiness, prep packets, Cortex insights, gated actions, risks, ADRs, and source health.",
+  "description": "Stakeholder-safe Context OS frontend for the IP Corp Architecture Brain, with readiness, prep packets, insights, reviewed actions, risks, decisions, and source health.",
   "type": "module",
   "engines": {
     "node": ">=20.0.0"
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
+    "dev:jira": "node server/jira-gateway.mjs",
+    "dev:workbench": "powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/start-workbench.ps1",
+    "mdm:inventory": "node server/mdm-reconciliation/build-evidence-ledger.mjs",
+    "test:mdm-policy": "node --test server/mdm-reconciliation/policy.test.mjs",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 5217",
     "sync:data": "node scripts/sync-data.mjs",
@@ -23,9 +27,10 @@
     "prepare": "simple-git-hooks || echo 'Git hooks setup skipped (optional)'"
   },
   "simple-git-hooks": {
-    "pre-commit": "npm run lint:fix && git add -u"
+    "pre-commit": "npx biome check --write --staged && git add -u"
   },
   "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.1.77",
     "@liquid-dom/core": "^0.1.1",
     "@liquid-dom/react": "^0.1.1",
     "@types/three": "^0.184.1",
@@ -35,7 +40,9 @@
     "framer-motion": "^12.23.24",
     "graphology": "^0.26.0",
     "graphology-communities-louvain": "^2.0.2",
+    "jsonrepair": "^3.15.0",
     "lucide-react": "^0.468.0",
+    "mermaid": "^11.16.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "three": "^0.184.0",

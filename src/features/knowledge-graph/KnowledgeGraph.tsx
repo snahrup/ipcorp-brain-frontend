@@ -104,7 +104,7 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
     const graph = (ForceGraph as any)()(el)
       .width(el.clientWidth)
       .height(el.clientHeight)
-      .backgroundColor("#0a0a0b")
+      .backgroundColor("#0E2338")
       .graphData(initial)
       .nodeId("id")
       .nodeLabel(() => "")
@@ -293,7 +293,7 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search the brain…"
+          placeholder="Search knowledge…"
           style={{
             background: "transparent",
             border: "none",
@@ -312,9 +312,9 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
             fontSize: 10,
             padding: "4px 10px",
             borderRadius: 999,
-            background: strongOnly ? "#22c55e" : "transparent",
-            color: strongOnly ? "#0a0a0b" : "#22c55e",
-            border: "1px solid #22c55e",
+            background: strongOnly ? "#1A82C5" : "transparent",
+            color: strongOnly ? "#FFFFFF" : "#77C7FF",
+            border: "1px solid #1A82C5",
             cursor: "pointer",
             fontWeight: strongOnly ? 600 : 500,
             whiteSpace: "nowrap",
@@ -379,8 +379,8 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
           Grouped by <span style={{ color: "#fafafa", fontWeight: 600 }}>topic</span> — related
           meetings, decisions & systems cluster together.{" "}
           <span style={{ color: "#fafafa", fontWeight: 600 }}>Bigger</span> = more connected.{" "}
-          <span style={{ color: "#22c55e" }}>Hover</span> to trace links,{" "}
-          <span style={{ color: "#22c55e" }}>click</span> to open.
+          <span style={{ color: "#77C7FF" }}>Hover</span> to trace links,{" "}
+          <span style={{ color: "#77C7FF" }}>click</span> to open.
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {TOPICS.map((topic) => {
@@ -449,7 +449,7 @@ export function KnowledgeGraph({ onNodeClick }: KnowledgeGraphProps) {
           minHeight: "620px",
           borderRadius: "20px",
           overflow: "hidden",
-          background: "#0a0a0b",
+          background: "#0E2338",
         }}
       />
 

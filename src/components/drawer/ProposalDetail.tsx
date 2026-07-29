@@ -24,7 +24,7 @@ export function ProposalDetail({ proposal }: ProposalDetailProps) {
       <InfoBlock title="Suggested action" body={proposal.proposal?.suggestedAction} />
       <InfoBlock title="Suggested wording" body={proposal.proposal?.suggestedWording} />
       <InfoBlock title="Why now" body={proposal.proposal?.whyNow} />
-      <InfoBlock title="Approval boundary" body={proposal.approval?.reason} />
+      <InfoBlock title="Approval reason" body={proposal.approval?.reason} />
       <InfoBlock title="Risk notes" body={proposal.risk?.notes} />
       <ListBlock title="Evidence refs" items={proposal.evidenceRefs} humanize />
     </div>

@@ -52,14 +52,14 @@ const CATEGORY_LABEL: Record<string, string> = {
   reference: "Reference material",
 };
 const CATEGORY_COLOR: Record<string, string> = {
-  insight: "#22c55e",
-  decision: "#fdcf5a",
+  insight: "#1B5E9E",
+  decision: "#446084",
   meeting: "#77c7ff",
-  system: "#9f8cff",
-  entity: "#9f8cff",
-  risk: "#ff8a5b",
-  open_question: "#c084fc",
-  reference: "#5fa8d3",
+  system: "#2A4A6B",
+  entity: "#334862",
+  risk: "#C8102E",
+  open_question: "#8A9099",
+  reference: "#9FB0C2",
 };
 const catLabel = (layer?: string) => (layer && CATEGORY_LABEL[layer]) || "Concept";
 const catColor = (layer?: string) => (layer && CATEGORY_COLOR[layer]) || "#9aa3b2";
@@ -427,7 +427,7 @@ export function BrainExplorer() {
           <button type="button" className="pipeline-close" onClick={() => setShowPipeline(false)}>
             ×
           </button>
-          <div style={{ fontWeight: 700, marginBottom: 8, color: "var(--amber)" }}>
+          <div style={{ fontWeight: 700, marginBottom: 8, color: "var(--action-blue)" }}>
             Pipeline Observatory
           </div>
           <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 14, lineHeight: 1.35 }}>
@@ -446,7 +446,7 @@ export function BrainExplorer() {
                     padding: 10,
                     borderRadius: 10,
                     background: "var(--accent-dim)",
-                    border: "1px solid rgba(34, 197, 94, 0.35)",
+                    border: "1px solid rgba(26, 130, 197, 0.35)",
                     fontSize: 11,
                   }}
                 >
@@ -560,7 +560,7 @@ export function BrainExplorer() {
                     width: 22,
                     height: 22,
                     borderRadius: "50%",
-                    background: stage.implemented ? "var(--amber)" : "transparent",
+                    background: stage.implemented ? "var(--action-blue)" : "transparent",
                     border: stage.implemented ? "none" : "1px dashed var(--muted)",
                     color: stage.implemented ? "#080a0c" : "var(--muted)",
                     fontSize: 11,

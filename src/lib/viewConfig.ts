@@ -19,6 +19,44 @@ export const viewCopy: Record<
   ViewKey,
   { label: string; eyebrow: string; title: string; summary: string; action: string }
 > = {
+  today: {
+    label: "Today",
+    eyebrow: "Team workbench",
+    title: "Start with what needs attention.",
+    summary: "Prepared work, open decisions, waiting items, and recent progress in one place.",
+    action: "Review first up",
+  },
+  work: {
+    label: "Work",
+    eyebrow: "Team knowledge work",
+    title: "Keep the next move visible.",
+    summary:
+      "Use the Jira workspace deliberately. Availability and authentication come only from an observed gateway response.",
+    action: "Review prepared work",
+  },
+  library: {
+    label: "Team Library",
+    eyebrow: "Trusted shared context",
+    title: "Find the context behind the work.",
+    summary:
+      "Prepared meeting notes, decisions, questions, risks, and the connection map stay together.",
+    action: "Open a collection",
+  },
+  "data-work": {
+    label: "Data work",
+    eyebrow: "Optional specialist tools",
+    title: "Open data tools only when the work needs them.",
+    summary:
+      "Review grounded Fabric and Altimate capabilities without adding weight to the daily Workbench.",
+    action: "Choose a data tool",
+  },
+  connections: {
+    label: "Connections",
+    eyebrow: "Source and access status",
+    title: "Know what is stale, local-only, or not checked.",
+    summary: "Each source separates prepared metadata from an observed connection state.",
+    action: "Review source status",
+  },
   readiness: {
     label: "Start Here",
     eyebrow: "Readiness command center",

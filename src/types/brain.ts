@@ -1,4 +1,4 @@
-// Canonical domain types for the IP Corp Architecture Brain (sanitized read model)
+// Canonical domain types for the IP Corporation Workbench (sanitized read model)
 // Keep this file in sync with DATA_CONTRACT.md and the private brain's natively/ layer.
 
 export type SourceHealthItem = {
@@ -31,12 +31,16 @@ export type Status = {
     summary: string;
     sourceRefs: string[];
   }>;
+  // The Brain owns this block and its keys have changed over time, so every member is
+  // optional and unknown keys are allowed. A shape change in the Brain must not break
+  // the build or silently block a data refresh.
   runtimeBoundary?: {
-    nativelyReadsFrom: string[];
-    nativelyShouldNotCallLive: string[];
-    nativelyMayReadMetadata: string[];
-    boundaryStatement: string;
-  };
+    nativelyReadsFrom?: string[];
+    nativelyShouldNotCallLive?: string[];
+    nativelyShouldNotCallLiveForContext?: string[];
+    nativelyMayReadMetadata?: string[];
+    boundaryStatement?: string;
+  } & Record<string, unknown>;
 };
 
 export type MeetingEntry = {
@@ -44,6 +48,11 @@ export type MeetingEntry = {
   title: string;
   startsAt?: string | null;
   date?: string;
+  /** YYYY-MM-DD, present on records built from the Brain meeting summaries. */
+  day?: string;
+  duration?: string;
+  attendees?: string;
+  summary?: string;
   readinessStatus: string;
   packet?: string;
   source?: string;
@@ -56,12 +65,18 @@ export type MeetingIndex = {
   updatedAt: string;
   readinessSummary: {
     status: string;
-    nextBestPacket: string;
-    note: string;
-  };
+    nextBestPacket?: string;
+    note?: string;
+    meetingCount?: number;
+    newestMeeting?: string;
+    oldestMeeting?: string;
+    droppedStalePrepared?: number;
+  } & Record<string, unknown>;
   upcoming: MeetingEntry[];
   active: MeetingEntry[];
   recent: MeetingEntry[];
+  /** Full dated history built from the Brain meeting summaries. */
+  meetings?: MeetingEntry[];
   missingOrStalePackets?: Array<{
     id: string;
     severity: string;
@@ -180,6 +195,12 @@ export type BrainSeed = {
     classification: string;
     counts: Record<string, number>;
     redactionPolicy: string;
+    /** Newest real content date per source lane, used to judge freshness honestly. */
+    sourceHighWater?: {
+      brainStatusUpdatedAt?: string;
+      meetingIndexUpdatedAt?: string;
+      latestNativelyRun?: string;
+    };
   };
   status: Status;
   meetingIndex: MeetingIndex;

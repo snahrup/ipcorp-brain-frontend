@@ -7,6 +7,7 @@ export default defineConfig({
     port: 5217,
     strictPort: true,
     host: "127.0.0.1",
+    allowedHosts: ["ip-corp-brain.nahrup.ngrok.app"],
   },
   preview: {
     port: 5217,

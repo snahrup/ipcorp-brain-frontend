@@ -134,7 +134,9 @@
       "Mike's source policy PDF and Steve's review v1/v2 PDFs are archived under deliverables/policy-drafts/2026.",
       "Patrick ran the draft through independent review notes and wants Steve's input folded into a joint response.",
       "Steve's v2 review is the latest working basis for the response.",
-      "No contradiction was found: the policy draft is weaker than canonical brain doctrine, but does not supersede it."
+      "No contradiction was found: the policy draft is weaker than canonical brain doctrine, but does not supersede it.",
+      "A May 31 Natively outcome executed a confirmation follow-up for an older April 13 request to draft a stakeholder email with the IP Corp Data Governance PDF attached. The proposal is closed as executed, but the generated task remains open and any actual email draft still needs a separate explicit approval.",
+      "Daily sweep update (2026-06-02T10:34:32.996Z): no new policy-response source or outcome landed. The old April 13 Data Governance PDF email request remains a confirmation task only; do not draft or send anything without Steve confirming it is still relevant."
     ],
     "relatedWork": [
       "Purview classification model and governance strategy",
@@ -146,12 +148,14 @@
       "Who owns the policy long-term?",
       "Who approves policy exceptions?",
       "Should Purview labels map directly to the policy's five sensitivity levels, or does IP Corp need an intermediate classification layer?",
-      "What is the default rule for unlabeled Fabric, Power BI, and report assets?"
+      "What is the default rule for unlabeled Fabric, Power BI, and report assets?",
+      "Should the stale April 13 Data Governance PDF stakeholder email request be revived, or marked stale because the ELT/Data Governance work has moved on?"
     ],
     "openCommitments": [
       "Steve: send compiled policy review notes to Patrick for joint-response prep. Source: meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md.",
       "Steve: define Purview real-time monitoring rules and alert thresholds for classification violations. Source: meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md.",
-      "Steve: confirm policy ownership and exception authority with Mike. Source: meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md."
+      "Steve: confirm policy ownership and exception authority with Mike. Source: meetings/summaries/2026-05-11-nahrup-1-on-1-and-data-classification-policy-review.md.",
+      "Steve: answer the confirmation task for the April 13 Data Governance PDF stakeholder email before any draft is prepared. Source: natively/tasks/task-proposal-2026-05-29-confirm-stale-data-governance-email-request.json."
     ],
     "talkingPoints": [
       "Separate the document into policy, rollout communication, and classification taxonomy so each can be enforced cleanly.",
@@ -172,7 +176,13 @@
       "deliverables/policy-drafts/2026/2026-05-mike-spencer-ipcorp-data-classification-policy-v1.1-draft.pdf",
       "deliverables/policy-drafts/2026/2026-05-11-steve-nahrup-review-of-ipcorp-data-classification-policy-v2.pdf",
       "project-memory/purview-implementation-strategy.md",
-      "architecture/security/data-segregation-requirements.md"
+      "architecture/security/data-segregation-requirements.md",
+      "natively/outcomes/2026-05-31-natively-outcomes.jsonl#2026-05-31T13:52:58.716Z",
+      "natively/action-proposals/2026-05-29-confirm-stale-data-governance-email-request.json",
+      "natively/tasks/task-proposal-2026-05-29-confirm-stale-data-governance-email-request.json",
+      "meetings/summaries/_RUN_REPORT_2026-06-01-daily-meeting-intelligence-sweep.md",
+      "meetings/summaries/_RUN_REPORT_2026-06-02-daily-meeting-intelligence-sweep.md",
+      "natively/latest-run.md"
     ],
     "relatedPriorMeetings": [
       "2026-05-11 Nahrup 1-on-1 and Data Classification Policy Review",
@@ -182,9 +192,12 @@
     "decisionsPending": [
       "Confirm policy owner and exception approver.",
       "Confirm whether Purview labels map directly to the five policy sensitivity levels or require an intermediate IP Corp taxonomy.",
-      "Decide the default handling rule for unlabeled Fabric, Power BI, and report assets."
+      "Decide the default handling rule for unlabeled Fabric, Power BI, and report assets.",
+      "Decide whether the April 13 Data Governance PDF stakeholder email request should be revived or closed as stale."
     ],
-    "liveContextMarkdown": "## Data Classification Policy Response\n\nLead with: the draft has the right strategic intent, but it currently tries to be policy, transition notice, and taxonomy at once. Split those concerns and add enforceable controls.\n\nMust-cover gaps: Data Steward role, NAC/Interplastic financial isolation, owner and exception approver, Purview label mapping, unlabeled-data default, and alert/monitoring rules.\n\nBest posture: help Mike turn a directionally correct draft into something operational."
+    "liveContextMarkdown": "## Data Classification Policy Response\n\nLead with: the draft has the right strategic intent, but it currently tries to be policy, transition notice, and taxonomy at once. Split those concerns and add enforceable controls.\n\nMust-cover gaps: Data Steward role, NAC/Interplastic financial isolation, owner and exception approver, Purview label mapping, unlabeled-data default, and alert/monitoring rules.\n\nBest posture: help Mike turn a directionally correct draft into something operational.\n\nJune 2 readiness note: no new policy-response source or outcome landed. The old April 13 Data Governance PDF email request remains a confirmation task only. Do not draft or send anything until Steve confirms whether that request is still relevant.",
+    "updatedAt": "2026-06-02T10:34:32.996Z",
+    "recommendedPosture": "Constructive but firm. Treat Mike's draft as useful direction that needs operational control language before it can govern Fabric/Purview assets."
   },
   {
     "id": "elt-data-stewards-readiness",
@@ -667,7 +680,9 @@
       "R-014 through R-018 now capture plant-floor risks promoted from the May 19 tour: backup generator runtime, paper batch charge sheets, thumb-drive submittals, tank-farm commingling, and NIR trust gaps.",
       "R-020 and R-021 now capture the two remaining source-of-record risks from the tour: pilot/R&D batches outside MES/M3 governance and lab notebooks as unmanaged process-knowledge stores.",
       "A canonical plant-floor evidence map now lives at project-memory/source-systems/plant-floor-evidence.md, with a companion Mermaid lineage diagram at diagrams/mermaid/plant-floor-source-of-record.mmd.",
-      "The plant tour follow-up should connect operational source-of-record issues to the broader source-truth and Gold-domain readiness decisions."
+      "The plant tour follow-up should connect operational source-of-record issues to the broader source-truth and Gold-domain readiness decisions.",
+      "As of the May 29 daily sweep, no post-meeting capture, Teams export, Natively auto-export, or canonical summary has landed for the May 27 follow-up; keep this packet as background evidence until an outcome source appears.",
+      "Daily sweep update (2026-06-02T10:34:32.996Z): no post-meeting Teams export, Natively auto-export, live-capture snippet, outcome, or canonical summary has landed for the May 27 follow-up. Keep ADR-0006 proposed and treat this packet as background only."
     ],
     "relatedWork": [
       "MES scope expansion candidate",
@@ -683,7 +698,8 @@
       "Where does the tank-farm PLC transfer log land, and can it reconstruct commingled-tank composition over time?",
       "Which plant-floor records are legal/system-of-record evidence versus convenience copies for analysis?",
       "Which plant-floor risks should become source-system onboarding requirements before they feed Fabric Gold?",
-      "Should ADR-0006 be accepted as the prerequisite pattern before any Traceability Gold model is certified?"
+      "Should ADR-0006 be accepted as the prerequisite pattern before any Traceability Gold model is certified?",
+      "Did the May 27 plant-tour follow-up happen, and where is the authoritative post-meeting evidence? No Teams export, Natively auto-export, live-capture snippet, or canonical summary was present by the June 2 daily sweep."
     ],
     "openCommitments": [
       "Patrick/Zach: coordinate Wednesday 2026-05-27 follow-up tour attendance. Source: meetings/summaries/2026-05-19-plant-tour.md.",
@@ -727,17 +743,25 @@
       "project-memory/decisions/ADR-0006-plant-floor-evidence-stream-contract.md",
       "diagrams/mermaid/plant-floor-source-of-record.mmd",
       "natively/cortex/insights/2026-05-27-plant-floor-evidence-stream-contract.json",
-      "meetings/summaries/_RUN_REPORT_2026-05-21-daily-meeting-intelligence-sweep.md"
+      "meetings/summaries/_RUN_REPORT_2026-05-21-daily-meeting-intelligence-sweep.md",
+      "natively/meeting-index.json#missingOrStalePackets.plant-tour-follow-up-2026-05-27",
+      "meetings/summaries/_RUN_REPORT_2026-05-29-daily-meeting-intelligence-sweep.md",
+      "meetings/summaries/_RUN_REPORT_2026-06-01-daily-meeting-intelligence-sweep.md",
+      "meetings/summaries/_RUN_REPORT_2026-06-02-daily-meeting-intelligence-sweep.md",
+      "natively/latest-run.md"
     ],
-    "liveContextMarkdown": "## Plant Tour Follow-up\n\nPrimary point: the first tour showed that the legal and R&D records are often outside MES. This follow-up should map where those records actually live and what would have to change to make them governed.\n\nNew canonical asset: project-memory/source-systems/plant-floor-evidence.md breaks the evidence streams into paper charge sheets, pilot reactor, QC readings, tank transfer logs, CIPP submittals, lab notebooks, Optiva formula transit, Salesforce LSRs, retains/rework, and NIR readings. Diagram: diagrams/mermaid/plant-floor-source-of-record.mmd.\n\nNew proposed ADR: ADR-0006 says Traceability Gold should not certify a combined plant-floor view until each evidence stream has owner, storage, authority, digital coverage, lineage key, and open-decision fields.\n\nAsk about pilot reactor, paper charge sheets, thumb drives, lab notebooks, and tank transfer logs. Do not imply MES already contains the full truth.\n\nCarry R-014 through R-018 plus R-020/R-021 into the May 27 follow-up. The posture is source-of-record validation first, automation second.",
+    "liveContextMarkdown": "## Plant Tour Follow-up\n\nPrimary point: the first tour showed that the legal and R&D records are often outside MES. This follow-up should map where those records actually live and what would have to change to make them governed.\n\nCanonical asset: project-memory/source-systems/plant-floor-evidence.md breaks the evidence streams into paper charge sheets, pilot reactor, QC readings, tank transfer logs, CIPP submittals, lab notebooks, Optiva formula transit, Salesforce LSRs, retains/rework, and NIR readings. Diagram: diagrams/mermaid/plant-floor-source-of-record.mmd.\n\nAsk about pilot reactor, paper charge sheets, thumb drives, lab notebooks, and tank transfer logs. Do not imply MES already contains the full truth.\n\nCurrent readiness (2026-06-02T10:34:32.996Z): the dated May 27 packet is past, but no post-meeting capture, Teams export, Natively auto-export, live-capture snippet, outcome, or canonical summary has landed. Keep it as background until an outcome source appears; do not accept ADR-0006 solely from pre-meeting prep.",
     "relatedPriorMeetings": [
       "2026-05-20 Power BI Source Mapping",
       "2026-05-20 Intercompany Item Mapping"
     ],
     "decisionsPending": [
       "Decide whether ADR-0006 should be accepted as the prerequisite evidence-stream pattern before Traceability Gold is certified.",
-      "Decide which plant-floor source-of-record gaps need separate follow-up ADRs after the May 27 follow-up."
-    ]
+      "Decide which plant-floor source-of-record gaps need separate follow-up ADRs after the May 27 follow-up.",
+      "Keep ADR-0006 proposed until post-follow-up evidence confirms whether the plant-floor evidence-stream contract should be accepted, revised, or deferred."
+    ],
+    "updatedAt": "2026-06-02T10:34:32.996Z",
+    "recommendedPosture": "Curious and respectful. The operators already know where the real records are. Use the tour to learn the workflow before proposing system moves."
   },
   {
     "id": "power-bi-model-consolidation-review",
@@ -803,6 +827,92 @@
     ]
   },
   {
+    "id": "purview-advisory-follow-up",
+    "title": "Purview Advisory Follow-up: Scope, Licensing, Admin Boundary",
+    "startsAt": null,
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller",
+      "Michael Kenney",
+      "Eudias Kifem",
+      "Dominique Mathers",
+      "Nick Atkins",
+      "Taylor Perez",
+      "Zach Stafiej"
+    ],
+    "summary": "Prepare Steve for the next CDW/Purview advisory working session after the June 3 meeting clarified a scope split between Purview as Fabric/MDM catalog governance and Purview as Microsoft 365 information protection/DLP.",
+    "whyItMatters": "The next session can either sharpen the governance implementation path or drift into a generic DLP walkthrough. Steve needs the room to separate classification/catalog/lineage, runtime enforcement, DLP simulation, licensing, and admin boundaries.",
+    "currentState": [
+      "The June 3 advisory session was the second working session in the CDW engagement and was captured by Natively, then promoted into a compact canonical summary on this refresh.",
+      "CDW initially framed the session around information protection, sensitivity labeling, and DLP; Steve/data-team interest is initially MDM classification, categorization, lineage, and Fabric metadata governance.",
+      "Licensing remains unresolved: IP Corp needs exact E5 versus E3 plus Purview add-on numbers before license-dependent controls are treated as implementable.",
+      "Fabric/Power BI runtime enforcement and Purview metadata/catalog governance should stay related but separate: RLS/workspace controls enforce, Purview catalogs and standardizes sensitivity/scope/steward/lineage metadata.",
+      "DLP discovery/simulation policies can still write to Activity Explorer, so notification and admin-alert paths need explicit handling even if end-user notifications are disabled.",
+      "Action proposal proposal-2026-06-08-confirm-purview-advisory-scope-and-admin-boundary is proposed and approval-gated; no stakeholder message was sent by this automation.",
+      "Natively brain refresh update (2026-06-11T14:33:10.110Z): Local source/export scan after scheduler marker 2026-06-11T13:20:55.647Z and effective cutoff 2026-06-11T13:37:38.658Z found no new source evidence. Prior generated readiness writes were treated as previous generated state. No canonical promotions, proposals, stakeholder sends, external connector calls, or Natively app-code edits occurred. Root AGENTS.md, README.md, CODEBASE.md, and INGESTION_PLAYBOOK.md remain absent at repo root; prompt AGENTS plus docs/ fallback were used. Natively remains a live touchpoint over prepared brain outputs only."
+    ],
+    "relatedWork": [
+      "ADR-0004 enforcement stack for governance boundaries",
+      "Purview implementation strategy",
+      "Fabric Gold model access and RLS boundary",
+      "Data classification policy response",
+      "ELT steward and domain readiness"
+    ],
+    "openQuestions": [
+      "What exact license mix does IP Corp have for E5, E3, Purview add-on, and compliance/DLP features?",
+      "Who owns Fabric administration versus Purview compliance administration?",
+      "Can the data team manage Fabric classification metadata without Exchange/SharePoint DLP authority?",
+      "Should Fabric/RLS categories map one-to-one to Purview labels/categories, or stay related but separately governed?",
+      "Were prior DLP policies hidden by admin units, user-specific access, or license state?"
+    ],
+    "openCommitments": [
+      "CDW/Speaker 2: send updated availability and get the next session scheduled. Source: natively/meeting-captures/2026-06-03/2026-06-03-interplastic-purview-advisory-working-session-part-1-the-and-but-not-6a66b9db-p1.md#09:02:26.",
+      "IP Corp: gather license numbers for E5 vs E3 plus Purview add-on. Source: same capture #09:04:29-09:07:36.",
+      "Steve: send the Microsoft Fabric/Purview unified catalog/DLP link referenced in the session. Source: natively/meeting-captures/2026-06-03/2026-06-03-interplastic-purview-advisory-working-session-part-3-the-and-fabric-purview-6a66b9db-p3.md#10:51:44-10:53:21."
+    ],
+    "talkingPoints": [
+      "Frame this as a scope alignment issue, not a correction: DLP matters, but the data-team track needs catalog, classification, lineage, and Fabric metadata clarity first.",
+      "Ask CDW to explicitly separate what can be done now with built-in classifiers and discovery simulation from what depends on license upgrades or admin authority.",
+      "Keep RLS/workspace enforcement language precise: Purview is the metadata and governance plane; Fabric/Power BI/workspace controls remain the runtime enforcement plane.",
+      "Use fragmented department-level classification attempts as the practical starting point for stewardship and glossary work."
+    ],
+    "risks": [
+      "High: scope confusion between DLP and MDM/catalog governance can cause the advisory engagement to optimize the wrong track.",
+      "Medium: license assumptions can make planned controls impossible or procurement-bound.",
+      "Medium: admin-boundary ambiguity can over-grant compliance authority or block data-team metadata work.",
+      "Low/medium: DLP simulations can still trigger admin-facing logs or downstream alerting."
+    ],
+    "suggestedPosture": "Precise and separating. Acknowledge that DLP is valid, then steer the next session to scope, license state, admin boundary, scan/classification targets, and how Purview metadata connects to Fabric governance without becoming the runtime enforcement mechanism.",
+    "evidenceRefs": [
+      "meetings/summaries/2026-06-03-interplastic-purview-advisory-working-session.md",
+      "natively/meeting-captures/2026-06-03/2026-06-03-interplastic-purview-advisory-working-session-part-1-the-and-but-not-6a66b9db-p1.md#09:02:37",
+      "natively/meeting-captures/2026-06-03/2026-06-03-interplastic-purview-advisory-working-session-part-1-the-and-but-not-6a66b9db-p1.md#09:03:27",
+      "natively/meeting-captures/2026-06-03/2026-06-03-interplastic-purview-advisory-working-session-part-1-the-and-but-not-6a66b9db-p1.md#09:04:29-09:07:36",
+      "natively/meeting-captures/2026-06-03/2026-06-03-interplastic-purview-advisory-working-session-part-3-the-and-fabric-purview-6a66b9db-p3.md#10:32:51",
+      "natively/cortex/insights/2026-06-08-purview-advisory-scope-split.json",
+      "project-memory/decisions/ADR-0004-enforcement-stack-for-governance-boundaries.md",
+      "meetings/summaries/_RUN_REPORT_2026-06-10-natively-brain-refresh.md"
+    ],
+    "liveContextMarkdown": "## Purview Advisory Follow-up\r\n\r\nUse the next CDW/Purview session to separate four things: catalog/MDM governance, DLP/information protection, license availability, and admin authority. The June 3 session showed that CDW was initially thinking information protection and DLP, while Steve's immediate data-team need is classification, categorization, lineage, glossary, and Fabric metadata governance.\r\n\r\nPosture: precise and separating. DLP is valid, but do not let the meeting become a generic DLP walkthrough. Ask for the E5/E3+Purview license position, define who owns Fabric metadata versus Purview compliance administration, and connect Purview metadata to Fabric/Power BI runtime controls without pretending Purview itself enforces financial isolation.\r\n\r\nOpen commitments: CDW sends updated availability; IP Corp gathers license numbers; Steve sends the Microsoft Fabric/Purview link he referenced. No live Teams/Outlook/Notion/Cluely/Semantica/source-system calls should be used by Natively for this context.\n\nNatively brain refresh update (2026-06-11T14:33:10.110Z): Local source/export scan after scheduler marker 2026-06-11T13:20:55.647Z and effective cutoff 2026-06-11T13:37:38.658Z found no new source evidence. Prior generated readiness writes were treated as previous generated state. No canonical promotions, proposals, stakeholder sends, external connector calls, or Natively app-code edits occurred. Root AGENTS.md, README.md, CODEBASE.md, and INGESTION_PLAYBOOK.md remain absent at repo root; prompt AGENTS plus docs/ fallback were used. Natively remains a live touchpoint over prepared brain outputs only.\n\nCurrent refresh note (2026-06-11T14:33:10.110Z): no new targeted source evidence changed after effective source cutoff 2026-06-11T13:37:38.658Z; this packet remains current and was not source-promoted by this run.",
+    "relatedPriorMeetings": [
+      "2026-05-20 Fabric Weekly Stand-Up",
+      "2026-05-20 Power BI Source Mapping",
+      "2026-06-03 Interplastic Purview Advisory Working Session"
+    ],
+    "decisionsPending": [
+      "Confirm license state for Purview/DLP controls.",
+      "Decide the admin boundary between Fabric/data-team metadata work and Microsoft 365 compliance administration.",
+      "Decide whether Fabric runtime categories/RLS map one-to-one to Purview labels or remain separately governed."
+    ],
+    "stakeholderDynamics": [
+      "Steve needs CDW to support the Fabric/MDM governance path, not only Microsoft 365 protection.",
+      "Michael/security ownership needs a clear DLP/admin view before simulations or enforcement work expands.",
+      "Patrick likely needs the short version because June 3 was his return day after OOO."
+    ],
+    "recommendedPosture": "Precise and separating. Keep the meeting focused on scope, license state, admin boundaries, and first classification targets.",
+    "updatedAt": "2026-06-11T14:33:10.110Z"
+  },
+  {
     "id": "shared-knowledge-base-review",
     "title": "Shared IP Corp Knowledge Base Review",
     "startsAt": null,
@@ -815,7 +925,14 @@
       "Patrick asked Steve to send a link so he can start looking ahead.",
       "The repo itself is not safe to expose directly because AGENTS.md marks it internal-only and contains read-only SQL credentials, raw Natively captures, and private/off-topic transcript material.",
       "The safe path is a curated or read-only published view over the Natively contract and selected project-memory/deliverable outputs, not full filesystem access to the brain.",
-      "A new project-memory discovery records Steve's visual direction for the stakeholder-facing brain frontend: modern Unabyss-inspired dark layered surfaces, crisp source/status chips, and motion that gathers scattered context into an intelligence layer."
+      "A sanitized frontend candidate now exists at C:\\Users\\snahrup\\CascadeProjects\\ipcorp-brain-frontend, with a README stating that raw transcripts, credentials, internal agent rules, live captures, and workflow receipts are excluded.",
+      "That candidate is not link-ready yet: its data export manifest is a stakeholder-safe draft generated from brain high-water 2026-05-28T00:29:37.287Z, while this brain has later ADR/readiness/action-proposal changes through the June 2 daily sweep.",
+      "A new project-memory discovery records Steve's visual direction for the stakeholder-facing brain frontend: modern Unabyss-inspired dark layered surfaces, crisp source/status chips, and motion that gathers scattered context into an intelligence layer.",
+      "Automation memory now separates the visual direction from a concrete packet-layer hook: each meeting or prep packet should be able to expose a sanitized visual brief/hero artifact generated from processed meeting context, not raw captures.",
+      "Proposed ADR-0007 now formalizes the stakeholder access boundary: Patrick/Eudias should receive a curated, redacted, read-only surface rather than raw architecture-brain repo access.",
+      "DQ-049 tracks the exact stakeholder-facing access mechanism, and R-023 tracks the risk of exposing credentials, raw/private captures, and internal agent operating rules.",
+      "The visualBrief packet contract proposal has now been executed into an open local task (`natively/tasks/task-proposal-2026-05-28-define-meeting-visual-brief-contract.json`); it is not a completed schema or app change, so keep visuals contract/schema-first and do not generate them from this sweep.",
+      "Daily sweep update (2026-06-02T10:34:32.996Z): no new source evidence resolved DQ-049 or ADR-0007. The sanitized frontend candidate remains a May 28 draft until refreshed and redaction-reviewed; do not send Patrick/Eudias any knowledge-base link yet."
     ],
     "relatedWork": [
       "Natively readiness contract",
@@ -823,7 +940,8 @@
       "Fabric post-onsite synthesis",
       "Stakeholder briefing layer",
       "Brain portability and redaction model",
-      "Stakeholder-facing brain frontend design direction"
+      "Stakeholder-facing brain frontend design direction",
+      "Per-meeting visual brief artifact contract"
     ],
     "openQuestions": [
       "What exact surface should Patrick and Eudias see: Natively read model, packaged HTML/static site, Obsidian-style vault, SharePoint-published briefings, or a controlled repo/server view?",
@@ -831,7 +949,10 @@
       "What redaction pass is required before exposing anything outside Steve's local working environment?",
       "Should Eudias get the same scope as Patrick, or a narrower technical/Fabric-focused slice?",
       "Who owns ongoing access control and refresh if this becomes an IP Corp-visible artifact?",
-      "How much motion belongs in the stakeholder-facing layer before it distracts from source-backed evidence review?"
+      "How much motion belongs in the stakeholder-facing layer before it distracts from source-backed evidence review?",
+      "Should every packet carry a visualBrief object now, even if the artifact status is none/skipped, so the frontend has stable fallback behavior? The task is open; implementation is still pending.",
+      "DQ-049: what exact sanitized stakeholder-facing surface should Patrick and Eudias receive before Steve sends any link?",
+      "Should C:\\Users\\snahrup\\CascadeProjects\\ipcorp-brain-frontend become the first answer to DQ-049 after data refresh/redaction review, or remain a design/reference implementation only?"
     ],
     "openCommitments": [
       "Steve: prepare a safe access path before sending Patrick any link. Source: natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:57:40-12:58:45.",
@@ -843,16 +964,21 @@
       "Raw transcripts and implementation files should stay behind the curtain unless they are deliberately promoted.",
       "The first review should focus on whether Patrick/Eudias can find what is missing or misframed, not on debating the tool itself.",
       "Keep access-control and redaction as part of the first delivery, not a cleanup after sharing.",
-      "The front-end should make source-backed context feel gathered and inspectable: dark refined surfaces, layered depth, crisp source/status chips, and motion as orientation rather than decoration."
+      "The front-end should make source-backed context feel gathered and inspectable: dark refined surfaces, layered depth, crisp source/status chips, and motion as orientation rather than decoration.",
+      "The most useful visual layer is a meeting-specific brief: a small source-backed hero artifact that shows what this meeting is about, why it matters, and which evidence it is built from.",
+      "If showing the frontend, frame it as a sanitized draft surface, not the approved shared link; the data needs a fresh sync and Steve approval first."
     ],
     "risks": [
       "High: exposing the full brain repo would leak internal credentials and private/off-topic capture content.",
       "Medium: giving stakeholders raw transcripts can create noise and trust issues if machine diarization or extractive summaries are wrong.",
       "Medium: SharePoint may be the wrong working surface, but any server-based alternative still needs access controls, refresh ownership, and a clear viewer contract.",
       "Medium: a broad knowledge-base demo can distract from the immediate Fabric/post-onsite decisions unless scoped to the next useful review.",
-      "Low: a visually ambitious surface can distract from evidence quality if motion is decorative instead of tied to source, status, and context transitions."
+      "Low: a visually ambitious surface can distract from evidence quality if motion is decorative instead of tied to source, status, and context transitions.",
+      "Medium: visual briefs can create false polish if they are not tied to evidenceRefs, redaction notes, and an explicit skipped/fallback state; the executed task must remain schema/redaction-first.",
+      "High: R-023 - directly sharing the raw architecture-brain repo would expose credentials, raw/private captures, and internal agent operating rules.",
+      "Medium: sharing the sanitized frontend before refreshing its data would expose Patrick/Eudias to stale May 28 readiness state and omit later ADR/readiness updates."
     ],
-    "suggestedPosture": "Show the capability, not the raw machinery. Treat Patrick's link request as permission to prepare a curated, source-backed stakeholder view, while holding the full repo and raw captures behind Steve-only operational boundaries.",
+    "suggestedPosture": "Show the capability, not the raw machinery. Treat Patrick's link request as permission to prepare a curated, source-backed stakeholder view, while holding the full repo and raw captures behind Steve-only operational boundaries. ADR-0007 is now the proposed access boundary.",
     "evidenceRefs": [
       "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:47:34-12:48:14",
       "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:57:40-12:58:45",
@@ -860,9 +986,26 @@
       "README.md#what-this-project-documentation-is-not",
       "INGESTION_PLAYBOOK.md#22-why-the-brain-stays-slim",
       "natively/status.json#runtimeBoundary",
-      "project-memory/learnings/discoveries.json#DISC-2026-05-27-005"
+      "project-memory/learnings/discoveries.json#DISC-2026-05-27-005",
+      "C:/Users/snahrup/.codex/automations/ip-corp-natively-brain-refresh/memory.md#2026-05-28T02:06:39.7944289Z",
+      "natively/cortex/insights/2026-05-28-meeting-visual-brief-contract.json",
+      "natively/action-proposals/2026-05-28-define-meeting-visual-brief-contract.json",
+      "meetings/summaries/2026-05-27-fabric-stand-up-recovery-planning.md",
+      "project-memory/decisions/ADR-0007-stakeholder-brain-access-read-model.md",
+      "project-memory/open-questions.md#DQ-049",
+      "project-memory/risk-register.md#R-023",
+      "natively/cortex/insights/2026-05-28-stakeholder-read-model-boundary-adr.json",
+      "natively/outcomes/2026-05-28-natively-outcomes.jsonl#2026-05-28T15:14:16.574Z",
+      "natively/tasks/task-proposal-2026-05-28-define-meeting-visual-brief-contract.json",
+      "natively/workflow-runs/run-proposal-2026-05-28-define-meeting-visual-brief-contract-20260528151416.json",
+      "meetings/summaries/_RUN_REPORT_2026-05-29-daily-meeting-intelligence-sweep.md",
+      "C:/Users/snahrup/CascadeProjects/ipcorp-brain-frontend/README.md",
+      "C:/Users/snahrup/CascadeProjects/ipcorp-brain-frontend/data/export-manifest.json",
+      "meetings/summaries/_RUN_REPORT_2026-06-01-daily-meeting-intelligence-sweep.md",
+      "meetings/summaries/_RUN_REPORT_2026-06-02-daily-meeting-intelligence-sweep.md",
+      "natively/latest-run.md"
     ],
-    "liveContextMarkdown": "## Shared IP Corp Knowledge Base Review\n\nPatrick asked Steve to send a link to the IP Corp knowledge-base/readiness layer after Steve described a searchable interface tying together meeting transcripts, decisions, source discussions, report/model analyses, measures, dimensions, overlaps, and workspace context.\n\nLive posture: do not expose the raw brain repo. Prepare a curated stakeholder view over decisions, open questions, source-backed summaries, model overlaps, prep packets, and selected Cortex insights. Keep raw captures, credentials, internal agent rules, and private/off-topic transcript material out of the shared surface.\n\nDesign posture: if this becomes a frontend walkthrough, use the new project-memory direction as presentation guidance - Unabyss-inspired dark layered surfaces, crisp source/status chips, and motion that helps people see scattered context gather into one intelligence layer. Keep the raw repo and raw captures out of the shared surface.",
+    "liveContextMarkdown": "## Shared IP Corp Knowledge Base Review\n\nPatrick asked Steve to send a link to the IP Corp knowledge-base/readiness layer after Steve described a searchable interface tying together meeting transcripts, decisions, source discussions, report/model analyses, measures, dimensions, overlaps, and workspace context.\n\nLive posture: do not expose the raw brain repo. Prepare a curated stakeholder view over decisions, open questions, source-backed summaries, model overlaps, prep packets, and selected Cortex insights. Keep raw captures, credentials, internal agent rules, and private/off-topic transcript material out of the shared surface.\n\nDesign posture: use the Unabyss-inspired direction as presentation guidance - dark layered surfaces, crisp source/status chips, and motion that helps people see scattered context gather into one intelligence layer.\n\nVisualBrief update: Steve executed the visualBrief contract proposal into a local task at 2026-05-28T15:14:16.574Z. Treat it as open contract/schema work only; do not generate visuals or expose visual artifacts until the packet/read-model contract includes sourceRefs, redaction notes, artifact status, and fallback behavior.\n\nDaily sweep update (2026-06-02T10:34:32.996Z): no new source evidence resolved DQ-049 or ADR-0007. A sanitized frontend candidate exists, but it is still a stale May 28 draft. Refresh and redaction-review that surface before any Patrick/Eudias link is sent.",
     "relatedPriorMeetings": [
       "2026-05-20 Power BI Source Mapping",
       "2026-05-20 Fabric Weekly Stand-Up",
@@ -872,9 +1015,19 @@
       "Choose the sanitized access mechanism before sending a link.",
       "Decide whether Patrick and Eudias receive the same scope.",
       "Decide whether this becomes a recurring stakeholder artifact or a one-time walkthrough.",
-      "Decide whether the first stakeholder-facing surface should use the Unabyss-inspired motion language now or save it for the full frontend after the redacted content contract is stable."
+      "Decide whether the first stakeholder-facing surface should use the Unabyss-inspired motion language now or save it for the full frontend after the redacted content contract is stable.",
+      "Decide whether the visualBrief packet contract should be added before the stakeholder-facing frontend review, or held as a follow-up once the redacted access surface is stable.",
+      "Accept, revise, or defer ADR-0007 before sending Patrick or Eudias any knowledge-base link.",
+      "Complete or explicitly defer the open visualBrief packet/read-model contract task before treating visual briefs as part of the stakeholder-facing surface.",
+      "Decide whether the sanitized frontend candidate is the first DQ-049 access surface after data refresh/redaction review."
     ],
-    "updatedAt": "2026-05-28T00:29:37.287Z"
+    "updatedAt": "2026-06-02T10:34:32.996Z",
+    "stakeholderDynamics": [
+      "Patrick is interested enough to ask for a link and can help identify missing or misframed context.",
+      "Eudias is likely most useful on Fabric, Power BI model overlap, measures, dimensions, and semantic-model readiness.",
+      "Steve should expose the curated capability, not raw repo machinery or private capture material."
+    ],
+    "recommendedPosture": "Show the capability, not the raw machinery. Treat Patrick's link request as permission to prepare a curated, source-backed stakeholder view, while holding the full repo and raw captures behind Steve-only operational boundaries. ADR-0007 is now the proposed access boundary."
   },
   {
     "id": "weekly-fabric-margin-standardization",
@@ -957,7 +1110,11 @@
       "The next Fabric discussion should be extended by at least 30 minutes, possibly up to an hour.",
       "Steve identified domain approach and starting the product domain as the biggest takeaways to organize for the next meeting.",
       "The live capture is raw Natively evidence only; it has not been promoted to canonical project-memory or a formal meeting summary.",
-      "The later finalized Natively export confirms the same cadence reset signal and adds a clear product-domain takeaway: Steve said product domain looks promising once the onsite meeting material is organized."
+      "The later finalized Natively export confirms the same cadence reset signal and adds a clear product-domain takeaway: Steve said product domain looks promising once the onsite meeting material is organized.",
+      "The May 28 daily sweep promoted the May 27 Fabric/access capture into a redacted canonical meeting summary; use that summary as the durable evidence layer instead of the raw capture.",
+      "The May 29 daily sweep found no new Teams, Cluely, Notion, live-capture, canonical summary, or project-memory evidence after the prior daily promotion; Weekly Fabric remains the next best packet, still blocked on exact calendar subject/start/end fields.",
+      "Daily sweep update (2026-06-02T10:34:32.996Z): no new Teams, Cluely, Notion, Natively capture, outcome, or canonical meeting evidence changed the packet. The next useful Fabric session is still post-onsite synthesis/cadence recovery, and any calendar mutation still needs exact subject/start/end fields.",
+      "Natively brain refresh update (2026-06-11T14:33:10.110Z): Local source/export scan after scheduler marker 2026-06-11T13:20:55.647Z and effective cutoff 2026-06-11T13:37:38.658Z found no new source evidence. Prior generated readiness writes were treated as previous generated state. No canonical promotions, proposals, stakeholder sends, external connector calls, or Natively app-code edits occurred. Root AGENTS.md, README.md, CODEBASE.md, and INGESTION_PLAYBOOK.md remain absent at repo root; prompt AGENTS plus docs/ fallback were used. Natively remains a live touchpoint over prepared brain outputs only."
     ],
     "relatedWork": [
       "Fabric Weekly Stand-Up cadence",
@@ -971,7 +1128,8 @@
       "Should next week's Fabric discussion stay on Wednesday 2026-06-03, move to Thursday/Friday, or split into a short Patrick/Steve prep plus group discussion?",
       "Which post-onsite transcript themes must be organized before the next Fabric discussion?",
       "Should product domain be the first substantive domain conversation, or should it be paired with a smaller proof-of-value domain?",
-      "What should Robin receive before the rescheduled/extended Fabric discussion so the cancellation does not read as drift?"
+      "What should Robin receive before the rescheduled/extended Fabric discussion so the cancellation does not read as drift?",
+      "What exact calendar event subject/start/end fields are needed before the Fabric cadence reset can be retried? Source: natively/action-proposals/2026-05-27-confirm-weekly-fabric-calendar-reset.json and natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:52.975Z."
     ],
     "openCommitments": [
       "Cancel or confirm cancellation of this week's Fabric stand-up. Source: natively/live-captures/2026-05-27-natively-live.jsonl at 2026-05-27T16:15:01Z and 2026-05-27T16:18:32Z.",
@@ -1000,19 +1158,116 @@
       "natively/prep-packets/plant-tour-follow-up-2026-05-27.packet.json",
       "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:18:32-12:22:53",
       "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:46:13-12:47:24",
-      "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:19:26-12:19:31"
+      "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:19:26-12:19:31",
+      "meetings/summaries/2026-05-27-fabric-stand-up-recovery-planning.md",
+      "meetings/summaries/_RUN_REPORT_2026-05-28-daily-meeting-intelligence-sweep.md",
+      "natively/latest-run.md",
+      "natively/cortex/latest-run.json",
+      "meetings/summaries/_RUN_REPORT_2026-05-29-daily-meeting-intelligence-sweep.md",
+      "meetings/summaries/_RUN_REPORT_2026-06-01-daily-meeting-intelligence-sweep.md",
+      "meetings/summaries/_RUN_REPORT_2026-06-02-daily-meeting-intelligence-sweep.md",
+      "meetings/summaries/_RUN_REPORT_2026-06-03-natively-brain-refresh.md",
+      "meetings/summaries/_RUN_REPORT_2026-06-08-natively-brain-refresh.md",
+      "natively/prep-packets/purview-advisory-follow-up.packet.json",
+      "meetings/summaries/_RUN_REPORT_2026-06-10-natively-brain-refresh.md"
     ],
-    "liveContextMarkdown": "## Weekly Fabric Follow-up: Post-Onsite Synthesis\n\nThe May 27 live capture says this week's Fabric stand-up should be canceled rather than held without enough new material. The next Fabric discussion should be extended at least 30 minutes, and possibly moved to Thursday or Friday, after Steve has time to digest onsite transcripts and organize the domain takeaways.\n\nLive posture: quality over cadence. Use the next meeting for organized synthesis: product/domain approach, source-of-record gaps, steward ownership, and Gold semantic model implications. Confirm calendar cleanup before assuming the group knows the plan.",
+    "liveContextMarkdown": "## Weekly Fabric Follow-up: Post-Onsite Synthesis\r\n\r\nThe May 27 live capture says this week's Fabric stand-up should be canceled rather than held without enough new material. The next Fabric discussion should be extended at least 30 minutes, and possibly moved to Thursday or Friday, after Steve has time to digest onsite transcripts and organize the domain takeaways.\r\n\r\nLive posture: quality over cadence. Use the next meeting for organized synthesis: product/domain approach, source-of-record gaps, steward ownership, and Gold semantic model implications. Confirm calendar cleanup before assuming the group knows the plan.\r\n\r\nDaily sweep update (2026-06-02T10:34:32.996Z): no new Teams, Cluely, Notion, canonical summary, Natively capture, or outcome evidence changed this packet. Keep the posture as quality-over-cadence post-onsite synthesis. Calendar mutation still needs exact current and target subject/start/end fields.\n\nNatively brain refresh update (2026-06-11T14:33:10.110Z): Local source/export scan after scheduler marker 2026-06-11T13:20:55.647Z and effective cutoff 2026-06-11T13:37:38.658Z found no new source evidence. Prior generated readiness writes were treated as previous generated state. No canonical promotions, proposals, stakeholder sends, external connector calls, or Natively app-code edits occurred. Root AGENTS.md, README.md, CODEBASE.md, and INGESTION_PLAYBOOK.md remain absent at repo root; prompt AGENTS plus docs/ fallback were used. Natively remains a live touchpoint over prepared brain outputs only.\n\nCurrent refresh note (2026-06-11T14:33:10.110Z): no new targeted source evidence changed after effective source cutoff 2026-06-11T13:37:38.658Z; this packet remains current and was not source-promoted by this run.",
     "relatedPriorMeetings": [
       "2026-05-20 Fabric Weekly Stand-Up",
       "2026-05-19 Plant Tour",
-      "2026-05-20 Power BI Source Mapping"
+      "2026-05-20 Power BI Source Mapping",
+      "2026-05-27 Fabric Stand-Up Recovery Planning"
     ],
     "decisionsPending": [
       "Confirm whether this week's Fabric stand-up was canceled.",
       "Confirm next week's Fabric discussion date, duration, and agenda.",
-      "Decide whether product domain is the next substantive domain path or should be paired with a smaller proof-of-value domain."
+      "Decide whether product domain is the next substantive domain path or should be paired with a smaller proof-of-value domain.",
+      "Resolve exact current and target calendar fields before any Fabric cadence calendar mutation is retried."
     ],
-    "updatedAt": "2026-05-27T17:17:52.810Z"
+    "updatedAt": "2026-06-11T14:33:10.110Z",
+    "stakeholderDynamics": [
+      "Patrick is prioritizing meeting quality and is comfortable canceling a low-value cadence if the replacement discussion is better prepared.",
+      "Robin should be kept in the loop so the cancellation reads as intentional synthesis time, not drift.",
+      "Steve should lead with organized onsite/domain takeaways, not raw transcript volume."
+    ],
+    "recommendedPosture": "Pragmatic and quality-focused. Do not hold a meeting just to keep cadence. Cancel the low-value instance, use the time to synthesize onsite evidence, and make the next Fabric discussion longer and more useful."
+  },
+  {
+    "id": "weekly-status-update-reminder-2026-06-02",
+    "title": "Reminder: Weekly Status Update",
+    "startsAt": "2026-06-02T10:00:00-04:00",
+    "attendees": [
+      "Dominique Mathers",
+      "Mike Spencer",
+      "Robin Virginia",
+      "Patrick Stiller",
+      "Dawn Kreuz",
+      "Michael Kenney",
+      "Matt Pennaz",
+      "Steve Nahrup",
+      "Connor Jacoby",
+      "Elana Kampfer",
+      "Brenda Lins",
+      "Jeanne Bartow"
+    ],
+    "summary": "Near-term Outlook reminder for the weekly project status deck. The invite notes ask recipients to remember the project status deck due by 1pm CST every Thursday and to use the linked Word template. Treat this as reminder/status-deck context, not as evidence of a new Fabric governance decision meeting.",
+    "whyItMatters": "The local Natively context capsule matched generic status and governance signals, then pulled several Fabric/MDM prep packets into a five-minute reminder. This packet gives Natively a tighter meeting surface so Steve sees the real operational ask first and uses Fabric/governance material only as background if the conversation pivots.",
+    "currentState": [
+      "A new local Natively context capsule was generated at 2026-06-02T13:43:53.305Z for an event titled Reminder: Weekly Status Update.",
+      "The invite starts at 2026-06-02 10:00 local time and ends at 10:05, making it a short reminder slot rather than a normal working meeting.",
+      "The invite notes say the project status deck is due to go out by 1pm CST every Thursday and instruct recipients to copy the Word status-report template into email.",
+      "The capsule surfaced no open commitments and no close prior meeting match.",
+      "The capsule pulled Weekly Fabric, Data Classification Policy, ELT Data Steward, and Patrick 1:1 prep packets as memory hits. Those are background only; the invite itself does not prove those topics are on the agenda.",
+      "No transcript, outcome, canonical meeting summary, or project-memory fact arrived with this capsule."
+    ],
+    "relatedWork": [
+      "Weekly project status deck",
+      "MDM/Fabric status reporting",
+      "Weekly Fabric post-onsite synthesis",
+      "Data Classification Policy response",
+      "ELT data steward readiness"
+    ],
+    "openQuestions": [
+      "Is this a true live check-in, or only a calendar reminder for the Thursday status deck?",
+      "Which current Fabric/MDM items should be reflected in this week's project status deck?",
+      "Does the weekly status deck need to mention the stakeholder knowledge-base/read-model access gate, or keep that out until ADR-0007/DQ-049 are resolved?",
+      "Who owns final submission of the deck/email this week?"
+    ],
+    "openCommitments": [
+      "Steve/team: complete the weekly project status deck due by 1pm CST every Thursday. Source: natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.md."
+    ],
+    "talkingPoints": [
+      "Confirm whether this slot is only a reminder or whether anyone expects live status decisions.",
+      "If asked for this week's Fabric/MDM status, keep it concise: post-onsite synthesis is still the next useful Fabric discussion, stakeholder sharing remains gated by the sanitized read-model decision, and no new source export changed the readiness picture today.",
+      "Do not turn this into a broad governance conversation unless Mike or Patrick explicitly asks for it.",
+      "Use the status deck template language first; pull deeper Fabric packet context only if the discussion pivots."
+    ],
+    "risks": [
+      "Medium: a generic status reminder can cause Natively to over-surface unrelated Fabric/governance prep and distract Steve during a short operational slot.",
+      "Medium: the weekly status deck can miss important gate language if the current access/read-model decision is not summarized cleanly.",
+      "Low: the event's five-minute duration may mean there is no actual conversation to capture."
+    ],
+    "suggestedPosture": "Keep it tight and reminder-oriented. Start by confirming whether the slot is just for the weekly deck process. If it becomes a live status discussion, give the current gates plainly and avoid opening new architecture debates without an owner or decision path.",
+    "evidenceRefs": [
+      "natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.md",
+      "natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.json",
+      "natively/prep-packets/weekly-fabric-post-onsite-synthesis.packet.json",
+      "natively/prep-packets/data-classification-policy-response.packet.json",
+      "natively/prep-packets/elt-data-stewards-readiness.packet.json",
+      "project-memory/open-questions.md#DQ-049",
+      "project-memory/decisions/ADR-0007-stakeholder-brain-access-read-model.md"
+    ],
+    "liveContextMarkdown": "## Reminder: Weekly Status Update\n\nThis looks like a five-minute status-deck reminder, not a Fabric decision meeting. The invite note says the project status deck is due by 1pm CST every Thursday and points to the Word/email template.\n\nUse this first: confirm whether the slot is just a reminder. If someone asks for the current IP Corp architecture status, keep it short: post-onsite Fabric synthesis remains the next useful discussion, the stakeholder-facing knowledge-base link is still gated by ADR-0007/DQ-049 plus redaction review, and no new source export changed readiness today.\n\nDo not let generic status wording pull the conversation into unrelated Fabric/governance detail unless Mike or Patrick explicitly asks.",
+    "relatedPriorMeetings": [
+      "2026-05-27 Fabric Stand-Up Recovery Planning",
+      "2026-05-20 Fabric Weekly Stand-Up",
+      "2026-05-11 Nahrup 1-on-1 and Data Classification Policy Review"
+    ],
+    "decisionsPending": [
+      "Confirm whether this event is a reminder-only slot or a real live check-in.",
+      "Confirm which current Fabric/MDM status items belong in the Thursday status deck."
+    ],
+    "status": "ready-capsule-corrected-reminder-only",
+    "updatedAt": "2026-06-02T13:51:47.181Z"
   }
 ]

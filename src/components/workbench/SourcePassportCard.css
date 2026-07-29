@@ -1,0 +1,27 @@
+.wb-passport[data-connection-state="not-checked"] .wb-passport-summary {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.wb-passport[data-connection-state="unavailable"] {
+  border-color: rgba(200, 16, 46, 0.22);
+}
+
+.wb-passport[data-connection-state="auth-required"] {
+  border-color: rgba(176, 118, 26, 0.24);
+}
+
+.wb-passport[data-connection-scope="local-only"] .wb-passport-meta > div:last-child {
+  box-shadow: inset 3px 0 0 var(--amber);
+}
+
+@media (forced-colors: active) {
+  .wb-passport[data-connection-state="unavailable"],
+  .wb-passport[data-connection-state="auth-required"] {
+    border-color: CanvasText;
+  }
+
+  .wb-passport[data-connection-scope="local-only"] .wb-passport-meta > div:last-child {
+    box-shadow: inset 3px 0 0 CanvasText;
+  }
+}

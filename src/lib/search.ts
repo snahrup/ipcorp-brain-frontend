@@ -12,18 +12,8 @@ import {
   Split,
   TriangleAlert,
 } from "lucide-react";
-import { brain, packetById, sortedInsights } from "../data";
-import type {
-  ActionProposal,
-  Adr,
-  AdrCandidate,
-  CortexInsight,
-  MeetingEntry,
-  OpenQuestion,
-  PrepPacket,
-  Risk,
-  SourceHealthItem,
-} from "../types/brain";
+import { brain, sortedInsights } from "../data";
+import type { Detail, SourceHealthItem } from "../types/brain";
 import {
   formatDate,
   formatPriority,
@@ -35,6 +25,11 @@ import {
 } from "./utils";
 
 export type ViewKey =
+  | "today"
+  | "work"
+  | "library"
+  | "data-work"
+  | "connections"
   | "readiness"
   | "meetings"
   | "packets"
@@ -53,7 +48,7 @@ export type SearchResult = {
   meta: string;
   icon: LucideIcon;
   view: ViewKey;
-  detail?: any; // Will be properly typed when Detail type is extracted
+  detail?: Detail;
 };
 
 const sourceHealthEntries = Object.entries(brain.status.sourceHealth ?? {}) as Array<

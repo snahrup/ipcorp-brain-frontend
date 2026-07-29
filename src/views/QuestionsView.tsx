@@ -69,7 +69,7 @@ export function QuestionsView({ openDetail, query }: QuestionsViewProps) {
               borderRadius: "var(--radius-pill)",
               background: "var(--accent-dim)",
               color: "var(--accent)",
-              border: "1px solid rgba(34,197,94,0.3)",
+              border: "1px solid rgba(26,130,197,0.3)",
               cursor: "pointer",
             }}
           >
@@ -88,7 +88,7 @@ export function QuestionsView({ openDetail, query }: QuestionsViewProps) {
               {items.length === 0 ? (
                 <EmptyState
                   message="No questions in this priority."
-                  hint="These surface from real meetings and work. Explore the 3D graph to see how open questions connect to decisions, systems, and insights across the full brain."
+                  hint="These surface from real meetings and work. Explore the 3D graph to see how open questions connect to decisions, systems, and insights across the full knowledge map."
                 />
               ) : (
                 items.map((question: OpenQuestion, index: number) => (

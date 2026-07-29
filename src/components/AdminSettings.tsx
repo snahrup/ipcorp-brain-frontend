@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   type AdminSettings as AdminSettingsType,
   getAdminSettings,
@@ -14,12 +14,71 @@ interface AdminSettingsProps {
   onClose: () => void;
 }
 
+const graphPresets: Array<{
+  key: AdminSettingsType["graphPreset"];
+  label: string;
+}> = [
+  { key: "balanced", label: "Balanced (recommended for most use)" },
+  {
+    key: "high-detail",
+    label: "High Detail — maximum nodes, particles, and connections (for deep exploration)",
+  },
+  {
+    key: "performance",
+    label: "Performance — aggressive simplification for very large or slow machines",
+  },
+];
+
 export function AdminSettings({ isOpen, onClose }: AdminSettingsProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(isAdminMode());
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const [settings, setSettings] = useState<AdminSettingsType>(getAdminSettings());
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    previousFocusRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const panel = panelRef.current;
+    panel
+      ?.querySelector<HTMLElement>("input, button, select, textarea, a[href], [tabindex='0']")
+      ?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab" || !panel) return;
+
+      const focusable = Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          "button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex='0']"
+        )
+      );
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      previousFocusRef.current?.focus();
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -50,11 +109,29 @@ export function AdminSettings({ isOpen, onClose }: AdminSettingsProps) {
   };
 
   return (
-    <div className="admin-overlay" onClick={onClose}>
-      <div className="admin-panel" onClick={(e) => e.stopPropagation()}>
+    <div className="admin-overlay">
+      <button
+        type="button"
+        className="admin-overlay-dismiss"
+        onClick={onClose}
+        aria-label="Close settings"
+      />
+      <div
+        ref={panelRef}
+        className="admin-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="admin-settings-title"
+        tabIndex={-1}
+      >
         <div className="admin-header">
-          <h2>Admin Settings</h2>
-          <button onClick={onClose} className="admin-close">
+          <h2 id="admin-settings-title">Admin Settings</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="admin-close"
+            aria-label="Close settings"
+          >
             ×
           </button>
         </div>
@@ -63,12 +140,13 @@ export function AdminSettings({ isOpen, onClose }: AdminSettingsProps) {
           <div className="admin-auth">
             <p>Enter admin password to access settings.</p>
             <form onSubmit={handlePasswordSubmit}>
+              <label htmlFor="admin-password">Admin password</label>
               <input
+                id="admin-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Admin password"
-                autoFocus
               />
               <button type="submit">Unlock</button>
             </form>
@@ -106,25 +184,13 @@ export function AdminSettings({ isOpen, onClose }: AdminSettingsProps) {
                 on next load or via Reset View.
               </p>
               <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
-                {[
-                  { key: "balanced", label: "Balanced (recommended for most use)" },
-                  {
-                    key: "high-detail",
-                    label:
-                      "High Detail — maximum nodes, particles, and connections (for deep exploration)",
-                  },
-                  {
-                    key: "performance",
-                    label:
-                      "Performance — aggressive simplification for very large or slow machines",
-                  },
-                ].map((p) => (
+                {graphPresets.map((p) => (
                   <label key={p.key} className="admin-radio">
                     <input
                       type="radio"
                       name="graphPreset"
                       checked={settings.graphPreset === p.key}
-                      onChange={() => setSettings({ ...settings, graphPreset: p.key as any })}
+                      onChange={() => setSettings({ ...settings, graphPreset: p.key })}
                     />
                     {p.label}
                   </label>
@@ -186,13 +252,14 @@ export function AdminSettings({ isOpen, onClose }: AdminSettingsProps) {
 
             <div className="admin-actions">
               <button
+                type="button"
                 onClick={() => {
                   // Steve Mode preset — maximum power and detail for the central 3D graphs
                   const steveMode = {
                     ...settings,
                     graphPreset: "high-detail" as const,
                     showExperimental: true,
-                    theme: { ...settings.theme, accent: "#22c55e" },
+                    theme: { ...settings.theme, accent: "#1B5E9E" },
                   };
                   setSettings(steveMode);
                   // Auto-save and reload so the graphs immediately reflect the premium Steve experience
@@ -208,10 +275,10 @@ export function AdminSettings({ isOpen, onClose }: AdminSettingsProps) {
                 Activate Steve Mode (Max Graph Detail + Experimental)
               </button>
 
-              <button onClick={handleSave} className="primary-action">
+              <button type="button" onClick={handleSave} className="primary-action">
                 Save & Reload
               </button>
-              <button onClick={handleLock} className="ghost-action">
+              <button type="button" onClick={handleLock} className="ghost-action">
                 Lock Admin Mode
               </button>
             </div>

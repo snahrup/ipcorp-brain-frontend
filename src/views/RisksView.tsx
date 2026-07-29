@@ -52,7 +52,7 @@ export function RisksView({ openDetail, query }: RisksViewProps) {
                   No risks in this severity band.
                   <br />
                   Explore the 3D graph to see how risks connect to decisions, systems, and
-                  mitigation signals across the full brain.
+                  mitigation signals across the full knowledge map.
                 </div>
               ) : (
                 items.map((risk: Risk, index: number) => (

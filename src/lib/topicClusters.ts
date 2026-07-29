@@ -48,10 +48,10 @@ export interface Topic {
 
 // Distinct, dark-bg-friendly palette for topics.
 const TOPIC_PALETTE = [
-  "#22c55e",
+  "#1B5E9E",
   "#77c7ff",
-  "#fdcf5a",
-  "#c084fc",
+  "#446084",
+  "#1A82C5",
   "#ff8a5b",
   "#34d399",
   "#f472b6",

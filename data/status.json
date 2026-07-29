@@ -1,77 +1,129 @@
 {
-  "updatedAt": "2026-05-28T00:29:37.287Z",
-  "freshnessLabel": "fresh-project-memory-design-direction-applied",
+  "updatedAt": "2026-06-11T15:21:15.069Z",
+  "freshnessLabel": "fresh-natively-auto-export",
   "counts": {
-    "meetingsIndexed": 32,
+    "meetingsIndexed": 7,
     "teamsImports": 73,
-    "cluelyImports": 4,
-    "otherImports": 58,
-    "prepPacketsReady": 14,
-    "cortexInsights": 21,
-    "openActionProposals": 2,
-    "liveCaptures": 6,
-    "liveCaptureSnippets": 8372,
-    "nativelyAutoExports": 32,
+    "cluelyImports": 5,
+    "otherImports": 51,
+    "prepPacketsReady": 16,
+    "cortexInsights": 28,
+    "openActionProposals": 3,
+    "liveCaptures": 10,
+    "liveCaptureSnippets": 8844,
+    "nativelyAutoExports": 7,
     "contextCapsules": 1,
-    "outcomeEvents": 16,
-    "proposedAdrs": 3
+    "outcomeEvents": 20,
+    "proposedAdrs": 7,
+    "rootArchiveExportsReviewed": 1
   },
   "sourceHealth": {
     "teamsExport": {
       "status": "fresh-local-exports-reviewed-no-new-inputs",
-      "latestInput": "meetings/transcripts/teams-export",
-      "note": "Reviewed local Teams export lane after prompt marker 2026-05-27T23:15:20.606Z. No Teams export changed; no live Teams connector was used."
+      "latestInput": "meetings\\transcripts\\teams-export\\2026-04-30-citrine-working-session.md",
+      "latestInputAt": "2026-05-19T02:37:57.099Z",
+      "note": "Reviewed local inputs through 2026-06-11T14:33:10.110Z. Strict UTC scan after prompt scheduler marker 2026-06-11T13:20:55.647Z and effective source cutoff 2026-06-11T13:37:38.658Z found no new Teams, Cluely, Notion, project-memory, Natively live-capture ledger, meeting-capture, context-capsule, media-intake, meeting-infographic, outcome, action-proposal, Cortex-insight, prep-packet, or other targeted local source evidence requiring canonical promotion. Prior generated/readiness artifacts after the scheduler marker were treated as previous generated state. No canonical summary, Cortex insight, action proposal, ADR, discovery, open-question edit, stakeholder send, external connector call, or Natively app-code edit occurred. Previous generated readiness/run-report high-water was 2026-06-11T13:34:53.982Z; previous automation memory high-water was 2026-06-11T13:37:38.6585960Z; previous validation was 2026-06-11T13:37:38.6585960Z; effective source cutoff for this run was 2026-06-11T13:37:38.658Z."
     },
     "cluelyExport": {
       "status": "fresh-local-exports-reviewed-no-new-inputs",
-      "latestInput": "meetings/transcripts/cluely-export",
-      "note": "Reviewed local Cluely export lane after prompt marker 2026-05-27T23:15:20.606Z. No Cluely export changed; no live Cluely connector was used."
+      "latestInput": "meetings\\transcripts\\cluely-export\\README.md",
+      "latestInputAt": "2026-05-18T13:41:28Z",
+      "note": "Reviewed local inputs through 2026-06-11T14:33:10.110Z. Strict UTC scan after prompt scheduler marker 2026-06-11T13:20:55.647Z and effective source cutoff 2026-06-11T13:37:38.658Z found no new Teams, Cluely, Notion, project-memory, Natively live-capture ledger, meeting-capture, context-capsule, media-intake, meeting-infographic, outcome, action-proposal, Cortex-insight, prep-packet, or other targeted local source evidence requiring canonical promotion. Prior generated/readiness artifacts after the scheduler marker were treated as previous generated state. No canonical summary, Cortex insight, action proposal, ADR, discovery, open-question edit, stakeholder send, external connector call, or Natively app-code edit occurred. Previous generated readiness/run-report high-water was 2026-06-11T13:34:53.982Z; previous automation memory high-water was 2026-06-11T13:37:38.6585960Z; previous validation was 2026-06-11T13:37:38.6585960Z; effective source cutoff for this run was 2026-06-11T13:37:38.658Z."
     },
     "notionExport": {
       "status": "fresh-local-exports-reviewed-no-new-inputs",
-      "latestInput": "meetings/transcripts/notion-export",
-      "note": "Reviewed local Notion export lane after prompt marker 2026-05-27T23:15:20.606Z. No Notion export changed; no live Notion connector was used."
+      "latestInput": "meetings\\transcripts\\notion-export\\2026-05-19-preface-fabric-meeting.md",
+      "latestInputAt": "2026-05-19T17:40:04.56Z",
+      "note": "Reviewed local inputs through 2026-06-11T14:33:10.110Z. Strict UTC scan after prompt scheduler marker 2026-06-11T13:20:55.647Z and effective source cutoff 2026-06-11T13:37:38.658Z found no new Teams, Cluely, Notion, project-memory, Natively live-capture ledger, meeting-capture, context-capsule, media-intake, meeting-infographic, outcome, action-proposal, Cortex-insight, prep-packet, or other targeted local source evidence requiring canonical promotion. Prior generated/readiness artifacts after the scheduler marker were treated as previous generated state. No canonical summary, Cortex insight, action proposal, ADR, discovery, open-question edit, stakeholder send, external connector call, or Natively app-code edit occurred. Previous generated readiness/run-report high-water was 2026-06-11T13:34:53.982Z; previous automation memory high-water was 2026-06-11T13:37:38.6585960Z; previous validation was 2026-06-11T13:37:38.6585960Z; effective source cutoff for this run was 2026-06-11T13:37:38.658Z."
     },
     "projectMemory": {
-      "status": "fresh-new-design-preference-applied-to-readiness",
-      "latestInput": "project-memory/learnings/discoveries.json#DISC-2026-05-27-005",
-      "note": "One project-memory discovery changed after the prompt last-run marker: Steve wants the stakeholder-facing brain frontend to lean into Unabyss-style modern motion. Applied to the shared-knowledge-base prep packet and new Cortex insight; no canonical doctrine overwrite was needed."
+      "status": "fresh-local-memory-reviewed-no-new-inputs",
+      "latestInput": "project-memory\\README.md",
+      "latestInputAt": "2026-06-10T17:59:12.874Z",
+      "note": "Reviewed local inputs through 2026-06-11T14:33:10.110Z. Strict UTC scan after prompt scheduler marker 2026-06-11T13:20:55.647Z and effective source cutoff 2026-06-11T13:37:38.658Z found no new Teams, Cluely, Notion, project-memory, Natively live-capture ledger, meeting-capture, context-capsule, media-intake, meeting-infographic, outcome, action-proposal, Cortex-insight, prep-packet, or other targeted local source evidence requiring canonical promotion. Prior generated/readiness artifacts after the scheduler marker were treated as previous generated state. No canonical summary, Cortex insight, action proposal, ADR, discovery, open-question edit, stakeholder send, external connector call, or Natively app-code edit occurred. Previous generated readiness/run-report high-water was 2026-06-11T13:34:53.982Z; previous automation memory high-water was 2026-06-11T13:37:38.6585960Z; previous validation was 2026-06-11T13:37:38.6585960Z; effective source cutoff for this run was 2026-06-11T13:37:38.658Z."
     },
     "nativelyContract": {
-      "status": "refreshed-project-memory-delta-applied-no-new-actions",
-      "latestInput": "natively/prep-packets/shared-knowledge-base-review.packet.json",
-      "note": "Refreshed status, meeting index, Cortex latest-run, and run report. Added one Cortex insight and updated one prep packet from DISC-2026-05-27-005. No Natively app code or live connectors were used."
+      "status": "refreshed-current-no-source-promotions",
+      "latestInput": "natively/status.json; natively/meeting-index.json; natively/cortex/latest-run.json; natively/latest-run.md; natively/outcomes/README.md; natively/live-captures/README.md; natively/prep-packets/purview-advisory-follow-up.packet.json; natively/prep-packets/weekly-fabric-post-onsite-synthesis.packet.json; meetings/summaries/_RUN_REPORT_2026-06-10-natively-brain-refresh.md",
+      "latestInputAt": "2026-06-11T14:33:10.110Z",
+      "note": "Reviewed local inputs through 2026-06-11T14:33:10.110Z. Strict UTC scan after prompt scheduler marker 2026-06-11T13:20:55.647Z and effective source cutoff 2026-06-11T13:37:38.658Z found no new Teams, Cluely, Notion, project-memory, Natively live-capture ledger, meeting-capture, context-capsule, media-intake, meeting-infographic, outcome, action-proposal, Cortex-insight, prep-packet, or other targeted local source evidence requiring canonical promotion. Prior generated/readiness artifacts after the scheduler marker were treated as previous generated state. No canonical summary, Cortex insight, action proposal, ADR, discovery, open-question edit, stakeholder send, external connector call, or Natively app-code edit occurred. Previous generated readiness/run-report high-water was 2026-06-11T13:34:53.982Z; previous automation memory high-water was 2026-06-11T13:37:38.6585960Z; previous validation was 2026-06-11T13:37:38.6585960Z; effective source cutoff for this run was 2026-06-11T13:37:38.658Z. Existing Purview and Weekly Fabric packets remain current; no proposal was created or executed; all open proposals remain proposed and approval-gated."
     },
     "liveCaptures": {
-      "status": "fresh-local-captures-reviewed-no-new-snippets",
-      "latestInput": "natively/live-captures/2026-05-27-natively-live.jsonl",
-      "latestCapturedAt": "2026-05-27T17:01:34.903Z",
-      "note": "Reviewed live-capture files after prompt marker 2026-05-27T23:15:20.606Z. No live-capture snippets were newer than the prior reviewed high-water; no live context connector was used."
+      "status": "fresh-local-captures-reviewed-no-new-inputs",
+      "latestInput": "natively\\live-captures\\2026-06-08-natively-live.jsonl",
+      "latestCapturedAt": "2026-06-08T14:25:09.345Z",
+      "note": "Reviewed live-capture ledgers through 2026-06-11T14:33:10.110Z. No live-capture ledger changed after effective source cutoff 2026-06-11T13:37:38.658Z; June 8 Priority Matrix remains indexed-only."
     },
     "outcomes": {
-      "status": "fresh-reviewed-no-new-outcomes",
-      "latestInput": "natively/outcomes/2026-05-27-natively-outcomes.jsonl",
-      "latestOutcomeAt": "2026-05-27T19:27:46.252Z",
-      "note": "Reviewed outcome ledgers after prompt marker 2026-05-27T23:15:20.606Z. No outcome event was newer than the prior reviewed high-water; proposal style remains compact, source-backed, and approval-gated."
+      "status": "fresh-reviewed-no-new-outcome-events",
+      "latestInput": "natively\\outcomes\\2026-06-03-natively-outcomes.jsonl",
+      "latestOutcomeAt": "2026-06-03T14:59:00.793Z",
+      "note": "Reviewed outcome ledgers through 2026-06-11T14:33:10.110Z. No new outcome events appeared after effective source cutoff 2026-06-11T13:37:38.658Z.",
+      "latestInputAt": "2026-06-11T14:33:10.110Z"
     },
     "nativelyAutoExport": {
-      "status": "fresh-no-new-auto-exports",
-      "latestInput": "natively/meeting-captures/2026-05-27/2026-05-27-fabric-stand-up-recovery-planning-39c96ede.md",
-      "latestExportedAt": "2026-05-27T19:23:04.798Z",
-      "note": "No Natively auto-export source file appeared after prompt marker 2026-05-27T23:15:20.606Z. Latest auto-export remains the previously reviewed May 27 capture set."
+      "status": "fresh",
+      "latestInput": "natively/meeting-captures/2026-06-11/2026-06-11-weekly-fabric-check-in-35cebfe3.md",
+      "latestExportedAt": "2026-06-11T15:21:15.069Z",
+      "note": "7 Natively capture records indexed from manual/calendar sessions with topic segmentation and calendar association."
+    },
+    "meetingInfographics": {
+      "status": "reviewed-no-new-promotion",
+      "latestInput": "natively\\meeting-infographics\\2026-06-08-priority-matrix-teams-integration-8358daa8\\status.json",
+      "latestGeneratedAt": "2026-06-08T14:34:08.339Z",
+      "note": "No new generated infographic/report suggestion was promoted into live readiness. Existing quality-gate warning remains until task results land."
     },
     "contextCapsules": {
-      "status": "fresh-local-capsule-reviewed-no-new-capsules",
-      "latestInput": "natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.json",
-      "latestGeneratedAt": "2026-05-27T17:43:33.45Z",
-      "note": "No new context capsule appeared after prompt marker 2026-05-27T23:15:20.606Z. The 2026-05-27 Nahrup - 1-on-1 capsule remains promoted into a prep packet."
+      "status": "reviewed-no-new-inputs",
+      "latestInput": "natively\\context-capsules\\000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.md",
+      "latestInputAt": "2026-06-03T15:13:40.713Z",
+      "note": "No context capsule changed after effective source cutoff 2026-06-11T13:37:38.658Z."
+    },
+    "automationMemory": {
+      "status": "reviewed-updated-this-run",
+      "latestInput": "C:/Users/snahrup/.codex/automations/ip-corp-natively-brain-refresh/memory.md",
+      "latestInputAt": "2026-06-11T14:34:47.984Z",
+      "note": "Automation memory was read at run start and updated after final validation with the current no-source-delta summary."
+    },
+    "mediaIntake": {
+      "status": "fresh-reviewed-no-new-promotion",
+      "latestInput": "project-memory\\media-intake\\_index.md",
+      "latestInputAt": "2026-06-01T16:30:04.105Z",
+      "note": "No media-intake source was promoted; media remains supporting context only unless independently confirmed against IP Corp evidence. natively/media-intake is absent in this snapshot; project-memory/media-intake remains the supporting-context index."
+    },
+    "rootArchiveExport": {
+      "status": "previously-reviewed-unpromoted-snapshot",
+      "latestInput": "MDM-Core.zip",
+      "latestInputAt": "2026-06-10T14:57:15.341Z",
+      "note": "MDM-Core.zip was reviewed in a previous refresh and remains unpromoted unless Steve identifies it as a new source-export input; it is not a new post-2026-06-11T13:37:38.658Z source delta."
+    },
+    "repoInstructions": {
+      "status": "reviewed-with-root-path-drift",
+      "latestInput": "prompt AGENTS instructions; docs\\AGENTS.md; docs\\CLAUDE.md; docs\\README.md; docs\\CODEBASE.md; docs\\INGESTION_PLAYBOOK.md; agent-prompts\\system-doctrine.md; agent-prompts\\meeting-intelligence.md",
+      "latestInputAt": "2026-06-11T14:33:10.110Z",
+      "note": "Root AGENTS.md, README.md, CODEBASE.md, CLAUDE.md, and INGESTION_PLAYBOOK.md remain absent at repo root, so this run used prompt-supplied AGENTS instructions plus docs/AGENTS.md, docs/CLAUDE.md, docs/README.md, docs/CODEBASE.md, docs/INGESTION_PLAYBOOK.md, project-memory/README.md, meetings/README.md, and doctrine prompts. This run did not create or move repo instruction files."
     }
   },
   "contradictionsNeedingSteve": [
     {
+      "id": "brain-stakeholder-access-boundary-2026-05-27",
+      "severity": "high",
+      "status": "tracked-by-DQ-049-R-023-ADR-0007-sanitized-frontend-candidate",
+      "newInfo": "A sanitized frontend candidate exists at C:/Users/snahrup/CascadeProjects/ipcorp-brain-frontend, but its data export is a stakeholder-safe draft generated from 2026-05-28 brain state.",
+      "existingRule": "AGENTS.md keeps the raw brain internal-only and sensitive; ADR-0007 proposes curated/read-only access only.",
+      "sourceRefs": [
+        "project-memory/open-questions.md#DQ-049",
+        "project-memory/risk-register.md#R-023",
+        "project-memory/decisions/ADR-0007-stakeholder-brain-access-read-model.md",
+        "C:/Users/snahrup/CascadeProjects/ipcorp-brain-frontend/README.md",
+        "C:/Users/snahrup/CascadeProjects/ipcorp-brain-frontend/data/export-manifest.json"
+      ],
+      "recommendation": "Steve should decide whether the sanitized frontend candidate is the first DQ-049 access surface after refresh/redaction review, and should not send a link before ADR-0007 is accepted/revised/deferred."
+    },
+    {
       "id": "readiness-playbook-convention-debt-2026-05-19",
       "severity": "low",
-      "status": "tracked-in-dq-047",
+      "status": "tracked-in-DQ-047",
       "newInfo": "The plant-tour ingestion run introduced local capture-metadata and classification conventions and explicitly noted that INGESTION_PLAYBOOK.md was not updated in the same change.",
       "existingRule": "INGESTION_PLAYBOOK.md section 21 requires any new ingestion convention to be added to the playbook in the same change.",
       "sourceRefs": [
@@ -80,148 +132,46 @@
         "project-memory/open-questions.md#DQ-047"
       ],
       "recommendation": "Steve should decide whether to codify the new Natively/plant-tour ingestion conventions in INGESTION_PLAYBOOK.md or mark them as one-off run notes."
-    },
-    {
-      "id": "brain-stakeholder-access-boundary-2026-05-27",
-      "severity": "high",
-      "status": "mitigation-started-via-executed-proposal",
-      "newInfo": "The May 27 Natively capture records Steve saying he wants Patrick and Eudias to access the IP Corp knowledge-base/readiness layer, and Patrick asked Steve to send a link.",
-      "existingRule": "AGENTS.md states this repo is internal-only and contains read-only SQL credentials; Natively captures also include raw/private/off-topic transcript material. Direct repo access would violate the current boundary.",
-      "sourceRefs": [
-        "natively/meeting-captures/2026-05-27/2026-05-27-untitled-session-39c96ede.md#12:57:40-12:58:45",
-        "AGENTS.md#sensitive-data",
-        "natively/prep-packets/shared-knowledge-base-review.packet.json"
-      ],
-      "recommendation": "The sanitized-access preparation proposal was executed, but Steve should still avoid sharing the full brain repo. Share only a curated/redacted stakeholder-facing surface when that artifact exists."
     }
   ],
   "readinessImprovements": [
     {
-      "id": "brain-frontend-motion-direction-applied-2026-05-27",
-      "title": "Brain frontend direction applied",
-      "summary": "Shared packet now carries Unabyss-style motion guidance.",
+      "id": "purview-advisory-follow-up-ready-20260608",
+      "title": "Purview follow-up packet ready",
+      "summary": "Scope split, license, and admin boundary surfaced for next CDW session.",
       "sourceRefs": [
-        "project-memory/learnings/discoveries.json#DISC-2026-05-27-005",
-        "natively/prep-packets/shared-knowledge-base-review.packet.json",
-        "insights/2026-05-27-brain-frontend-motion-direction.json"
+        "meetings/summaries/2026-06-03-interplastic-purview-advisory-working-session.md",
+        "natively/prep-packets/purview-advisory-follow-up.packet.json",
+        "natively/cortex/insights/2026-06-08-purview-advisory-scope-split.json",
+        "natively/action-proposals/2026-06-08-confirm-purview-advisory-scope-and-admin-boundary.json"
       ]
     },
     {
-      "id": "no-new-inputs-readiness-check-2026-05-27T23Z",
-      "title": "23Z readiness contract refreshed",
-      "summary": "No source deltas after memory high-water; weekly Fabric remains next.",
-      "sourceRefs": ["natively/latest-run.md", "natively/cortex/latest-run.json"]
-    },
-    {
-      "id": "no-new-inputs-readiness-check-2026-05-27T22Z",
-      "title": "Readiness contract refreshed",
-      "summary": "No material source deltas; weekly Fabric remains next packet.",
-      "sourceRefs": ["natively/latest-run.md", "natively/cortex/latest-run.json"]
-    },
-    {
-      "id": "no-new-inputs-readiness-check-2026-05-27T21Z",
-      "title": "No new inputs after promotion",
-      "summary": "Source lanes reviewed; readiness contract refreshed without new promotions.",
-      "sourceRefs": ["natively/latest-run.md", "natively/cortex/latest-run.json"]
-    },
-    {
-      "id": "open-proposal-state-still-bounded-2026-05-27T21Z",
-      "title": "Open proposals remain bounded",
-      "summary": "Only coaching-gate audit and Fabric calendar details remain proposed.",
+      "id": "natively-outcome-ledger-reconciled-20260608",
+      "title": "Executed proposals reconciled",
+      "summary": "June 2 audit proposals marked executed from June 3 outcomes.",
       "sourceRefs": [
-        "action-proposals/2026-05-27-audit-proactive-coaching-disable-gate.json",
-        "action-proposals/2026-05-27-confirm-weekly-fabric-calendar-reset.json"
+        "natively/outcomes/2026-06-03-natively-outcomes.jsonl",
+        "natively/action-proposals/2026-06-02-audit-context-capsule-reminder-overmatch.json",
+        "natively/action-proposals/2026-06-02-audit-meeting-infographic-report-quality-gate.json"
       ]
     },
     {
-      "id": "plant-tour-packet-now-awaits-post-capture",
-      "title": "Plant tour packet needs outcome evidence",
-      "summary": "Dated packet is past; no post-meeting capture has landed.",
+      "id": "priority-matrix-indexed-only-20260608",
+      "title": "Priority Matrix capture quarantined",
+      "summary": "June 8 off-engagement capture stays indexed-only and unpromoted.",
       "sourceRefs": [
-        "natively/prep-packets/plant-tour-follow-up-2026-05-27.packet.json",
-        "natively/meeting-index.json"
+        "meetings/summaries/_RUN_REPORT_2026-06-08-natively-priority-matrix-teams-integration-8358daa8.md",
+        "natively/meeting-captures/2026-06-08/"
       ]
     },
     {
-      "id": "proactive-coaching-gate-warning",
-      "title": "Live coaching gate warning added",
-      "summary": "Disabled-mode capture reviewed; audit proposal created.",
+      "id": "mdm-core-root-archive-reviewed-20260610",
+      "title": "MDM-Core archive reviewed",
+      "summary": "Root snapshot inspected and left unpromoted.",
       "sourceRefs": [
-        "natively/cortex/insights/2026-05-27-proactive-coaching-disable-gate.json",
-        "natively/action-proposals/2026-05-27-audit-proactive-coaching-disable-gate.json"
-      ]
-    },
-    {
-      "id": "plant-tour-packet-still-ready",
-      "title": "Plant tour packet still ready",
-      "summary": "Prep packet remains current; plant-tour question proposal executed.",
-      "sourceRefs": [
-        "natively/prep-packets/plant-tour-follow-up-2026-05-27.packet.json",
-        "natively/outcomes/2026-05-27-natively-outcomes.jsonl"
-      ]
-    },
-    {
-      "id": "weekly-fabric-cadence-snapshot",
-      "title": "Weekly Fabric reset packet added",
-      "summary": "Live capture suggests cancel this week and extend next week.",
-      "sourceRefs": [
-        "natively/prep-packets/weekly-fabric-post-onsite-synthesis.packet.json",
-        "natively/cortex/insights/2026-05-27-weekly-fabric-cadence-reset.json",
-        "natively/action-proposals/2026-05-27-confirm-weekly-fabric-calendar-reset.json"
-      ]
-    },
-    {
-      "id": "stakeholder-knowledge-base-access-boundary",
-      "title": "Stakeholder access packet added",
-      "summary": "Patrick requested link; sanitized view needed first.",
-      "sourceRefs": [
-        "natively/prep-packets/shared-knowledge-base-review.packet.json",
-        "natively/cortex/insights/2026-05-27-stakeholder-knowledge-base-access-boundary.json",
-        "natively/action-proposals/2026-05-27-prepare-sanitized-brain-access-path.json"
-      ]
-    },
-    {
-      "id": "nahrup-stiller-1on1-context-capsule-promoted",
-      "title": "Active 1:1 packet promoted",
-      "summary": "Context capsule converted into durable Natively prep packet.",
-      "sourceRefs": [
-        "natively/prep-packets/nahrup-stiller-1on1-2026-05-27.packet.json",
-        "natively/cortex/insights/2026-05-27-context-capsule-packet-promotion.json",
-        "natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.json"
-      ]
-    },
-    {
-      "id": "calendar-action-contract-gap-captured-2026-05-27",
-      "title": "Calendar proposal failure converted",
-      "summary": "Calendar reset now waits for exact subject/start/end fields.",
-      "sourceRefs": [
-        "natively/outcomes/2026-05-27-natively-outcomes.jsonl#2026-05-27T18:23:52.975Z",
-        "natively/cortex/insights/2026-05-27-calendar-action-contract-gap.json",
-        "natively/action-proposals/2026-05-27-confirm-weekly-fabric-calendar-reset.json"
-      ]
-    },
-    {
-      "id": "outcome-ledger-applied-2026-05-27",
-      "title": "Outcome ledger applied",
-      "summary": "Executed access task closed; calendar failure captured.",
-      "sourceRefs": [
-        "natively/outcomes/2026-05-27-natively-outcomes.jsonl",
-        "natively/action-proposals/2026-05-27-prepare-sanitized-brain-access-path.json",
-        "natively/action-proposals/2026-05-27-confirm-weekly-fabric-calendar-reset.json"
-      ]
-    },
-    {
-      "id": "pryor-ot-purdue-ssrs-boundary-surfaced-2026-05-27",
-      "title": "Pryor OT summary promoted",
-      "summary": "Canonical summary, DQ-048, and R-022 are now in place.",
-      "sourceRefs": [
-        "natively/meeting-captures/2026-04-15/2026-04-15-pryor-azure-ot-architecture-alignment-d558f168.md",
-        "natively/cortex/insights/2026-05-27-pryor-ot-purdue-ssrs-boundary.json",
-        "natively/action-proposals/2026-05-27-promote-pryor-ot-architecture-summary.json",
-        "meetings/summaries/2026-04-15-pryor-azure-ot-architecture-alignment.md",
-        "meetings/summaries/_RUN_REPORT_2026-05-27-pryor-canonical-promotion.md",
-        "project-memory/open-questions.md#DQ-048",
-        "project-memory/risk-register.md#R-022"
+        "MDM-Core.zip",
+        "meetings/summaries/_RUN_REPORT_2026-06-10-natively-brain-refresh.md"
       ]
     }
   ],
@@ -234,20 +184,24 @@
       "natively/cortex/insights/*.json",
       "natively/action-proposals/*.json",
       "natively/outcomes/*.jsonl",
-      "natively/live-captures/"
+      "natively/live-captures/README.md and already-captured local snippets when explicitly indexed by the brain"
     ],
-    "nativelyShouldNotCallLive": [
+    "nativelyShouldNotCallLiveForContext": [
       "Teams",
+      "Outlook / Microsoft Graph",
       "Notion",
       "Cluely",
       "Semantica",
-      "Outlook email/search context during live meetings",
-      "Teams chat/message/transcript context during live meetings",
-      "source databases for live meeting context"
+      "source databases"
     ],
-    "nativelyMayReadMetadata": [
-      "Outlook calendar metadata for timing and meeting association only"
-    ],
-    "boundaryStatement": "Natively is a live touchpoint only. The brain repo owns ingestion, meeting intelligence, cross-meeting reasoning, outcome learning, ADR drafting, and readiness packet generation."
+    "boundaryStatement": "Natively remains a live touchpoint over prepared brain outputs only; it should not call Teams, Outlook, Notion, Cluely, Semantica, or source databases for live meeting context. The brain repo owns ingestion, meeting intelligence, cross-meeting reasoning, outcome learning, ADR drafting, and readiness packet generation.",
+    "nativelyShouldNotCallLive": [
+      "Teams",
+      "Outlook / Microsoft Graph",
+      "Notion",
+      "Cluely",
+      "Semantica",
+      "source databases"
+    ]
   }
 }

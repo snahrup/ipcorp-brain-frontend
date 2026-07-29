@@ -29,11 +29,12 @@ This is no longer a thin sanitized viewer. It is the primary way Steve and other
 2. **Port & Launcher Discipline**
    - Dev server **must** stay on `127.0.0.1:5217` with `strictPort: true`.
    - The portless alias is `ipcorp-brain`.
-   - Launcher lives outside the repo (`~/Desktop/Apps/IP Corp Brain Launch.bat`).
+   - The canonical launcher is `C:\Apps\IP Corp Brain Launch.bat`; it starts the local gateway on `127.0.0.1:8817` and Vite on `127.0.0.1:5217`, waits for both readiness checks, then opens the browser without starting ngrok.
 
 3. **Design System Fidelity**
    - The authoritative design DNA lives in `context/design-system.md` (extracted via hallmark + interface-design).
-   - Palette (Unabyss rebrand, 2026-05-29): near-black + **green `#22C55E` primary** + **gold `#FDCF5A` secondary**, white pill CTAs, Lexend + JetBrains Mono. (The legacy `--amber` token now aliases green.) See `context/design-system.md` for the full Unabyss spec.
+   - Palette (IP Corporation Workbench, corrected 2026-07-28): white and cool-gray surfaces, structural navy, and corporate/action blues. Green, amber, and red are semantic status colors only; purple, aubergine, and the prior Unabyss near-black/green/gold treatment are not permitted on new Workbench surfaces.
+   - Workbench headings and branded labels use Figtree; ordinary interface text uses the system sans-serif stack. Monospace is reserved for source references and technical metadata, never the primary product name.
    - Motion explains assembly and reasoning (framer-motion is intentional).
    - Never turn this into a generic ops dashboard with fake charts or node graphs.
 
@@ -70,6 +71,17 @@ npm run test
 
 ## Learnings (append-only, dated)
 
+- [2026-07-28] Steve confirmed the Workbench is an IP Corporation blue-and-white product, not an Unabyss green/gold product; the current company site and Workbench v4 handoff are the visual authorities.
+- [2026-07-28] The top-left logo and “IP Corporation · Architecture Brain” label must use the official mark and ordinary Workbench typography at their real rendered size; generic placeholder marks and monospaced product branding are not acceptable.
+- [2026-07-28] Team Library navigation mirrors the six real SharePoint/OneDrive folders one-to-one. The app reads the local synchronized copy, displays publication and local-inventory timestamps, and must state when cloud freshness is unverified.
+- [2026-07-28] “Email and Teams connector” means the current `copilot_cowork_mcp` Microsoft 365 connector. Do not describe it as a separate bridge or confuse it with Prism's older Outlook desktop DOM/COM automation.
+- [2026-07-28] Broad MDM reconciliation may let Copilot Cowork collect for up to 15 minutes. Do not inherit Claude Desktop's 40-second structured-call deadline for this Workbench-only flow; keep the hard ceiling, truthful progress, and no-write state visible.
+- [2026-07-29] Microsoft 365 requests are single-flight across Claude, Codex, and the Workbench: start one request, then wait for that exact request or continue only its existing job_id. Never replay because a response is slow, never overlap forced refreshes, and never auto-start Cowork merely by opening a screen.
+- [2026-07-28] The baseline MDM rebuild must use all authorized MDM-relevant work evidence, including user-visible Codex/Claude task histories, Brain and repository records, full Team Library content, full Jira history, and Copilot Cowork Microsoft 365 evidence. Prepared frontend records alone are too old and incomplete. Exclude hidden model reasoning and unrelated material.
+- [2026-07-28] The Meetings page cannot present the prepared Brain index as current. Reconcile Outlook, Teams meetings/transcripts/recaps, follow-up, and Brain meeting packages into a freshness- and coverage-aware timeline.
+- [2026-07-28] MDM Jira reconstruction and the dashboard's permanent Refresh / Reconcile feature use the same truth policy: solo work unless a real source proves participation, only genuinely active current work in In Progress, complete subtasks, evidence-backed dependency/blocker links, 3x normalized effort, and no filler added merely to reach the 60 to 65 hour weekly target.
+- [2026-07-28] Personal projects and personal app development are never MDM Jira evidence. Prism and Prism v2 may be read only as connector implementation references; their sessions, commits, and product work are excluded from MDM tasks and worklogs.
+- [2026-07-28] The MDM Jira retroactive mutation window is May 1 through July 28, 2026. January through April remains context-only, the full 60-to-65-hour settlement weeks run May 4 through July 26, and the partial boundary periods are never padded.
 - [2026-05-28] Biome chosen over ESLint+Prettier stack for speed and simplicity on Windows + small team.
 - [2026-05-28] All AI skill working dirs (.hallmark, .stitch, .interface-design) must stay out of the repo — they are local design iteration artifacts.
 - [2026-05-28] The 1.5 MB context-engine.png background is part of the "atmospheric workbench" genre chosen during hallmark polish; keep unless a lighter replacement is approved.

@@ -547,5 +547,220 @@
       ],
       "note": "Outcome ledger showed Steve executed the canonical-promotion task; the brain refresh promoted the recovered Pryor capture into meeting intelligence without overwriting canonical architecture doctrine."
     }
+  },
+  {
+    "id": "proposal-2026-05-28-define-meeting-visual-brief-contract",
+    "type": "task",
+    "title": "Define meeting visual brief contract",
+    "status": "executed",
+    "createdAt": "2026-05-28T02:27:25.8701231Z",
+    "sourceInsightRefs": ["../cortex/insights/2026-05-28-meeting-visual-brief-contract.json"],
+    "evidenceRefs": [
+      "C:/Users/snahrup/.codex/automations/ip-corp-natively-brain-refresh/memory.md#2026-05-28T02:06:39.7944289Z",
+      "project-memory/learnings/discoveries.json#DISC-2026-05-27-005",
+      "natively/prep-packets/shared-knowledge-base-review.packet.json",
+      "natively/meeting-infographics/2026-05-27-untitled-session-39c96ede/status.json"
+    ],
+    "proposal": {
+      "target": "Natively prep packet and meeting detail read model",
+      "suggestedAction": "Define a compact visualBrief contract for prep packets and meeting detail pages: status, title, narrative angle, sanitized source fields, evidenceRefs, artifact paths when generated, redaction notes, and fallback text when no safe visual exists. Keep this as a contract/design task; do not generate or publish visuals from the brain refresh automation.",
+      "deliverableShape": "Short schema note or implementation ticket for the Natively/brain frontend. No Natively app-code change should happen from this automation.",
+      "whyNow": "The latest automation memory identifies per-meeting visual synthesis as the strongest product hook, and the existing meeting-infographics status lane is not yet a packet-level artifact contract."
+    },
+    "approval": {
+      "required": true,
+      "reason": "This would shape stakeholder-facing presentation and future app behavior, so Steve should approve the contract before implementation."
+    },
+    "risk": {
+      "level": "medium",
+      "notes": "A visual hero can overstate confidence or expose raw/private context if it is not generated from sanitized packet fields with clear evidenceRefs and fallback behavior."
+    },
+    "tags": [
+      "natively",
+      "task",
+      "visual-brief",
+      "packet-contract",
+      "stakeholder-access",
+      "redaction"
+    ],
+    "updatedAt": "2026-05-28T15:38:43.578Z",
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-05-28T15:14:16.574Z",
+      "workflowRunId": "run-proposal-2026-05-28-define-meeting-visual-brief-contract-20260528151416",
+      "outcomeRef": "natively/outcomes/2026-05-28-natively-outcomes.jsonl#2026-05-28T15:14:16.574Z",
+      "note": "Outcome ledger shows Steve executed the visualBrief contract proposal into the local task queue. The task remains a contract/schema note; this automation still does not generate visuals or edit Natively app code."
+    }
+  },
+  {
+    "id": "proposal-2026-05-29-confirm-stale-data-governance-email-request",
+    "type": "follow_up",
+    "title": "Confirm stale governance email request",
+    "status": "executed",
+    "createdAt": "2026-05-29T15:06:16.7007635Z",
+    "sourceInsightRefs": ["../cortex/insights/2026-05-29-stale-governance-email-request.json"],
+    "evidenceRefs": [
+      "natively/meeting-captures/2026-04-13/2026-04-13-email-draft-data-governance-presentation-5c58d3cf.md",
+      "natively/meeting-captures/2026-04-13/2026-04-13-email-draft-data-governance-presentation-5c58d3cf.json",
+      "meetings/summaries/_RUN_REPORT_2026-05-29-natively-email-draft-data-governance-presentation-5c58d3cf.md"
+    ],
+    "proposal": {
+      "target": "Steve confirmation before resurrecting an April 13 stakeholder email request",
+      "suggestedAction": "Ask Steve whether the April 13 request to draft an email to Robin, Patrick, and Mike with IP_Corp_Data_Governance.pdf is still relevant before creating any draft.",
+      "suggestedWording": "A Natively backfill surfaced an April 13 request to draft an email to Robin, Patrick, and Mike with the IP Corp Data Governance PDF attached. Do you still want that draft prepared, or should I mark the request stale because the ELT/Data Governance work has moved on?",
+      "deliverableShape": "Confirmation follow-up only. If Steve says it is still needed, prepare a draft for approval in a separate explicitly approved workflow; do not send anything from this automation.",
+      "whyNow": "The capture was exported on 2026-05-29 after the prior brain-refresh high-water, contains a repeated direct request from Steve, and no matching completed draft was found in the local brain surfaces searched during this run."
+    },
+    "approval": {
+      "required": true,
+      "reason": "This concerns an outbound stakeholder email to Robin Virginia, Patrick Stiller, and Mike Spencer, and the underlying request is more than six weeks old."
+    },
+    "risk": {
+      "level": "medium",
+      "notes": "Acting on a stale April request could revive an outdated message after the May ELT/Data Governance timeline changed. The safe next step is confirmation, not drafting or sending."
+    },
+    "tags": [
+      "natively",
+      "follow-up",
+      "data-governance",
+      "stakeholder-email",
+      "stale-action",
+      "approval-gated"
+    ],
+    "updatedAt": "2026-05-31T17:13:28.080Z",
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-05-31T13:52:58.716Z",
+      "workflowRunId": "run-proposal-2026-05-29-confirm-stale-data-governance-email-request-20260531135258",
+      "outcomeRef": "natively/outcomes/2026-05-31-natively-outcomes.jsonl#2026-05-31T13:52:58.716Z",
+      "note": "Outcome ledger shows Steve explicitly executed the confirmation follow-up. The stale email request is no longer an open Natively action proposal; any actual email draft still requires a separate explicit approval."
+    }
+  },
+  {
+    "id": "proposal-2026-06-02-audit-context-capsule-reminder-overmatch",
+    "type": "task",
+    "title": "Audit reminder-only context capsule matching",
+    "status": "executed",
+    "createdAt": "2026-06-02T13:51:47.181Z",
+    "sourceInsightRefs": ["../cortex/insights/2026-06-02-status-reminder-context-overmatch.json"],
+    "evidenceRefs": [
+      "natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.md",
+      "natively/context-capsules/000000005db5ac7fc22f1a4a9e1b52dd21fb7f2607002daa81ed104913488edafefeef86d4d700000000010d00.json",
+      "natively/prep-packets/weekly-status-update-reminder-2026-06-02.packet.json"
+    ],
+    "proposal": {
+      "target": "Natively context capsule classifier and prep-packet retrieval",
+      "suggestedAction": "Audit how reminder-only calendar events are classified and matched to prep packets. If invite notes and duration indicate a reminder/process item, Natively should prefer a compact reminder packet and mark broad Fabric/governance packet hits as background unless the invite or live capture names those topics.",
+      "deliverableShape": "Internal engineering task or bug ticket; do not change Natively app code from this brain-refresh automation.",
+      "whyNow": "A 2026-06-02 context capsule for a five-minute Weekly Status Update reminder pulled multiple Fabric/MDM packets into Fast Context despite no close prior meeting match, no open commitments, and invite notes focused only on the weekly status deck template."
+    },
+    "approval": {
+      "required": true,
+      "reason": "Natively app-code changes are outside this automation; Steve must approve or route the engineering task."
+    },
+    "risk": {
+      "level": "medium",
+      "notes": "Over-matched prep context can distract Steve during short reminder/process meetings and can make Natively appear to infer an agenda that the invite does not support."
+    },
+    "tags": [
+      "natively",
+      "task",
+      "meeting-readiness",
+      "context-capsule",
+      "retrieval-overmatch",
+      "reminder-only",
+      "approval-gated"
+    ],
+    "updatedAt": "2026-06-08T16:54:37.241Z",
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-06-03T14:58:59.713Z",
+      "workflowRunId": "run-proposal-2026-06-02-audit-context-capsule-reminder-overmatch-20260603145859",
+      "learningSignals": [
+        "Steve executed task proposal proposal-2026-06-02-audit-context-capsule-reminder-overmatch."
+      ],
+      "note": "Closed by Natively outcome ledger; original approval requirement remains preserved."
+    }
+  },
+  {
+    "id": "proposal-2026-06-02-audit-meeting-infographic-report-quality-gate",
+    "type": "task",
+    "title": "Quality-gate generated meeting reports",
+    "status": "executed",
+    "createdAt": "2026-06-02T18:51:58.739Z",
+    "sourceInsightRefs": [
+      "../cortex/insights/2026-06-02-meeting-infographic-report-quality-gap.json"
+    ],
+    "evidenceRefs": [
+      "natively/meeting-infographics/2026-05-13-elt-scenario-presentation-prep-de627cc5/status.json",
+      "natively/meeting-infographics/2026-05-13-elt-scenario-presentation-prep-de627cc5/report-suggestions.json",
+      "natively/meeting-infographics/2026-04-15-pryor-azure-ot-architecture-alignment-d558f168/status.json",
+      "natively/meeting-infographics/2026-04-14-chaotic-morning-casual-check-in-8c8cc1ba/status.json",
+      "natively/meeting-infographics/2026-04-14-chaotic-morning-casual-check-in-8c8cc1ba/report-suggestions.json",
+      "natively/action-proposals/2026-05-28-define-meeting-visual-brief-contract.json"
+    ],
+    "proposal": {
+      "target": "Natively meeting-infographic and visualBrief report-suggestion lane",
+      "suggestedAction": "Add a quality gate for generated meeting report suggestions: require meeting-specific IP Corp evidence references, suppress generic/off-topic suggested reports, surface failed generated-artifact runs as readiness health warnings, and keep generated report suggestions out of live prep packets until they pass.",
+      "deliverableShape": "Internal engineering task or schema acceptance criteria for the executed visualBrief contract work. Do not modify Natively app code from this brain-refresh automation.",
+      "whyNow": "Fresh June 2 generated artifacts show one NotebookLM suggested-report failure and two completed report-suggestion payloads that are generic or off-topic. Without a gate, Natively could expose polished but ungrounded report ideas during live meetings."
+    },
+    "approval": {
+      "required": true,
+      "reason": "This changes how generated artifacts are trusted by downstream app surfaces, so Steve should approve or route the task before implementation."
+    },
+    "risk": {
+      "level": "medium",
+      "notes": "Ungrounded generated reports can distract live meeting prep and make stakeholder-facing surfaces look authoritative without preserving source specificity."
+    },
+    "tags": [
+      "natively",
+      "task",
+      "meeting-infographics",
+      "visual-brief",
+      "quality-gate",
+      "generated-artifact",
+      "approval-gated"
+    ],
+    "updatedAt": "2026-06-08T16:54:37.241Z",
+    "outcome": {
+      "decision": "executed",
+      "timestamp": "2026-06-03T14:59:00.793Z",
+      "workflowRunId": "run-proposal-2026-06-02-audit-meeting-infographic-report-quality-gate-20260603145900",
+      "learningSignals": [
+        "Steve executed task proposal proposal-2026-06-02-audit-meeting-infographic-report-quality-gate."
+      ],
+      "note": "Closed by Natively outcome ledger; original approval requirement remains preserved."
+    }
+  },
+  {
+    "id": "proposal-2026-06-08-confirm-purview-advisory-scope-and-admin-boundary",
+    "type": "follow_up",
+    "title": "Confirm Purview advisory scope split",
+    "status": "proposed",
+    "createdAt": "2026-06-08T16:54:37.241Z",
+    "sourceInsightRefs": ["../cortex/insights/2026-06-08-purview-advisory-scope-split.json"],
+    "evidenceRefs": [
+      "meetings/summaries/2026-06-03-interplastic-purview-advisory-working-session.md",
+      "natively/meeting-captures/2026-06-03/2026-06-03-interplastic-purview-advisory-working-session-part-1-the-and-but-not-6a66b9db-p1.md#09:02:37-09:07:36",
+      "natively/meeting-captures/2026-06-03/2026-06-03-interplastic-purview-advisory-working-session-part-3-the-and-fabric-purview-6a66b9db-p3.md#10:32:51-10:53:21",
+      "project-memory/decisions/ADR-0004-enforcement-stack-for-governance-boundaries.md"
+    ],
+    "proposal": {
+      "target": "Next CDW/Purview advisory working session",
+      "suggestedAction": "Prepare a short follow-up agenda that separates the Purview catalog/MDM track from Microsoft 365 DLP, asks for the E5/E3-plus-Purview license position, names the Fabric-admin versus Purview-compliance admin boundary, and includes the Microsoft Fabric/Purview link Steve referenced.",
+      "deliverableShape": "Internal agenda/checklist or draft follow-up note for Steve to review; do not send from automation.",
+      "whyNow": "The June 3 advisory session showed CDW and the data team were using Purview to mean overlapping but different workstreams. Clarifying scope before the next session keeps the advisory path from becoming a generic DLP walkthrough and protects Fabric governance decisions from license/admin ambiguity."
+    },
+    "approval": {
+      "required": true,
+      "reason": "This could become an external follow-up to CDW/IP Corp stakeholders, so Steve must approve wording and routing."
+    },
+    "risk": {
+      "level": "medium",
+      "notes": "Poorly framed follow-up could imply procurement or admin-authority decisions before IP Corp has confirmed license and ownership boundaries."
+    },
+    "tags": ["purview", "cdw", "follow-up", "licensing", "admin-boundary", "approval-gated"],
+    "updatedAt": "2026-06-08T16:54:37.241Z"
   }
 ]

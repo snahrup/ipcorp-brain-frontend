@@ -65,7 +65,7 @@
     "severity": "Low",
     "likelihood": "Confirmed",
     "exposed": "Day-to-day analyst work",
-    "mitigation": "Document VPN setup in [project-memory/source-databases.md](source-databases.md); evaluate Fabric on-premises gateway as long-term solution",
+    "mitigation": "Document VPN setup in project-memory/source-databases.md; evaluate Fabric on-premises gateway as long-term solution",
     "owner": "Steve",
     "lastReviewed": "2026-04-29"
   },
@@ -75,7 +75,7 @@
     "severity": "High",
     "likelihood": "Possible",
     "exposed": "The very foundation of this engagement",
-    "mitigation": "Deprecate the source `knowledge/` folders with `_DEPRECATED.md` notices; brief Patrick on the convention; monthly architecture-librarian audit",
+    "mitigation": "Deprecate the source knowledge/ folders with _DEPRECATED.md notices; brief Patrick on the convention; monthly architecture-librarian audit",
     "owner": "Steve",
     "lastReviewed": "2026-04-29"
   },
@@ -218,5 +218,35 @@
     "mitigation": "Audit Will's report data sources; resolve DQ-048; keep Azure/Optix egress constrained through a DMZ whitelist and involve OT engineers before deployment",
     "owner": "Steve / Stuart / Will / OT engineers",
     "lastReviewed": "2026-05-27"
+  },
+  {
+    "id": "R-023",
+    "risk": "Directly sharing the raw architecture-brain repo would expose credentials, raw/private captures, and internal agent operating rules",
+    "severity": "High",
+    "likelihood": "Possible",
+    "exposed": "Stakeholder trust, security posture, IP Corp engagement boundary, Patrick/Eudias knowledge-base review",
+    "mitigation": "Do not share the raw repo; resolve DQ-049 and use proposed ADR-0007's curated/redacted read-model boundary before any stakeholder-facing link is sent. A sanitized frontend candidate exists at C:\\Users\\snahrup\\CascadeProjects\\ipcorp-brain-frontend, but its data export is a stakeholder-safe draft generated from 2026-05-28 brain high-water and must be refreshed/reviewed before sharing.",
+    "owner": "Steve",
+    "lastReviewed": "2026-06-02"
+  },
+  {
+    "id": "R-024",
+    "risk": "Dominique Mathers' Copilot-assisted read of the MDM mural board/Gantt (produced with limited program-history context) may already be circulating unvalidated assumptions about firm dates and named domains before the program/project/task breakdown is finalized",
+    "severity": "Medium",
+    "likelihood": "Possible",
+    "exposed": "MDM Program Structure review-track credibility, ELT/stakeholder trust in timeline commitments, DQ-083 reconciliation",
+    "mitigation": "Steve + Patrick to correct the framing at the 2026-07-17 mural-board follow-up (with Robin Virginia) before it propagates further; avoid sharing dated or named-domain artifacts externally until the program/project/task breakdown is done",
+    "owner": "Steve / Patrick",
+    "lastReviewed": "2026-07-16"
+  },
+  {
+    "id": "R-025",
+    "risk": "Assigning MDM steward/owner roles to commission-compensated sales staff (Cole Cwynar, Jim Perrin, Jason Shiro, Jared Clarke, Matt Butler) pulls customer-facing sellers inside, can reduce their earnings even if compensated, and makes their historical sales numbers look down — risking role refusal, attrition from the role, or resentment of the MDM program",
+    "severity": "Medium",
+    "likelihood": "Confirmed (named in-session)",
+    "exposed": "Sales-domain role staffing, steward/owner acceptance rate, sales performance optics, MDM program goodwill in the sales org",
+    "mitigation": "Recorded as a risk (not a con) on each affected candidate in the matrix; resolve DQ-085 (actual compensation structure, likely via Mike Spencer) before sales-domain assignments; consider data-centric sales-reporting staff as alternates (Steve, 13:48)",
+    "owner": "Steve / Patrick / Mike Spencer",
+    "lastReviewed": "2026-07-21"
   }
 ]

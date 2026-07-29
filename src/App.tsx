@@ -23,12 +23,11 @@ import {
   TriangleAlert,
   Workflow,
 } from "lucide-react";
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { lazy, type ReactNode, Suspense, useEffect, useMemo, useState } from "react";
 import contextEngine from "./assets/context-engine.png";
 import { AdminSettings } from "./components/AdminSettings";
 import { DetailDrawer } from "./components/drawer";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { OrbitalAssistant } from "./components/OrbitalAssistant";
 import {
   ConfidenceBar,
   DrawerHeader,
@@ -43,6 +42,7 @@ import {
   StatusChip,
 } from "./components/ui";
 import { ViewHero } from "./components/ui/ViewHero";
+import { ApprovalDock, WorkbenchHeader, WorkbenchSidebar } from "./components/workbench";
 import {
   type ActionProposal,
   type Adr,
@@ -59,7 +59,7 @@ import {
   type SourceHealthItem,
   sortedInsights,
 } from "./data";
-import { BrainExplorer } from "./features/brain-explorer/BrainExplorer";
+import { workbenchSnapshot } from "./data/workbench";
 import { getAdminSettings } from "./lib/adminSettings";
 import {
   createSearchIndex,
@@ -80,11 +80,19 @@ import {
 } from "./lib/utils";
 import { viewCopy } from "./lib/viewConfig";
 import type { Detail } from "./types/brain";
+import type { ApprovalPreview } from "./types/workbench";
 import { InsightsGraph } from "./views/InsightsGraph";
 import { MeetingsView } from "./views/MeetingsView";
 import { QuestionsView } from "./views/QuestionsView";
 import { RisksView } from "./views/RisksView";
 import { SourceHealthView } from "./views/SourceHealthView";
+import {
+  ConnectionsView,
+  MeetingsWorkspaceView,
+  TeamLibraryView,
+  TodayView,
+  WorkView,
+} from "./views/workbench";
 
 type NavItem = {
   key: ViewKey;
@@ -226,13 +234,17 @@ const learningCards = [
   },
 ];
 
+const LazyBrainExplorer = lazy(() => import("./features/brain-library/BrainExplorerRoute"));
+const LazyDataWork = lazy(() => import("./features/data-work/DataWorkView"));
+
 export default function App() {
-  const [activeView, setActiveView] = useState<ViewKey>("insights"); // GRAPH-CENTRIC REDESIGN: The rich 3D KnowledgeGraph (full provenance 1360-link brain) + OrbitalAssistant is the PRIMARY, DOMINANT, ALWAYS-CENTRAL interface. Traditional navigation is demoted to a thin contextual rail or orb commands. All other content surfaces as graph-triggered context, lenses, or docked panels.
+  const [activeView, setActiveView] = useState<ViewKey>("today");
   const [detail, setDetail] = useState<Detail | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [query, setQuery] = useState("");
   const [searchSelectedIndex, setSearchSelectedIndex] = useState(-1);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [approvalPreview, setApprovalPreview] = useState<ApprovalPreview | null>(null);
   const reduceMotion = useReducedMotion();
 
   const searchIndex = useMemo(createSearchIndex, []);
@@ -243,14 +255,13 @@ export default function App() {
 
   const openDetail = (nextDetail: Detail) => setDetail(nextDetail);
 
-  // Close drawer on Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && detail) {
-        setDetail(null);
+      if (e.key === "Escape") {
+        if (detail) setDetail(null);
+        if (approvalPreview) setApprovalPreview(null);
       }
 
-      // Secret admin shortcut: Ctrl+Shift+A (or Cmd+Shift+A on Mac)
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "a") {
         e.preventDefault();
         setIsAdminOpen(true);
@@ -258,18 +269,17 @@ export default function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [detail]);
+  }, [approvalPreview, detail]);
 
   const navigate = (view: ViewKey) => {
     setActiveView(view);
     setDetail(null);
   };
 
-  // Listen for graph navigation hints from other views (e.g. Questions, Risks) so they feel connected to the central 3D experience
   useEffect(() => {
-    const handler = (e: any) => {
-      if (e.detail?.suggestLens) {
-        // For now just switch to the graph view — the lens can be chosen manually or we can extend later
+    const handler = (event: Event) => {
+      const customEvent = event as CustomEvent<{ suggestLens?: string }>;
+      if (customEvent.detail?.suggestLens) {
         setActiveView("insights");
       }
     };
@@ -302,29 +312,40 @@ export default function App() {
     }
   };
 
+  const focusMeetingInGraph = (meetingId: string) => {
+    setActiveView("insights");
+    window.setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("focus-meeting-in-graph", { detail: { meetingId } }));
+    }, 420);
+  };
+
+  const activeLabel = viewCopy[activeView].label;
   return (
-    <div className={`app-shell ${sidebarOpen ? "nav-open" : "nav-collapsed"}`}>
-      <AmbientCanvas reduceMotion={Boolean(reduceMotion)} />
-      <Sidebar
+    <div className={`wb-app ${sidebarOpen ? "nav-open" : "nav-collapsed"}`}>
+      <WorkbenchSidebar
         activeView={activeView}
-        isOpen={sidebarOpen}
+        expanded={sidebarOpen}
         onToggle={() => setSidebarOpen((value) => !value)}
         onNavigate={navigate}
       />
 
-      <main className="workspace">
-        <Topbar
-          activeView={activeView}
+      <main className="wb-workspace">
+        <WorkbenchHeader
+          label={activeLabel}
+          generatedAt={workbenchSnapshot.generatedAt}
           query={query}
           results={searchResults}
-          onQueryChange={setQuery}
+          selectedIndex={searchSelectedIndex}
+          onQueryChange={(value) => {
+            setQuery(value);
+            setSearchSelectedIndex(-1);
+          }}
+          onSearchKeyDown={handleSearchKeyDown}
           onOpenResult={openSearchResult}
           onClear={() => {
             setQuery("");
             setSearchSelectedIndex(-1);
           }}
-          searchSelectedIndex={searchSelectedIndex}
-          onSearchKeyDown={handleSearchKeyDown}
         />
 
         <AnimatePresence mode="wait">
@@ -336,35 +357,42 @@ export default function App() {
             exit={reduceMotion ? undefined : { opacity: 0, y: -12, filter: "blur(8px)" }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           >
+            {activeView === "today" && (
+              <TodayView
+                items={workbenchSnapshot.workItems}
+                generatedAt={workbenchSnapshot.generatedAt}
+                onOpenDetail={openDetail}
+                onOpenWork={() => navigate("work")}
+              />
+            )}
+            {activeView === "work" && (
+              <WorkView
+                items={workbenchSnapshot.workItems}
+                lanes={workbenchSnapshot.lanes}
+                onOpenDetail={openDetail}
+                onPreview={setApprovalPreview}
+              />
+            )}
+            {activeView === "meetings" && (
+              <MeetingsWorkspaceView openDetail={openDetail} onFocusInGraph={focusMeetingInGraph} />
+            )}
+            {activeView === "library" && <TeamLibraryView />}
+            {activeView === "connections" && (
+              <ConnectionsView sources={workbenchSnapshot.sources} />
+            )}
+            {activeView === "data-work" && (
+              <Suspense fallback={<LazyViewFallback label="Opening Data work" />}>
+                <LazyDataWork />
+              </Suspense>
+            )}
             {activeView === "readiness" && (
               <ReadinessView openDetail={openDetail} navigate={navigate} />
             )}
-            {activeView === "meetings" && (
-              <MeetingsView
-                openDetail={openDetail}
-                onFocusInGraph={(meetingId) => {
-                  // Switch to the main 3D graph experience and request meeting provenance focus
-                  setActiveView("insights");
-                  // Give the graph a moment to mount, then request focus
-                  setTimeout(() => {
-                    window.dispatchEvent(
-                      new CustomEvent("focus-meeting-in-graph", { detail: { meetingId } })
-                    );
-                  }, 420);
-                }}
-              />
-            )}
             {activeView === "packets" && <PacketsView openDetail={openDetail} query={query} />}
             {activeView === "insights" && (
-              /* GRAPH IS THE PRODUCT — full-bleed synthesis cockpit. 
-                 The rich 3D KnowledgeGraph with 1360 provenance-backed links is the primary, always-central interface.
-                 All other brain content (packets, ADRs, risks, meetings, sources) now surfaces as contextual panels, 
-                 orb commands, or graph-triggered overlays instead of separate "views". */
-              <div className="graph-cockpit full-bleed">
-                <ErrorBoundary>
-                  <BrainExplorer />
-                </ErrorBoundary>
-              </div>
+              <Suspense fallback={<LazyViewFallback label="Opening How things connect" />}>
+                <LazyBrainExplorer />
+              </Suspense>
             )}
             {activeView === "actions" && <ActionsView openDetail={openDetail} query={query} />}
             {activeView === "questions" && <QuestionsView openDetail={openDetail} query={query} />}
@@ -376,12 +404,22 @@ export default function App() {
       </main>
 
       <DetailDrawer detail={detail} onClose={() => setDetail(null)} />
+      <ApprovalDock preview={approvalPreview} onClose={() => setApprovalPreview(null)} />
       <AdminSettings isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
+    </div>
+  );
+}
 
-      {/* Floating Orbital Assistant — always present across every view.
-          Has full access to the rich brain-graph (1360 provenance-backed links).
-          Can fly the camera, switch lenses, emphasize real connections, and surface excerpts. */}
-      <OrbitalAssistant />
+function LazyViewFallback({ label }: { label: string }) {
+  return (
+    <div className="wb-page" role="status" aria-live="polite">
+      <section className="wb-loading-card">
+        <span className="wb-loading-dot" aria-hidden="true" />
+        <div>
+          <strong>{label}…</strong>
+          <p>This optional area is loading without interrupting the daily Workbench.</p>
+        </div>
+      </section>
     </div>
   );
 }
@@ -417,7 +455,7 @@ function Sidebar({
         {isOpen && (
           <div className="brand-copy">
             <strong>Context OS</strong>
-            <span>IP Corp Architecture Brain</span>
+            <span>IP Corporation Workbench</span>
           </div>
         )}
       </div>
@@ -1258,10 +1296,10 @@ function DecisionsView({
         <article className="glass-card decision-register">
           <SectionHeader eyebrow="Possible future decisions" title="ADR candidates" icon={Split} />
           <div className="decision-list">
-            {candidates.map((candidate, index) => (
+            {candidates.map((candidate) => (
               <button
                 className="decision-card"
-                key={`${candidate.topic}-${index}`}
+                key={`${candidate.dateFlagged}-${candidate.topic}`}
                 onClick={() =>
                   openDetail({ kind: "adr", value: candidate, label: "ADR candidate" })
                 }
@@ -1347,20 +1385,6 @@ function AdrDetail({ adr, label }: { adr: Adr | AdrCandidate; label: string }) {
           ]}
         />
       )}
-    </div>
-  );
-}
-
-function AmbientCanvas({ reduceMotion }: { reduceMotion: boolean }) {
-  return (
-    <div className="ambient-canvas" aria-hidden="true">
-      <div className="ambient-glow one" />
-      <div className="ambient-glow two" />
-      {!reduceMotion &&
-        Array.from({ length: 8 }).map((_, index) => (
-          <span className={`ambient-thread thread-${index}`} key={index} />
-        ))}
-      <Brain className="ambient-icon" size={620} strokeWidth={0.75} />
     </div>
   );
 }

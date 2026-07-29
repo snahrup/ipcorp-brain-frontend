@@ -97,6 +97,7 @@ export function InsightsGraph({
       }}
     >
       <svg width="100%" height="100%" style={{ position: "absolute", top: 0, left: 0 }}>
+        <title>Insight relationships</title>
         {/* Edges */}
         {edges.map((edge, i) => {
           const from = nodes.find((n) => n.id === edge.from);
@@ -104,7 +105,7 @@ export function InsightsGraph({
           if (!from || !to) return null;
 
           return (
-            <g key={i}>
+            <g key={`${edge.from}-${edge.to}`}>
               <line
                 x1={from.x}
                 y1={from.y}
@@ -137,7 +138,23 @@ export function InsightsGraph({
           return (
             <g
               key={node.id}
-              onClick={() => handleNodeClick(node)}
+              // Only insight nodes are actionable, so only they carry the button role
+              // and its handlers. Attaching a click to a plain group would leave a
+              // control that a keyboard cannot reach.
+              {...(isInsight
+                ? {
+                    role: "button" as const,
+                    "aria-label": node.label,
+                    tabIndex: 0,
+                    onClick: () => handleNodeClick(node),
+                    onKeyDown: (event: React.KeyboardEvent<SVGGElement>) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        handleNodeClick(node);
+                      }
+                    },
+                  }
+                : {})}
               style={{ cursor: isInsight ? "pointer" : "default" }}
             >
               {/* Glow / Depth */}
@@ -146,7 +163,7 @@ export function InsightsGraph({
                   cx={node.x}
                   cy={node.y}
                   r={isSelected ? 42 : 36}
-                  fill="rgba(34, 197, 94, 0.08)"
+                  fill="rgba(27, 94, 158, 0.08)"
                   style={{ transition: "all 0.2s ease" }}
                 />
               )}
@@ -156,8 +173,8 @@ export function InsightsGraph({
                 cx={node.x}
                 cy={node.y}
                 r={isInsight ? (isSelected ? 28 : 22) : 14}
-                fill={isInsight ? (isSelected ? "#22c55e" : "#2a2f36") : "#4a515a"}
-                stroke={isInsight ? "rgba(34, 197, 94, 0.6)" : "rgba(119, 199, 255, 0.4)"}
+                fill={isInsight ? (isSelected ? "#1B5E9E" : "#2A4A6B") : "#446084"}
+                stroke={isInsight ? "rgba(26, 130, 197, 0.6)" : "rgba(119, 199, 255, 0.4)"}
                 strokeWidth={isSelected ? 3 : 1.5}
                 style={{ transition: "all 0.2s cubic-bezier(0.23, 1, 0.32, 1)" }}
               />
@@ -182,7 +199,7 @@ export function InsightsGraph({
                   cy={node.y}
                   r={26}
                   fill="none"
-                  stroke="rgba(34, 197, 94, 0.5)"
+                  stroke="rgba(26, 130, 197, 0.5)"
                   strokeWidth={2}
                   strokeDasharray={`${node.confidence * 160} 160`}
                   transform={`rotate(-90 ${node.x} ${node.y})`}

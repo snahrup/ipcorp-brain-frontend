@@ -139,7 +139,7 @@ function synthesizeAnswer(query: string, hits: any[]): { text: string; actions: 
     const lineageLine = disp
       ? `\n\nSynthesis path: ${disp.originLabel} → stages ${disp.stagePath} (${disp.qualityBadge}).`
       : "";
-    text = `${top.sourceNode.name} → ${top.targetNode.name}: ${prov.reason || "explicit connection"}.${lineageLine}\n\nSource: ${prov.sourceFile || "brain record"}${prov.excerpt ? `\n\n"${prov.excerpt.slice(0, 200)}"` : ""}`;
+    text = `${top.sourceNode.name} → ${top.targetNode.name}: ${prov.reason || "explicit connection"}.${lineageLine}\n\nSource: ${prov.sourceFile || "knowledge record"}${prov.excerpt ? `\n\n"${prov.excerpt.slice(0, 200)}"` : ""}`;
 
     actions.push({
       label: `Focus ${top.sourceNode.name} → ${top.targetNode.name} in 3D`,
@@ -152,7 +152,7 @@ function synthesizeAnswer(query: string, hits: any[]): { text: string; actions: 
       payload: { edge: top.link },
     });
   } else if (top.type === "node") {
-    text = `${top.node.name} (${top.node.layer}).\n\n${top.excerpt || "Real node from the indexed brain."}`;
+    text = `${top.node.name} (${top.node.layer}).\n\n${top.excerpt || "A real record from the knowledge map."}`;
 
     actions.push({
       label: "Focus this in the 3D Graph",
@@ -197,7 +197,7 @@ export function OrbitalAssistant() {
       id: "welcome",
       role: "assistant",
       content:
-        "I'm the memory of the IP Corp Architecture Brain.\n\nI have read every transcript, every ADR, every architecture discussion, every book application note, every dataflow definition, and every Cortex insight — with full provenance.\n\nAsk me anything. I can take you straight to the exact node, meeting, or excerpt in the 3D graph.",
+        "I'm the memory of the IP Corporation Workbench.\n\nI have read every transcript, every ADR, every architecture discussion, every book application note, every dataflow definition, and every Cortex insight — with full provenance.\n\nAsk me anything. I can take you straight to the exact node, meeting, or excerpt in the 3D graph.",
     },
   ]);
 
@@ -356,7 +356,8 @@ export function OrbitalAssistant() {
         const hint: Message = {
           id: `hint-perf-${Date.now()}`,
           role: "assistant",
-          content: "Heavy full-brain data loaded. For a much smoother experience in the 3D graph:",
+          content:
+            "The full knowledge map is loaded. For a much smoother experience in the 3D graph:",
           actions: [
             { label: "Try Performance preset (recommended)", action: "APPLY_PERFORMANCE_PRESET" },
             { label: "Reset View", action: "TRIGGER_RESET_VIEW" },
@@ -421,7 +422,7 @@ export function OrbitalAssistant() {
           setTimeout(() => inputRef.current?.focus(), 160);
         }}
         className="orbital-orb"
-        aria-label="Open Orbital Memory assistant — full brain indexed"
+        aria-label="Open Orbital Memory assistant — full knowledge map indexed"
         title="Orbital Memory • Press / anywhere to ask"
       >
         <div className="orb-inner">
@@ -488,9 +489,9 @@ export function OrbitalAssistant() {
 
                       {msg.actions && msg.actions.length > 0 && (
                         <div className="action-chips">
-                          {msg.actions.map((act, idx) => (
+                          {msg.actions.map((act) => (
                             <button
-                              key={idx}
+                              key={`${act.action}-${act.label}`}
                               className="action-chip"
                               onClick={() => handleAction(act.action, act.payload)}
                             >
@@ -516,8 +517,8 @@ export function OrbitalAssistant() {
                   <div className="demo-prompts">
                     <div className="demo-label">Try asking about:</div>
                     <div className="demo-chips">
-                      {demoPrompts.map((p, i) => (
-                        <button key={i} onClick={() => sendMessage(p)} className="demo-chip">
+                      {demoPrompts.map((p) => (
+                        <button key={p} onClick={() => sendMessage(p)} className="demo-chip">
                           {p}
                         </button>
                       ))}

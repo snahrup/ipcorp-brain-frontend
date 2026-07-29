@@ -11,7 +11,7 @@ This repository is intentionally **not** the raw brain repo. It contains only th
 - Data classification: internal / stakeholder-safe draft
 - Raw transcripts, credentials, internal agent rules, live captures, and workflow receipts are excluded.
 - Working app: `http://ipcorp-brain.localhost` or `http://127.0.0.1:5217`
-- Launcher: `C:\Users\snahrup\OneDrive - IP-Corporation\Desktop\Apps\IP Corp Brain Launch.bat`
+- Launcher: `C:\Apps\IP Corp Brain Launch.bat` starts the local gateway on `8817` and Vite on `5217`, waits for both readiness checks, then opens the browser without starting ngrok.
 
 ## Local Development
 

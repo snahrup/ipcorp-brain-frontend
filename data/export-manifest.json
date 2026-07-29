@@ -1,21 +1,21 @@
 {
-  "generatedAt": "2026-05-28T00:53:32.551Z",
-  "sourceBrain": "C:/Users/snahrup/CascadeProjects/ipcorp-architecture-brain",
+  "generatedAt": "2026-07-29T15:37:07.358Z",
+  "sourceBrain": "C:/Users/snahrup/OneDrive - IP-Corporation/ipcorp-architecture-brain",
   "sourceHighWater": {
-    "brainStatusUpdatedAt": "2026-05-28T00:29:37.287Z",
-    "meetingIndexUpdatedAt": "2026-05-28T00:29:37.287Z",
-    "latestNativelyRun": "2026-05-28T00:29:37.287Z"
+    "brainStatusUpdatedAt": "2026-06-11T15:21:15.069Z",
+    "meetingIndexUpdatedAt": "2026-07-29T15:37:07.245Z",
+    "latestNativelyRun": "2026-06-11T15:21:15.069Z"
   },
   "classification": "internal-stakeholder-safe-draft",
   "redactionPolicy": "Raw captures, authentication material, internal agent rules, live-capture snippets, and workflow receipts are excluded.",
   "counts": {
-    "prepPackets": 14,
-    "cortexInsights": 21,
-    "actionProposals": 13,
-    "openQuestions": 51,
-    "risks": 22,
-    "adrs": 6,
-    "adrCandidates": 13
+    "prepPackets": 16,
+    "cortexInsights": 28,
+    "actionProposals": 18,
+    "openQuestions": 94,
+    "risks": 25,
+    "adrs": 9,
+    "adrCandidates": 23
   },
   "stitchEntryPoints": [
     "../STITCH_FRONTEND_BRIEF.md",

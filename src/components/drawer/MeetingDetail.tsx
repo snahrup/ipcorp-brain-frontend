@@ -1,51 +1,74 @@
-import { CalendarDays, FileCheck2 } from "lucide-react";
+import { CalendarDays, Clock3, FileCheck2, Users } from "lucide-react";
 import { packetById } from "../../data";
-import { formatDate, formatStatus, getLinkedPacket, toneForStatus } from "../../lib/utils";
+import { formatDate, getLinkedPacket } from "../../lib/utils";
 import type { MeetingEntry } from "../../types/brain";
-import { DrawerHeader, InfoBlock, ListBlock, StatusChip } from "../ui";
+import { DrawerHeader, InfoBlock, StatusChip } from "../ui";
 
 interface MeetingDetailProps {
   meeting: MeetingEntry;
 }
 
+function attendeeList(attendees?: string) {
+  if (!attendees) return [];
+  return attendees
+    .split(/,| and /)
+    .map((name) => name.trim())
+    .filter(Boolean);
+}
+
 export function MeetingDetail({ meeting }: MeetingDetailProps) {
   const linkedPacket = getLinkedPacket(meeting, packetById);
+  const people = attendeeList(meeting.attendees);
+  const when = meeting.day ?? meeting.startsAt ?? meeting.date;
 
   return (
     <div className="drawer-stack">
-      <DrawerHeader
-        icon={CalendarDays}
-        eyebrow={formatDate(meeting.startsAt ?? meeting.date)}
-        title={meeting.title}
-      />
+      <DrawerHeader icon={CalendarDays} eyebrow={formatDate(when)} title={meeting.title} />
+
       <div className="drawer-hero-strip">
-        <StatusChip
-          label={formatStatus(meeting.readinessStatus)}
-          tone={toneForStatus(meeting.readinessStatus)}
-        />
+        {meeting.duration && (
+          <StatusChip label={meeting.duration} tone="blue" icon={<Clock3 size={13} />} />
+        )}
+        {people.length > 0 && (
+          <StatusChip
+            label={`${people.length} ${people.length === 1 ? "person" : "people"}`}
+            tone="blue"
+            icon={<Users size={13} />}
+          />
+        )}
         {linkedPacket && (
-          <StatusChip label="Linked packet" tone="green" icon={<FileCheck2 size={13} />} />
+          <StatusChip label="Has prep notes" tone="green" icon={<FileCheck2 size={13} />} />
         )}
       </div>
-      <InfoBlock title="Why now" body={meeting.whyNow} />
-      <ListBlock title="Feeds packets" items={meeting.feedsPackets} monospace />
-      <ListBlock title="Feeds insights" items={meeting.feedsInsights} monospace />
+
+      {meeting.summary && <InfoBlock title="What happened" body={meeting.summary} />}
+      {meeting.whyNow && <InfoBlock title="Why it mattered" body={meeting.whyNow} />}
+
+      {people.length > 0 && (
+        <div className="meeting-detail-people">
+          <span className="mono-kicker">Who was there</span>
+          <div className="meeting-detail-people-list">
+            {people.map((person) => (
+              <span className="meeting-detail-person" key={person}>
+                {person}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {linkedPacket && (
         <div className="nested-card">
-          <span className="mono-kicker">Linked packet</span>
+          <span className="mono-kicker">Prep notes</span>
           <h3>{linkedPacket.title}</h3>
           <p>{linkedPacket.summary}</p>
         </div>
       )}
-      <ListBlock
-        title="Evidence refs"
-        items={[meeting.source, meeting.packet].filter(Boolean) as string[]}
-        humanize
-      />
 
-      {/* Prominent action to jump into the central 3D graph with this meeting's real provenance */}
-      <div style={{ marginTop: 16 }}>
+      <div className="meeting-detail-graph">
         <button
+          type="button"
+          className="meeting-detail-action"
           onClick={() => {
             window.dispatchEvent(
               new CustomEvent("focus-meeting-in-graph", {
@@ -55,27 +78,12 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                 },
               })
             );
-            // The parent will usually close the drawer when navigating
-          }}
-          style={{
-            width: "100%",
-            padding: "10px 14px",
-            borderRadius: "var(--radius-md)",
-            background: "var(--white)",
-            color: "var(--on-white)",
-            fontWeight: 600,
-            border: "1px solid var(--white)",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
           }}
         >
-          <span>Focus this meeting’s real connections in the 3D graph</span>
+          <span>See how this meeting connects</span>
         </button>
-        <div style={{ fontSize: 10, opacity: 0.6, textAlign: "center", marginTop: 4 }}>
-          Shows dataflows, ADRs, systems, books, and insights this conversation actually touched
+        <div className="meeting-detail-action-note">
+          Shows the dataflows, decisions, systems, and insights this conversation actually touched
         </div>
       </div>
     </div>

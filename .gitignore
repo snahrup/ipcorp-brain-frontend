@@ -68,3 +68,7 @@ id_ed25519
 credentials.json
 credentials.toml
 *.secret
+
+data.bak-*/
+playwright-report/
+test-results/

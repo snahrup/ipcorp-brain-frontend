@@ -5,128 +5,221 @@
       "title": "Consolidate IP Corp knowledge into single knowledge-base repo",
       "status": "proposed",
       "date": "2026-04-29",
-      "decider": "Steve → ratification",
-      "supersedes": "—"
+      "decider": "Steve (proposing) → ratification",
+      "supersedes": "—",
+      "slug": "ADR-0001-knowledge-consolidation"
     },
     {
       "number": "00020002",
       "title": "Implement Purview as the parallel governance layer for Fabric",
       "status": "proposed",
       "date": "2026-05-04",
-      "decider": "Steve → Patrick / Mike ratification",
-      "supersedes": "—"
+      "decider": "Steve -> ratification with Patrick / Mike",
+      "supersedes": "—",
+      "slug": "ADR-0002-purview-parallel-governance-layer"
     },
     {
       "number": "00030003",
       "title": "Use Teams as canonical meeting evidence when sources overlap",
       "status": "proposed",
       "date": "2026-05-04",
-      "decider": "Steve → ratification",
-      "supersedes": "—"
+      "decider": "Steve -> ratification",
+      "supersedes": "—",
+      "slug": "ADR-0003-meeting-source-priority-and-cluely-disposition"
     },
     {
       "number": "00040004",
-      "title": "Enforcement stack for governance boundaries",
+      "title": "Enforcement Stack for Governance Boundaries",
       "status": "proposed",
       "date": "2026-05-20",
-      "decider": "Mike / Patrick / Stuart / Michael → ratification",
-      "supersedes": "—"
+      "decider": "Mike Spencer (CIO) · Patrick Stiller (IT Manager, Data & Analytics) · Stuart Langley (Purview coordinator) · Michael Kenney (Sr IT Mgr Infrastructure)",
+      "supersedes": "—",
+      "slug": "ADR-0004-enforcement-stack-for-governance-boundaries"
     },
     {
       "number": "00050005",
-      "title": "Gold domain semantic model as the reporting control surface",
+      "title": "Gold Domain Semantic Model as the Reporting Control Surface",
       "status": "proposed",
       "date": "2026-05-21",
-      "decider": "Patrick / Mike / Eudias / Matt → ratification",
-      "supersedes": "—"
+      "decider": "Patrick Stiller · Mike Spencer · Eudias Kifem · Matt Francis",
+      "supersedes": "—",
+      "slug": "ADR-0005-gold-domain-semantic-model-control-surface"
     },
     {
       "number": "00060006",
-      "title": "Plant-floor evidence stream contract before Traceability Gold",
+      "title": "Plant-Floor Evidence Stream Contract Before Traceability Gold",
       "status": "proposed",
       "date": "2026-05-27",
-      "decider": "Patrick / Plant Ops / R&D / MES → ratification",
-      "supersedes": "—"
+      "decider": "Patrick Stiller · Ben / R&D owner · Plant Ops owner · MES/OT owner · Steve Nahrup",
+      "supersedes": "—",
+      "slug": "ADR-0006-plant-floor-evidence-stream-contract"
+    },
+    {
+      "number": "00070007",
+      "title": "Stakeholder Brain Access Through Curated Read Model",
+      "status": "proposed",
+      "date": "2026-05-28",
+      "decider": "Steve Nahrup · Patrick Stiller · Eudias Kifem · Mike Spencer if access broadens",
+      "supersedes": "—",
+      "slug": "ADR-0007-stakeholder-brain-access-read-model"
+    },
+    {
+      "number": "00080008",
+      "title": "Gold Layer = Single Central Lakehouse + Per-Domain Semantic Models",
+      "status": "proposed",
+      "date": "2026-06-11",
+      "decider": "Steve Nahrup · Eudias Kifem · Patrick Stiller · Mike Spencer ratification",
+      "supersedes": "the per-entity Gold Warehouse topology and the \"reports connect directly to Gold warehouse\" cross-capacity workaround described in core/project-memory/fabric-migration-strategy.md (Jan 2026) - superseded via dated pointers, original text preserved",
+      "slug": "ADR-0008-central-gold-lakehouse-and-domain-semantic-models"
+    },
+    {
+      "number": "00090009",
+      "title": "Approval-First Steward/Owner Engagement (Pre-Built Proposed Golden Models)",
+      "status": "proposed",
+      "date": "2026-06-11",
+      "decider": "Steve Nahrup · Patrick Stiller · Mike Spencer (originated the approach) · ELT ratification",
+      "supersedes": "none (formalizes the engagement pattern; replaces the implicit \"wait for stewards, then canvass per person\" default)",
+      "slug": "ADR-0009-approval-first-steward-owner-engagement"
     }
   ],
   "candidates": [
     {
       "dateFlagged": "2026-05-18",
-      "topic": "**Custom data-migration tooling deprecated → Fabric Data Factory** as canonical ingestion runtime. Architectural lock-in to Fabric-native ELT. Captures the rationale for retiring legacy migration scripts.",
-      "source": "`DISC-2026-05-18-008` (weekly status 2026-05-14)",
+      "topic": "Custom data-migration tooling deprecated → Fabric Data Factory as canonical ingestion runtime. Architectural lock-in to Fabric-native ELT. Captures the rationale for retiring legacy migration scripts.",
+      "source": "DISC-2026-05-18-008 (weekly status 2026-05-14)",
       "status": "candidate"
     },
     {
       "dateFlagged": "2026-05-18",
-      "topic": "**Informatica vs. Fabric-native MDM.** Robin Virginia opened a Salesforce/Informatica vendor channel positioning Informatica as \"Source of Truth Engine\" complementary to Fabric. Decision needed: evaluate, decline, or formally non-pursue.",
-      "source": "`DISC-2026-05-18-010`, `DQ-020`",
+      "topic": "Informatica vs. Fabric-native MDM. Robin Virginia opened a Salesforce/Informatica vendor channel positioning Informatica as \"Source of Truth Engine\" complementary to Fabric. Decision needed: evaluate, decline, or formally non-pursue.",
+      "source": "DISC-2026-05-18-010, DQ-020",
       "status": "candidate"
     },
     {
       "dateFlagged": "2026-05-18",
-      "topic": "**Fabric Foundation for Execution Brief** — capture the strategic framing decisions (Purview-in-parallel recommendation, \"hard calls\" section).",
-      "source": "`DISC-2026-05-18-007` (Steve authored 2026-05-05)",
+      "topic": "Fabric Foundation for Execution Brief — capture the strategic framing decisions (Purview-in-parallel recommendation, \"hard calls\" section).",
+      "source": "DISC-2026-05-18-007 (Steve authored 2026-05-05)",
       "status": "candidate"
     },
     {
       "dateFlagged": "2026-05-18",
-      "topic": "**Purview Advisory engagement model (CDW external partner)** — formalize the working relationship: CDW as named external partner for Purview/MDM/governance, distinct from Robin Virginia as individual consultant. SOW PO-004-9015989 signed 2026-05-04.",
-      "source": "`DISC-2026-05-18-006`",
+      "topic": "Purview Advisory engagement model (CDW external partner) — formalize the working relationship: CDW as named external partner for Purview/MDM/governance, distinct from Robin Virginia as individual consultant. SOW PO-004-9015989 signed 2026-05-04.",
+      "source": "DISC-2026-05-18-006",
       "status": "candidate"
     },
     {
       "dateFlagged": "2026-05-19",
-      "topic": "**M3 Cloud → Microsoft Fabric ingestion path** — replace multi-hop (M3 Cloud → Infor Data Fabric → on-prem SQL Server → MS Fabric) with either a direct Infor-Fabric → MS-Fabric connector or M3-Cloud → MS-Fabric direct, pending connector research. Eliminates two unnecessary hops and an on-prem dependency.",
-      "source": "`DISC-2026-05-19-001`, `meetings/summaries/2026-05-19-preface-fabric-meeting.md`",
+      "topic": "M3 Cloud → Microsoft Fabric ingestion path — replace multi-hop (M3 Cloud → Infor Data Fabric → on-prem SQL Server → MS Fabric) with either a direct Infor-Fabric → MS-Fabric connector or M3-Cloud → MS-Fabric direct, pending connector research. Eliminates two unnecessary hops and an on-prem dependency.",
+      "source": "DISC-2026-05-19-001, meetings/summaries/2026-05-19-preface-fabric-meeting.md",
       "status": "candidate"
     },
     {
       "dateFlagged": "2026-05-19",
-      "topic": "**SQL Server → Fabric Bronze mirroring as default ingestion pattern** — adopt Fabric's real-time SQL Server mirroring/sync (log-shipping-like) for all SQL-Server-backed sources, replacing recurring pipelines. Subject to per-table indexing/PK confirmation and network prerequisites validation with Stuart + Michael Kent.",
-      "source": "`DISC-2026-05-19-005`, `meetings/summaries/2026-05-19-preface-fabric-meeting.md`",
+      "topic": "SQL Server → Fabric Bronze mirroring as default ingestion pattern — adopt Fabric's real-time SQL Server mirroring/sync (log-shipping-like) for all SQL-Server-backed sources, replacing recurring pipelines. Subject to per-table indexing/PK confirmation and network prerequisites validation with Stuart + Michael Kent.",
+      "source": "DISC-2026-05-19-005, meetings/summaries/2026-05-19-preface-fabric-meeting.md",
       "status": "candidate"
     },
     {
       "dateFlagged": "2026-05-19",
-      "topic": "**MES scope expansion: bring pilot reactor + experimental R&D batches under MES tracking** — close the new-product-introduction traceability gap (pilot reactor batches today created manually by Andre, materials drawn down manually, no soft-allocation in M3). Decision required because the change touches MES configuration, M3 inventory policy, and R&D workflow.",
-      "source": "`DISC-2026-05-19-009`, `meetings/summaries/2026-05-19-plant-tour.md`",
+      "topic": "MES scope expansion: bring pilot reactor + experimental R&D batches under MES tracking — close the new-product-introduction traceability gap (pilot reactor batches today created manually by Andre, materials drawn down manually, no soft-allocation in M3). Decision required because the change touches MES configuration, M3 inventory policy, and R&D workflow.",
+      "source": "DISC-2026-05-19-009, meetings/summaries/2026-05-19-plant-tour.md",
       "status": "candidate"
     },
     {
       "dateFlagged": "2026-05-19",
-      "topic": "**System-of-record for CIPP submittal-package documentation** — current thumb-drive-only storage is an unacceptable single-point-of-failure for ~$20K-per-system test investments and contractually-required customer documentation. Decision needed on Optiva vs. document-management platform vs. Fabric-governed store.",
-      "source": "`DISC-2026-05-19-011`, `meetings/summaries/2026-05-19-plant-tour.md`",
+      "topic": "System-of-record for CIPP submittal-package documentation — current thumb-drive-only storage is an unacceptable single-point-of-failure for ~$20K-per-system test investments and contractually-required customer documentation. Decision needed on Optiva vs. document-management platform vs. Fabric-governed store.",
+      "source": "DISC-2026-05-19-011, meetings/summaries/2026-05-19-plant-tour.md",
       "status": "candidate"
     },
     {
       "dateFlagged": "2026-05-19",
-      "topic": "**Batch lineage aggregation from PLC tank-transfer log** — design a Bronze→Silver model that reconstructs commingled-tank composition over time so traceability lookups (\"which batches went into S-24 last quarter?\") are possible. PLC already writes batch + product on every transfer; data is there, aggregation is not.",
-      "source": "`DISC-2026-05-19-012`, `meetings/summaries/2026-05-19-plant-tour.md`",
+      "topic": "Batch lineage aggregation from PLC tank-transfer log — design a Bronze→Silver model that reconstructs commingled-tank composition over time so traceability lookups (\"which batches went into S-24 last quarter?\") are possible. PLC already writes batch + product on every transfer; data is there, aggregation is not.",
+      "source": "DISC-2026-05-19-012, meetings/summaries/2026-05-19-plant-tour.md",
       "status": "candidate"
     },
     {
       "dateFlagged": "2026-05-19",
-      "topic": "**Digitization of paper batch charge sheets** — paper is currently the legal record for batch composition (≥15 lot numbers per batch, manually recorded). MES captures only a subset. Decision needed on whether to digitize at point-of-charge or accept paper-as-legal-record indefinitely; impacts MDM scope.",
-      "source": "`DISC-2026-05-19-010`, `meetings/summaries/2026-05-19-plant-tour.md`",
+      "topic": "Digitization of paper batch charge sheets — paper is currently the legal record for batch composition (≥15 lot numbers per batch, manually recorded). MES captures only a subset. Decision needed on whether to digitize at point-of-charge or accept paper-as-legal-record indefinitely; impacts MDM scope.",
+      "source": "DISC-2026-05-19-010, meetings/summaries/2026-05-19-plant-tour.md",
       "status": "candidate"
     },
     {
       "dateFlagged": "2026-05-21",
-      "topic": "**Sales semantic-model consolidation / canonical measure contract** — Sales BI models across Interplastic, MP, and NAC are cloned enough to share a semantic pattern but have same-name divergent DAX. Decision needed on one shared model with RLS vs governed per-company templates with canonical measures.",
-      "source": "`DISC-2026-05-20-002`, `DISC-2026-05-20-003`, `meetings/summaries/_RUN_REPORT_2026-05-20-pbi-model-documentation-sweep.md`",
+      "topic": "Sales semantic-model consolidation / canonical measure contract — Sales BI models across Interplastic, MP, and NAC are cloned enough to share a semantic pattern but have same-name divergent DAX. Decision needed on one shared model with RLS vs governed per-company templates with canonical measures.",
+      "source": "DISC-2026-05-20-002, DISC-2026-05-20-003, meetings/summaries/_RUN_REPORT_2026-05-20-pbi-model-documentation-sweep.md",
       "status": "candidate"
     },
     {
       "dateFlagged": "2026-05-21",
-      "topic": "**Shared master-data relationship pattern for intercompany item/customer/supplier modeling** — May 20 intercompany mapping favored stable master records with maintained contextual relationships over duplicated company-specific masters. Needs M3-owner validation before full ADR.",
-      "source": "`DISC-2026-05-21-003`, `meetings/summaries/2026-05-20-intercompany-item-mapping.md`, `DQ-046`",
+      "topic": "Shared master-data relationship pattern for intercompany item/customer/supplier modeling — May 20 intercompany mapping favored stable master records with maintained contextual relationships over duplicated company-specific masters. Needs M3-owner validation before full ADR.",
+      "source": "DISC-2026-05-21-003, meetings/summaries/2026-05-20-intercompany-item-mapping.md, DQ-046",
       "status": "candidate"
     },
     {
       "dateFlagged": "2026-05-27",
-      "topic": "**Plant-floor evidence stream contract before Traceability Gold** — formalize the May 19/26 plant-floor source-of-record insight as a prerequisite pattern: MES, paper charge sheets, PLC transfer logs, lab notebooks, CIPP packages, Optiva, Salesforce LSRs, QC, retains/rework, and NIR remain separate evidence streams until owner/location/authority/digital coverage are explicit.",
-      "source": "`project-memory/source-systems/plant-floor-evidence.md`, `meetings/summaries/_RUN_REPORT_2026-05-26-plant-tour-asset-application.md`, `DQ-037` through `DQ-042`, `R-015` through `R-021`",
-      "status": "drafted as `ADR-0006`"
+      "topic": "Plant-floor evidence stream contract before Traceability Gold — formalize the May 19/26 plant-floor source-of-record insight as a prerequisite pattern: MES, paper charge sheets, PLC transfer logs, lab notebooks, CIPP packages, Optiva, Salesforce LSRs, QC, retains/rework, and NIR remain separate evidence streams until owner/location/authority/digital coverage are explicit.",
+      "source": "project-memory/source-systems/plant-floor-evidence.md, meetings/summaries/_RUN_REPORT_2026-05-26-plant-tour-asset-application.md, DQ-037 through DQ-042, R-015 through R-021",
+      "status": "drafted as ADR-0006"
+    },
+    {
+      "dateFlagged": "2026-05-28",
+      "topic": "Stakeholder brain access through curated read model — Patrick asked for a link to the IP Corp knowledge-base/readiness layer, but the raw repo is internal-only and contains credentials, raw captures, and internal agent rules. Decision needed: expose a curated/redacted read-only surface rather than direct repo access.",
+      "source": "meetings/summaries/2026-05-27-fabric-stand-up-recovery-planning.md, DQ-049, R-023",
+      "status": "drafted as ADR-0007"
+    },
+    {
+      "dateFlagged": "2026-06-11",
+      "topic": "Gold layer = single central lakehouse + per-domain semantic models - one central gold lakehouse (all domains, automated silver→gold), one semantic model per domain gold workspace, built in PBI Desktop, live connection, Steve/Eudias sole editors, users consume reports only. Resolves ADR-0005 OQ-1 (Product first).",
+      "source": "core/meetings/transcripts/teams-export/2026-06-11-weekly-fabric-check-in.md [00:05:31]-[00:09:22], DQ-050/DQ-051",
+      "status": "drafted as ADR-0008"
+    },
+    {
+      "dateFlagged": "2026-06-11",
+      "topic": "Approval-first steward/owner engagement - build proposed golden-model worksheets BEFORE stewards/owners are named; ELT sign-off; stewards validate coverage rather than co-design from scratch (Mike's requested approach).",
+      "source": "core/meetings/transcripts/teams-export/2026-06-11-weekly-fabric-check-in.md [00:00:39]-[00:02:57]",
+      "status": "drafted as ADR-0009"
+    },
+    {
+      "dateFlagged": "2026-06-24",
+      "topic": "Salesperson identity modeling — two dimensions (current vs. at-time-of-sale); no destructive history rewrites. Model salesperson as a current-salesperson dimension AND a salesperson-at-time-of-sale dimension (SCD-2-style); never overwrite historical records (M3 locks salesperson into sales-history at sale time). Decide rule placement: case-specific → data catalog + Power BI; foundational → Fabric pipelines. Applies to NAC Sales BI sales-rep dimension and the Sales/Customer golden model. Owners/stewards ratify (ADR-0009).",
+      "source": "DISC-2026-06-24-001, core/meetings/summaries/2026-06-22-nahrup-1on1-with-patrick.md, core/meetings/summaries/2026-06-22-dev-data-standup.md; reinforced by DISC-2026-07-02-003 (6/25 SCD deep-dive) + DISC-2026-07-02-009 (6/29 Adage number->name history)",
+      "status": "candidate (ADR-0010 earmark; reinforced 2026-07-02, still not drafted)"
+    },
+    {
+      "dateFlagged": "2026-07-02",
+      "topic": "AD-delegated MDM security model (augment, group-based, no parallel security architecture). Delegate/augment existing Active Directory rather than build a separate MDM security model; use AD security groups (workspace + user group) not individual users; document permission schemas in Purview; Azure resource groups for scale; Fabric still needs its own workspace/report/RLS layer. Cross-org dependency on Michael Kenney's team.",
+      "source": "DISC-2026-07-02-015, core/meetings/summaries/2026-07-01-mdm-strategic-planning-round-3.md, DQ-071",
+      "status": "candidate (OPEN; next free ADR)"
+    },
+    {
+      "dateFlagged": "2026-07-02",
+      "topic": "Company-Function-Domain-Role (CFDR) access principle + global financial-isolation hard rules. CFDR access map (domains -> members -> workspace role -> resource groups -> RLS); universal \"hard rules\" domain owners/stewards cannot edit (NAC never crosses Interplastic); Azure resource groups + documented RLS. Extends the workspace+capacity isolation boundary; relates DQ-051/DQ-026.",
+      "source": "DISC-2026-07-02-004, core/meetings/summaries/2026-06-26-mdm-strategic-planning-round-3.md",
+      "status": "candidate (OPEN; next free ADR)"
+    },
+    {
+      "dateFlagged": "2026-07-02",
+      "topic": "Data-dump / bulk-extract governance for supply chain & demand planning. No raw bulk extract provided without documented purpose + intended use + intake review; response to the unsanctioned supply-chain stock-out tool (shadow IT, modify-and-re-upload).",
+      "source": "DISC-2026-07-02-010, core/meetings/summaries/2026-06-30-data-dev-team-weekly-standup.md, DQ-064",
+      "status": "candidate (OPEN; next free ADR)"
+    },
+    {
+      "dateFlagged": "2026-07-02",
+      "topic": "Bilateral M3<->Salesforce identity-mapping / crosswalk strategy. Move one-way M3->SF to two-way; composite-key concatenate/hash -> SQL-side crosswalk -> reverse on return, to survive M3-has-more-fields and SF-18-digit-ID-too-large constraints. Forced by the Fusion greenfield refactor.",
+      "source": "DISC-2026-07-02-013, DISC-2026-07-02-014, core/meetings/summaries/2026-06-30-current-salesforce-integration.md",
+      "status": "candidate (OPEN; next free ADR)"
+    },
+    {
+      "dateFlagged": "2026-07-02",
+      "topic": "DBAmp keep-vs-replace for the Salesforce<->M3 integration. Original rationale: simplicity + M3 on-prem + prior no-outside-clouds policy (later reversed toward M365/cloud). Replacement options: M3 Cloud native Salesforce connectors, MuleSoft-style utilities, or Fabric. Forcing functions: SOAP login() retirement (~2027-06-01) + SQL Server 2022+ OAuth requirement, AND the Fusion bilateral refactor (independent of the SOAP gate).",
+      "source": "DISC-2026-06-23-005, DISC-2026-07-02-013, core/meetings/summaries/2026-06-30-current-salesforce-integration.md Fabric-PoC scoping (2026-06-16/17 email thread, Steve Nahrup -> Patrick Stiller/Matt Francis): rebuild SQL staging -> SF_IPC procs -> company-ID upserts (NAC_ID__c/MP_ID__c/TRD_ID__c) in Fabric notebooks+pipelines; hardest piece is inventory (NAC needs IN029-equivalent report output, ~1,500-line SQL); needs a dedicated sandbox Salesforce integration user + Connected App creds; Matt Francis owns as-is DBAmp docs. DISC-2026-07-08-011",
+      "status": "candidate (OPEN; next free ADR)"
+    },
+    {
+      "dateFlagged": "2026-07-02",
+      "topic": "MDM as a program/portfolio (PMO framing); phases become projects. Treat MDM as a program with per-phase projects; pull Purview out as its own overlapping project; split security/access controls out as its own project. Structural / lower priority.",
+      "source": "DISC-2026-07-02-016, core/meetings/summaries/2026-07-01-mdm-strategic-planning-round-3.md, DQ-070",
+      "status": "candidate (OPEN; next free ADR; lower priority)"
     }
   ]
 }

@@ -242,12 +242,12 @@ export function getLineageDisplay(edge: LineageEdgeInput | null | undefined) {
 /** Canonical, palette-aligned color per extractor origin (matches the graph layer colors). */
 const ORIGIN_COLORS: Record<ExtractorOrigin, string> = {
   "transcript-miner": "#77c7ff", // meeting blue
-  "cortex-extractor": "#22c55e", // insight green (Unabyss primary)
-  "adr-parser": "#fdcf5a", // decision gold (Unabyss secondary)
-  "dataflow-miner": "#9f8cff", // system violet
+  "cortex-extractor": "#1B5E9E", // primary IP Corporation blue
+  "adr-parser": "#446084", // slate blue
+  "dataflow-miner": "#2A4A6B", // deep blue
   "book-doctrine-miner": "#5fa8d3", // reference sky
   "architecture-miner": "#2bd6a3", // architecture teal
-  "powerbi-miner": "#c084fc", // model purple
+  "powerbi-miner": "#1A82C5", // bright blue
   "generator-heuristic": "#ff8a5b", // weak-edge orange (signals caution)
   "unclassified-source": "#8a93a3", // honest muted gray
 };

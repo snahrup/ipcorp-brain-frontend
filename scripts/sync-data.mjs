@@ -1,5 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { buildAdrs, buildMeetingIndex, buildOpenQuestions, buildRisks } from "./brain-sources.mjs";
 
 /**
  * Portable sync script for the IP Corp Brain frontend.
@@ -12,8 +14,10 @@ import path from "node:path";
 const brain =
   process.env.BRAIN_PATH || "C:/Users/snahrup/CascadeProjects/ipcorp-architecture-brain";
 
+// new URL(...).pathname yields "/C:/Users/..." on Windows, which path.resolve turns
+// into "C:\C:\Users\...". fileURLToPath decodes it correctly on every platform.
 const repo =
-  process.env.REPO_PATH || path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+  process.env.REPO_PATH || path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 if (!fs.existsSync(brain)) {
   console.error(`\n❌ Source brain not found at: ${brain}`);
@@ -38,15 +42,22 @@ const readDirJson = (dir, filter = (name) => name.endsWith(".json")) =>
     .map((name) => readJson(path.join(dir, name)));
 
 const status = readJson(path.join(brain, "natively/status.json"));
-const meetingIndex = readJson(path.join(brain, "natively/meeting-index.json"));
+const nativelyMeetingIndex = readJson(path.join(brain, "natively/meeting-index.json"));
 const prepPackets = readDirJson(path.join(brain, "natively/prep-packets"), (name) =>
   name.endsWith(".packet.json")
 );
 const cortexInsights = readDirJson(path.join(brain, "natively/cortex/insights"));
 const actionProposals = readDirJson(path.join(brain, "natively/action-proposals"));
-const openQuestions = readJson(path.join(repo, "data/open-questions.json"));
-const risks = readJson(path.join(repo, "data/risks.json"));
-const adrs = readJson(path.join(repo, "data/adrs.json"));
+
+// Meetings, questions, risks and decisions come from the Brain markdown, which is the
+// authoritative record. The natively lane stopped producing on 2026-06-11, and the
+// other three used to be read back out of this repo's own data/ directory, so a sync
+// copied stale files onto themselves and the app silently aged.
+const meetingIndex = buildMeetingIndex(brain, nativelyMeetingIndex);
+const openQuestions =
+  buildOpenQuestions(brain) ?? readJson(path.join(repo, "data/open-questions.json"));
+const risks = buildRisks(brain) ?? readJson(path.join(repo, "data/risks.json"));
+const adrs = buildAdrs(brain) ?? readJson(path.join(repo, "data/adrs.json"));
 
 const manifest = {
   generatedAt: new Date().toISOString(),
@@ -90,6 +101,9 @@ const seed = {
 
 writeJson("status.json", status);
 writeJson("meeting-index.json", meetingIndex);
+writeJson("open-questions.json", openQuestions);
+writeJson("risks.json", risks);
+writeJson("adrs.json", adrs);
 writeJson("prep-packets.json", prepPackets);
 writeJson("cortex-insights.json", cortexInsights);
 writeJson("action-proposals.json", actionProposals);
