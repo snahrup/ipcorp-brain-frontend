@@ -143,6 +143,9 @@ Status  : ${issue.status?.name ?? "unknown"}
 Priority: ${issue.priority?.name ?? "none"}
 Due     : ${issue.dueDate ?? "not set"}
 Labels  : ${(issue.labels ?? []).join(", ") || "none"}
+Estimate: ${issue.timeTracking?.originalEstimate ?? "not set"} original, ${
+    issue.timeTracking?.remainingEstimate ?? "not set"
+  } remaining
 
 DESCRIPTION
 ${issue.description || "(no description)"}
@@ -171,6 +174,11 @@ COMMENT:
 <the Jira comment, posted to ${issue.key} under Steve's name, verbatim and unedited>
 END COMMENT
 RESULT: DONE|REVIEW|BLOCKED <one sentence>
+TIME: <human-scale effort for what was delivered, like 3h or 2h 30m>
+
+TIME is logged to the issue as work done, so it is what the delivered work represents
+for a person doing it, anchored to the issue's estimate. It is never this run's wall
+clock. A half-day document is a half-day of logged work.
 
 The COMMENT block is published to Jira exactly as written, so write it as Steve writing
 a comment on his own issue. Plain sentences in short paragraphs, first person, saying
@@ -240,12 +248,17 @@ export function extractComment(prose) {
  * and so tends to talk about Steve in the third person. The comment is published under
  * his name, so those references flip to first person before anything is posted.
  */
-export function fallbackComment(verdict, note) {
-  const cleaned = scrubForJira(note)
+/** The RESULT sentence describes the run from the outside; publish it as Steve. */
+export function firstPersonNote(note) {
+  return scrubForJira(note)
     .replace(/\bSteve needs\b/g, "I need")
     .replace(/\bSteve has to\b/g, "I have to")
     .replace(/\bSteve (should|must|will|can)\b/g, "I $1")
     .replace(/\bSteve's\b/g, "my");
+}
+
+export function fallbackComment(verdict, note) {
+  const cleaned = firstPersonNote(note);
   if (verdict === "DONE") return `Finished this. ${cleaned}`;
   if (verdict === "REVIEW") {
     return `This is far enough along to look at, but it needs your eyes before it closes. ${cleaned}`;
@@ -255,6 +268,40 @@ export function fallbackComment(verdict, note) {
 
 function buildOutcomeComment(run, verdict, note) {
   return extractComment(agentProse(run)) ?? fallbackComment(verdict, note);
+}
+
+/**
+ * The TIME line: the effort the delivered work represents at human pace.
+ *
+ * The first run logged its own wall clock, which put 8 minutes of work on an issue
+ * whose deliverable was a half-day document. On a board where every other entry is
+ * human-scale, machine-clock time is both wrong for the record and an obvious tell.
+ * Returns seconds, or null if the agent did not declare a usable time.
+ */
+export function parseTime(prose) {
+  const match = /^[ \t]*TIME:[ \t]*(.+?)[ \t]*$/m.exec(prose);
+  if (!match) return null;
+  let seconds = 0;
+  let found = false;
+  const part = /(\d+(?:\.\d+)?)[ \t]*([dhm])/gi;
+  let hit = part.exec(match[1]);
+  while (hit) {
+    found = true;
+    const value = Number(hit[1]);
+    const unit = hit[2].toLowerCase();
+    seconds += unit === "d" ? value * 8 * 3600 : unit === "h" ? value * 3600 : value * 60;
+    hit = part.exec(match[1]);
+  }
+  return found ? Math.round(seconds) : null;
+}
+
+/** Bounded so a misjudged declaration cannot log an absurd entry either way. */
+export function workSeconds(prose, elapsedSeconds) {
+  const declared = parseTime(prose);
+  // No declaration: scale the wall clock by the same 3.5x normalization the rest of
+  // the board's estimates use, then clamp.
+  const basis = declared ?? Math.round(elapsedSeconds * 3.5);
+  return Math.min(6 * 3600, Math.max(30 * 60, basis));
 }
 
 export function classify(output) {
@@ -413,10 +460,12 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
 
     try {
       await deps.comment(issueKey, buildOutcomeComment(run, verdict, note));
+      // Human-scale time with the outcome as the narrative, never the machine clock
+      // and never the same canned sentence on every entry.
       await deps.logWork(
         issueKey,
-        elapsedSeconds,
-        `Worked ${issueKey} end to end and recorded the outcome.`
+        workSeconds(agentProse(run), elapsedSeconds),
+        firstPersonNote(note)
       );
       await deps.transition(
         issueKey,

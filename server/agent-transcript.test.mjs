@@ -11,6 +11,8 @@ import {
   parseClaudeEvent,
   parseCodexActivity,
   parseCodexEvent,
+  parseTime,
+  workSeconds,
 } from "./agent-dispatch.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -184,4 +186,24 @@ test("a leaked session-name prefix never reaches Jira from either path", () => {
   assert.equal(viaBlock, "The sheet is ready for review.");
   const viaFallback = fallbackComment("DONE", "[ipcorp-architecture-brain] Wrote the sheet.");
   assert.ok(!viaFallback.includes("[ipcorp-architecture-brain]"));
+});
+
+test("declared TIME is parsed as human effort, in every common shape", () => {
+  assert.equal(parseTime("RESULT: DONE Wrote it.\nTIME: 3h 30m"), 3.5 * 3600);
+  assert.equal(parseTime("TIME: 45m"), 45 * 60);
+  assert.equal(parseTime("TIME: 1d"), 8 * 3600);
+  assert.equal(parseTime("TIME: soon"), null);
+  assert.equal(parseTime("no time line at all"), null);
+});
+
+test("logged time is never the machine clock and never absurd", () => {
+  // The MT-260 case: 536s of wall clock, no TIME line. 8 minutes must be impossible.
+  const noDeclaration = workSeconds("RESULT: REVIEW Built the sheet.", 536);
+  assert.ok(noDeclaration >= 30 * 60, "floor holds");
+  assert.ok(noDeclaration !== 536, "wall clock is never logged as-is");
+
+  // A declared time wins, and the bounds hold at both ends.
+  assert.equal(workSeconds("TIME: 3h 30m", 536), 3.5 * 3600);
+  assert.equal(workSeconds("TIME: 2m", 536), 30 * 60);
+  assert.equal(workSeconds("TIME: 40h", 536), 6 * 3600);
 });
