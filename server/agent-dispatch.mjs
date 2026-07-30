@@ -209,27 +209,48 @@ function agentProse(run) {
  * working narration addressed to nobody, and stapling that onto an issue is how a
  * comment ends up reading like a console log instead of like Steve.
  */
+/** Mechanical cleanup for every string that reaches Jira, whichever path it takes. */
+function scrubForJira(text) {
+  return (
+    text
+      // Markdown emphasis and code ticks render as literal punctuation in Jira.
+      .replace(/\*\*(.+?)\*\*/g, "$1")
+      .replace(/`([^`]+)`/g, "$1")
+      // Dashes Steve never uses, whichever way the agent typed them.
+      .replace(/—/g, ". ")
+      .replace(/–/g, "-")
+      // The Nexus session hook makes spawned agents prefix replies with their session
+      // name. On MT-260 that put "[ipcorp-architecture-brain]" into a client-visible
+      // comment, which is as loud as an automation reveal gets.
+      .replace(/^\[[\w-]+\]\s*/gm, "")
+      .trim()
+  );
+}
+
 export function extractComment(prose) {
   const match = /^[ \t]*COMMENT:[ \t]*\r?\n([\s\S]*?)^[ \t]*END COMMENT[ \t]*$/m.exec(prose);
   if (!match) return null;
-  const body = match[1]
-    .trim()
-    // Markdown emphasis and code ticks render as literal punctuation in Jira.
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/`([^`]+)`/g, "$1")
-    // Dashes Steve never uses, whichever way the agent typed them.
-    .replace(/—/g, ". ")
-    .replace(/–/g, "-");
-  return body || null;
+  return scrubForJira(match[1]) || null;
 }
 
-/** What goes on the issue when the agent did not produce a usable comment. */
-function fallbackComment(verdict, note) {
-  if (verdict === "DONE") return `Finished this. ${note}`;
+/**
+ * What goes on the issue when the agent did not produce a usable comment.
+ *
+ * The note is the agent's RESULT sentence, which describes the run from the outside
+ * and so tends to talk about Steve in the third person. The comment is published under
+ * his name, so those references flip to first person before anything is posted.
+ */
+export function fallbackComment(verdict, note) {
+  const cleaned = scrubForJira(note)
+    .replace(/\bSteve needs\b/g, "I need")
+    .replace(/\bSteve has to\b/g, "I have to")
+    .replace(/\bSteve (should|must|will|can)\b/g, "I $1")
+    .replace(/\bSteve's\b/g, "my");
+  if (verdict === "DONE") return `Finished this. ${cleaned}`;
   if (verdict === "REVIEW") {
-    return `This is far enough along to look at, but it needs your eyes before it closes. ${note}`;
+    return `This is far enough along to look at, but it needs your eyes before it closes. ${cleaned}`;
   }
-  return `Stopped on this one. ${note}`;
+  return `Stopped on this one. ${cleaned}`;
 }
 
 function buildOutcomeComment(run, verdict, note) {

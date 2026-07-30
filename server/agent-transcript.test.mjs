@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import {
   classify,
   extractComment,
+  fallbackComment,
   parseClaudeActivity,
   parseClaudeEvent,
   parseCodexActivity,
@@ -162,4 +163,25 @@ test("dashes Steve never uses are removed from the published comment", () => {
   const comment = extractComment("COMMENT:\nThe sheet is ready — it needs review.\nEND COMMENT");
   assert.ok(!comment.includes("—"));
   assert.ok(!comment.includes("–"));
+});
+
+test("the fallback note is scrubbed and flipped to first person before posting", () => {
+  // The exact residue MT-260 left: the RESULT sentence talks about Steve from the
+  // outside, and it is published under his name.
+  const posted = fallbackComment(
+    "REVIEW",
+    "Built the **sheet** — but Steve needs to accept or correct the steward estimate."
+  );
+  assert.ok(!posted.includes("Steve needs"), "third person must not survive");
+  assert.ok(posted.includes("I need to accept"), "flips to first person");
+  assert.ok(!posted.includes("**") && !posted.includes("—"), "markdown and dashes go");
+});
+
+test("a leaked session-name prefix never reaches Jira from either path", () => {
+  const viaBlock = extractComment(
+    "COMMENT:\n[ipcorp-architecture-brain] The sheet is ready for review.\nEND COMMENT"
+  );
+  assert.equal(viaBlock, "The sheet is ready for review.");
+  const viaFallback = fallbackComment("DONE", "[ipcorp-architecture-brain] Wrote the sheet.");
+  assert.ok(!viaFallback.includes("[ipcorp-architecture-brain]"));
 });
