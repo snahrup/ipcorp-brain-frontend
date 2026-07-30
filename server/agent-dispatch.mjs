@@ -184,6 +184,10 @@ paragraphs.
   reasoning, not a log.
 - Name file paths plainly in a sentence.
 - Do not repeat the RESULT sentence inside the comment.
+- Before printing the block, run it through the humanizer skill and then the
+  structural-humanizer skill (both installed globally). At minimum, strip these tells
+  yourself: "isn't just X, it's Y", rule-of-three lists used as emphasis, negative
+  parallelism, hype adjectives, and a closing sentence that summarizes the comment.
 
 Use BLOCKED only when something outside your control stopped you: a missing permission,
 an unavailable source, or a decision only Steve can make. Do not claim DONE for work you
