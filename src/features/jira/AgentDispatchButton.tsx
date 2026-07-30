@@ -2,6 +2,7 @@ import { AlertCircle, Bot, CheckCircle2, LoaderCircle, Play, TriangleAlert } fro
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./agent-dispatch.css";
 import { GATEWAY } from "../../lib/gateway";
+import { AgentActivity } from "./AgentActivity";
 import { AgentTranscript } from "./AgentTranscript";
 
 const BASE = `${GATEWAY}/agents`;
@@ -29,6 +30,10 @@ export type AgentRun = {
   note: string | null;
   output: string;
   messages?: AgentMessage[];
+  /** Tool calls so far, and the most recent one, so a silent run still shows movement. */
+  steps?: number;
+  lastAction?: string | null;
+  lastEventAt?: string | null;
   exitCode: number | null;
   error: string | null;
 };
@@ -151,6 +156,7 @@ export function AgentDispatchButton({
             {run?.agentLabel} is working on {issueKey}. The issue is In Progress and will update
             itself when the run ends.
           </span>
+          <AgentActivity run={run} />
         </div>
       ) : (
         <>

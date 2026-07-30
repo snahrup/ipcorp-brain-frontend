@@ -47,6 +47,7 @@ const AGENTS = {
       "--verbose",
     ],
     parse: parseClaudeEvent,
+    activity: parseClaudeActivity,
   },
   codex: {
     label: "Codex",
@@ -64,6 +65,7 @@ const AGENTS = {
       `@${promptFile}`,
     ],
     parse: parseCodexEvent,
+    activity: parseCodexActivity,
   },
 };
 
@@ -77,6 +79,30 @@ export function parseClaudeEvent(event) {
   return content
     .filter((block) => block?.type === "text" && block.text?.trim())
     .map((block) => ({ role: "agent", text: block.text.trim() }));
+}
+
+/**
+ * What the agent is doing right now, for the activity line.
+ *
+ * A headless run can work silently through dozens of tool calls before it says a word,
+ * so the conversation alone can sit empty for minutes on a run that is perfectly
+ * healthy. Something always has to be moving, or a working run reads as a hung one.
+ */
+export function parseClaudeActivity(event) {
+  if (event?.type !== "assistant") return null;
+  const content = event.message?.content;
+  if (!Array.isArray(content)) return null;
+  const tool = content.find((block) => block?.type === "tool_use" && block.name);
+  return tool ? tool.name : null;
+}
+
+export function parseCodexActivity(event) {
+  const item = event?.item ?? event?.msg ?? event;
+  const type = item?.type;
+  if (type === "command_execution" || type === "exec_command_begin") return "Shell";
+  if (type === "file_change" || type === "patch_apply_begin") return "Edit";
+  if (type === "web_search" || type === "mcp_tool_call") return "Search";
+  return null;
 }
 
 /**
@@ -139,10 +165,25 @@ Everything you write is in Steve's voice and may be read by his manager and CIO.
 - No em dashes or en dashes. No AI-fingerprint phrasing.
 - Patrick Stiller is never "Pat".
 
-FINISH BY PRINTING EXACTLY ONE OF THESE LINES AS THE LAST LINE OF YOUR OUTPUT
-RESULT: DONE <one sentence on what you completed>
-RESULT: REVIEW <one sentence on what you produced that needs Steve to look at it>
-RESULT: BLOCKED <one sentence naming exactly what stopped you>
+FINISH BY PRINTING EXACTLY THIS, AND NOTHING AFTER IT
+
+COMMENT:
+<the Jira comment, posted to ${issue.key} under Steve's name, verbatim and unedited>
+END COMMENT
+RESULT: DONE|REVIEW|BLOCKED <one sentence>
+
+The COMMENT block is published to Jira exactly as written, so write it as Steve writing
+a comment on his own issue. Plain sentences in short paragraphs, first person, saying
+what he did and why the judgment calls went the way they did. Blank line between
+paragraphs.
+
+- No markdown at all. Jira renders ** and backticks literally, so they arrive as
+  punctuation on the page. No bold, no headings, no bullets, no code formatting.
+- No narration of your own process. Never "What the run reported", "Now the next step",
+  "I will now", or any running commentary. The reader wants the outcome and the
+  reasoning, not a log.
+- Name file paths plainly in a sentence.
+- Do not repeat the RESULT sentence inside the comment.
 
 Use BLOCKED only when something outside your control stopped you: a missing permission,
 an unavailable source, or a decision only Steve can make. Do not claim DONE for work you
@@ -155,6 +196,40 @@ function agentProse(run) {
     .filter((m) => m.role === "agent")
     .map((m) => m.text)
     .join("\n\n");
+}
+
+/**
+ * The comment the agent wrote for Jira, or null if it did not write one.
+ *
+ * Only the block between the markers is published. Everything else the agent printed is
+ * working narration addressed to nobody, and stapling that onto an issue is how a
+ * comment ends up reading like a console log instead of like Steve.
+ */
+export function extractComment(prose) {
+  const match = /^[ \t]*COMMENT:[ \t]*\r?\n([\s\S]*?)^[ \t]*END COMMENT[ \t]*$/m.exec(prose);
+  if (!match) return null;
+  const body = match[1]
+    .trim()
+    // Markdown emphasis and code ticks render as literal punctuation in Jira.
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    // Dashes Steve never uses, whichever way the agent typed them.
+    .replace(/—/g, ". ")
+    .replace(/–/g, "-");
+  return body || null;
+}
+
+/** What goes on the issue when the agent did not produce a usable comment. */
+function fallbackComment(verdict, note) {
+  if (verdict === "DONE") return `Finished this. ${note}`;
+  if (verdict === "REVIEW") {
+    return `This is far enough along to look at, but it needs your eyes before it closes. ${note}`;
+  }
+  return `Stopped on this one. ${note}`;
+}
+
+function buildOutcomeComment(run, verdict, note) {
+  return extractComment(agentProse(run)) ?? fallbackComment(verdict, note);
 }
 
 export function classify(output) {
@@ -223,6 +298,10 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
     // The readable record: what was asked, and what came back in prose. Grows while
     // the run is live so the modal can show it as it happens.
     messages: [{ seq: 0, role: "sent", text: prompt, at: nowIso() }],
+    // Activity counters, so a silent run still shows visible movement.
+    steps: 0,
+    lastAction: null,
+    lastEventAt: nowIso(),
     exitCode: null,
     error: null,
   };
@@ -255,6 +334,14 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
       for (const message of config.parse(event)) {
         run.messages.push({ ...message, seq: run.messages.length, at: nowIso() });
       }
+      const tool = config.activity(event);
+      if (tool) {
+        run.steps += 1;
+        run.lastAction = tool;
+      }
+      // Any event at all proves the process is alive, which is what the activity line
+      // is really reporting.
+      run.lastEventAt = nowIso();
     }
   };
   child.stdout?.on("data", consume);
@@ -299,17 +386,8 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
     run.verdict = verdict;
     run.note = note;
 
-    // Jira readers get the agent's own words, never the raw event stream.
-    const tail = (agentProse(run) || run.output).trim().split(/\r?\n/).slice(-40).join("\n");
     try {
-      await deps.comment(
-        issueKey,
-        verdict === "DONE"
-          ? `Finished this. ${note}\n\nWhat the run reported:\n${tail}`
-          : verdict === "REVIEW"
-            ? `This is done enough to look at, but it needs your eyes before it closes. ${note}\n\nWhat the run reported:\n${tail}`
-            : `Stopped on this one. ${note}\n\nWhat the run reported:\n${tail}`
-      );
+      await deps.comment(issueKey, buildOutcomeComment(run, verdict, note));
       await deps.logWork(
         issueKey,
         elapsedSeconds,

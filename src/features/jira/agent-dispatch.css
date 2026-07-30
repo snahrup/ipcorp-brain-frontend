@@ -261,3 +261,52 @@
   font-size: 12px;
   font-style: italic;
 }
+
+/* ---- live activity line ---- */
+
+.wb-agent-activity {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 6px 0 0 24px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wb-agent-doing {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.wb-agent-sep {
+  opacity: 0.45;
+}
+
+/* A steadily beating dot: the run is alive even when it has not spoken. */
+.wb-agent-pulse {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: wb-agent-beat 1.4s ease-in-out infinite;
+}
+
+@keyframes wb-agent-beat {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wb-agent-pulse {
+    animation: none;
+  }
+}

@@ -24,6 +24,8 @@ function run(state: "running" | "finished") {
         { seq: 1, role: "agent", text: FIRST, at: "2026-07-29T18:02:00.000Z" },
         { seq: 2, role: "agent", text: SECOND, at: "2026-07-29T18:11:00.000Z" },
       ],
+      steps: 17,
+      lastAction: "Read",
       exitCode: state === "finished" ? 0 : null,
       error: null,
     },
@@ -72,5 +74,10 @@ test.describe("Agent run conversation", () => {
     await expect(toggle).toContainText("Live");
     await expect(dialog.getByText(FIRST)).toBeVisible();
     await expect(dialog.getByText(/still working/)).toBeVisible();
+
+    // A run must never look stuck. The activity line names what it is doing and how
+    // many steps it has taken, both of which move while the conversation stays empty.
+    await expect(dialog.getByText("Reading a file")).toBeVisible();
+    await expect(dialog.getByText("17 steps")).toBeVisible();
   });
 });
