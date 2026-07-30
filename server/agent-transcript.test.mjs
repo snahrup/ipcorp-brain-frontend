@@ -6,12 +6,15 @@ import { fileURLToPath } from "node:url";
 import {
   classify,
   extractComment,
+  extractRewrite,
   fallbackComment,
+  humanizeComment,
   parseClaudeActivity,
   parseClaudeEvent,
   parseCodexActivity,
   parseCodexEvent,
   parseTime,
+  structuralRecipe,
   workSeconds,
 } from "./agent-dispatch.mjs";
 
@@ -206,4 +209,88 @@ test("logged time is never the machine clock and never absurd", () => {
   assert.equal(workSeconds("TIME: 3h 30m", 536), 3.5 * 3600);
   assert.equal(workSeconds("TIME: 2m", 536), 30 * 60);
   assert.equal(workSeconds("TIME: 40h", 536), 6 * 3600);
+});
+
+test("the humanize stage rewrites through the injected pass and records the outcome", async () => {
+  const fake = async (prompt) => {
+    assert.ok(prompt.includes("PASS 1 INSTRUCTIONS"), "carries the humanizer skill");
+    assert.ok(prompt.includes("PASS 2 INSTRUCTIONS"), "carries the structural skill");
+    return "hook noise up here\nREWRITE:\n[some-session] The sheet is ready — **read it**.\nEND REWRITE\n";
+  };
+  const { text, stage } = await humanizeComment("original text", fake);
+  assert.equal(stage.applied, true);
+  // The rewrite is still scrubbed: prefix, dash and markdown cannot ride back in.
+  assert.equal(text, "The sheet is ready . read it.");
+});
+
+test("a failed or empty humanize pass posts the original, never nothing", async () => {
+  const boom = await humanizeComment("keep me", async () => {
+    throw new Error("model unavailable");
+  });
+  assert.equal(boom.text, "keep me");
+  assert.equal(boom.stage.applied, false);
+  assert.equal(boom.stage.reason, "model unavailable");
+
+  const empty = await humanizeComment("keep me too", async () => "no markers in this output");
+  assert.equal(empty.text, "keep me too");
+  assert.equal(empty.stage.reason, "the pass returned no rewrite block");
+});
+
+test("the recipe roll avoids recently used shapes and stays valid", () => {
+  const zeros = () => 0; // always picks the first usable entry
+  const fresh = structuralRecipe(zeros);
+  const next = structuralRecipe(zeros, { openings: [fresh.opening], moves: fresh.moves });
+  assert.notEqual(next.opening, fresh.opening, "a just-used opening cannot repeat");
+  assert.ok(!next.moves.includes(fresh.moves[0]), "a just-used move cannot repeat");
+  assert.ok(next.paragraphs >= 2 && next.paragraphs <= 4);
+
+  // With everything excluded the full menu comes back rather than the roll failing.
+  const all = structuralRecipe(zeros, {
+    openings: Array.from({ length: 20 }, (_, i) => structuralRecipe(() => i / 20).opening),
+    moves: Array.from({ length: 20 }, (_, i) => structuralRecipe(() => i / 20).moves).flat(),
+  });
+  assert.ok(all.opening.length > 0);
+});
+
+test("the rewrite prompt carries the rolled recipe and the process kill-list", async () => {
+  let seen = "";
+  await humanizeComment("text", async (prompt) => {
+    seen = prompt;
+    return "REWRITE:\nok\nEND REWRITE";
+  });
+  assert.ok(seen.includes("STRUCTURAL RECIPE"), "recipe rides in the prompt");
+  assert.ok(seen.includes("Delete outright any sentence about the writing process"));
+  assert.ok(seen.includes("Never keep a RESULT: line"));
+});
+
+test("every rewrite lands in the voice ledger and feeds the next prompt", async () => {
+  const marker = `ledger-check-${process.pid}`;
+  await humanizeComment(
+    `original ${marker}`,
+    async () => `REWRITE:\nrewritten ${marker}\nEND REWRITE`,
+    {
+      issueKey: "MT-TEST",
+      purpose: "test entry",
+    }
+  );
+
+  const ledger = fs
+    .readFileSync(path.join(process.cwd(), ".agent-runs", "voice-ledger.jsonl"), "utf8")
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line));
+  const entry = ledger.at(-1);
+  assert.equal(entry.issueKey, "MT-TEST");
+  assert.equal(entry.original, `original ${marker}`);
+  assert.equal(entry.rewritten, `rewritten ${marker}`);
+  assert.ok(entry.recipe.opening, "the rolled shape is recorded");
+
+  // The next rewrite sees the prior output as its voice reference.
+  let prompt = "";
+  await humanizeComment("next text", async (p) => {
+    prompt = p;
+    return "REWRITE:\nok\nEND REWRITE";
+  });
+  assert.ok(prompt.includes("RECENT COMMENTS BY THE SAME AUTHOR"));
+  assert.ok(prompt.includes(`rewritten ${marker}`));
 });

@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
 import { join } from "node:path";
 
 /**
@@ -231,6 +232,8 @@ function scrubForJira(text) {
       // name. On MT-260 that put "[ipcorp-architecture-brain]" into a client-visible
       // comment, which is as loud as an automation reveal gets.
       .replace(/^\[[\w-]+\]\s*/gm, "")
+      // The dash replacement can leave doubled spaces behind.
+      .replace(/[^\S\n]{2,}/g, " ")
       .trim()
   );
 }
@@ -268,6 +271,300 @@ export function fallbackComment(verdict, note) {
 
 function buildOutcomeComment(run, verdict, note) {
   return extractComment(agentProse(run)) ?? fallbackComment(verdict, note);
+}
+
+// ---------------------------------------------------------------------------
+// Humanizer stage. The main run is ASKED to apply the two passes, but a prompt
+// instruction is not a pipeline. This stage runs regardless: a dedicated rewrite
+// call carrying the full text of both skills, then the mechanical scanners as
+// a recorded floor. If any part of it fails, the mechanically scrubbed comment
+// still posts; the stage can only improve the text, never lose it.
+// ---------------------------------------------------------------------------
+
+const SKILLS_DIR = join(homedir(), ".claude", "skills");
+const COPY_SCANNER = join(
+  homedir(),
+  "CascadeProjects",
+  "humanizer-stack",
+  "scripts",
+  "copy_scan.py"
+);
+const STRUCTURAL_SCANNER = join(
+  SKILLS_DIR,
+  "structural-humanizer",
+  "scripts",
+  "structural_scan.py"
+);
+const HUMANIZE_TIMEOUT_MS = 4 * 60 * 1000;
+
+export function extractRewrite(output) {
+  const match = /REWRITE:[ \t]*\r?\n([\s\S]*?)END REWRITE/m.exec(output);
+  return match ? scrubForJira(match[1]) || null : null;
+}
+
+/** Count scanner hits without failing the pipeline when a scanner is unavailable. */
+function scanWith(script, text) {
+  return new Promise((resolve) => {
+    if (!existsSync(script)) return resolve(null);
+    const child = spawn("python", [script, "-"], { windowsHide: true });
+    let out = "";
+    const timer = setTimeout(() => {
+      child.kill();
+      resolve(null);
+    }, 30_000);
+    child.stdout.on("data", (c) => {
+      out += c.toString();
+    });
+    child.on("error", () => {
+      clearTimeout(timer);
+      resolve(null);
+    });
+    child.on("close", () => {
+      clearTimeout(timer);
+      if (/clean: no mechanical copy tells/.test(out)) return resolve(0);
+      const total = /total:\s*(\d+)\s*hits?/.exec(out);
+      if (total) return resolve(Number(total[1]));
+      let hits = 0;
+      let found = false;
+      const audit = /\[[\w-]+\]\s*(\d+)\s*hit/g;
+      let m = audit.exec(out);
+      while (m) {
+        found = true;
+        hits += Number(m[1]);
+        m = audit.exec(out);
+      }
+      resolve(found ? hits : null);
+    });
+    child.stdin.end(text);
+  });
+}
+
+/**
+ * A randomized structural recipe, rolled fresh for every rewrite.
+ *
+ * Steve's observation, and the StoryScope finding behind it: you cannot prompt your way
+ * to "a pattern of no patterns," because a model told to vary still varies in its own
+ * recognizable way. Humans are dispersed because outside context drives their structure.
+ * The engineering equivalent is to inject the entropy from out here, then have the text
+ * structured according to the roll. Same input, different run, different shape.
+ */
+export function structuralRecipe(rng = Math.random, avoid = { openings: [], moves: [] }) {
+  // Never roll a shape used in the last few rewrites. If everything has been used
+  // recently, the full list comes back rather than the roll failing.
+  const usable = (list, used) => {
+    const left = list.filter((entry) => !used.includes(entry));
+    return left.length ? left : list;
+  };
+  const pick = (list) => list[Math.floor(rng() * list.length)];
+  const openings = [
+    "open with the artifact that now exists",
+    "open with the decision that still has to be made",
+    "open with the detail that surprised you while doing the work",
+    "open with a concrete number, name or file",
+    "open mid-thought, as if continuing an earlier conversation about this issue",
+  ];
+  const moves = [
+    "leave one secondary thread visibly unresolved instead of tying everything off",
+    "put one short sideways aside in the middle",
+    "let one paragraph be a single sentence",
+    "put the most important point second from last, not first",
+    "address the reader directly once, and only once",
+    "keep one hyper-specific detail another writer would have rounded off",
+  ];
+  const openPool = usable(openings, avoid.openings);
+  const movePool = usable(moves, avoid.moves);
+  const first = pick(movePool);
+  let moveSet = [first];
+  if (rng() < 0.5 && movePool.length > 1) {
+    moveSet = [first, pick(movePool.filter((move) => move !== first))];
+  }
+  return { opening: pick(openPool), moves: moveSet, paragraphs: 2 + Math.floor(rng() * 3) };
+}
+
+/**
+ * The voice ledger: every text that passes through the seat, original and rewritten,
+ * with where it went and why. Two jobs. It is the audit record of what was changed
+ * before publishing, and it is what lets the rewriter sound like the same person
+ * across comments: the last few outputs ride along in the next prompt as a voice
+ * reference, while the shape ledger keeps their skeletons from repeating.
+ */
+const LEDGER_FILE = () => join(RUNS_DIR, "voice-ledger.jsonl");
+
+async function appendLedger(entry) {
+  try {
+    await mkdir(RUNS_DIR, { recursive: true });
+    const line = `${JSON.stringify(entry)}\n`;
+    await writeFile(LEDGER_FILE(), line, { flag: "a" });
+  } catch {
+    // The ledger is a record, not a dependency; publishing never waits on it.
+  }
+}
+
+async function recentOutputs(count = 3) {
+  try {
+    const lines = (await readFile(LEDGER_FILE(), "utf8")).trim().split("\n");
+    return lines
+      .slice(-count)
+      .map((line) => JSON.parse(line).rewritten)
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+/** The last few rolled shapes, so the next roll cannot repeat them. */
+const SHAPES_FILE = () => join(RUNS_DIR, "humanize-shapes.json");
+
+async function recentShapes() {
+  try {
+    return JSON.parse(await readFile(SHAPES_FILE(), "utf8"));
+  } catch {
+    return [];
+  }
+}
+
+async function rememberShape(recipe) {
+  try {
+    const shapes = [...(await recentShapes()), recipe].slice(-6);
+    await mkdir(RUNS_DIR, { recursive: true });
+    await writeFile(SHAPES_FILE(), JSON.stringify(shapes, null, 2), "utf8");
+  } catch {
+    // Losing the ledger costs variety, not correctness.
+  }
+}
+
+function buildRewritePrompt(text, pass1, pass2, recipe = structuralRecipe(), priorOutputs = []) {
+  const voiceReference = priorOutputs.length
+    ? `\nRECENT COMMENTS BY THE SAME AUTHOR
+For voice consistency only: match how these sound, and do not reuse their openings or
+shapes.
+${priorOutputs.map((prior, i) => `--- ${i + 1} ---\n${prior.slice(0, 600)}`).join("\n")}\n`
+    : "";
+  return `Rewrite the comment below by applying the two editing passes whose full
+instructions follow. Pass 1 first (words and phrasing), then pass 2 (structure).
+
+This is one comment on a Jira issue, written by the author about his own work.
+- Keep every fact about the work: file paths, people's names, numbers, decisions.
+- Delete outright any sentence about the writing process itself: mentions of sessions,
+  sandboxes, permissions, tools, prompts, models, runs, or narration like "What the run
+  reported" or "Now the next step". If it says the author could not run git, drop that.
+- Never keep a RESULT: line or a TIME: line.
+- Write in first person. If the text calls Steve by name in the third person, it is
+  wrongly voiced; he is the author, so it becomes first person.
+- No markdown. No em or en dashes. Do not add claims, and do not end with a sentence
+  that summarizes the comment.
+
+STRUCTURAL RECIPE FOR THIS REWRITE
+Rolled at random for this run so no two comments share a shape. Follow it rather than
+your own default structure:
+- ${recipe.opening}
+- ${recipe.moves.join("\n- ")}
+- Land around ${recipe.paragraphs} paragraphs.
+${voiceReference}
+THE COMMENT
+${text}
+
+PASS 1 INSTRUCTIONS
+${pass1}
+
+PASS 2 INSTRUCTIONS
+${pass2}
+
+Reply with exactly:
+REWRITE:
+<the rewritten comment>
+END REWRITE`;
+}
+
+async function defaultExecRewrite(prompt) {
+  await mkdir(RUNS_DIR, { recursive: true });
+  const file = join(RUNS_DIR, `humanize.${Date.now()}.prompt.md`);
+  await writeFile(file, prompt, "utf8");
+  return new Promise((resolve, reject) => {
+    // Sonnet: this is a bounded rewrite with the full instructions in hand, where
+    // speed matters because the issue is sitting unresolved until the comment posts.
+    const child = spawn(
+      "claude",
+      ["-p", `@${file}`, "--model", "sonnet", "--output-format", "text"],
+      {
+        shell: true,
+        windowsHide: true,
+      }
+    );
+    let out = "";
+    let err = "";
+    const timer = setTimeout(() => {
+      child.kill();
+      reject(new Error("humanize pass timed out"));
+    }, HUMANIZE_TIMEOUT_MS);
+    child.stdout.on("data", (c) => {
+      out += c.toString();
+    });
+    child.stderr.on("data", (c) => {
+      err += c.toString();
+    });
+    child.on("error", (cause) => {
+      clearTimeout(timer);
+      reject(cause);
+    });
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      if (code === 0) resolve(out);
+      else reject(new Error(`humanize pass exited ${code}: ${err.slice(-200)}`));
+    });
+  });
+}
+
+export async function humanizeComment(text, execRewrite = defaultExecRewrite, meta = {}) {
+  const started = Date.now();
+  const stage = { applied: false, copyHits: null, structuralHits: null, reason: null, ms: 0 };
+  try {
+    const [pass1, pass2] = await Promise.all([
+      readFile(join(SKILLS_DIR, "humanizer", "SKILL.md"), "utf8").catch(() => null),
+      readFile(join(SKILLS_DIR, "structural-humanizer", "SKILL.md"), "utf8").catch(() => null),
+    ]);
+    if (!pass1 || !pass2) {
+      stage.reason = "humanizer skills are not installed globally";
+      return { text, stage };
+    }
+    // Roll a shape that none of the last three rewrites used, and carry the last few
+    // published outputs so the voice stays one person's.
+    const recent = (await recentShapes()).slice(-3);
+    const recipe = structuralRecipe(Math.random, {
+      openings: recent.map((shape) => shape.opening),
+      moves: recent.flatMap((shape) => shape.moves),
+    });
+    stage.recipe = recipe;
+    const rewritten = extractRewrite(
+      await execRewrite(buildRewritePrompt(text, pass1, pass2, recipe, await recentOutputs()))
+    );
+    if (!rewritten) {
+      stage.reason = "the pass returned no rewrite block";
+      return { text, stage };
+    }
+    stage.applied = true;
+    await rememberShape(recipe);
+    [stage.copyHits, stage.structuralHits] = await Promise.all([
+      scanWith(COPY_SCANNER, rewritten),
+      scanWith(STRUCTURAL_SCANNER, rewritten),
+    ]);
+    await appendLedger({
+      at: nowIso(),
+      issueKey: meta.issueKey ?? null,
+      purpose: meta.purpose ?? "jira outcome comment",
+      recipe,
+      copyHits: stage.copyHits,
+      structuralHits: stage.structuralHits,
+      original: text,
+      rewritten,
+    });
+    return { text: rewritten, stage };
+  } catch (cause) {
+    stage.reason = cause.message;
+    return { text, stage };
+  } finally {
+    stage.ms = Date.now() - started;
+  }
 }
 
 /**
@@ -459,7 +756,13 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
     run.note = note;
 
     try {
-      await deps.comment(issueKey, buildOutcomeComment(run, verdict, note));
+      // The humanize stage always runs; if the pass fails the scrubbed original posts.
+      const outcome = await humanizeComment(buildOutcomeComment(run, verdict, note), undefined, {
+        issueKey,
+        purpose: "jira outcome comment",
+      });
+      run.humanize = outcome.stage;
+      await deps.comment(issueKey, outcome.text);
       // Human-scale time with the outcome as the narrative, never the machine clock
       // and never the same canned sentence on every entry.
       await deps.logWork(
