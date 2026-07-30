@@ -13,8 +13,9 @@ import { formatDate, getLinkedPacket } from "../../lib/utils";
 import type { MeetingEntry } from "../../types/brain";
 import { DrawerHeader, InfoBlock, StatusChip } from "../ui";
 import "./meeting-infographic.css";
+import { GATEWAY } from "../../lib/gateway";
 
-const INFOGRAPHIC_URL = "http://127.0.0.1:8817/api/meetings/infographic";
+const INFOGRAPHIC_URL = `${GATEWAY}/meetings/infographic`;
 
 interface MeetingDetailProps {
   meeting: MeetingEntry;

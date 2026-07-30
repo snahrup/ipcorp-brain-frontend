@@ -1,3 +1,4 @@
+import { GATEWAY } from "../../lib/gateway";
 import type {
   JiraConnection,
   JiraInitiative,
@@ -5,7 +6,7 @@ import type {
   ReconciliationPreview,
 } from "./types";
 
-const GATEWAY = "http://127.0.0.1:8817/api/jira";
+const JIRA_API = `${GATEWAY}/jira`;
 
 export class JiraGatewayError extends Error {
   status: number;
@@ -24,7 +25,7 @@ export class JiraGatewayError extends Error {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${GATEWAY}${path}`, {
+    response = await fetch(`${JIRA_API}${path}`, {
       ...init,
       headers: {
         "Content-Type": "application/json",

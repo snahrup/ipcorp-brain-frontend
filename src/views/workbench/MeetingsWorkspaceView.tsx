@@ -14,11 +14,12 @@ import { useMemo, useState } from "react";
 import { brain, formatDate } from "../../data";
 import type { Detail, MeetingEntry } from "../../types/brain";
 import "./meetings.css";
+import { GATEWAY } from "../../lib/gateway";
 import { MeetingCard } from "./MeetingCard";
 import { MeetingsCalendar, meetingDay } from "./MeetingsCalendar";
 import { getMicrosoft365CoverageState, getSnapshotFreshness } from "./truthState";
 
-const MICROSOFT_365_COVERAGE_URL = "http://127.0.0.1:8817/api/m365/reconcile-evidence";
+const MICROSOFT_365_COVERAGE_URL = `${GATEWAY}/m365/reconcile-evidence`;
 
 type Microsoft365EvidenceItem = {
   source: string;

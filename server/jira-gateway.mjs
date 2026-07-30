@@ -20,7 +20,14 @@ const BRAIN_REPO_PATH =
 const MEETING_INFOGRAPHICS_PATH =
   process.env.IPCORP_MEETING_INFOGRAPHICS_PATH ||
   "C:\\Users\\snahrup\\OneDrive - IP-Corporation\\ipcorp-architecture-brain\\natively\\meeting-infographics";
-const ALLOWED_ORIGINS = new Set(["http://127.0.0.1:5217", "http://localhost:5217"]);
+// The public tunnel proxies /api through the Vite dev server on :5217, but the
+// browser's Origin header still reads as the tunnel's own domain, not 127.0.0.1, so
+// that domain has to be allowed explicitly or every request from it is rejected here.
+const ALLOWED_ORIGINS = new Set([
+  "http://127.0.0.1:5217",
+  "http://localhost:5217",
+  "https://ip-corp-brain.nahrup.ngrok.app",
+]);
 const ISSUE_KEY_RE = /^MT-\d+$/;
 const MAX_BODY_BYTES = 256 * 1024;
 const MAX_LIBRARY_PREVIEW_BYTES = 512 * 1024;

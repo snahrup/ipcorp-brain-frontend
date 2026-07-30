@@ -1,9 +1,10 @@
 import { AlertCircle, Bot, CheckCircle2, LoaderCircle, Play, TriangleAlert } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./agent-dispatch.css";
+import { GATEWAY } from "../../lib/gateway";
 import { AgentTranscript } from "./AgentTranscript";
 
-const BASE = "http://127.0.0.1:8817/api/agents";
+const BASE = `${GATEWAY}/agents`;
 // Fast enough that the conversation reads as it happens. The payload is a small JSON
 // document from a process on this machine, so the cost of asking often is negligible.
 const POLL_MS = 1500;

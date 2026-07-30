@@ -1,6 +1,7 @@
+import { GATEWAY } from "../../lib/gateway";
 import type { TeamLibraryFile, TeamLibraryManifest, TeamLibraryPreview } from "./types";
 
-const GATEWAY = "http://127.0.0.1:8817/api/team-library";
+const LIBRARY_API = `${GATEWAY}/team-library`;
 
 export class TeamLibraryGatewayError extends Error {
   status: number;
@@ -21,7 +22,7 @@ function isAbortError(error: unknown) {
 async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${GATEWAY}${path}`, { signal });
+    response = await fetch(`${LIBRARY_API}${path}`, { signal });
   } catch (error) {
     if (isAbortError(error)) throw error;
     throw new TeamLibraryGatewayError(
@@ -102,6 +103,6 @@ async function download(file: TeamLibraryFile) {
 export const teamLibraryGateway = {
   manifest: () => request<TeamLibraryManifest>("/manifest"),
   preview,
-  fileUrl: (path: string) => `${GATEWAY}/file?path=${encodeURIComponent(path)}`,
+  fileUrl: (path: string) => `${LIBRARY_API}/file?path=${encodeURIComponent(path)}`,
   download,
 };
