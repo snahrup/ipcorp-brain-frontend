@@ -1,10 +1,10 @@
 {
   "manifest": {
-    "generatedAt": "2026-08-03T21:54:05.626Z",
+    "generatedAt": "2026-08-03T22:11:33.013Z",
     "sourceBrain": "C:/Users/snahrup/CascadeProjects/ipcorp-architecture-brain",
     "sourceHighWater": {
       "brainStatusUpdatedAt": "2026-06-11T15:21:15.069Z",
-      "meetingIndexUpdatedAt": "2026-08-03T21:54:05.397Z",
+      "meetingIndexUpdatedAt": "2026-08-03T22:11:32.754Z",
       "latestNativelyRun": "2026-06-11T15:21:15.069Z"
     },
     "classification": "internal-stakeholder-safe-draft",
@@ -233,7 +233,7 @@
     }
   },
   "meetingIndex": {
-    "updatedAt": "2026-08-03T21:54:05.397Z",
+    "updatedAt": "2026-08-03T22:11:32.754Z",
     "readinessSummary": {
       "status": "rebuilt-from-brain-summaries",
       "nextBestPacket": "prep-packets/purview-advisory-follow-up.packet.json",
@@ -329,6 +329,10 @@
         "summary": "Two fragments stand in for the uncaptured scheduled 1-on-1. Fragment 1 (the last minute of the 10:30 session) catches Steve giving Patrick a thought on the celebration presentation idea — that asking someone to perform far outside his normal personality might not come across as authentic, though \"that's kind of the point\" — and asking about the building remodel (\"we're out of space\"). Fragment 2 is the substantive record: Patrick called Steve directly after the stand-up with \"a bit of good news.\" The ELT meeting scheduled for tomorrow (8/04) was moved to this morning and took place. Mike Spenc",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-03-nahrup-1on1-with-patrick",
+          "file": "Nahrup 1-on-1 with Patrick [2026-08-03].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -342,6 +346,10 @@
         "summary": "The room was back to full strength (Patrick, Matt, Kerri, Eudias, Jason in person; Steve remote) with construction noise from the active remodel in the background. The first ten minutes were conference-room logistics (the TV would not join; Timothy May from IT assisted), weekend chat, and Patrick's celebration email: he is planning a half-day team event with Brenda and Robin, wants an interesting wins-presentation format (the skit idea for Eudias and Kerri came up), and is working out how to include remote staff (DoorDash floated). Steve told Patrick he saw the email and will send his own foll",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-03-dev-data-standup",
+          "file": "Weekly Dev-Data Stand-up [2026-08-03].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1241,6 +1249,10 @@
         "summary": "Two fragments stand in for the uncaptured scheduled 1-on-1. Fragment 1 (the last minute of the 10:30 session) catches Steve giving Patrick a thought on the celebration presentation idea — that asking someone to perform far outside his normal personality might not come across as authentic, though \"that's kind of the point\" — and asking about the building remodel (\"we're out of space\"). Fragment 2 is the substantive record: Patrick called Steve directly after the stand-up with \"a bit of good news.\" The ELT meeting scheduled for tomorrow (8/04) was moved to this morning and took place. Mike Spenc",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-03-nahrup-1on1-with-patrick",
+          "file": "Nahrup 1-on-1 with Patrick [2026-08-03].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
@@ -1254,6 +1266,10 @@
         "summary": "The room was back to full strength (Patrick, Matt, Kerri, Eudias, Jason in person; Steve remote) with construction noise from the active remodel in the background. The first ten minutes were conference-room logistics (the TV would not join; Timothy May from IT assisted), weekend chat, and Patrick's celebration email: he is planning a half-day team event with Brenda and Robin, wants an interesting wins-presentation format (the skit idea for Eudias and Kerri came up), and is working out how to include remote staff (DoorDash floated). Steve told Patrick he saw the email and will send his own foll",
         "source": "Meeting notes",
         "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-03-dev-data-standup",
+          "file": "Weekly Dev-Data Stand-up [2026-08-03].png"
+        },
         "feedsPackets": [],
         "feedsInsights": []
       },
