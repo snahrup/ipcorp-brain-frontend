@@ -240,6 +240,16 @@
     "lastReviewed": "2026-07-16"
   },
   {
+    "id": "R-026",
+    "risk": "Owner and steward naming has slipped past the public end-of-July date that the program's On Track (Conditional) status is conditioned on. Naming is the single input Wave 1 waits on: the Customer steward workshop, the report inventory, the RACI and the template sign-offs all queue behind it, and the ~Aug 1 dictionary-workshop start moves day for day with the slip. A second cause sits underneath the first: several ranked candidates are carried in two seats at once (Michelle Mathison as Customer owner backup and Customer steward #3; Mandy Rolph as Customer steward #1 and Sales owner #2), so a yes on one name silently changes another domain's line",
+    "severity": "Medium",
+    "likelihood": "Confirmed (naming slipped in-session)",
+    "exposed": "MDM program status with the ELT, Wave 1 start date, Customer domain MVP timeline, credibility of the end-of-July commitment",
+    "mitigation": "Put a decision-ready one pager in front of leadership rather than a list of names: core/deliverables/mdm-program-planning/2026-07-29-owner-steward-confirmation-sheet.md, ask for Customer only this week, and resolve the double-seated candidates as part of the same decision. Patrick's 2026-07-30 session with Robin Virginia is the nearest opening",
+    "owner": "Steve / Patrick / Robin Virginia",
+    "lastReviewed": "2026-07-29"
+  },
+  {
     "id": "R-025",
     "risk": "Assigning MDM steward/owner roles to commission-compensated sales staff (Cole Cwynar, Jim Perrin, Jason Shiro, Jared Clarke, Matt Butler) pulls customer-facing sellers inside, can reduce their earnings even if compensated, and makes their historical sales numbers look down — risking role refusal, attrition from the role, or resentment of the MDM program",
     "severity": "Medium",

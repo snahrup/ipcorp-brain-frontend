@@ -80,6 +80,15 @@
       "decider": "Steve Nahrup · Patrick Stiller · Mike Spencer (originated the approach) · ELT ratification",
       "supersedes": "none (formalizes the engagement pattern; replaces the implicit \"wait for stewards, then canvass per person\" default)",
       "slug": "ADR-0009-approval-first-steward-owner-engagement"
+    },
+    {
+      "number": "00100010",
+      "title": "Azure resource group naming for the data platform, and security groups as the access mechanism",
+      "status": "proposed",
+      "date": "2026-08-02",
+      "decider": "Steve Nahrup · Patrick Stiller · Michael Kenney",
+      "supersedes": "—",
+      "slug": "ADR-0010-azure-resource-group-naming"
     }
   ],
   "candidates": [

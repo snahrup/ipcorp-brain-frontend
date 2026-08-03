@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-29T21:47:54.771Z",
+  "updatedAt": "2026-08-03T21:54:05.397Z",
   "readinessSummary": {
     "status": "rebuilt-from-brain-summaries",
     "nextBestPacket": "prep-packets/purview-advisory-follow-up.packet.json",
@@ -77,14 +77,65 @@
       }
     ],
     "note": "No targeted source evidence changed after effective cutoff 2026-06-11T13:37:38.658Z. Purview advisory follow-up remains the next best packet; Weekly Fabric remains background; shared knowledge-base review remains blocked on DQ-049/ADR-0007/R-023 plus sanitized frontend refresh/redaction review.",
-    "meetingCount": 112,
-    "newestMeeting": "2026-07-29",
+    "meetingCount": 116,
+    "newestMeeting": "2026-08-03",
     "oldestMeeting": "2025-10-10",
     "droppedStalePrepared": 10
   },
   "upcoming": [],
   "active": [],
   "recent": [
+    {
+      "id": "2026-08-03-nahrup-1on1-with-patrick",
+      "title": "Nahrup 1-on-1 with Patrick (ELT outcome call)",
+      "date": "2026-08-03T12:00:00.000Z",
+      "day": "2026-08-03",
+      "duration": "90 seconds captured on the call",
+      "attendees": "Steve Nahrup, Patrick Stiller",
+      "summary": "Two fragments stand in for the uncaptured scheduled 1-on-1. Fragment 1 (the last minute of the 10:30 session) catches Steve giving Patrick a thought on the celebration presentation idea — that asking someone to perform far outside his normal personality might not come across as authentic, though \"that's kind of the point\" — and asking about the building remodel (\"we're out of space\"). Fragment 2 is the substantive record: Patrick called Steve directly after the stand-up with \"a bit of good news.\" The ELT meeting scheduled for tomorrow (8/04) was moved to this morning and took place. Mike Spenc",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-08-03-dev-data-standup",
+      "title": "Weekly Dev/Data Stand-up (consolidated)",
+      "date": "2026-08-03T12:00:00.000Z",
+      "day": "2026-08-03",
+      "duration": "33 minutes (11:00 to 11:33 AM ET)",
+      "attendees": "Patrick Stiller (organizer), Matt Francis, Kerri Voiss, Eudias Kifem, Jason Christensen in the Think Pad conference room (single room mic on the Teams side); Steve Nahrup remote",
+      "summary": "The room was back to full strength (Patrick, Matt, Kerri, Eudias, Jason in person; Steve remote) with construction noise from the active remodel in the background. The first ten minutes were conference-room logistics (the TV would not join; Timothy May from IT assisted), weekend chat, and Patrick's celebration email: he is planning a half-day team event with Brenda and Robin, wants an interesting wins-presentation format (the skit idea for Eudias and Kerri came up), and is working out how to include remote staff (DoorDash floated). Steve told Patrick he saw the email and will send his own foll",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-07-31-purview-subscription-working-calls",
+      "title": "2026-07-31 - Purview subscription working calls (two ad hoc Teams sessions)",
+      "date": "2026-07-31T12:00:00.000Z",
+      "day": "2026-07-31",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-07-31-purview-subscription-working-calls",
+        "file": "Purview Subscription Working Calls [2026-07-31].png"
+      },
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-07-30-arctic-wolf-fabric-api-service-principal-signin",
+      "title": "Arctic Wolf alert - Fabric-PowerBI-API service principal sign-in investigation",
+      "date": "2026-07-30T12:00:00.000Z",
+      "day": "2026-07-30",
+      "summary": "Arctic Wolf flagged a sign-in on the Fabric-PowerBI-API enterprise application: a service principal authentication at 2026-07-30 09:56:19 UTC using a client secret, from IP 104.250.131.251, which resolves to Gorillaservers, a Los Angeles hosting provider (Cluely summary; transcript 3:31-4:02, 10:05). Stuart Langley and Steve walked the Entra portal together and confirmed the sign-in event exists and the IP matches the alert. The sign-in log shows authentication only, nothing about what the principal did afterward; seeing downstream actions needs an Azure Monitor Activity Log pull filtered by t",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
     {
       "id": "2026-07-29-interplastic-purview-advisory-working-session",
       "title": "Interplastic - Purview Advisory - Working Session",
@@ -142,6 +193,10 @@
       "summary": "Steve presented the live MDM candidate-evaluation workbook to the room and it landed well: \"beyond what I was looking for. I love it\" (T 16:20). The room reconfirmed the domain sequencing already in progress — Customer first (\"a really good one to start with,\" C 13:59 / T 1:36), then Sales, then Finance (#3), then Product (#4, high-priority in principle but resourcing-blocked until IP Corp's product-owner hires land, expected September) — and explicitly deferred ranking domains 5-7 until after the first MVP ships. Steve walked the candidate-evaluation and domain-reference tabs live; the room a",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-07-22-mdm-program-structure-review",
+        "file": "Fabric Bi-Weekly Stand-Up [2026-07-22].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -327,6 +382,10 @@
       "summary": "Round 3 of the MDM strategic-planning working sessions, facilitated live on a shared Teams whiteboard with Robin Virginia coaching. The group worked to translate the MDM capability map into an executable plan: making items actionable steps rather than restating capabilities, grouping them into projects, and beginning to lay colored phase bars onto a quarterly timeline with rough \"bread-box\"/t-shirt durations. Major substantive threads were the security model (delegate/augment Active Directory rather than build a separate model, using AD security groups instead of individual users) and the cert",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-07-01-mdm-strategic-planning-round-3",
+        "file": "MDM Project - Strategic Planning Round 3 [2026-07-01].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -355,6 +414,10 @@
       "summary": "Routine board walk-through: Eudias, Jason, Patrick, Matt, and Steve gave status updates, most items moving to validate/in-progress. The team worked through a board-semantics issue (an IN 008-replacement BI report blocked on an unapproved M3 project) and agreed to mark it Cancelled rather than Done to avoid triggering company-wide release notes, and to add a new \"hold\" status to the board. Steve is caught up, prepping for a Purview meeting rescheduled to Thursday morning, and still waiting on data steward/owner decisions. The dominant topic was Robin's cautionary escalation: supply chain (Matt ",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-30-data-dev-team-weekly-standup",
+        "file": "Data-Dev Team Weekly Standup [2026-06-30].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -368,6 +431,10 @@
       "summary": "This was a shortened (30-min scheduled) follow-up to the 2026-06-16 integration session, intended to bring Steve Nahrup and Jeff Cook up to speed on how the M3↔Salesforce integration works today so they can put a \"where are we going\" lens on it. Matt Francis walked through the as-is design: three entities (NAC, Interplastic, Molding Products), each with its own stored procedures and scheduled jobs running four times a day, syncing accounts, products, price book entries, per-customer price, orders, and order lines one-way from M3 into Salesforce via DBAmp. The group surfaced the core structural",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-30-current-salesforce-integration",
+        "file": "Current Sales Force Integration [2026-06-30].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -381,6 +448,10 @@
       "summary": "Routine Monday dev/data standup run as an in-room round-robin. Jason reported the app SSL certificate is still failing after switching to GoDaddy (intermediate + root bundle issues on older Apache/Tomcat); the plan is to rebuild the cert file and pull in an app resource via Lorrie. Steve laid out his week: JIRA cleanup, prep for Wednesday's preview working session, mapping the gold-model access architecture (warehouse vs. semantic gold model) for the team, and checking the expiring Fabric trial. Patrick covered a new team PTO-request process (meeting invite to peers marked free/no-reminder + O",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-29-dev-data-standup",
+        "file": "Dev-Data Stand-up [2026-06-29].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -394,6 +465,10 @@
       "summary": "The three continued the strategic-planning exercise from the prior day's call, folding Steve's inventory of stickies/tasks onto Patrick's board and mapping each into the right lane (reporting/consumption, governance & cadence, security). They agreed the pre-gold-model tasks (inventory of reports, dimensions, measures for the Product domain) are to be executed in strict sequential order to build the gold model, after which downstream tasks validate/certify it. They clarified that \"Validated\" and \"Certified\" are now literal Fabric endorsement tags, that the business user consumption guide belong",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-26-mdm-strategic-planning-round-3",
+        "file": "MDM Project - Strategic Planning Round 3 [2026-06-26].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -407,6 +482,10 @@
       "summary": "The check-in split into two halves. First, Steve walked Eudias hands-on through pulling Fabric lakehouse data into Power BI Desktop: write a view in the bronze lakehouse, create a semantic model over it, and connect Power BI to that model. This led into the target-state medallion pattern — bronze/silver pull raw from source, gold materializes clean tables in a warehouse, and each domain gets a Direct Lake gold semantic model that end users hit directly (never lakehouses/warehouses). Governance was covered: model changes are gatekept behind steward+owner sign-off, and certified/validated endors",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-25-weekly-fabric-check-in",
+        "file": "Weekly Fabric Check-in [2026-06-25].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -420,6 +499,10 @@
       "summary": "A short working session (captured transcript ~5 minutes) in which the group continued sorting captured MDM requirements — the tail end of a categorization exercise across color-coded groupings (\"blue\" and \"orange\"). They refined the wording of two items: transformations required to cleanse data, and \"standardized key KPIs.\" Kerri anchored the definition of \"one company, one customer\" as \"same numbers, definitions, and labels\" across all four businesses, and argued the standardized-KPI item largely overlaps with it. Steve introduced a two-tier KPI framing (corporate/executive KPIs seen across a",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-25-mdm-strategic-planning-round-3",
+        "file": "MDM Project - Strategic Planning Round 3 [2026-06-25].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -433,6 +516,10 @@
       "summary": "Direct continuation of the 2026-06-17 Strategic Execution Planning — MDM session. Patrick, Steve, Eudias, and Kerri worked a shared whiteboard (Miro) to map Steve's and Patrick's task stickies onto the MDM phase/objective structure, reconciling overlaps and confirming what's already captured. The working mode was deliberately collaborative — Steve had pre-built a cross-reference matrix of his vs. Patrick's stickies (\"I took another quick matrix of your stickies and mine,\" [00:09:42]), but the group agreed to do the matching together as a team rather than divide-and-conquer, because the act of ",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-24-mdm-strategic-planning-round-2",
+        "file": "MDM Project - Strategic Planning Round 2 [2026-06-24].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -446,6 +533,10 @@
       "summary": "The 1pm Fabric Weekly Stand-Up — short, dense, and a useful capstone tying together the week's threads plus one genuinely new item (the enterprise reporting RFE). The non-Steve speaker is Mike Spencer (CIO), on the \"VSC_Greenhouse\" room device.",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-24-fabric-weekly-stand-up",
+        "file": "Fabric Weekly Stand-Up [2026-06-24].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -459,6 +550,10 @@
       "summary": "Short board-walk standup dominated by the system-freeze clarification. Dominique reminded the team of a full system freeze through June 30 (\"blackout\"), stressing it does not stop project work (especially Factory Track) — \"don't put anything to production\" ([00:00:54]). On scope: it applies to every IP-environment system; Citrine is exempt because it's standalone and not in IP Corp's environment ([00:01:53]–[00:02:14]); certificate renewals are exempt as required, minor, non-config changes (Jason consolidating them with infrastructure to do earlier if possible) ([00:02:33]–[00:03:11]). The key",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-23-data-dev-team-weekly-standup",
+        "file": "Data-Dev Team Weekly Standup [2026-06-23].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -472,6 +567,10 @@
       "summary": "Dominique Mathers ran the standing IT project-allocation review (MS Project tracker), welcoming Chris Meier to his first demand-planning meeting. The session walked per-person allocation percentages June–August across the active portfolio and updated project RAG statuses.",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-23-biweekly-demand-management",
+        "file": "Bi-Weekly Demand Management Meeting [2026-06-23].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -485,6 +584,10 @@
       "summary": "A short, dense 1-on-1 that did real architecture work after the usual rapport. Patrick opened on the ERP-migration history and its data consequences: NAC and Molding Products have moved off Adage onto M3 Cloud; Interplastic and HK Research still need to migrate ([00:00:34]–[00:00:48]). The long-term goal is all four operating companies on M3 Cloud, and Robin owns the framing of \"what the long-term ideas are for the different areas\" ([00:00:48]). Patrick laid out the open sequencing question: do we *fix what we already migrated* (NAC/MP) \"right\" first, or *get Interplastic + HK into the cloud* ",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-22-nahrup-1on1-with-patrick",
+        "file": "Nahrup 1-on-1 with Patrick [2026-06-22].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -498,6 +601,10 @@
       "summary": "Standard Monday dev/data stand-up, light agenda under the system-freeze week. Steve reported the laptop migration is ~90% done after a ~6-hour push but hit an elevated-admin wall — an install that \"needed to be actually run as the user\" and couldn't run under his SA account ([00:00:22]). Patrick's fix: log in with the SCA account, temporarily elevate the non-SA account, install, then bring it back down — and notify the Help Desk (Omar) when doing so, since \"ideally, we shouldn't be running as our admin accounts on our laptops\" ([00:00:58]–[00:01:15]). Steve's stated focus for the week is the m",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-22-dev-data-standup",
+        "file": "Dev-Data Stand-up [2026-06-22].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -511,6 +618,10 @@
       "summary": "A facilitated strategy workshop (facilitator screen-labeled \"VSC_Greenhouse\") to move the MDM program from intent into a structured execution plan. The session ran a two-part voice-of-stakeholder exercise on an empathy map: the customer at the center, then business users, then vendors, then the outer ring of \"ops / IT-OT\" (the four walls — infrastructure, operations, IT/OT). Each participant wrote stickies capturing what each ring would say about the company's data today. The facilitator's recurring \"so what\": the team spends almost all its energy on the outer ring (internal data pain) but the",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-17-strategic-execution-planning-mdm",
+        "file": "Strategic Execution Planning - MDM [2026-06-17].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -524,6 +635,10 @@
       "summary": "This was IP Corp IT's monthly all-hands, hosted by CIO Mike Spencer with a large in-person group plus ~7–8 remote attendees. The standing agenda ran events → business updates → team updates → kudos. It opened with a safety segment (Matt Talarico's \"safe start\" story, safety stats lagging a month behind Ops reporting) and the kickoff of a Six Sigma belt program — Mike issued yellow belts to Matt Talarico, Dawn Kreuz, and Matt Pennaz, noted Dominique Mathers as an existing black belt, and stated his preference that the BAs work toward green belts over time as a continuous-improvement lens for mo",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-17-monthly-it-all-hands",
+        "file": "Monthly IT All Hands [2026-06-17].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -537,6 +652,10 @@
       "summary": "Second CDW Purview advisory session, and the one that reset the engagement scope. CDW originally booked it as a DLP engagement (Nick Atkins' specialty: sensitive-information types, labels), but IP Corp's actual need is the data-catalog / governance route for the MDM foundation — so CDW brought in Boris, a Purview/governance specialist, and agreed the SOW language must be updated (it's an advisory project, ~24 hours, only ~2–3 used) ([1:29]–[2:13], [4:22]–[4:45]). DLP is explicitly a secondary, later, possibly separate project ([5:32]–[5:42]).",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-17-interplastic-purview-advisory-working-session",
+        "file": "Interplastic - Purview Advisory - Working Session [2026-06-17].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -563,6 +682,10 @@
       "summary": "This was a knowledge-transfer session run by Patrick Stiller and Matt (the M3/Salesforce integration owner) for external Salesforce consultants from Digital Mass (Omari Amsterdam and colleagues, who are \"going to be assisting with some of the Salesforce changes coming up,\" [00:02:53]). Patrick invited Steve Nahrup explicitly because Salesforce is a key MDM source and Steve is \"working on the MDM project and putting together our data fabric\" ([00:02:53]). The stated agenda was: DBAmp and Salesforce, SQL jobs, DBAmp's future retirement and alternatives, a walkthrough of the SQL jobs and per-divi",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-16-current-salesforce-integration",
+        "file": "Current Salesforce Integration [2026-06-16].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -576,6 +699,10 @@
       "summary": "The substantive content is confined to segment 1, which sets up an upcoming conversation with Aptean about freight data access. Aptean is the vendor that built the TMS integration, running on the Total Logistics application. Patrick explained the company needs to recover freight-calculation data tied to specific orders — data it had before TMS — but now sits behind an abstraction layer it cannot query directly. Previously, with M3, data was pulled straight down into Fabric for unrestricted use; the TMS data is no longer directly accessible. The expectation is that Aptean will present an API ra",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-15-nahrup-1on1-with-patrick",
+        "file": "Nahrup 1-on-1 with Patrick [2026-06-15].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -589,6 +716,10 @@
       "summary": "Round-the-room IT/data stand-up led by Patrick Stiller. Steve Nahrup is building a UDSS flow to visualize data lineage from source system to end state across all layers and transformation steps, starting with the Product domain, plus a domain list and a worksheet to hand to BAs (Robin selects) for interviewing candidate data stewards/owners, targeting selection by end of July before ELT sign-off and Purview onboarding. The team is hedging on Microsoft Purview for the MDM data catalog/dictionary after a CDW session where the Purview specialist proved strong on DLP/security classification (SSN, ",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-15-dev-data-standup",
+        "file": "Dev-Data Stand-up [2026-06-15].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -602,8 +733,8 @@
       "source": "Meeting notes",
       "readinessStatus": "captured",
       "infographic": {
-        "id": "2026-06-11-fabric-gold-layer-reporting-walkthrough-35cebfe3",
-        "file": "meeting-infographic.png"
+        "id": "2026-06-11-weekly-fabric-check-in",
+        "file": "Weekly Fabric Check-in [2026-06-11].png"
       },
       "feedsPackets": [],
       "feedsInsights": []
@@ -618,6 +749,10 @@
       "summary": "First CDW Purview advisory working session (gap-filled from Cluely; no Teams transcript). The session framed Purview as the catalog/labeling foundation for IP Corp's Fabric/MDM program, with enforcement residing in Fabric/Power BI. Power BI is the governed reporting layer (certified Gold semantic models); Fabric is the bronze→silver→gold processing platform; Purview provides discovery, catalog, classification, sensitivity labeling, and lineage — including the impact-analysis goal (trace a source-DB change through Fabric layers to downstream reports). The driving differentiator is division-leve",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-10-interplastic-purview-advisory-working-session",
+        "file": "Interplastic - Purview Advisory - Working Session [2026-06-10].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -631,6 +766,10 @@
       "summary": "Working session focused on inventorying Steve's reporting estate and pruning the Microsoft Fabric medallion design. Eudias walked Steve through the Power BI workspace to separate active production reports from obsolete/test artifacts so Steve can document the real footprint. There is little in Power BI today — essentially Sales BI, Inventory BI, and the ETQ report Matt Talarico built. Steve confirmed he also holds SSRS access, which Eudias flagged as the priority area still to be documented, along with databases. The team also revisited the medallion architecture and agreed to eliminate the la",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-10-fabric-weekly-stand-up",
+        "file": "Fabric Weekly Stand-Up [2026-06-10].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -656,6 +795,10 @@
       "summary": "Operational portfolio review. Several projects took small % bumps, four line items were added to the tracker (Avik, Finance Modernization, M3 Fusion, and an M3 Cloud TRN environment effort), the NAC back-order project was renamed to its as-is/order-to-cash mapping, and a round of allocation re-balances fixed over-allocations across the team. For Steve's engagement the two signals that matter: MDM ticked up to 38% (Steve's own call), and MDM/data-governance allocations were trimmed for June–July — Kerri Voiss pulled to 0% on MDM (\"don't pull her into any MDM meetings\") and Eudias Kifem's MDM/da",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-09-biweekly-demand-management",
+        "file": "Bi-Weekly Demand Management Meeting [2026-06-09].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -753,6 +896,10 @@
       "summary": "The second formal capacity/demand review walked the active project portfolio, confirming status colors, completion percentages, and resource allocations, then reviewed over-allocation across the team. Dominique drove a project-by-project roll call to validate dates and health, captured allocation/PTO changes, and demonstrated a new Cowork-assisted risk registry and executive dashboard (utilization, project health, monthly demand composition, total demand vs. capacity, CIO briefing). Robin and Mike reinforced that surfacing over-allocation early lets leadership remove barriers and rebalance wor",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-05-26-biweekly-demand-management",
+        "file": "Bi-Weekly Demand Management Meeting [2026-05-26].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -843,52 +990,6 @@
       "date": "2026-05-19T12:00:00.000Z",
       "day": "2026-05-19",
       "duration": "full plant tour, ≥ 90 min (24/7 operation; multiple buildings traversed)",
-      "source": "Meeting notes",
-      "readinessStatus": "captured",
-      "feedsPackets": [],
-      "feedsInsights": []
-    },
-    {
-      "id": "2026-05-18-mdm-elt-presentation",
-      "title": "MDM ELT Presentation",
-      "date": "2026-05-18T12:00:00.000Z",
-      "day": "2026-05-18",
-      "duration": "60 min",
-      "attendees": "Steve Nahrup (presenter), Robin Virginia (external consultant), Jeff Notarangelo, Alex Wallenfelsz, Jared Kemper, Erik Levy, Phil Kelly, Lori Dunn, Patrick Stiller, Shelly Andrus, Mike Spencer + 4 others",
-      "source": "Meeting notes",
-      "readinessStatus": "captured",
-      "feedsPackets": [],
-      "feedsInsights": []
-    },
-    {
-      "id": "2026-05-11-nahrup-1-on-1-and-data-classification-policy-review",
-      "title": "Nahrup 1-on-1 + Data Classification Policy Review (back-to-back)",
-      "date": "2026-05-11T12:00:00.000Z",
-      "day": "2026-05-11",
-      "source": "Meeting notes",
-      "readinessStatus": "captured",
-      "feedsPackets": [],
-      "feedsInsights": []
-    },
-    {
-      "id": "2026-05-07-weekly-fabric-checkin",
-      "title": "Weekly Fabric Check-in",
-      "date": "2026-05-07T12:00:00.000Z",
-      "day": "2026-05-07",
-      "duration": "4m 18s (recording; meeting scheduled for 60min — ended early)",
-      "attendees": "Steve Nahrup, Eudias Kifem, Patrick Stiller",
-      "source": "Meeting notes",
-      "readinessStatus": "captured",
-      "feedsPackets": [],
-      "feedsInsights": []
-    },
-    {
-      "id": "2026-05-07-weekly-fabric-check-in",
-      "title": "Weekly Fabric Check-in",
-      "date": "2026-05-07T12:00:00.000Z",
-      "day": "2026-05-07",
-      "duration": "8m 1s (meeting) / 4m 19s (recording)",
-      "attendees": "Eudias Kifem, Patrick Stiller, Steve Nahrup",
       "source": "Meeting notes",
       "readinessStatus": "captured",
       "feedsPackets": [],
@@ -897,6 +998,57 @@
   ],
   "meetings": [
     {
+      "id": "2026-08-03-nahrup-1on1-with-patrick",
+      "title": "Nahrup 1-on-1 with Patrick (ELT outcome call)",
+      "date": "2026-08-03T12:00:00.000Z",
+      "day": "2026-08-03",
+      "duration": "90 seconds captured on the call",
+      "attendees": "Steve Nahrup, Patrick Stiller",
+      "summary": "Two fragments stand in for the uncaptured scheduled 1-on-1. Fragment 1 (the last minute of the 10:30 session) catches Steve giving Patrick a thought on the celebration presentation idea — that asking someone to perform far outside his normal personality might not come across as authentic, though \"that's kind of the point\" — and asking about the building remodel (\"we're out of space\"). Fragment 2 is the substantive record: Patrick called Steve directly after the stand-up with \"a bit of good news.\" The ELT meeting scheduled for tomorrow (8/04) was moved to this morning and took place. Mike Spenc",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-08-03-dev-data-standup",
+      "title": "Weekly Dev/Data Stand-up (consolidated)",
+      "date": "2026-08-03T12:00:00.000Z",
+      "day": "2026-08-03",
+      "duration": "33 minutes (11:00 to 11:33 AM ET)",
+      "attendees": "Patrick Stiller (organizer), Matt Francis, Kerri Voiss, Eudias Kifem, Jason Christensen in the Think Pad conference room (single room mic on the Teams side); Steve Nahrup remote",
+      "summary": "The room was back to full strength (Patrick, Matt, Kerri, Eudias, Jason in person; Steve remote) with construction noise from the active remodel in the background. The first ten minutes were conference-room logistics (the TV would not join; Timothy May from IT assisted), weekend chat, and Patrick's celebration email: he is planning a half-day team event with Brenda and Robin, wants an interesting wins-presentation format (the skit idea for Eudias and Kerri came up), and is working out how to include remote staff (DoorDash floated). Steve told Patrick he saw the email and will send his own foll",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-07-31-purview-subscription-working-calls",
+      "title": "2026-07-31 - Purview subscription working calls (two ad hoc Teams sessions)",
+      "date": "2026-07-31T12:00:00.000Z",
+      "day": "2026-07-31",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-07-31-purview-subscription-working-calls",
+        "file": "Purview Subscription Working Calls [2026-07-31].png"
+      },
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-07-30-arctic-wolf-fabric-api-service-principal-signin",
+      "title": "Arctic Wolf alert - Fabric-PowerBI-API service principal sign-in investigation",
+      "date": "2026-07-30T12:00:00.000Z",
+      "day": "2026-07-30",
+      "summary": "Arctic Wolf flagged a sign-in on the Fabric-PowerBI-API enterprise application: a service principal authentication at 2026-07-30 09:56:19 UTC using a client secret, from IP 104.250.131.251, which resolves to Gorillaservers, a Los Angeles hosting provider (Cluely summary; transcript 3:31-4:02, 10:05). Stuart Langley and Steve walked the Entra portal together and confirmed the sign-in event exists and the IP matches the alert. The sign-in log shows authentication only, nothing about what the principal did afterward; seeing downstream actions needs an Azure Monitor Activity Log pull filtered by t",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
       "id": "2026-07-29-interplastic-purview-advisory-working-session",
       "title": "Interplastic - Purview Advisory - Working Session",
       "date": "2026-07-29T12:00:00.000Z",
@@ -953,6 +1105,10 @@
       "summary": "Steve presented the live MDM candidate-evaluation workbook to the room and it landed well: \"beyond what I was looking for. I love it\" (T 16:20). The room reconfirmed the domain sequencing already in progress — Customer first (\"a really good one to start with,\" C 13:59 / T 1:36), then Sales, then Finance (#3), then Product (#4, high-priority in principle but resourcing-blocked until IP Corp's product-owner hires land, expected September) — and explicitly deferred ranking domains 5-7 until after the first MVP ships. Steve walked the candidate-evaluation and domain-reference tabs live; the room a",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-07-22-mdm-program-structure-review",
+        "file": "Fabric Bi-Weekly Stand-Up [2026-07-22].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1138,6 +1294,10 @@
       "summary": "Round 3 of the MDM strategic-planning working sessions, facilitated live on a shared Teams whiteboard with Robin Virginia coaching. The group worked to translate the MDM capability map into an executable plan: making items actionable steps rather than restating capabilities, grouping them into projects, and beginning to lay colored phase bars onto a quarterly timeline with rough \"bread-box\"/t-shirt durations. Major substantive threads were the security model (delegate/augment Active Directory rather than build a separate model, using AD security groups instead of individual users) and the cert",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-07-01-mdm-strategic-planning-round-3",
+        "file": "MDM Project - Strategic Planning Round 3 [2026-07-01].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1166,6 +1326,10 @@
       "summary": "Routine board walk-through: Eudias, Jason, Patrick, Matt, and Steve gave status updates, most items moving to validate/in-progress. The team worked through a board-semantics issue (an IN 008-replacement BI report blocked on an unapproved M3 project) and agreed to mark it Cancelled rather than Done to avoid triggering company-wide release notes, and to add a new \"hold\" status to the board. Steve is caught up, prepping for a Purview meeting rescheduled to Thursday morning, and still waiting on data steward/owner decisions. The dominant topic was Robin's cautionary escalation: supply chain (Matt ",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-30-data-dev-team-weekly-standup",
+        "file": "Data-Dev Team Weekly Standup [2026-06-30].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1179,6 +1343,10 @@
       "summary": "This was a shortened (30-min scheduled) follow-up to the 2026-06-16 integration session, intended to bring Steve Nahrup and Jeff Cook up to speed on how the M3↔Salesforce integration works today so they can put a \"where are we going\" lens on it. Matt Francis walked through the as-is design: three entities (NAC, Interplastic, Molding Products), each with its own stored procedures and scheduled jobs running four times a day, syncing accounts, products, price book entries, per-customer price, orders, and order lines one-way from M3 into Salesforce via DBAmp. The group surfaced the core structural",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-30-current-salesforce-integration",
+        "file": "Current Sales Force Integration [2026-06-30].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1192,6 +1360,10 @@
       "summary": "Routine Monday dev/data standup run as an in-room round-robin. Jason reported the app SSL certificate is still failing after switching to GoDaddy (intermediate + root bundle issues on older Apache/Tomcat); the plan is to rebuild the cert file and pull in an app resource via Lorrie. Steve laid out his week: JIRA cleanup, prep for Wednesday's preview working session, mapping the gold-model access architecture (warehouse vs. semantic gold model) for the team, and checking the expiring Fabric trial. Patrick covered a new team PTO-request process (meeting invite to peers marked free/no-reminder + O",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-29-dev-data-standup",
+        "file": "Dev-Data Stand-up [2026-06-29].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1205,6 +1377,10 @@
       "summary": "The three continued the strategic-planning exercise from the prior day's call, folding Steve's inventory of stickies/tasks onto Patrick's board and mapping each into the right lane (reporting/consumption, governance & cadence, security). They agreed the pre-gold-model tasks (inventory of reports, dimensions, measures for the Product domain) are to be executed in strict sequential order to build the gold model, after which downstream tasks validate/certify it. They clarified that \"Validated\" and \"Certified\" are now literal Fabric endorsement tags, that the business user consumption guide belong",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-26-mdm-strategic-planning-round-3",
+        "file": "MDM Project - Strategic Planning Round 3 [2026-06-26].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1218,6 +1394,10 @@
       "summary": "The check-in split into two halves. First, Steve walked Eudias hands-on through pulling Fabric lakehouse data into Power BI Desktop: write a view in the bronze lakehouse, create a semantic model over it, and connect Power BI to that model. This led into the target-state medallion pattern — bronze/silver pull raw from source, gold materializes clean tables in a warehouse, and each domain gets a Direct Lake gold semantic model that end users hit directly (never lakehouses/warehouses). Governance was covered: model changes are gatekept behind steward+owner sign-off, and certified/validated endors",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-25-weekly-fabric-check-in",
+        "file": "Weekly Fabric Check-in [2026-06-25].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1231,6 +1411,10 @@
       "summary": "A short working session (captured transcript ~5 minutes) in which the group continued sorting captured MDM requirements — the tail end of a categorization exercise across color-coded groupings (\"blue\" and \"orange\"). They refined the wording of two items: transformations required to cleanse data, and \"standardized key KPIs.\" Kerri anchored the definition of \"one company, one customer\" as \"same numbers, definitions, and labels\" across all four businesses, and argued the standardized-KPI item largely overlaps with it. Steve introduced a two-tier KPI framing (corporate/executive KPIs seen across a",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-25-mdm-strategic-planning-round-3",
+        "file": "MDM Project - Strategic Planning Round 3 [2026-06-25].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1244,6 +1428,10 @@
       "summary": "Direct continuation of the 2026-06-17 Strategic Execution Planning — MDM session. Patrick, Steve, Eudias, and Kerri worked a shared whiteboard (Miro) to map Steve's and Patrick's task stickies onto the MDM phase/objective structure, reconciling overlaps and confirming what's already captured. The working mode was deliberately collaborative — Steve had pre-built a cross-reference matrix of his vs. Patrick's stickies (\"I took another quick matrix of your stickies and mine,\" [00:09:42]), but the group agreed to do the matching together as a team rather than divide-and-conquer, because the act of ",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-24-mdm-strategic-planning-round-2",
+        "file": "MDM Project - Strategic Planning Round 2 [2026-06-24].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1257,6 +1445,10 @@
       "summary": "The 1pm Fabric Weekly Stand-Up — short, dense, and a useful capstone tying together the week's threads plus one genuinely new item (the enterprise reporting RFE). The non-Steve speaker is Mike Spencer (CIO), on the \"VSC_Greenhouse\" room device.",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-24-fabric-weekly-stand-up",
+        "file": "Fabric Weekly Stand-Up [2026-06-24].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1270,6 +1462,10 @@
       "summary": "Short board-walk standup dominated by the system-freeze clarification. Dominique reminded the team of a full system freeze through June 30 (\"blackout\"), stressing it does not stop project work (especially Factory Track) — \"don't put anything to production\" ([00:00:54]). On scope: it applies to every IP-environment system; Citrine is exempt because it's standalone and not in IP Corp's environment ([00:01:53]–[00:02:14]); certificate renewals are exempt as required, minor, non-config changes (Jason consolidating them with infrastructure to do earlier if possible) ([00:02:33]–[00:03:11]). The key",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-23-data-dev-team-weekly-standup",
+        "file": "Data-Dev Team Weekly Standup [2026-06-23].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1283,6 +1479,10 @@
       "summary": "Dominique Mathers ran the standing IT project-allocation review (MS Project tracker), welcoming Chris Meier to his first demand-planning meeting. The session walked per-person allocation percentages June–August across the active portfolio and updated project RAG statuses.",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-23-biweekly-demand-management",
+        "file": "Bi-Weekly Demand Management Meeting [2026-06-23].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1296,6 +1496,10 @@
       "summary": "A short, dense 1-on-1 that did real architecture work after the usual rapport. Patrick opened on the ERP-migration history and its data consequences: NAC and Molding Products have moved off Adage onto M3 Cloud; Interplastic and HK Research still need to migrate ([00:00:34]–[00:00:48]). The long-term goal is all four operating companies on M3 Cloud, and Robin owns the framing of \"what the long-term ideas are for the different areas\" ([00:00:48]). Patrick laid out the open sequencing question: do we *fix what we already migrated* (NAC/MP) \"right\" first, or *get Interplastic + HK into the cloud* ",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-22-nahrup-1on1-with-patrick",
+        "file": "Nahrup 1-on-1 with Patrick [2026-06-22].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1309,6 +1513,10 @@
       "summary": "Standard Monday dev/data stand-up, light agenda under the system-freeze week. Steve reported the laptop migration is ~90% done after a ~6-hour push but hit an elevated-admin wall — an install that \"needed to be actually run as the user\" and couldn't run under his SA account ([00:00:22]). Patrick's fix: log in with the SCA account, temporarily elevate the non-SA account, install, then bring it back down — and notify the Help Desk (Omar) when doing so, since \"ideally, we shouldn't be running as our admin accounts on our laptops\" ([00:00:58]–[00:01:15]). Steve's stated focus for the week is the m",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-22-dev-data-standup",
+        "file": "Dev-Data Stand-up [2026-06-22].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1322,6 +1530,10 @@
       "summary": "A facilitated strategy workshop (facilitator screen-labeled \"VSC_Greenhouse\") to move the MDM program from intent into a structured execution plan. The session ran a two-part voice-of-stakeholder exercise on an empathy map: the customer at the center, then business users, then vendors, then the outer ring of \"ops / IT-OT\" (the four walls — infrastructure, operations, IT/OT). Each participant wrote stickies capturing what each ring would say about the company's data today. The facilitator's recurring \"so what\": the team spends almost all its energy on the outer ring (internal data pain) but the",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-17-strategic-execution-planning-mdm",
+        "file": "Strategic Execution Planning - MDM [2026-06-17].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1335,6 +1547,10 @@
       "summary": "This was IP Corp IT's monthly all-hands, hosted by CIO Mike Spencer with a large in-person group plus ~7–8 remote attendees. The standing agenda ran events → business updates → team updates → kudos. It opened with a safety segment (Matt Talarico's \"safe start\" story, safety stats lagging a month behind Ops reporting) and the kickoff of a Six Sigma belt program — Mike issued yellow belts to Matt Talarico, Dawn Kreuz, and Matt Pennaz, noted Dominique Mathers as an existing black belt, and stated his preference that the BAs work toward green belts over time as a continuous-improvement lens for mo",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-17-monthly-it-all-hands",
+        "file": "Monthly IT All Hands [2026-06-17].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1348,6 +1564,10 @@
       "summary": "Second CDW Purview advisory session, and the one that reset the engagement scope. CDW originally booked it as a DLP engagement (Nick Atkins' specialty: sensitive-information types, labels), but IP Corp's actual need is the data-catalog / governance route for the MDM foundation — so CDW brought in Boris, a Purview/governance specialist, and agreed the SOW language must be updated (it's an advisory project, ~24 hours, only ~2–3 used) ([1:29]–[2:13], [4:22]–[4:45]). DLP is explicitly a secondary, later, possibly separate project ([5:32]–[5:42]).",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-17-interplastic-purview-advisory-working-session",
+        "file": "Interplastic - Purview Advisory - Working Session [2026-06-17].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1374,6 +1594,10 @@
       "summary": "This was a knowledge-transfer session run by Patrick Stiller and Matt (the M3/Salesforce integration owner) for external Salesforce consultants from Digital Mass (Omari Amsterdam and colleagues, who are \"going to be assisting with some of the Salesforce changes coming up,\" [00:02:53]). Patrick invited Steve Nahrup explicitly because Salesforce is a key MDM source and Steve is \"working on the MDM project and putting together our data fabric\" ([00:02:53]). The stated agenda was: DBAmp and Salesforce, SQL jobs, DBAmp's future retirement and alternatives, a walkthrough of the SQL jobs and per-divi",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-16-current-salesforce-integration",
+        "file": "Current Salesforce Integration [2026-06-16].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1387,6 +1611,10 @@
       "summary": "The substantive content is confined to segment 1, which sets up an upcoming conversation with Aptean about freight data access. Aptean is the vendor that built the TMS integration, running on the Total Logistics application. Patrick explained the company needs to recover freight-calculation data tied to specific orders — data it had before TMS — but now sits behind an abstraction layer it cannot query directly. Previously, with M3, data was pulled straight down into Fabric for unrestricted use; the TMS data is no longer directly accessible. The expectation is that Aptean will present an API ra",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-15-nahrup-1on1-with-patrick",
+        "file": "Nahrup 1-on-1 with Patrick [2026-06-15].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1400,6 +1628,10 @@
       "summary": "Round-the-room IT/data stand-up led by Patrick Stiller. Steve Nahrup is building a UDSS flow to visualize data lineage from source system to end state across all layers and transformation steps, starting with the Product domain, plus a domain list and a worksheet to hand to BAs (Robin selects) for interviewing candidate data stewards/owners, targeting selection by end of July before ELT sign-off and Purview onboarding. The team is hedging on Microsoft Purview for the MDM data catalog/dictionary after a CDW session where the Purview specialist proved strong on DLP/security classification (SSN, ",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-15-dev-data-standup",
+        "file": "Dev-Data Stand-up [2026-06-15].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1413,8 +1645,8 @@
       "source": "Meeting notes",
       "readinessStatus": "captured",
       "infographic": {
-        "id": "2026-06-11-fabric-gold-layer-reporting-walkthrough-35cebfe3",
-        "file": "meeting-infographic.png"
+        "id": "2026-06-11-weekly-fabric-check-in",
+        "file": "Weekly Fabric Check-in [2026-06-11].png"
       },
       "feedsPackets": [],
       "feedsInsights": []
@@ -1429,6 +1661,10 @@
       "summary": "First CDW Purview advisory working session (gap-filled from Cluely; no Teams transcript). The session framed Purview as the catalog/labeling foundation for IP Corp's Fabric/MDM program, with enforcement residing in Fabric/Power BI. Power BI is the governed reporting layer (certified Gold semantic models); Fabric is the bronze→silver→gold processing platform; Purview provides discovery, catalog, classification, sensitivity labeling, and lineage — including the impact-analysis goal (trace a source-DB change through Fabric layers to downstream reports). The driving differentiator is division-leve",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-10-interplastic-purview-advisory-working-session",
+        "file": "Interplastic - Purview Advisory - Working Session [2026-06-10].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1442,6 +1678,10 @@
       "summary": "Working session focused on inventorying Steve's reporting estate and pruning the Microsoft Fabric medallion design. Eudias walked Steve through the Power BI workspace to separate active production reports from obsolete/test artifacts so Steve can document the real footprint. There is little in Power BI today — essentially Sales BI, Inventory BI, and the ETQ report Matt Talarico built. Steve confirmed he also holds SSRS access, which Eudias flagged as the priority area still to be documented, along with databases. The team also revisited the medallion architecture and agreed to eliminate the la",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-10-fabric-weekly-stand-up",
+        "file": "Fabric Weekly Stand-Up [2026-06-10].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1467,6 +1707,10 @@
       "summary": "Operational portfolio review. Several projects took small % bumps, four line items were added to the tracker (Avik, Finance Modernization, M3 Fusion, and an M3 Cloud TRN environment effort), the NAC back-order project was renamed to its as-is/order-to-cash mapping, and a round of allocation re-balances fixed over-allocations across the team. For Steve's engagement the two signals that matter: MDM ticked up to 38% (Steve's own call), and MDM/data-governance allocations were trimmed for June–July — Kerri Voiss pulled to 0% on MDM (\"don't pull her into any MDM meetings\") and Eudias Kifem's MDM/da",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-06-09-biweekly-demand-management",
+        "file": "Bi-Weekly Demand Management Meeting [2026-06-09].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1564,6 +1808,10 @@
       "summary": "The second formal capacity/demand review walked the active project portfolio, confirming status colors, completion percentages, and resource allocations, then reviewed over-allocation across the team. Dominique drove a project-by-project roll call to validate dates and health, captured allocation/PTO changes, and demonstrated a new Cowork-assisted risk registry and executive dashboard (utilization, project health, monthly demand composition, total demand vs. capacity, CIO briefing). Robin and Mike reinforced that surfacing over-allocation early lets leadership remove barriers and rebalance wor",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-05-26-biweekly-demand-management",
+        "file": "Bi-Weekly Demand Management Meeting [2026-05-26].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1668,6 +1916,10 @@
       "attendees": "Steve Nahrup (presenter), Robin Virginia (external consultant), Jeff Notarangelo, Alex Wallenfelsz, Jared Kemper, Erik Levy, Phil Kelly, Lori Dunn, Patrick Stiller, Shelly Andrus, Mike Spencer + 4 others",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-05-18-mdm-elt-presentation",
+        "file": "MDM ELT Presentation [2026-05-18].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1702,6 +1954,10 @@
       "attendees": "Eudias Kifem, Patrick Stiller, Steve Nahrup",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-05-07-weekly-fabric-checkin",
+        "file": "Weekly Fabric Check-in [2026-05-07].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1726,6 +1982,10 @@
       "attendees": "Steve Nahrup, Robin Virginia, Patrick Stiller, Eudias Kifem",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-05-06-fabric-weekly-standup",
+        "file": "Fabric Weekly Stand-Up [2026-05-06].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1738,6 +1998,10 @@
       "attendees": "Steve Nahrup, Patrick Stiller",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-05-04-nahrup-1on1-with-patrick",
+        "file": "Nahrup 1-on-1 with Patrick [2026-05-04].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1762,6 +2026,10 @@
       "attendees": "Patrick Stiller, Cody Shepperd (chemist, Fort Wright site), Matt Francis, Anne Hackman",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-04-30-citrine-working-session",
+        "file": "Citrine Working Session [2026-04-30].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1784,6 +2052,10 @@
       "day": "2026-04-28",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-04-28-biweekly-demand-management",
+        "file": "Bi-Weekly Demand Management Meeting [2026-04-28].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1796,6 +2068,10 @@
       "attendees": "Steve Nahrup, Patrick Stiller",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-04-27-nahrup-1on1-with-patrick",
+        "file": "Nahrup 1-on-1 with Patrick [2026-04-27].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1818,6 +2094,10 @@
       "attendees": "Steve Nahrup, Eudias Kifem, Patrick Stiller, Kerri Voiss (pulled in mid-meeting)",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-04-16-weekly-fabric-checkin",
+        "file": "Weekly Fabric Check-in [2026-04-16].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1844,6 +2124,10 @@
       "day": "2026-04-14",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-04-14-mdm-demonstration",
+        "file": "MDM - Demonstration [2026-04-14].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1856,6 +2140,10 @@
       "attendees": "Steve Nahrup, Patrick Stiller",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-04-13-nahrup-1on1-with-patrick",
+        "file": "Nahrup 1-on-1 with Patrick [2026-04-13].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1868,6 +2156,10 @@
       "attendees": "Patrick Stiller (in person, Think Pad Conference Room — speaker line \"Think Pad Conference Room\" is Patrick driving the room), Steve Nahrup (remote), plus in-room: Kerri Voiss, Eudias Kifem, \"Christensen\" (per recurring entry), Jason (likely Shawver — code-fix discussion), Jared, Dawn (Kreuz), Matt (likely Pennaz), Chase. Francis is **absent** (out of office today and tomorrow).",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-04-13-dev-data-standup",
+        "file": "Dev - Data Stand-up [2026-04-13].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1878,6 +2170,10 @@
       "day": "2026-04-10",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-04-10-historian-data-extraction",
+        "file": "Historian Data Extraction [2026-04-10].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1900,6 +2196,10 @@
       "day": "2026-04-01",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-04-01-mdm-demo-prep",
+        "file": "MDM - Demo - Prep [2026-04-01].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1910,6 +2210,10 @@
       "day": "2026-03-25",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-03-25-mdm-slide-deck-review",
+        "file": "MDM Slide Deck Review [2026-03-25].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1922,6 +2226,10 @@
       "attendees": "Steve Nahrup, Eudias Kifem, Patrick Stiller, Matt Francis",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-03-24-weekly-fabric-checkin",
+        "file": "Weekly Fabric Check-in [2026-03-24].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1932,6 +2240,10 @@
       "day": "2026-03-23",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-03-23-finalize-mdm-slide-deck",
+        "file": "Finalize MDM Slide Deck [2026-03-23].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1968,6 +2280,10 @@
       "attendees": "Steve Nahrup, Eudias Kifem",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-03-02-weekly-fabric-checkin",
+        "file": "Weekly Fabric Check-in [2026-03-02].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -1992,6 +2308,10 @@
       "attendees": "Steve Nahrup, Eudias Kifem, Patrick Stiller",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-02-23-weekly-fabric-checkin",
+        "file": "Weekly Fabric Check-in [2026-02-23].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2004,6 +2324,10 @@
       "attendees": "Steve Nahrup, Eudias Kifem, Patrick Stiller (inferred — \"Brad\" appears as a closing-line transcript artifact but no other \"Brad\" appears in the engagement; likely STT misrecognition of \"Patrick\"), unnamed third voice asking about pipeline-per-database (likely Eudias or Patrick)",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-02-17-fabric-weekly-standup",
+        "file": "Fabric Weekly Stand-Up [2026-02-17].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2014,6 +2338,10 @@
       "day": "2026-02-12",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-02-12-discuss-mdm-data-priorities",
+        "file": "Discuss MDM Data Priorities [2026-02-12].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2026,6 +2354,10 @@
       "attendees": "Steve Nahrup, Eudias Kifem, Patrick Stiller (inferred from context — \"Patrick was dealing with it the other day\" + back-and-forth about M3 vs M3 Cloud)",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-02-11-fabric-weekly-standup",
+        "file": "Fabric Weekly Stand-Up [2026-02-11].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2036,6 +2368,10 @@
       "day": "2026-02-10",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-02-10-all-employee-town-hall",
+        "file": "All Employee Town Hall [2026-02-10].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2046,6 +2382,10 @@
       "day": "2026-02-05",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-02-05-mp-sales-bi-follow-up",
+        "file": "MP Sales BI Follow-up [2026-02-05].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2056,6 +2396,10 @@
       "day": "2026-02-05",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-02-05-data-extraction-for-citrine",
+        "file": "Data Extraction for Citrine [2026-02-05].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2066,6 +2410,10 @@
       "day": "2026-01-29",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-01-29-in-person-demonstration-of-citrine-ai-software",
+        "file": "In-Person Demonstration of Citrine AI Software [2026-01-29].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2076,6 +2424,10 @@
       "day": "2026-01-28",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-01-28-microsoft-fabric-poc-trial-capacity-decision-meeting",
+        "file": "Microsoft Fabric POC Trial Capacity - Decision Meeting [2026-01-28].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2086,6 +2438,10 @@
       "day": "2026-01-27",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-01-27-anne-and-steve-intro-citrine-rd-project",
+        "file": "Anne and Steve intro - Citrine R&D project [2026-01-27].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2096,6 +2452,10 @@
       "day": "2026-01-22",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-01-22-citrine-platform-training",
+        "file": "Citrine Platform Training [2026-01-22].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2106,6 +2466,10 @@
       "day": "2026-01-21",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-01-21-mdm-on-site-initial-discussions-meeting",
+        "file": "MDM On-Site Initial Discussions Meeting - Part 1 & Part 2 [2026-01-21].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2116,6 +2480,10 @@
       "day": "2026-01-20",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-01-20-citrine-data-discussion",
+        "file": "Citrine & data discussion [2026-01-20].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2126,6 +2494,10 @@
       "day": "2026-01-14",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-01-14-re-cap-power-bi-for-mp",
+        "file": "Re-cap Power BI for MP [2026-01-14].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2136,6 +2508,10 @@
       "day": "2026-01-14",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-01-14-populate-attendee-matrix-fabric-onsite",
+        "file": "Populate Attendee Matrix for Next Week's Fabric Onsite [2026-01-14].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2146,6 +2522,10 @@
       "day": "2026-01-13",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-01-13-safb-71-initial-requirements-etq-eam-operations",
+        "file": "SAFB-71 Initial Requirements - ETQ & EAM Operations Dashboard [2026-01-13].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2156,6 +2536,10 @@
       "day": "2026-01-13",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-01-13-project-scoping-data-standardization",
+        "file": "Project Scoping & Data Standardization [2026-01-13].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2166,6 +2550,10 @@
       "day": "2026-01-12",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-01-12-molding-products-sales-bi-report-demo",
+        "file": "Molding Products Sales BI report demo [2026-01-12].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2176,6 +2564,10 @@
       "day": "2026-01-12",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-01-12-meeting-with-patrick-stiller",
+        "file": "Meeting with Patrick Stiller [2026-01-12].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2186,6 +2578,10 @@
       "day": "2025-12-22",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2025-12-22-sql-data-discovery-review",
+        "file": "SQL Data Discovery Review [2025-12-22].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2196,6 +2592,10 @@
       "day": "2025-12-17",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2025-12-17-sql-access",
+        "file": "SQL Access [2025-12-17].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2228,6 +2628,10 @@
       "day": "2025-12-11",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2025-12-11-mes-and-related-systems",
+        "file": "MES and related systems [2025-12-11].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2238,6 +2642,10 @@
       "day": "2025-12-11",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2025-12-11-mdm-discussion",
+        "file": "MDM - Discussion [2025-12-11].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2248,6 +2656,10 @@
       "day": "2025-12-11",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2025-12-11-mdm-discussion-thu-1030am",
+        "file": "MDM - Discussion (Thursday 10 - 30 AM) [2025-12-11].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
@@ -2258,6 +2670,10 @@
       "day": "2025-12-09",
       "source": "Meeting notes",
       "readinessStatus": "captured",
+      "infographic": {
+        "id": "2025-12-09-mdm-systems-lite-discussion",
+        "file": "MDM - Systems - Lite discussion [2025-12-09].png"
+      },
       "feedsPackets": [],
       "feedsInsights": []
     },
