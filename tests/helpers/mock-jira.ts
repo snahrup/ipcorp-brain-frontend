@@ -27,6 +27,11 @@ export const jiraIssue = {
     originalEstimate: "8h",
     remainingEstimate: "3h",
     timeSpent: "5h",
+    // The real gateway always populates these from Jira's own seconds fields; this
+    // fixture predates that being asserted on anywhere, so it was silently incomplete.
+    originalEstimateSeconds: 28_800,
+    remainingEstimateSeconds: 10_800,
+    timeSpentSeconds: 18_000,
   },
   subtasks: [{ key: "MT-43", summary: "Confirm source precedence", status: "In Progress" }],
   links: [
@@ -47,12 +52,38 @@ export const jiraIssue = {
       updatedAt: "2026-07-29T11:00:00.000Z",
     },
   ],
+  worklogs: [
+    {
+      id: "worklog-1",
+      author: "Steve Nahrup",
+      comment: "Wrote the domain scope section.",
+      timeSpent: "2h",
+      timeSpentSeconds: 7200,
+      createdAt: "2026-07-29T11:30:00.000Z",
+    },
+  ],
+  lastActivityAt: "2026-07-29T11:30:00.000Z",
+  lastActivitySummary: 'Steve Nahrup — logged 2h: "Wrote the domain scope section."',
+};
+
+/** A second issue under a different parent, for swimlane grouping and activity sort. */
+export const jiraIssueTwo = {
+  ...jiraIssue,
+  key: "MT-50",
+  summary: "Publish the vendor domain glossary",
+  status: statusBacklog,
+  parentKey: "MT-20",
+  worklogs: [],
+  comments: [],
+  // Deliberately older than jiraIssue, so a correct Activity view sorts MT-42 first.
+  lastActivityAt: "2026-07-20T09:00:00.000Z",
+  lastActivitySummary: "Updated — no comment or worklog logged",
 };
 
 export const jiraInitiative = {
   projectKey: "MT" as const,
   name: "MDM Team",
-  issues: [jiraIssue],
+  issues: [jiraIssue, jiraIssueTwo],
   statuses: [statusBacklog, statusInProgress],
   assignees: [steve],
   priorities: [

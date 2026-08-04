@@ -9,6 +9,15 @@ export type JiraPerson = {
   displayName: string;
 };
 
+export type JiraAttachment = {
+  id: string;
+  filename: string;
+  size: number;
+  mimeType: string;
+  createdAt: string | null;
+  author: string;
+};
+
 export type JiraIssue = {
   key: string;
   summary: string;
@@ -28,7 +37,11 @@ export type JiraIssue = {
     originalEstimate: string | null;
     remainingEstimate: string | null;
     timeSpent: string | null;
+    originalEstimateSeconds: number | null;
+    remainingEstimateSeconds: number | null;
+    timeSpentSeconds: number | null;
   };
+  attachments: JiraAttachment[];
   subtasks: Array<{ key: string; summary: string; status: string }>;
   links: Array<{
     id: string;
@@ -44,6 +57,23 @@ export type JiraIssue = {
     createdAt: string;
     updatedAt: string;
   }>;
+  worklogs: Array<{
+    id: string;
+    author: string;
+    comment: string;
+    timeSpent: string | null;
+    timeSpentSeconds: number;
+    createdAt: string;
+  }>;
+  /**
+   * The real max of `updatedAt`, every comment's createdAt, and every worklog's
+   * createdAt — computed server-side rather than trusted from Jira's `updated` field
+   * alone, so it is correct even if a workflow post-function or a silent field sync
+   * ever touches `updated` without a comment or worklog alongside it.
+   */
+  lastActivityAt: string;
+  /** One line: who did the most recent thing, and the narrative text if there is one. */
+  lastActivitySummary: string;
 };
 
 export type JiraTransition = {
@@ -65,6 +95,30 @@ export type JiraInitiative = {
 export type JiraIssueDetail = {
   issue: JiraIssue;
   transitions: JiraTransition[];
+};
+
+export type SubtaskProposal = {
+  summary: string;
+  description: string;
+  estimateMinutes: number;
+  /** Jira-formatted estimate string, e.g. "1h 30m". */
+  estimate: string;
+};
+
+export type SubtaskBreakdown = {
+  issueKey: string;
+  parentEstimate: string | null;
+  parentMinutes: number;
+  totalMinutes: number;
+  subtasks: SubtaskProposal[];
+  generatedAt: string;
+};
+
+export type SubtaskApplyResult = {
+  parent: JiraIssue;
+  created: Array<{ key: string; summary: string }>;
+  errors: string[];
+  partial: boolean;
 };
 
 export type JiraConnection = {

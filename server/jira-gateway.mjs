@@ -2,6 +2,7 @@ import { execFile as execFileCallback } from "node:child_process";
 import { readdir, readFile, stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, join, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { dispatch as dispatchAgent, getRun, listRuns } from "./agent-dispatch.mjs";
 
@@ -655,7 +656,7 @@ function textToAdf(text) {
   };
 }
 
-function mapIssue(raw) {
+export function mapIssue(raw) {
   const fields = raw.fields || {};
   return {
     key: raw.key,
@@ -715,7 +716,83 @@ function mapIssue(raw) {
           updatedAt: comment.updated || "",
         }))
       : [],
+    worklogs: Array.isArray(fields.worklog?.worklogs)
+      ? fields.worklog.worklogs.map((worklog) => ({
+          id: worklog.id,
+          author: worklog.author?.displayName || "Unknown",
+          comment: adfToText(worklog.comment),
+          timeSpent: worklog.timeSpent || null,
+          timeSpentSeconds: worklog.timeSpentSeconds || 0,
+          createdAt: worklog.created || "",
+        }))
+      : [],
+    ...lastActivity(fields),
   };
+}
+
+/**
+ * The most recent thing that actually happened on an issue, and a one-line account of
+ * it: who, what, and the narrative text if there is one.
+ *
+ * Jira's own `updated` field is not trusted alone. It happened to already be the max in
+ * a spot check against MT-260, but nothing guarantees a workflow post-function or a
+ * silent field sync cannot touch `updated` without a comment or worklog following it, or
+ * vice versa. Computing the max explicitly across every real activity source is correct
+ * by construction instead of by assumption about how this Jira instance is configured.
+ */
+export function lastActivity(fields) {
+  // The attributed candidates (worklog, comment) are pushed before the bare "field"
+  // fallback on purpose. Jira commonly bumps `updated` to the exact instant a worklog or
+  // comment is created, and the sort below is stable, so on an exact tie whichever entry
+  // was pushed first wins. An attributed event carries strictly more information than
+  // the unattributed placeholder, so it must win the tie, not lose it.
+  const candidates = [];
+
+  for (const worklog of fields.worklog?.worklogs ?? []) {
+    candidates.push({
+      at: worklog.created || "",
+      kind: "worklog",
+      who: worklog.author?.displayName || "Someone",
+      text: adfToText(worklog.comment),
+      timeSpent: worklog.timeSpent || null,
+    });
+  }
+  for (const comment of fields.comment?.comments ?? []) {
+    candidates.push({
+      at: comment.created || "",
+      kind: "comment",
+      who: comment.author?.displayName || "Someone",
+      text: adfToText(comment.body),
+    });
+  }
+  // Pushed last: the tie-break fallback for when nothing attributed happened at all.
+  candidates.push({ at: fields.updated || "", kind: "field", who: null, text: null });
+
+  candidates.sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
+  const latest = candidates[0];
+
+  const snippet = (text, max = 110) => {
+    const clean = (text || "").replace(/\s+/g, " ").trim();
+    if (!clean) return "";
+    return clean.length > max ? `${clean.slice(0, max).trimEnd()}…` : clean;
+  };
+
+  let summary;
+  if (latest.kind === "worklog") {
+    const time = latest.timeSpent ? ` — logged ${latest.timeSpent}` : "";
+    const text = snippet(latest.text);
+    summary = `${latest.who}${time}${text ? `: "${text}"` : ""}`;
+  } else if (latest.kind === "comment") {
+    const text = snippet(latest.text);
+    summary = `${latest.who} commented${text ? `: "${text}"` : ""}`;
+  } else {
+    // A field changed (status, assignee, due date, a manual edit) with no comment or
+    // worklog attached. There is no author on this field in a bulk search response, so
+    // the honest line says what is known rather than guessing who.
+    summary = "Updated — no comment or worklog logged";
+  }
+
+  return { lastActivityAt: latest.at || fields.updated || "", lastActivitySummary: summary };
 }
 
 const BOARD_FIELDS = [
@@ -735,6 +812,12 @@ const BOARD_FIELDS = [
   // The board query feeds the timeline, Gantt and dependency views, all of which need
   // the blocking relationships. Without this the dependency map renders empty.
   "issuelinks",
+  // Comment and worklog embed their full history in a bulk search response (verified:
+  // an issue with 6 comments and 2 worklogs returned all 8, not a truncated page), so
+  // the Activity view gets real last-activity data across every issue in one request
+  // instead of one detail call per issue.
+  "comment",
+  "worklog",
 ].join(",");
 
 const DETAIL_FIELDS = [BOARD_FIELDS, "description", "subtasks", "issuelinks", "comment"].join(",");
@@ -1761,8 +1844,15 @@ async function route(request, response) {
   }
 }
 
-createServer(route).listen(PORT, HOST, () => {
-  console.log(`IP Corp Workbench data gateway ready at http://${HOST}:${PORT}`);
-  console.log(`Scope locked to Jira project ${INITIATIVE_KEY}.`);
-  console.log("Team Library access is read-only.");
-});
+// Only binds the port when run directly (`node server/jira-gateway.mjs`), never when a
+// test imports mapIssue/lastActivity — otherwise a test run would fight the real gateway
+// for :8817. Comparing resolved filesystem paths rather than raw URL strings so Windows
+// drive-letter casing and slash direction cannot produce a false mismatch.
+const isMainModule = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
+if (isMainModule) {
+  createServer(route).listen(PORT, HOST, () => {
+    console.log(`IP Corp Workbench data gateway ready at http://${HOST}:${PORT}`);
+    console.log(`Scope locked to Jira project ${INITIATIVE_KEY}.`);
+    console.log("Team Library access is read-only.");
+  });
+}

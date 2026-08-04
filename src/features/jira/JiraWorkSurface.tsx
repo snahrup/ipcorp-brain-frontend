@@ -5,9 +5,11 @@ import {
   Columns3,
   GanttChartSquare,
   GitBranch,
+  History,
   List,
   LoaderCircle,
   RefreshCw,
+  Rows3,
   Search,
   ShieldCheck,
   UserRound,
@@ -15,6 +17,8 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { jiraGateway } from "./api";
 import "./jira-views.css";
+import { IssueTimeMetrics } from "./IssueTimeMetrics";
+import { JiraActivityView } from "./JiraActivityView";
 import { JiraDependencyMap } from "./JiraDependencyMap";
 import { JiraIssueModal } from "./JiraIssueModal";
 import { JiraTimeline } from "./JiraTimeline";
@@ -37,14 +41,81 @@ function relativeTime(value: string) {
   return `${days}d ago`;
 }
 
+/**
+ * One set of status columns, laid out for the given issues. Shared by the flat board
+ * and each swimlane row, so a status column looks identical whichever mode it renders
+ * inside, and grouping the board never means maintaining two copies of the card markup.
+ */
+function renderStatusColumns(
+  issues: JiraIssue[],
+  statuses: JiraStatus[],
+  onOpenIssue: (key: string) => void
+) {
+  return (
+    <section
+      className="wb-jira-board"
+      aria-label="Live MDM Jira board"
+      style={{ "--jira-columns": Math.max(statuses.length, 1) } as React.CSSProperties}
+    >
+      {statuses.map((status) => {
+        const columnIssues = issues.filter((issue) => issue.status.id === status.id);
+        return (
+          <section className="wb-jira-lane" key={status.id} data-category={status.category}>
+            <header>
+              <div>
+                <span>{categoryLabel(status)}</span>
+                <h2>{status.name}</h2>
+              </div>
+              <strong>{columnIssues.length}</strong>
+            </header>
+            <div>
+              {columnIssues.length ? (
+                columnIssues.map((issue) => (
+                  <button
+                    type="button"
+                    className="wb-jira-card"
+                    key={issue.key}
+                    onClick={() => onOpenIssue(issue.key)}
+                  >
+                    <span className="wb-jira-key">{issue.key}</span>
+                    <strong>{issue.summary}</strong>
+                    <div>
+                      <span>
+                        <UserRound size={13} />
+                        {issue.assignee?.displayName || "Unassigned"}
+                      </span>
+                      <time>{relativeTime(issue.updatedAt)}</time>
+                    </div>
+                    {issue.labels.length > 0 && (
+                      <small>{issue.labels.slice(0, 3).join(" · ")}</small>
+                    )}
+                    <IssueTimeMetrics tracking={issue.timeTracking} />
+                  </button>
+                ))
+              ) : (
+                <p className="wb-muted">No live issues</p>
+              )}
+            </div>
+          </section>
+        );
+      })}
+    </section>
+  );
+}
+
 export function JiraWorkSurface() {
   const [initiative, setInitiative] = useState<JiraInitiative | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"list" | "board" | "timeline" | "gantt" | "deps">("list");
+  const [mode, setMode] = useState<"list" | "board" | "activity" | "timeline" | "gantt" | "deps">(
+    "list"
+  );
   const [query, setQuery] = useState("");
   const [showDone, setShowDone] = useState(false);
+  // Off by default: the flat board is the behavior every session before this one already
+  // knows, and grouping into rows is an addition, not a replacement.
+  const [showSwimlanes, setShowSwimlanes] = useState(false);
   const [selectedIssueKey, setSelectedIssueKey] = useState<string | null>(null);
   const [showReconciliation, setShowReconciliation] = useState(false);
 
@@ -108,6 +179,43 @@ export function JiraWorkSurface() {
     if (!initiative) return [];
     return initiative.statuses.filter((status) => showDone || status.category !== "done");
   }, [initiative, showDone]);
+
+  // A swimlane is the parent epic. Its summary is looked up from the same issue set
+  // rather than fetched separately, since the epic for an MT subtask is itself almost
+  // always an MT issue already sitting in this list.
+  const parentSummaryByKey = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const issue of initiative?.issues ?? []) map.set(issue.key, issue.summary);
+    return map;
+  }, [initiative]);
+
+  const swimlanes = useMemo(() => {
+    if (!showSwimlanes) return null;
+    const byParent = new Map<string, JiraIssue[]>();
+    for (const issue of visibleIssues) {
+      const parent = issue.parentKey ?? "__none__";
+      const bucket = byParent.get(parent);
+      if (bucket) bucket.push(issue);
+      else byParent.set(parent, [issue]);
+    }
+    // Rank by how much work sits in the lane, most first, so the busiest parent is not
+    // buried under alphabetical or creation-order noise. The unparented lane goes last
+    // regardless of size — it is the leftovers, not a real epic.
+    return [...byParent.entries()]
+      .map(([parentKey, issues]) => ({
+        parentKey,
+        label:
+          parentKey === "__none__"
+            ? "No parent epic"
+            : (parentSummaryByKey.get(parentKey) ?? parentKey),
+        issues,
+      }))
+      .sort((a, b) => {
+        if (a.parentKey === "__none__") return 1;
+        if (b.parentKey === "__none__") return -1;
+        return b.issues.length - a.issues.length;
+      });
+  }, [showSwimlanes, visibleIssues, parentSummaryByKey]);
 
   const replaceIssue = (updated: JiraIssue) => {
     setInitiative((current) =>
@@ -188,6 +296,14 @@ export function JiraWorkSurface() {
           </button>
           <button
             type="button"
+            aria-pressed={mode === "activity"}
+            className={mode === "activity" ? "is-active" : ""}
+            onClick={() => setMode("activity")}
+          >
+            <History size={17} /> Activity
+          </button>
+          <button
+            type="button"
             aria-pressed={mode === "timeline"}
             className={mode === "timeline" ? "is-active" : ""}
             onClick={() => setMode("timeline")}
@@ -230,6 +346,18 @@ export function JiraWorkSurface() {
           />
           Show Done
         </label>
+
+        {mode === "board" && (
+          <label className="wb-compact-check">
+            <input
+              type="checkbox"
+              checked={showSwimlanes}
+              onChange={(event) => setShowSwimlanes(event.target.checked)}
+            />
+            <Rows3 size={14} aria-hidden="true" />
+            Swimlanes
+          </label>
+        )}
 
         <div className="wb-jira-toolbar-actions">
           <button
@@ -275,6 +403,8 @@ export function JiraWorkSurface() {
           issues={dependencyIssues}
           onOpenIssue={(key) => setSelectedIssueKey(key)}
         />
+      ) : mode === "activity" ? (
+        <JiraActivityView issues={visibleIssues} onOpenIssue={(key) => setSelectedIssueKey(key)} />
       ) : mode === "list" ? (
         <section className="wb-jira-list" aria-label="Live MDM Jira issue list">
           <div className="wb-jira-list-head">
@@ -295,6 +425,7 @@ export function JiraWorkSurface() {
                 <strong>{issue.key}</strong>
                 <span>{issue.summary}</span>
                 {issue.labels.length > 0 && <small>{issue.labels.slice(0, 3).join(" · ")}</small>}
+                <IssueTimeMetrics tracking={issue.timeTracking} />
               </span>
               <span className="wb-status wb-status-neutral">{issue.status.name}</span>
               <span>{issue.assignee?.displayName || "Unassigned"}</span>
@@ -303,54 +434,23 @@ export function JiraWorkSurface() {
             </button>
           ))}
         </section>
-      ) : (
-        <section
-          className="wb-jira-board"
-          aria-label="Live MDM Jira board"
-          style={{ "--jira-columns": Math.max(visibleStatuses.length, 1) } as React.CSSProperties}
-        >
-          {visibleStatuses.map((status) => {
-            const issues = visibleIssues.filter((issue) => issue.status.id === status.id);
-            return (
-              <section className="wb-jira-lane" key={status.id} data-category={status.category}>
-                <header>
-                  <div>
-                    <span>{categoryLabel(status)}</span>
-                    <h2>{status.name}</h2>
-                  </div>
-                  <strong>{issues.length}</strong>
-                </header>
-                <div>
-                  {issues.length ? (
-                    issues.map((issue) => (
-                      <button
-                        type="button"
-                        className="wb-jira-card"
-                        key={issue.key}
-                        onClick={() => setSelectedIssueKey(issue.key)}
-                      >
-                        <span className="wb-jira-key">{issue.key}</span>
-                        <strong>{issue.summary}</strong>
-                        <div>
-                          <span>
-                            <UserRound size={13} />
-                            {issue.assignee?.displayName || "Unassigned"}
-                          </span>
-                          <time>{relativeTime(issue.updatedAt)}</time>
-                        </div>
-                        {issue.labels.length > 0 && (
-                          <small>{issue.labels.slice(0, 3).join(" · ")}</small>
-                        )}
-                      </button>
-                    ))
-                  ) : (
-                    <p className="wb-muted">No live issues</p>
-                  )}
-                </div>
-              </section>
-            );
-          })}
+      ) : swimlanes ? (
+        <section className="wb-jira-swimlanes" aria-label="Live MDM Jira board, grouped by epic">
+          {swimlanes.map((lane) => (
+            <section className="wb-jira-swimlane" key={lane.parentKey}>
+              <header className="wb-jira-swimlane-head">
+                {lane.parentKey !== "__none__" && (
+                  <span className="wb-jira-key">{lane.parentKey}</span>
+                )}
+                <h3>{lane.label}</h3>
+                <strong>{lane.issues.length}</strong>
+              </header>
+              {renderStatusColumns(lane.issues, visibleStatuses, setSelectedIssueKey)}
+            </section>
+          ))}
         </section>
+      ) : (
+        renderStatusColumns(visibleIssues, visibleStatuses, setSelectedIssueKey)
       )}
 
       {selectedIssueKey && (
