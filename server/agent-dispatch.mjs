@@ -8,14 +8,16 @@ import { join } from "node:path";
  * Hands a Jira issue to Claude Code or Codex and writes the outcome back to Jira.
  *
  * Flow, so the board never lies about what is happening:
- *   1. Move the issue to In Progress and comment that it was picked up, before the
- *      agent starts. If that write fails, nothing is dispatched.
+ *   1. Move the issue to In Progress before the agent starts. If that write fails,
+ *      nothing is dispatched. No comment accompanies it — the transition itself is a
+ *      timestamped, visible signal, and a comment that only says work is starting has
+ *      no content of its own to add.
  *   2. Run the agent headless with a prompt built from the real issue.
  *   3. On exit, decide Done, In Review or Blocked from what the agent actually
  *      reported, comment with its summary, and log the elapsed time.
  *
- * A run that dies or is killed leaves the issue In Progress with its pickup comment
- * intact rather than silently reverting, so a half-finished run is visible.
+ * A run that dies or is killed leaves the issue In Progress rather than silently
+ * reverting, so a half-finished run is visible on the board itself.
  */
 
 const RUNS_DIR = join(process.cwd(), ".agent-runs");
@@ -641,12 +643,13 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
 
   const issue = await deps.getIssue(issueKey);
 
-  // Move the board first. If this fails we have not started anything.
+  // Move the board first. If this fails we have not started anything. The transition
+  // itself is the real audit signal — a timestamped, visible state change on the ticket
+  // — so no separate "picked this up" comment follows it. A comment that only says work
+  // is starting carries no content, and it used to sit as the newest comment on an issue
+  // for the whole run, which made the Activity view's last-activity line say nothing
+  // happened yet on a ticket that was actively being worked.
   await deps.transition(issueKey, "In Progress");
-  await deps.comment(
-    issueKey,
-    `Picked this up to work on it now. Starting from the description and the linked items above. I will come back with what landed, what still needs a look, or what stopped me.`
-  );
 
   await mkdir(RUNS_DIR, { recursive: true });
   const promptFile = join(RUNS_DIR, `${issueKey}.prompt.md`);

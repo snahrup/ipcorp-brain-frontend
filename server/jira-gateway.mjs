@@ -740,16 +740,29 @@ export function mapIssue(raw) {
  * vice versa. Computing the max explicitly across every real activity source is correct
  * by construction instead of by assumption about how this Jira instance is configured.
  */
+// Auto-posted process comments that announce work starting rather than report work
+// done. The dispatch pipeline no longer posts this one going forward, but a run started
+// before that fix already left it sitting on real issues (MT-260, IPC-2648) as their
+// newest comment, which made the Activity view report "no work performed" on tickets
+// that were, or had been, actively worked. Matched by stable substring rather than a
+// full-string equality so the fix survives if the surrounding sentence is ever reworded.
+const PROCESS_NOISE = [/Picked this up to work on it now/i];
+
+function isProcessNoise(text) {
+  return PROCESS_NOISE.some((pattern) => pattern.test(text || ""));
+}
+
 export function lastActivity(fields) {
-  // The attributed candidates (worklog, comment) are pushed before the bare "field"
-  // fallback on purpose. Jira commonly bumps `updated` to the exact instant a worklog or
-  // comment is created, and the sort below is stable, so on an exact tie whichever entry
-  // was pushed first wins. An attributed event carries strictly more information than
-  // the unattributed placeholder, so it must win the tie, not lose it.
-  const candidates = [];
+  const attributed = [];
+  // The instant a filtered noise comment landed. Jira bumps `updated` to that same
+  // instant, and filtering the comment's text does nothing to clean that bump back
+  // out — verified by a test that failed until this set existed. Without it, a
+  // suppressed comment still won the pick anyway, just with a blank summary instead
+  // of the noise text, which is barely better than the original problem.
+  const noiseTimestamps = new Set();
 
   for (const worklog of fields.worklog?.worklogs ?? []) {
-    candidates.push({
+    attributed.push({
       at: worklog.created || "",
       kind: "worklog",
       who: worklog.author?.displayName || "Someone",
@@ -758,18 +771,34 @@ export function lastActivity(fields) {
     });
   }
   for (const comment of fields.comment?.comments ?? []) {
-    candidates.push({
+    const text = adfToText(comment.body);
+    // A process-noise comment is real Jira history and stays on the issue, but it is
+    // not eligible to be picked as "the most recent activity" — the next real event
+    // underneath it, or the honest field fallback, takes its place instead.
+    if (isProcessNoise(text)) {
+      if (comment.created) noiseTimestamps.add(comment.created);
+      continue;
+    }
+    attributed.push({
       at: comment.created || "",
       kind: "comment",
       who: comment.author?.displayName || "Someone",
-      text: adfToText(comment.body),
+      text,
     });
   }
-  // Pushed last: the tie-break fallback for when nothing attributed happened at all.
-  candidates.push({ at: fields.updated || "", kind: "field", who: null, text: null });
+  attributed.sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
+  const bestAttributed = attributed[0] ?? null;
 
-  candidates.sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
-  const latest = candidates[0];
+  const fieldAt = fields.updated || "";
+  const fieldIsNoise = noiseTimestamps.has(fieldAt);
+  // The field fallback wins only when it represents time genuinely not already
+  // accounted for: real, newer than anything attributed, and not just the shadow of a
+  // comment already excluded above.
+  const fieldWins = fieldAt && !fieldIsNoise && (!bestAttributed || fieldAt > bestAttributed.at);
+
+  const latest = fieldWins
+    ? { at: fieldAt, kind: "field", who: null, text: null }
+    : (bestAttributed ?? { at: fieldAt, kind: "field", who: null, text: null });
 
   const snippet = (text, max = 110) => {
     const clean = (text || "").replace(/\s+/g, " ").trim();

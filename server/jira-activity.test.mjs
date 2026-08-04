@@ -152,6 +152,80 @@ test("a long worklog or comment body is clipped so the table row stays scannable
   assert.ok(result.lastActivitySummary.includes('…"'));
 });
 
+test("a pickup-style process comment is never selected as the most recent activity", () => {
+  // The exact residue left on MT-260 and IPC-2648 before the dispatch pipeline stopped
+  // posting this comment: it is the newest comment on the issue, but it announces work
+  // starting, not work done, and must not be quoted as if it were the real update.
+  const result = lastActivity({
+    updated: "2026-08-04T09:00:00.000-0500",
+    comment: {
+      comments: [
+        {
+          author: { displayName: "Steve Nahrup" },
+          created: "2026-08-01T10:00:00.000-0500",
+          body: "Reviewed the approach and it looks right.",
+        },
+        {
+          author: { displayName: "Steve Nahrup" },
+          created: "2026-08-04T09:00:00.000-0500",
+          body: "Picked this up to work on it now. Starting from the description and the linked items above. I will come back with what landed, what still needs a look, or what stopped me.",
+        },
+      ],
+    },
+  });
+  // Falls through to the real comment underneath the noise, not the noise itself.
+  assert.equal(
+    result.lastActivitySummary,
+    'Steve Nahrup commented: "Reviewed the approach and it looks right."'
+  );
+});
+
+test("when the pickup comment is the only comment, the honest field fallback is used, never the noise text", () => {
+  const result = lastActivity({
+    updated: "2026-08-04T09:00:00.000-0500",
+    comment: {
+      comments: [
+        {
+          author: { displayName: "Steve Nahrup" },
+          created: "2026-08-04T09:00:00.000-0500",
+          body: "Picked this up to work on it now. Starting from the description and the linked items above. I will come back with what landed, what still needs a look, or what stopped me.",
+        },
+      ],
+    },
+  });
+  assert.equal(result.lastActivitySummary, "Updated — no comment or worklog logged");
+  // The timestamp still reflects reality (posting the comment bumped `updated`) even
+  // though its text is excluded.
+  assert.equal(result.lastActivityAt, "2026-08-04T09:00:00.000-0500");
+});
+
+test("a real worklog still wins over a newer pickup comment sitting on top of it", () => {
+  const result = lastActivity({
+    updated: "2026-08-04T09:00:00.000-0500",
+    comment: {
+      comments: [
+        {
+          author: { displayName: "Steve Nahrup" },
+          created: "2026-08-04T09:00:00.000-0500",
+          body: "Picked this up to work on it now.",
+        },
+      ],
+    },
+    worklog: {
+      worklogs: [
+        {
+          author: { displayName: "Steve Nahrup" },
+          created: "2026-08-03T00:00:00.000-0500",
+          timeSpent: "2h",
+          comment: "Built the first draft of the migration.",
+        },
+      ],
+    },
+  });
+  assert.equal(result.lastActivityAt, "2026-08-03T00:00:00.000-0500");
+  assert.ok(result.lastActivitySummary.includes("Built the first draft"));
+});
+
 test("mapIssue exposes worklogs and last activity fields on the normalized issue", () => {
   const issue = mapIssue({
     key: "MT-1",
