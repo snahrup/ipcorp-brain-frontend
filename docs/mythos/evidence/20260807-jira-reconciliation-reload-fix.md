@@ -26,9 +26,18 @@ Server log, today (`%LOCALAPPDATA%\IPCorpBrain\launcher-logs\20260807-090232-354
 
 ## Fix
 
-`vite.config.ts`: `server.watch.ignored` now excludes `SESSION-JOURNAL.md`,
+`vite.config.ts`: `server.watch.ignored` now excludes all markdown (`**/*.md`) plus
 `.agent-runs/`, `.frontend-verify/`, and `.claude/`. No watcher event means no
-Tailwind rescan and no reload, regardless of git state.
+Tailwind rescan and no reload, regardless of git state. Nothing in `src` imports
+markdown, so the blanket pattern is safe and also covers `docs/` and `context/`,
+which agent runs write at closeout and on learnings.
+
+The first version of this fix ignored only `SESSION-JOURNAL.md`. Five minutes after
+it landed, this session's own Mythos closeout wrote `docs/mythos/handoff.md` and the
+page reloaded again (9:45:25 PM in the server log): same root cause, different file,
+and an accidental control experiment confirming the mechanism, because the ignored
+journal stayed quiet while the non-ignored markdown still reloaded. The independent
+validation pass caught it; the blanket markdown pattern closes the class.
 
 ## Evidence, fail then pass
 
@@ -42,9 +51,14 @@ Tailwind rescan and no reload, regardless of git state.
    Reconcile MDM. Scan #10 ran against live Jira (376 MT issues, source Current) and
    completed with the modal open. Then scan #11 was started and three journal writes
    were made during the scan window; the scan completed, the modal stayed open, and
-   the sentinel survived. Zero `page reload` lines after the restart despite five
-   journal writes and two full scans.
-5. The journal was restored byte-exact from a pre-test backup afterwards.
+   the sentinel survived. No journal-triggered reloads after the restart despite
+   five journal writes and two full scans. (One reload did occur at 9:45:25 PM from
+   `docs/mythos/handoff.md`, the miss described under Fix; none after the blanket
+   markdown pattern landed at 9:52:39 PM, verified by appending to both the handoff
+   and the journal at 9:52:56 PM with no reload line following.)
+5. The journal was restored byte-exact from a pre-test backup afterwards (md5
+   4dfef4540b4ebdcc1b2d7266802cb78c, independently confirmed by the validation
+   pass), and the handoff probe line was removed the same way.
 
 ## Follow-ups (not done in this change)
 

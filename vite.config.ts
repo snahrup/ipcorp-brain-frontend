@@ -15,15 +15,13 @@ export default defineConfig({
     // that caused the write. SESSION-JOURNAL.md is appended by the session hooks the
     // moment a Workbench-dispatched run starts or ends, which is how starting a Jira
     // reconciliation rebooted the page back to the landing view (server log:
-    // "page reload SESSION-JOURNAL.md"). The other entries are the run-state lanes
-    // already excluded from git for the same reason.
+    // "page reload SESSION-JOURNAL.md"); a Mythos closeout writing
+    // docs/mythos/handoff.md did the same five minutes after the first fix. Nothing
+    // in src imports markdown, so all of it is safe to ignore, which covers the
+    // journal, docs/, and context/ in one stroke. The other entries are the
+    // run-state lanes already excluded from git for the same reason.
     watch: {
-      ignored: [
-        "**/SESSION-JOURNAL.md",
-        "**/.agent-runs/**",
-        "**/.frontend-verify/**",
-        "**/.claude/**",
-      ],
+      ignored: ["**/*.md", "**/.agent-runs/**", "**/.frontend-verify/**", "**/.claude/**"],
     },
     // Over the tunnel the browser is on a phone, where 127.0.0.1:8817 is the phone
     // itself. Serving the gateway from the same origin is what makes the public URL
