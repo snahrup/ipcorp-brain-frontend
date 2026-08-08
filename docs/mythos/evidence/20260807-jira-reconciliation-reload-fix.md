@@ -60,13 +60,15 @@ validation pass caught it; the blanket markdown pattern closes the class.
    4dfef4540b4ebdcc1b2d7266802cb78c, independently confirmed by the validation
    pass), and the handoff probe line was removed the same way.
 
-## Follow-ups (not done in this change)
+## Follow-ups (closed the same evening)
 
-- `data/meeting-infographic-audit.json` is untracked, not gitignored, and imported by
-  `MeetingsWorkspaceView.tsx`. Regenerating it while a tab is open will reload the
-  page through the module graph, the same class of bug with a different mechanism.
-  Decide whether it should be ignored plus fetched at runtime, or accepted as a
-  deliberate reload.
-- `SESSION-JOURNAL.md` is still tracked, so hook writes keep dirtying git status.
-  Untracking it (like `CODEBASE.md`) would quiet that; left alone here because
-  `.gitignore` carries someone's uncommitted edits.
+- `data/meeting-infographic-audit.json` is now in `server.watch.ignored`. It is a
+  statically imported module, so a regeneration used to reload the page through the
+  module graph; now the Meetings view shows the audit as of page load and picks up a
+  rerun on the next natural reload. Verified: rewrote the file after the restart, no
+  reload line, Meetings view renders normally.
+- `SESSION-JOURNAL.md` is untracked (like `CODEBASE.md`) and gitignored, so hook
+  writes no longer dirty git status and Tailwind skips it by git state as well as by
+  the watcher rule. The uncommitted `.gitignore` edits that blocked this earlier
+  turned out to be the run-state exclusion block itself, left uncommitted by the
+  session that shipped the ledger fix; committing it here completes that change.

@@ -72,3 +72,22 @@ credentials.toml
 data.bak-*/
 playwright-report/
 test-results/
+
+# Local run state written while the app is running. Tailwind v4 scans every
+# non-ignored file, so a run written here full-reloads every open Workbench tab and
+# throws away whatever conversation or unsaved edit was on screen.
+.agent-runs/
+.frontend-verify/
+
+# Same reason, plus a second one: a headless run started from the Workbench touches
+# files in here while it works, and every touch reloads the page the run was started
+# from. A worktree is also a second copy of the whole app, so Tailwind scans it and
+# Biome lints it, and every finding duplicates a file nobody is editing.
+.claude/*
+!.claude/launch.json
+!.claude/skills/
+
+# Appended by the session hooks on every run start/end, which reloads open tabs
+# through the same Tailwind scan (and keeps git status permanently dirty).
+# Untracked like CODEBASE.md; the hooks keep writing it on disk regardless.
+SESSION-JOURNAL.md
