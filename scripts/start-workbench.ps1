@@ -2,6 +2,11 @@
 param(
   [switch]$NoBrowser,
 
+  # Unattended startup path: skip the pre-launch typecheck. A transient TypeScript
+  # error in the working tree must not be the reason the Workbench is missing after
+  # a reboot. Vite does not typecheck either; `npm run build` still does.
+  [switch]$SkipTypecheck,
+
   [ValidateRange(5, 300)]
   [int]$TimeoutSeconds = 90
 )
@@ -104,7 +109,13 @@ $gatewayValidator = {
 $frontendValidator = {
   param($Response)
 
-  return $Response.Content -match "<title>IP Corp Architecture Brain</title>"
+  # Match the app entry module, not the <title>. The title is product branding and
+  # it moved once already ("IP Corp Architecture Brain" -> "IP Corporation
+  # Workbench" in the July rebrand), which left this check unable to ever pass:
+  # the launcher waited out its full timeout and reported failure while the app was
+  # serving perfectly, so the browser never opened. The entry script identifies this
+  # app just as precisely and survives renames.
+  return $Response.Content -match "/src/main\.tsx"
 }
 
 try {
@@ -112,15 +123,19 @@ try {
     throw "Dependencies are not installed. Run npm install once in $repoRoot, then launch again."
   }
 
-  Write-Host "Checking the Workbench TypeScript before launch..."
-  Push-Location $repoRoot
-  try {
-    & $npmCommand run typecheck -- --pretty false
-    if ($LASTEXITCODE -ne 0) {
-      throw "TypeScript validation failed with exit code $LASTEXITCODE. The browser was not opened."
+  if ($SkipTypecheck) {
+    Write-Host "Skipping the pre-launch typecheck by request."
+  } else {
+    Write-Host "Checking the Workbench TypeScript before launch..."
+    Push-Location $repoRoot
+    try {
+      & $npmCommand run typecheck -- --pretty false
+      if ($LASTEXITCODE -ne 0) {
+        throw "TypeScript validation failed with exit code $LASTEXITCODE. The browser was not opened."
+      }
+    } finally {
+      Pop-Location
     }
-  } finally {
-    Pop-Location
   }
 
   $gatewayReady = Test-Endpoint -Uri $gatewayUrl -Validator $gatewayValidator
