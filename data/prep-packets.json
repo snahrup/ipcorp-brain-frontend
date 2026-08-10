@@ -1,5 +1,130 @@
 [
   {
+    "id": "2026-08-07-fabric-standup",
+    "title": "Fabric Bi-Weekly Stand-Up: the workspace layout call",
+    "startsAt": "2026-08-07T09:00:00-04:00",
+    "attendees": [
+      "Steve Nahrup",
+      "Patrick Stiller",
+      "Eudias Kifem",
+      "Robin Virginia",
+      "Mike Spencer"
+    ],
+    "summary": "Rescheduled off Wednesday 8/5, which never ran. Steve organizes and runs it. One decision on the table: how Fabric workspaces get laid out. Steve proposes one workspace per medallion layer, per domain, and per company wherever financial data lands, so Customer bronze, Customer silver and Customer gold are separate workspaces.",
+    "whyItMatters": "Two conflicting workspace rules are written down in two different places and they build very differently. The workspaces get created either way, so the goal is to walk out with the rule stated in one sentence and write it up as a short decision record. Wave 1 has domain clearance, so this is what stands between clearance and standing anything up.",
+    "currentState": [
+      "Rescheduled from Wednesday 2026-08-05, which did not happen. Eudias was swamped and Robin was in a Salesforce meeting with Patrick. The agenda written for that day carries forward intact.",
+      "Room as of prep: Patrick Stiller accepted. Eudias, Robin Virginia and Mike Spencer had not responded. The agenda deliberately front-loads the items needing Mike and Robin.",
+      "Purview status moved since the agenda was written and is now good news. Michael Thiel replied 8/5 that he completed configuration through step 4, and Chris Meier confirmed 8/5 that the pay as you go upgrade completed. Report it as done, not as waiting.",
+      "ELT clearance is partial, not total. The go ahead covers the first, second and fourth domain plus stewards and data owners, meaning customer, sales and finance. Product, the third, is still held.",
+      "Wave 1 domain order is customer, then sales, product, then finance, set at a 7/22 meeting with Steve, Patrick and Kerri.",
+      "The already-made decision the workspace rule has to serve: stewards and owners get gold, engineers get the layers underneath."
+    ],
+    "relatedWork": [
+      "Workspace-per-layer position (A-WS-001)",
+      "Financial data isolation framework, three tiers",
+      "Azure foundation verification and resource naming standard",
+      "Purview subscription upgrade, JIRA IPC-2648",
+      "Domains 1 and 2 activation sequence"
+    ],
+    "openQuestions": [
+      "Does the financial isolation rule force a per-company split anywhere financial data lands, regardless of what is decided about layers?",
+      "Is the extra workspace count worth it? More workspaces means more grants, against the argument that group grants at the workspace level are cheaper to run than item level shares.",
+      "What does Customer actually need for wave 1, and what would force a revisit at Finance?",
+      "Landing zone: our own record contradicts itself, removed June 10 for duplicating raw into bronze, revisited June 22 for immutable snapshots and time travel. Which sources genuinely need to be read back as they were on a given date rather than just needing a change history?",
+      "Is anything still outstanding from Michael Thiel's step list beyond step 4?",
+      "Was the storage resource group flagged on 8/4 ever added?"
+    ],
+    "openCommitments": [
+      "Steve: write the workspace rule up as a short decision record once it lands in the room.",
+      "Mike Spencer: the approved steward and owner names, still not received after three relays. The acceptance asks and the kickoff workshop both queue behind them.",
+      "Robin Virginia: feedback on the task breakdown workbook, with her since roughly 7/28. She is working from home today."
+    ],
+    "talkingPoints": [
+      "The workspace layout call is the whole meeting. Agree the rule in one sentence today, or find out exactly what Steve needs to show to get there.",
+      "Why the per-domain-only alternative fails: a workspace role granted to a security group controls a whole layer and needs that layer to be its own workspace. Item permissions work as an exception and are painful as the rule. Row level security only applies in gold. Folders inside a workspace are organizational only and carry no permissions. Fabric domains group workspaces for discovery and explicitly do not affect who sees what.",
+      "Patrick has run more of these, so get his read on whether the extra grant count is worth it.",
+      "Purview foundation is a two minute status item, no decision needed.",
+      "If Eudias joins, spend six minutes on the landing zone question as a pick between two named options, not an open discussion."
+    ],
+    "risks": [
+      "High: R-002 in the risk register, a gold layer aggregation accidentally violating cross company financial isolation between NAC and Interplastic, against a CIO mandate. Mitigation on record is mandatory decision review for any cross company gold table and row level security by default on financial semantic models. Last reviewed 2026-04-29, so the review date is dated but the risk is live.",
+      "Medium: neither Mike Spencer nor Robin Virginia had confirmed attendance. Without them the approved-names gap cannot close, and the acceptance asks and kickoff workshop stay stuck.",
+      "Medium: the workspaces get created regardless of whether the rule is agreed, so no decision means the decision gets made by whoever builds first.",
+      "Low: the agenda states Wave 1 has ELT clearance more simply than the record supports. Clearance is partial and Product is still held."
+    ],
+    "suggestedPosture": "Decisive on the layout rule, open on the count. Steve has the stronger argument on access control and should lead with it, then genuinely invite the pushback on workspace volume rather than defending. Purview and the Azure foundation are status only, delivered as progress.",
+    "evidenceRefs": [
+      "core/meetings/prep-archive/2026-08-07-fabric-standup/Cluely_Prep_Fabric_Bi-Weekly_Stand-Up_2026-08-07.md",
+      "core/meetings/prep-archive/2026-08-07-fabric-standup/Fabric_Bi-Weekly_Stand-Up_RunOfShow_2026-08-07.md",
+      "core/meetings/prep-archive/2026-08-07-fabric-standup/Fabric_Bi-Weekly_Stand-Up_Prep_Pack_2026-08-07.pdf",
+      "core/meetings/prep-archive/2026-08-07-fabric-standup/Fabric_Bi-Weekly_Stand-Up_Evidence_Matrix_2026-08-07.xlsx",
+      "core/deliverables/mdm-program-planning/standup-agendas/2026-08-07-fabric-standup-proposed-agenda.md",
+      "core/meetings/summaries/2026-08-05-fabric-bi-weekly-standup.md",
+      "core/meetings/summaries/2026-08-04-purview-subscription-decision.md"
+    ]
+  },
+  {
+    "id": "2026-08-07-programs-projects-tasks",
+    "title": "Programs, Projects and Tasks: pick one home for the tracking",
+    "startsAt": "2026-08-07T10:00:00-04:00",
+    "attendees": ["Steve Nahrup", "Patrick Stiller", "Eudias Tata"],
+    "summary": "Steve called this after Patrick's 5:16 PM reminder on 8/6 and sent the invitation at 8:05 PM that evening. Walk the programs, projects and tasks list end to end with both of them, and land a decision on where it gets tracked going forward so there is one place instead of several. Steve brings the tracking sheet.",
+    "whyItMatters": "The same content currently sits in a Mural board, at least two spreadsheets, and partly in Jira. Steve named that problem himself on 7/28. Until there is one home, the check-off column Patrick asked for does not help, because nobody knows which copy is the real one. This also runs straight off the 9:00 stand-up, so if the workspace rule lands there it becomes a concrete task belonging in whatever system gets agreed here.",
+    "currentState": [
+      "Continuation of a thread running since 7/22, taking the Mural board apart into program, projects and tasks. Steve and Patrick reviewed it one on one on 7/28. This is the first time Eudias is in the room for it.",
+      "Neither Patrick nor Eudias had responded when this was prepared, which is expected given the invitation went out at 8:05 PM the night before.",
+      "Structure agreed on 7/28: two pre-waves, the Fabric platform then Purview, done once and never repeated. Then wave 1 is the first domain end to end, and each later wave reproduces the same template against the next domain.",
+      "Patrick's verdict on consolidation was that it is consolidated pretty well and the next step is Robin, not more consolidation. Do not walk in assuming he wants a rebuild.",
+      "The task breakdown workbook has been with Robin Virginia since roughly 7/28 and was still with her as of 8/3. She is working from home today and is not in this meeting.",
+      "Purview is further along than the plan may reflect. The pay as you go upgrade completed 8/5 and Chris Meier is running it as JIRA IPC-2648. If the breakdown still shows the Purview pre-wave as not started, it needs updating in the room.",
+      "Dominique Mathers cancelled the Data/Dev Team Weekly Standup on 8/4, so there has been one fewer forum than usual this week for this kind of item."
+    ],
+    "relatedWork": [
+      "MDM domain program breakdown, reviewed 7/28",
+      "Wave 1 domain activation, customer then sales then product then finance",
+      "Steward and owner template sign-offs",
+      "Purview pre-wave, JIRA IPC-2648",
+      "Fabric workspace layout decision from the 9:00 stand-up"
+    ],
+    "openQuestions": [
+      "Where does this get tracked going forward? Jira, the spreadsheet, the Mural board, or something else. This is the point of the meeting.",
+      "Did the bite-sized tasks actually go into Jira after Steve committed to it on 8/3? Not confirmed anywhere in the record.",
+      "Is Jira the tracking answer, or just the execution layer under a higher level plan? Jira does not naturally hold the program and wave structure above the tasks.",
+      "Does the check-off column Patrick asked for on 7/28 exist in the sheet Steve is bringing?",
+      "Does the plan carry placeholder durations, or stay unestimated until stewards are named?",
+      "Does the SharePoint version-control convention from 7/22 apply to the tracking sheet too?"
+    ],
+    "openCommitments": [
+      "Steve: load the bite-sized tasks into Jira. Committed at the 8/3 stand-up, to be done that day. He had been holding off for Robin's feedback first. Treat as confirm live.",
+      "Patrick: a column so items already covered in prior meetings can be checked off. Asked 7/28, still open.",
+      "Patrick, Eudias and Kerri Voiss: sign off on the steward templates before they go out to be filled in. Patrick's reason is that someone from the business is needed. Eudias is in the room, so get a review window from him.",
+      "Robin Virginia: feedback on the task breakdown workbook."
+    ],
+    "talkingPoints": [
+      "Lead with the tracking decision. Steve's own words on 7/28 were that the multiple spreadsheets problem makes him want a single source of truth. Patrick's answer was that if everyone keeps going to the same spreadsheet, that is the single source of truth. Pick one home and say it out loud.",
+      "Jira is the live candidate and Steve already committed to it for the bite-sized tasks. The honest framing is that this meeting decides whether the layer above Jira is the spreadsheet, the Mural board, or something else.",
+      "Walk the structure so Eudias sees it the same way, and ask him directly whether that is how the work actually decomposes.",
+      "Any decision made here has to survive Robin's feedback coming back later, since she holds the workbook and is not in the room.",
+      "Get Eudias to commit to a template review window while he is in the meeting."
+    ],
+    "risks": [
+      "Medium: a tracking decision made without Robin, who holds the workbook, can be reopened when her feedback lands.",
+      "Medium: timeframes cannot be filled in until stewards are named, so the plan either carries placeholder durations or stays unestimated. Either choice needs saying out loud.",
+      "Low: if the breakdown still shows the Purview pre-wave as not started, the plan understates real progress."
+    ],
+    "suggestedPosture": "Steve called this meeting and sets the agenda, so run it. Resist the instinct to consolidate further, which Patrick already pushed back on. Spend the time on the one decision the meeting exists for and make sure Eudias leaves with a concrete commitment rather than context.",
+    "evidenceRefs": [
+      "core/meetings/prep-archive/2026-08-07-programs-projects-tasks/Cluely_Prep_Programs_Projects_and_Tasks_2026-08-07.md",
+      "core/meetings/prep-archive/2026-08-07-programs-projects-tasks/Programs_Projects_and_Tasks_RunOfShow_2026-08-07.md",
+      "core/meetings/prep-archive/2026-08-07-programs-projects-tasks/Programs_Projects_and_Tasks_Prep_Pack_2026-08-07.pdf",
+      "core/meetings/prep-archive/2026-08-07-programs-projects-tasks/Programs_Projects_and_Tasks_Evidence_Matrix_2026-08-07.xlsx",
+      "core/meetings/summaries/2026-08-06-eudias-meeting-scheduling-call.md",
+      "core/meetings/summaries/2026-08-03-dev-data-standup.md",
+      "core/meetings/summaries/2026-08-04-purview-subscription-decision.md"
+    ]
+  },
+  {
     "id": "citrine-pcd-database-review",
     "title": "Citrine / PCD Database Review",
     "startsAt": "2026-05-21T09:00:00-05:00",

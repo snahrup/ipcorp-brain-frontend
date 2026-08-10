@@ -1,16 +1,16 @@
 {
   "manifest": {
-    "generatedAt": "2026-08-03T22:11:33.013Z",
+    "generatedAt": "2026-08-07T05:46:19.855Z",
     "sourceBrain": "C:/Users/snahrup/CascadeProjects/ipcorp-architecture-brain",
     "sourceHighWater": {
       "brainStatusUpdatedAt": "2026-06-11T15:21:15.069Z",
-      "meetingIndexUpdatedAt": "2026-08-03T22:11:32.754Z",
+      "meetingIndexUpdatedAt": "2026-08-07T05:46:19.277Z",
       "latestNativelyRun": "2026-06-11T15:21:15.069Z"
     },
     "classification": "internal-stakeholder-safe-draft",
     "redactionPolicy": "Raw captures, authentication material, internal agent rules, live-capture snippets, and workflow receipts are excluded.",
     "counts": {
-      "prepPackets": 16,
+      "prepPackets": 18,
       "cortexInsights": 28,
       "actionProposals": 18,
       "openQuestions": 96,
@@ -233,7 +233,7 @@
     }
   },
   "meetingIndex": {
-    "updatedAt": "2026-08-03T22:11:32.754Z",
+    "updatedAt": "2026-08-07T05:46:19.277Z",
     "readinessSummary": {
       "status": "rebuilt-from-brain-summaries",
       "nextBestPacket": "prep-packets/purview-advisory-follow-up.packet.json",
@@ -311,14 +311,106 @@
         }
       ],
       "note": "No targeted source evidence changed after effective cutoff 2026-06-11T13:37:38.658Z. Purview advisory follow-up remains the next best packet; Weekly Fabric remains background; shared knowledge-base review remains blocked on DQ-049/ADR-0007/R-023 plus sanitized frontend refresh/redaction review.",
-      "meetingCount": 116,
-      "newestMeeting": "2026-08-03",
+      "meetingCount": 122,
+      "newestMeeting": "2026-08-06",
       "oldestMeeting": "2025-10-10",
       "droppedStalePrepared": 10
     },
     "upcoming": [],
     "active": [],
     "recent": [
+      {
+        "id": "2026-08-06-team-celebration-building",
+        "title": "Team Celebration Building",
+        "date": "2026-08-06T12:00:00.000Z",
+        "day": "2026-08-06",
+        "attendees": "Patrick Stiller (organizer), Steve Nahrup, Eudias Tata, Matt Francis, Jason Christensen",
+        "summary": "This is an internal IT team morale and recognition workstream, not engagement delivery work. It matters to the brain only because it consumed Steve's day and produced real commitments with dates.",
+        "source": "Meeting notes",
+        "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-06-team-celebration-building",
+          "file": "Team Celebration Building [2026-08-06].png"
+        },
+        "feedsPackets": [],
+        "feedsInsights": []
+      },
+      {
+        "id": "2026-08-06-eudias-meeting-scheduling-call",
+        "title": "Eudias Meeting Scheduling Call",
+        "date": "2026-08-06T12:00:00.000Z",
+        "day": "2026-08-06",
+        "attendees": "Steve Nahrup, Patrick Stiller",
+        "summary": "The capture starts mid-sentence, so what Steve's opening line answers is not recoverable. What is clear from 0:05 on is Steve proposing a session \"today or tomorrow with you, me and Udius\", Cluely's mis-hearing of Eudias Tata. Patrick agreed and made it a request: \"If you can put something together between the three of us, that would be awesome\" (1:03), and added \"just bring that spreadsheet and google through it\" (1:10). That reference is ambiguous in this capture and is more likely the programs and projects tracking sheet than the achievements spreadsheet created later the same afternoon, si",
+        "source": "Meeting notes",
+        "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-06-eudias-meeting-scheduling-call",
+          "file": "Eudias Meeting Scheduling Call [2026-08-06].png"
+        },
+        "feedsPackets": [],
+        "feedsInsights": []
+      },
+      {
+        "id": "2026-08-06-coreapps-achievements-infographic-request",
+        "title": "CoreApps Achievements Infographic Request",
+        "date": "2026-08-06T12:00:00.000Z",
+        "day": "2026-08-06",
+        "attendees": "Steve Nahrup, Patrick Stiller",
+        "summary": "The first three minutes of the capture are not conversation. They are Patrick playing a generated newsroom-style audio piece another group had made about the core applications team, using Cowork and Clipchamp. Its content is that team's own accomplishments (Sarah, Lori, Gene, Elena). It is captured here only because it played into the microphone, and it is the thing Patrick wanted to beat.",
+        "source": "Meeting notes",
+        "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-06-coreapps-achievements-infographic-request",
+          "file": "CoreApps Achievements Infographic Request [2026-08-06].png"
+        },
+        "feedsPackets": [],
+        "feedsInsights": []
+      },
+      {
+        "id": "2026-08-05-fabric-bi-weekly-standup",
+        "title": "Fabric Bi-Weekly Stand-Up — 2026-08-05 — DID NOT OCCUR",
+        "date": "2026-08-05T12:00:00.000Z",
+        "day": "2026-08-05",
+        "source": "Meeting notes",
+        "readinessStatus": "captured",
+        "feedsPackets": [],
+        "feedsInsights": []
+      },
+      {
+        "id": "2026-08-04-purview-subscription-decision",
+        "title": "Purview Subscription Decision and Owner/Steward Confirmation",
+        "date": "2026-08-04T12:00:00.000Z",
+        "day": "2026-08-04",
+        "duration": "26 minutes of a 45-minute slot (1:00 to ~1:26 PM ET)",
+        "attendees": "Steve Nahrup (organizer, ran it), Patrick Stiller, Michael Thiel, Michael Kenney, Chris Meier",
+        "summary": "Steve opened by pointing the room at the direction email sent minutes earlier (C21:05-21:46) and confirmed the frame: use an existing subscription, rename it, register the three providers, create the first two resource groups (C22:04-22:47). The naming pattern survived contact with the room (\"it looks fine to me\", C23:00). The subscription did not.",
+        "source": "Meeting notes",
+        "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-04-purview-subscription-decision",
+          "file": "Purview Subscription Decision [2026-08-04].png"
+        },
+        "feedsPackets": [],
+        "feedsInsights": []
+      },
+      {
+        "id": "2026-08-04-nahrup-patrick-adhoc-call",
+        "title": "Nahrup / Patrick Ad-Hoc Debrief Call",
+        "date": "2026-08-04T12:00:00.000Z",
+        "day": "2026-08-04",
+        "duration": "4 minutes, roughly 1:21 to 1:25 PM ET",
+        "attendees": "Steve Nahrup, Patrick Stiller (phone)",
+        "summary": "The capture joins mid-sentence on something pulling from a database. Steve asked if Patrick meant \"the one that's like five grand\"; Patrick knew what that one was and said he is \"fine with the other one, that I granted you access to\", which reads as d82dbe25, the subscription Patrick granted Steve Owner on. The opening context is missing, so what exactly is pulling and from where is not certain from this record (0:01-0:18).",
+        "source": "Meeting notes",
+        "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-04-nahrup-patrick-adhoc-call",
+          "file": "Nahrup-Patrick Ad-Hoc Debrief [2026-08-04].png"
+        },
+        "feedsPackets": [],
+        "feedsInsights": []
+      },
       {
         "id": "2026-08-03-nahrup-1on1-with-patrick",
         "title": "Nahrup 1-on-1 with Patrick (ELT outcome call)",
@@ -1157,88 +1249,101 @@
         "readinessStatus": "captured",
         "feedsPackets": [],
         "feedsInsights": []
-      },
-      {
-        "id": "2026-05-20-power-bi-source-mapping",
-        "title": "Power BI Source Mapping",
-        "date": "2026-05-20T12:00:00.000Z",
-        "day": "2026-05-20",
-        "duration": "19:54",
-        "attendees": "speaker identities not fully resolved from Natively diarization",
-        "source": "Meeting notes",
-        "readinessStatus": "captured",
-        "infographic": {
-          "id": "2026-05-20-power-bi-source-mapping-bccb90a3",
-          "file": "meeting-infographic.png"
-        },
-        "feedsPackets": [],
-        "feedsInsights": []
-      },
-      {
-        "id": "2026-05-20-intercompany-item-mapping",
-        "title": "Intercompany Item Mapping",
-        "date": "2026-05-20T12:00:00.000Z",
-        "day": "2026-05-20",
-        "duration": "16:55",
-        "attendees": "speaker identities not fully resolved from Natively diarization",
-        "source": "Meeting notes",
-        "readinessStatus": "captured",
-        "infographic": {
-          "id": "2026-05-20-intercompany-item-mapping-a81c405c",
-          "file": "meeting-infographic.png"
-        },
-        "feedsPackets": [],
-        "feedsInsights": []
-      },
-      {
-        "id": "2026-05-20-fabric-weekly-stand-up",
-        "title": "Fabric Weekly Stand-Up",
-        "date": "2026-05-20T12:00:00.000Z",
-        "day": "2026-05-20",
-        "duration": "46:01",
-        "source": "Meeting notes",
-        "readinessStatus": "captured",
-        "feedsPackets": [],
-        "feedsInsights": []
-      },
-      {
-        "id": "2026-05-20-fabric-deep-dive-working-session",
-        "title": "Fabric Deep-Dive Working Session",
-        "date": "2026-05-20T12:00:00.000Z",
-        "day": "2026-05-20",
-        "duration": "45 min (approx; VTT has no end timestamp)",
-        "attendees": "Steve Nahrup (Data Architect), Matt Francis, Carrie, and additional Data & Analytics / business participants referenced in-session (e.g., \"Eudias,\" Kelly)",
-        "summary": "This was a whiteboard-style working session to bootstrap the data-domain model that will anchor the Microsoft Fabric build-out. The core problem the group kept circling: the company's subsidiary structure (Inter Plastic, NAC, HK, Molding Products) makes clean domain boundaries genuinely hard — by Steve's count this is roughly the eighth attempt at carving up the model. The group accepted that domains are a starting scaffold, not a finished taxonomy, and that the priority is simply to start rather than to perfect the groupings up front. Each domain will be delivered as a curated \"gold model\" th",
-        "source": "Meeting notes",
-        "readinessStatus": "captured",
-        "feedsPackets": [],
-        "feedsInsights": []
-      },
-      {
-        "id": "2026-05-19-preface-fabric-meeting",
-        "title": "Preface Fabric Meeting — Data Architecture & Migration Discussion",
-        "date": "2026-05-19T12:00:00.000Z",
-        "day": "2026-05-19",
-        "duration": "15-20 min (preceded the Plant Tour: \"We're running over the plant here in about 15 minutes\")",
-        "attendees": "Steve Nahrup, Patrick Stiller, Jason (visiting MES/data specialist — see Open Question on full identification), with Matt Tallarico, Stuart, Michael Kent referenced but not in-room",
-        "source": "Meeting notes",
-        "readinessStatus": "captured",
-        "feedsPackets": [],
-        "feedsInsights": []
-      },
-      {
-        "id": "2026-05-19-plant-tour",
-        "title": "Plant Tour — Facility Tour and MES System Review",
-        "date": "2026-05-19T12:00:00.000Z",
-        "day": "2026-05-19",
-        "duration": "full plant tour, ≥ 90 min (24/7 operation; multiple buildings traversed)",
-        "source": "Meeting notes",
-        "readinessStatus": "captured",
-        "feedsPackets": [],
-        "feedsInsights": []
       }
     ],
     "meetings": [
+      {
+        "id": "2026-08-06-team-celebration-building",
+        "title": "Team Celebration Building",
+        "date": "2026-08-06T12:00:00.000Z",
+        "day": "2026-08-06",
+        "attendees": "Patrick Stiller (organizer), Steve Nahrup, Eudias Tata, Matt Francis, Jason Christensen",
+        "summary": "This is an internal IT team morale and recognition workstream, not engagement delivery work. It matters to the brain only because it consumed Steve's day and produced real commitments with dates.",
+        "source": "Meeting notes",
+        "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-06-team-celebration-building",
+          "file": "Team Celebration Building [2026-08-06].png"
+        },
+        "feedsPackets": [],
+        "feedsInsights": []
+      },
+      {
+        "id": "2026-08-06-eudias-meeting-scheduling-call",
+        "title": "Eudias Meeting Scheduling Call",
+        "date": "2026-08-06T12:00:00.000Z",
+        "day": "2026-08-06",
+        "attendees": "Steve Nahrup, Patrick Stiller",
+        "summary": "The capture starts mid-sentence, so what Steve's opening line answers is not recoverable. What is clear from 0:05 on is Steve proposing a session \"today or tomorrow with you, me and Udius\", Cluely's mis-hearing of Eudias Tata. Patrick agreed and made it a request: \"If you can put something together between the three of us, that would be awesome\" (1:03), and added \"just bring that spreadsheet and google through it\" (1:10). That reference is ambiguous in this capture and is more likely the programs and projects tracking sheet than the achievements spreadsheet created later the same afternoon, si",
+        "source": "Meeting notes",
+        "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-06-eudias-meeting-scheduling-call",
+          "file": "Eudias Meeting Scheduling Call [2026-08-06].png"
+        },
+        "feedsPackets": [],
+        "feedsInsights": []
+      },
+      {
+        "id": "2026-08-06-coreapps-achievements-infographic-request",
+        "title": "CoreApps Achievements Infographic Request",
+        "date": "2026-08-06T12:00:00.000Z",
+        "day": "2026-08-06",
+        "attendees": "Steve Nahrup, Patrick Stiller",
+        "summary": "The first three minutes of the capture are not conversation. They are Patrick playing a generated newsroom-style audio piece another group had made about the core applications team, using Cowork and Clipchamp. Its content is that team's own accomplishments (Sarah, Lori, Gene, Elena). It is captured here only because it played into the microphone, and it is the thing Patrick wanted to beat.",
+        "source": "Meeting notes",
+        "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-06-coreapps-achievements-infographic-request",
+          "file": "CoreApps Achievements Infographic Request [2026-08-06].png"
+        },
+        "feedsPackets": [],
+        "feedsInsights": []
+      },
+      {
+        "id": "2026-08-05-fabric-bi-weekly-standup",
+        "title": "Fabric Bi-Weekly Stand-Up — 2026-08-05 — DID NOT OCCUR",
+        "date": "2026-08-05T12:00:00.000Z",
+        "day": "2026-08-05",
+        "source": "Meeting notes",
+        "readinessStatus": "captured",
+        "feedsPackets": [],
+        "feedsInsights": []
+      },
+      {
+        "id": "2026-08-04-purview-subscription-decision",
+        "title": "Purview Subscription Decision and Owner/Steward Confirmation",
+        "date": "2026-08-04T12:00:00.000Z",
+        "day": "2026-08-04",
+        "duration": "26 minutes of a 45-minute slot (1:00 to ~1:26 PM ET)",
+        "attendees": "Steve Nahrup (organizer, ran it), Patrick Stiller, Michael Thiel, Michael Kenney, Chris Meier",
+        "summary": "Steve opened by pointing the room at the direction email sent minutes earlier (C21:05-21:46) and confirmed the frame: use an existing subscription, rename it, register the three providers, create the first two resource groups (C22:04-22:47). The naming pattern survived contact with the room (\"it looks fine to me\", C23:00). The subscription did not.",
+        "source": "Meeting notes",
+        "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-04-purview-subscription-decision",
+          "file": "Purview Subscription Decision [2026-08-04].png"
+        },
+        "feedsPackets": [],
+        "feedsInsights": []
+      },
+      {
+        "id": "2026-08-04-nahrup-patrick-adhoc-call",
+        "title": "Nahrup / Patrick Ad-Hoc Debrief Call",
+        "date": "2026-08-04T12:00:00.000Z",
+        "day": "2026-08-04",
+        "duration": "4 minutes, roughly 1:21 to 1:25 PM ET",
+        "attendees": "Steve Nahrup, Patrick Stiller (phone)",
+        "summary": "The capture joins mid-sentence on something pulling from a database. Steve asked if Patrick meant \"the one that's like five grand\"; Patrick knew what that one was and said he is \"fine with the other one, that I granted you access to\", which reads as d82dbe25, the subscription Patrick granted Steve Owner on. The opening context is missing, so what exactly is pulling and from where is not certain from this record (0:01-0:18).",
+        "source": "Meeting notes",
+        "readinessStatus": "captured",
+        "infographic": {
+          "id": "2026-08-04-nahrup-patrick-adhoc-call",
+          "file": "Nahrup-Patrick Ad-Hoc Debrief [2026-08-04].png"
+        },
+        "feedsPackets": [],
+        "feedsInsights": []
+      },
       {
         "id": "2026-08-03-nahrup-1on1-with-patrick",
         "title": "Nahrup 1-on-1 with Patrick (ELT outcome call)",
@@ -2941,6 +3046,131 @@
     "missingOrStalePackets": []
   },
   "prepPackets": [
+    {
+      "id": "2026-08-07-fabric-standup",
+      "title": "Fabric Bi-Weekly Stand-Up: the workspace layout call",
+      "startsAt": "2026-08-07T09:00:00-04:00",
+      "attendees": [
+        "Steve Nahrup",
+        "Patrick Stiller",
+        "Eudias Kifem",
+        "Robin Virginia",
+        "Mike Spencer"
+      ],
+      "summary": "Rescheduled off Wednesday 8/5, which never ran. Steve organizes and runs it. One decision on the table: how Fabric workspaces get laid out. Steve proposes one workspace per medallion layer, per domain, and per company wherever financial data lands, so Customer bronze, Customer silver and Customer gold are separate workspaces.",
+      "whyItMatters": "Two conflicting workspace rules are written down in two different places and they build very differently. The workspaces get created either way, so the goal is to walk out with the rule stated in one sentence and write it up as a short decision record. Wave 1 has domain clearance, so this is what stands between clearance and standing anything up.",
+      "currentState": [
+        "Rescheduled from Wednesday 2026-08-05, which did not happen. Eudias was swamped and Robin was in a Salesforce meeting with Patrick. The agenda written for that day carries forward intact.",
+        "Room as of prep: Patrick Stiller accepted. Eudias, Robin Virginia and Mike Spencer had not responded. The agenda deliberately front-loads the items needing Mike and Robin.",
+        "Purview status moved since the agenda was written and is now good news. Michael Thiel replied 8/5 that he completed configuration through step 4, and Chris Meier confirmed 8/5 that the pay as you go upgrade completed. Report it as done, not as waiting.",
+        "ELT clearance is partial, not total. The go ahead covers the first, second and fourth domain plus stewards and data owners, meaning customer, sales and finance. Product, the third, is still held.",
+        "Wave 1 domain order is customer, then sales, product, then finance, set at a 7/22 meeting with Steve, Patrick and Kerri.",
+        "The already-made decision the workspace rule has to serve: stewards and owners get gold, engineers get the layers underneath."
+      ],
+      "relatedWork": [
+        "Workspace-per-layer position (A-WS-001)",
+        "Financial data isolation framework, three tiers",
+        "Azure foundation verification and resource naming standard",
+        "Purview subscription upgrade, JIRA IPC-2648",
+        "Domains 1 and 2 activation sequence"
+      ],
+      "openQuestions": [
+        "Does the financial isolation rule force a per-company split anywhere financial data lands, regardless of what is decided about layers?",
+        "Is the extra workspace count worth it? More workspaces means more grants, against the argument that group grants at the workspace level are cheaper to run than item level shares.",
+        "What does Customer actually need for wave 1, and what would force a revisit at Finance?",
+        "Landing zone: our own record contradicts itself, removed June 10 for duplicating raw into bronze, revisited June 22 for immutable snapshots and time travel. Which sources genuinely need to be read back as they were on a given date rather than just needing a change history?",
+        "Is anything still outstanding from Michael Thiel's step list beyond step 4?",
+        "Was the storage resource group flagged on 8/4 ever added?"
+      ],
+      "openCommitments": [
+        "Steve: write the workspace rule up as a short decision record once it lands in the room.",
+        "Mike Spencer: the approved steward and owner names, still not received after three relays. The acceptance asks and the kickoff workshop both queue behind them.",
+        "Robin Virginia: feedback on the task breakdown workbook, with her since roughly 7/28. She is working from home today."
+      ],
+      "talkingPoints": [
+        "The workspace layout call is the whole meeting. Agree the rule in one sentence today, or find out exactly what Steve needs to show to get there.",
+        "Why the per-domain-only alternative fails: a workspace role granted to a security group controls a whole layer and needs that layer to be its own workspace. Item permissions work as an exception and are painful as the rule. Row level security only applies in gold. Folders inside a workspace are organizational only and carry no permissions. Fabric domains group workspaces for discovery and explicitly do not affect who sees what.",
+        "Patrick has run more of these, so get his read on whether the extra grant count is worth it.",
+        "Purview foundation is a two minute status item, no decision needed.",
+        "If Eudias joins, spend six minutes on the landing zone question as a pick between two named options, not an open discussion."
+      ],
+      "risks": [
+        "High: R-002 in the risk register, a gold layer aggregation accidentally violating cross company financial isolation between NAC and Interplastic, against a CIO mandate. Mitigation on record is mandatory decision review for any cross company gold table and row level security by default on financial semantic models. Last reviewed 2026-04-29, so the review date is dated but the risk is live.",
+        "Medium: neither Mike Spencer nor Robin Virginia had confirmed attendance. Without them the approved-names gap cannot close, and the acceptance asks and kickoff workshop stay stuck.",
+        "Medium: the workspaces get created regardless of whether the rule is agreed, so no decision means the decision gets made by whoever builds first.",
+        "Low: the agenda states Wave 1 has ELT clearance more simply than the record supports. Clearance is partial and Product is still held."
+      ],
+      "suggestedPosture": "Decisive on the layout rule, open on the count. Steve has the stronger argument on access control and should lead with it, then genuinely invite the pushback on workspace volume rather than defending. Purview and the Azure foundation are status only, delivered as progress.",
+      "evidenceRefs": [
+        "core/meetings/prep-archive/2026-08-07-fabric-standup/Cluely_Prep_Fabric_Bi-Weekly_Stand-Up_2026-08-07.md",
+        "core/meetings/prep-archive/2026-08-07-fabric-standup/Fabric_Bi-Weekly_Stand-Up_RunOfShow_2026-08-07.md",
+        "core/meetings/prep-archive/2026-08-07-fabric-standup/Fabric_Bi-Weekly_Stand-Up_Prep_Pack_2026-08-07.pdf",
+        "core/meetings/prep-archive/2026-08-07-fabric-standup/Fabric_Bi-Weekly_Stand-Up_Evidence_Matrix_2026-08-07.xlsx",
+        "core/deliverables/mdm-program-planning/standup-agendas/2026-08-07-fabric-standup-proposed-agenda.md",
+        "core/meetings/summaries/2026-08-05-fabric-bi-weekly-standup.md",
+        "core/meetings/summaries/2026-08-04-purview-subscription-decision.md"
+      ]
+    },
+    {
+      "id": "2026-08-07-programs-projects-tasks",
+      "title": "Programs, Projects and Tasks: pick one home for the tracking",
+      "startsAt": "2026-08-07T10:00:00-04:00",
+      "attendees": ["Steve Nahrup", "Patrick Stiller", "Eudias Tata"],
+      "summary": "Steve called this after Patrick's 5:16 PM reminder on 8/6 and sent the invitation at 8:05 PM that evening. Walk the programs, projects and tasks list end to end with both of them, and land a decision on where it gets tracked going forward so there is one place instead of several. Steve brings the tracking sheet.",
+      "whyItMatters": "The same content currently sits in a Mural board, at least two spreadsheets, and partly in Jira. Steve named that problem himself on 7/28. Until there is one home, the check-off column Patrick asked for does not help, because nobody knows which copy is the real one. This also runs straight off the 9:00 stand-up, so if the workspace rule lands there it becomes a concrete task belonging in whatever system gets agreed here.",
+      "currentState": [
+        "Continuation of a thread running since 7/22, taking the Mural board apart into program, projects and tasks. Steve and Patrick reviewed it one on one on 7/28. This is the first time Eudias is in the room for it.",
+        "Neither Patrick nor Eudias had responded when this was prepared, which is expected given the invitation went out at 8:05 PM the night before.",
+        "Structure agreed on 7/28: two pre-waves, the Fabric platform then Purview, done once and never repeated. Then wave 1 is the first domain end to end, and each later wave reproduces the same template against the next domain.",
+        "Patrick's verdict on consolidation was that it is consolidated pretty well and the next step is Robin, not more consolidation. Do not walk in assuming he wants a rebuild.",
+        "The task breakdown workbook has been with Robin Virginia since roughly 7/28 and was still with her as of 8/3. She is working from home today and is not in this meeting.",
+        "Purview is further along than the plan may reflect. The pay as you go upgrade completed 8/5 and Chris Meier is running it as JIRA IPC-2648. If the breakdown still shows the Purview pre-wave as not started, it needs updating in the room.",
+        "Dominique Mathers cancelled the Data/Dev Team Weekly Standup on 8/4, so there has been one fewer forum than usual this week for this kind of item."
+      ],
+      "relatedWork": [
+        "MDM domain program breakdown, reviewed 7/28",
+        "Wave 1 domain activation, customer then sales then product then finance",
+        "Steward and owner template sign-offs",
+        "Purview pre-wave, JIRA IPC-2648",
+        "Fabric workspace layout decision from the 9:00 stand-up"
+      ],
+      "openQuestions": [
+        "Where does this get tracked going forward? Jira, the spreadsheet, the Mural board, or something else. This is the point of the meeting.",
+        "Did the bite-sized tasks actually go into Jira after Steve committed to it on 8/3? Not confirmed anywhere in the record.",
+        "Is Jira the tracking answer, or just the execution layer under a higher level plan? Jira does not naturally hold the program and wave structure above the tasks.",
+        "Does the check-off column Patrick asked for on 7/28 exist in the sheet Steve is bringing?",
+        "Does the plan carry placeholder durations, or stay unestimated until stewards are named?",
+        "Does the SharePoint version-control convention from 7/22 apply to the tracking sheet too?"
+      ],
+      "openCommitments": [
+        "Steve: load the bite-sized tasks into Jira. Committed at the 8/3 stand-up, to be done that day. He had been holding off for Robin's feedback first. Treat as confirm live.",
+        "Patrick: a column so items already covered in prior meetings can be checked off. Asked 7/28, still open.",
+        "Patrick, Eudias and Kerri Voiss: sign off on the steward templates before they go out to be filled in. Patrick's reason is that someone from the business is needed. Eudias is in the room, so get a review window from him.",
+        "Robin Virginia: feedback on the task breakdown workbook."
+      ],
+      "talkingPoints": [
+        "Lead with the tracking decision. Steve's own words on 7/28 were that the multiple spreadsheets problem makes him want a single source of truth. Patrick's answer was that if everyone keeps going to the same spreadsheet, that is the single source of truth. Pick one home and say it out loud.",
+        "Jira is the live candidate and Steve already committed to it for the bite-sized tasks. The honest framing is that this meeting decides whether the layer above Jira is the spreadsheet, the Mural board, or something else.",
+        "Walk the structure so Eudias sees it the same way, and ask him directly whether that is how the work actually decomposes.",
+        "Any decision made here has to survive Robin's feedback coming back later, since she holds the workbook and is not in the room.",
+        "Get Eudias to commit to a template review window while he is in the meeting."
+      ],
+      "risks": [
+        "Medium: a tracking decision made without Robin, who holds the workbook, can be reopened when her feedback lands.",
+        "Medium: timeframes cannot be filled in until stewards are named, so the plan either carries placeholder durations or stays unestimated. Either choice needs saying out loud.",
+        "Low: if the breakdown still shows the Purview pre-wave as not started, the plan understates real progress."
+      ],
+      "suggestedPosture": "Steve called this meeting and sets the agenda, so run it. Resist the instinct to consolidate further, which Patrick already pushed back on. Spend the time on the one decision the meeting exists for and make sure Eudias leaves with a concrete commitment rather than context.",
+      "evidenceRefs": [
+        "core/meetings/prep-archive/2026-08-07-programs-projects-tasks/Cluely_Prep_Programs_Projects_and_Tasks_2026-08-07.md",
+        "core/meetings/prep-archive/2026-08-07-programs-projects-tasks/Programs_Projects_and_Tasks_RunOfShow_2026-08-07.md",
+        "core/meetings/prep-archive/2026-08-07-programs-projects-tasks/Programs_Projects_and_Tasks_Prep_Pack_2026-08-07.pdf",
+        "core/meetings/prep-archive/2026-08-07-programs-projects-tasks/Programs_Projects_and_Tasks_Evidence_Matrix_2026-08-07.xlsx",
+        "core/meetings/summaries/2026-08-06-eudias-meeting-scheduling-call.md",
+        "core/meetings/summaries/2026-08-03-dev-data-standup.md",
+        "core/meetings/summaries/2026-08-04-purview-subscription-decision.md"
+      ]
+    },
     {
       "id": "citrine-pcd-database-review",
       "title": "Citrine / PCD Database Review",
@@ -6686,7 +6916,7 @@
       "question": "Does IP Corp hold an Azure subscription with owner/contributor rights for whoever upgrades the Purview account to pay-as-you-go? Mike lacked subscription permissions on the 7/07 call; Chris's SIS account showed nothing different.",
       "answerOwner": "Michael Kenney + Chris Meier",
       "target": "before the next CDW session (week of 2026-08-03)",
-      "status": "open -- PROGRESSED 2026-07-29 (CDW working session): attempted live and still not completed. Chris Meier tried first: \"I'm not good because I just tried upgrading it and my account is not provisioned for that\" (4:15). Patrick Stiller then found he DOES have the upgrade option available, clicked it, and the Azure subscription picker never populated before the group moved on (7:44-9:07, 44:16 \"It never did\"). Michael Kenney took the upgrade as an owned task (3:12) and said \"probably Teal is going to have to help us\" (4:27); that name is unverified in the transcript and unresolved. Joe Wagner confirmed the exact path: Purview settings > account overview > upgrade button > select Azure subscription + resource group, which creates a Microsoft Purview account resource in Azure (1:58). This is now the single blocker in front of registering Fabric and running the first scan, and it sits entirely on IP Corp's side. source: core/meetings/transcripts/teams-export/2026-07-29-interplastic-purview-advisory-working-session.md; prior source: core/meetings/summaries/2026-07-07-interplastic-purview-advisory-working-session.md. PROGRESSED 2026-07-31 (subscription working calls): the tenant holds SIX subscriptions; IPC Azure Subscription (f433b59d) confirmed as production, Owners = Michael Thiel (SAMthiel) + Opkalla accounts, Stuart Langley Contributor. Root cause of the 7/29 failure settled: Chris held zero roles on all six subscriptions, and Microsoft.Purview is NotRegistered on f433b59d (second independent blocker, confirmed live, registration deferred). Patrick granted Steve Owner on sandbox d82dbe25. DECISION HELD: Steve delivers direction Monday 2026-08-03, including whether a dedicated new subscription gets created and its name. source: core/meetings/summaries/2026-07-31-purview-subscription-working-calls.md. PROGRESSED 2026-08-03 (Dev/Data Stand-up, confirmed live with Patrick): the upgrade targets the existing set-aside subscription d82dbe25 (Steve Owner since 7/31), not production f433b59d, and no new subscription gets created; Michael Thiel is granting Chris Meier the access (matches Thiel's same-morning email), so rights are no longer the blocker. Remaining before the upgrade runs: register Microsoft.Purview on d82dbe25, create rg-purview-corp-prod-cus + rg-data-corp-prod-cus, then run the dialog. source: core/meetings/summaries/2026-08-03-dev-data-standup.md"
+      "status": "open -- PROGRESSED 2026-07-29 (CDW working session): attempted live and still not completed. Chris Meier tried first: \"I'm not good because I just tried upgrading it and my account is not provisioned for that\" (4:15). Patrick Stiller then found he DOES have the upgrade option available, clicked it, and the Azure subscription picker never populated before the group moved on (7:44-9:07, 44:16 \"It never did\"). Michael Kenney took the upgrade as an owned task (3:12) and said \"probably Teal is going to have to help us\" (4:27); that name is unverified in the transcript and unresolved. Joe Wagner confirmed the exact path: Purview settings > account overview > upgrade button > select Azure subscription + resource group, which creates a Microsoft Purview account resource in Azure (1:58). This is now the single blocker in front of registering Fabric and running the first scan, and it sits entirely on IP Corp's side. source: core/meetings/transcripts/teams-export/2026-07-29-interplastic-purview-advisory-working-session.md; prior source: core/meetings/summaries/2026-07-07-interplastic-purview-advisory-working-session.md. PROGRESSED 2026-07-31 (subscription working calls): the tenant holds SIX subscriptions; IPC Azure Subscription (f433b59d) confirmed as production, Owners = Michael Thiel (SAMthiel) + Opkalla accounts, Stuart Langley Contributor. Root cause of the 7/29 failure settled: Chris held zero roles on all six subscriptions, and Microsoft.Purview is NotRegistered on f433b59d (second independent blocker, confirmed live, registration deferred). Patrick granted Steve Owner on sandbox d82dbe25. DECISION HELD: Steve delivers direction Monday 2026-08-03, including whether a dedicated new subscription gets created and its name. source: core/meetings/summaries/2026-07-31-purview-subscription-working-calls.md. PROGRESSED 2026-08-03 (Dev/Data Stand-up, confirmed live with Patrick): the upgrade targets the existing set-aside subscription d82dbe25 (Steve Owner since 7/31), not production f433b59d, and no new subscription gets created; Michael Thiel is granting Chris Meier the access (matches Thiel's same-morning email), so rights are no longer the blocker. Remaining before the upgrade runs: register Microsoft.Purview on d82dbe25, create rg-purview-corp-prod-cus + rg-data-corp-prod-cus, then run the dialog. source: core/meetings/summaries/2026-08-03-dev-data-standup.md PROGRESSED 2026-08-04 (decision meeting): the whole access question moved subscriptions. The room REVERSED the platform home to the IPC Azure Subscription (f433b59d) on Michael Thiel's administrative case; Chris confirmed his d82dbe25 access never landed (\"Not on that particular subscription\") and that is now moot. Thiel executes the foundation (providers + two groups, North Central) and grants Chris Contributor on both; Kenney set Chris as the single Azure administrator for the initiative. Closes when Thiel confirms execution against Steve's corrective reply (his 2:00 PM read-back had a phantom third group and cus-named groups for North Central). source: core/meetings/summaries/2026-08-04-purview-subscription-decision.md T2:26-T11:29."
     },
     {
       "id": "DQ-078",
@@ -6694,7 +6924,7 @@
       "question": "Final Azure resource-group naming convention/purpose for the Purview + Fabric access structure (a placeholder RG was created live on 7/07 but naming was left unsettled)?",
       "answerOwner": "Steve Nahrup + Patrick Stiller + Michael Kenney",
       "target": "before production stand-up (early Aug)",
-      "status": "open -- ESCALATED 2026-07-29: not discussed in the session, but two things made it more urgent. The upgrade itself requires selecting a resource group at the moment it runs, and the access model Steve confirmed in that session runs entirely on resource groups (\"keeping it entirely at the resource group level solves that issue\", 43:23), so resource-group names are now the backbone of access administration rather than a cosmetic choice. Settle before the upgrade executes, not after. source: core/meetings/summaries/2026-07-07-interplastic-purview-advisory-working-session.md; core/meetings/transcripts/teams-export/2026-07-29-interplastic-purview-advisory-working-session.md 42:34-43:23. PROGRESSED 2026-07-31: naming now folds into Steve's Monday 2026-08-03 direction alongside the subscription pick (possibly a new dedicated subscription). MDM_Admin_RG confirmed empty on sandbox d82dbe25, so delete-and-recreate under the final name is cheap; the target subscription may not be the sandbox at all. source: core/meetings/summaries/2026-07-31-purview-subscription-working-calls.md. ANSWERED (proposed) 2026-08-02, awaiting Patrick Stiller + Michael Kenney sign-off: pattern is rg-<platform>-<scope>-<env>-<region>, all five segments always filled; the Purview account lands in rg-purview-corp-prod-cus with a companion rg-data-corp-prod-cus for the scan-credential key vault; five per-capacity Fabric groups follow at production stand-up; MDM_Admin_RG gets deleted rather than reused because Azure cannot rename a resource group. The record also separates the two access mechanisms that the 7/29 shorthand collapsed into one: Azure roles on resource groups govern who manages the Azure resources, Entra security groups named sg-<platform>-<scope>-<role> govern who reads data across Fabric, Purview, and Power BI. Full standard: core/architecture/governance/azure-resource-naming-standard.md; decision record: core/project-memory/decisions/ADR-0010-azure-resource-group-naming.md. Two open dependencies remain and neither changes the names: the subscription choice (rest of the 8/03 direction) and the per-domain access-group list (pinned to DQ-088). PROGRESSED 2026-08-03: the subscription dependency closed (set-aside d82dbe25 per the stand-up decision; the standard's new \"The subscription\" section records it plus the rename recommendation); only the per-domain access-group list remains, and it does not change the names. Patrick + Michael Kenney sign-off on the standard still pending."
+      "status": "open -- ESCALATED 2026-07-29: not discussed in the session, but two things made it more urgent. The upgrade itself requires selecting a resource group at the moment it runs, and the access model Steve confirmed in that session runs entirely on resource groups (\"keeping it entirely at the resource group level solves that issue\", 43:23), so resource-group names are now the backbone of access administration rather than a cosmetic choice. Settle before the upgrade executes, not after. source: core/meetings/summaries/2026-07-07-interplastic-purview-advisory-working-session.md; core/meetings/transcripts/teams-export/2026-07-29-interplastic-purview-advisory-working-session.md 42:34-43:23. PROGRESSED 2026-07-31: naming now folds into Steve's Monday 2026-08-03 direction alongside the subscription pick (possibly a new dedicated subscription). MDM_Admin_RG confirmed empty on sandbox d82dbe25, so delete-and-recreate under the final name is cheap; the target subscription may not be the sandbox at all. source: core/meetings/summaries/2026-07-31-purview-subscription-working-calls.md. ANSWERED (proposed) 2026-08-02, awaiting Patrick Stiller + Michael Kenney sign-off: pattern is rg-<platform>-<scope>-<env>-<region>, all five segments always filled; the Purview account lands in rg-purview-corp-prod-cus with a companion rg-data-corp-prod-cus for the scan-credential key vault; five per-capacity Fabric groups follow at production stand-up; MDM_Admin_RG gets deleted rather than reused because Azure cannot rename a resource group. The record also separates the two access mechanisms that the 7/29 shorthand collapsed into one: Azure roles on resource groups govern who manages the Azure resources, Entra security groups named sg-<platform>-<scope>-<role> govern who reads data across Fabric, Purview, and Power BI. Full standard: core/architecture/governance/azure-resource-naming-standard.md; decision record: core/project-memory/decisions/ADR-0010-azure-resource-group-naming.md. Two open dependencies remain and neither changes the names: the subscription choice (rest of the 8/03 direction) and the per-domain access-group list (pinned to DQ-088). PROGRESSED 2026-08-03: the subscription dependency closed (set-aside d82dbe25 per the stand-up decision; the standard's new \"The subscription\" section records it plus the rename recommendation); only the per-domain access-group list remains, and it does not change the names. Patrick + Michael Kenney sign-off on the standard still pending. PROGRESSED 2026-08-04 (decision meeting): the pattern was accepted in the room unchanged (\"it looks fine to me\"); subscription segment context reversed to f433b59d and region settled North Central, so the create list is now rg-purview-corp-prod-ncus + rg-data-corp-prod-ncus. ADR-0010 marked accepted. Remaining: Thiel's affirmative reply to the corrected list, then creation. source: core/meetings/summaries/2026-08-04-purview-subscription-decision.md C22:40-23:00, T5:26-5:34."
     },
     {
       "id": "DQ-079",
@@ -7110,7 +7340,7 @@
       "question": "Under the new program/project/task portfolio framing, is \"the MVP domain\" (first program wave) still Customer per the DQ-044 Customer→Sales→Product sequencing, or is it being redetermined independently of that prior sequencing decision?",
       "answerOwner": "Steve Nahrup + Patrick Stiller (+ Robin Virginia)",
       "target": "2026-07-17 mural-board follow-up",
-      "status": "open -- progressed 2026-07-20 (live Steve/Patrick mural-board follow-up): Customer confirmed as the leading/presumptive choice, consistent with the DQ-044 Customer→Sales→Product resequencing (\"all but assured that it'll be customer\"). Still NOT officially locked -- explicitly blocked on steward buy-in (\"stewards have to lean in\"). Domain program breakdown (Technology Setup, Purview security schema determinations, after-action review, Wave 2 stub, and the 49 Miro tickets still Product-scoped and needing re-scope) captured in core/deliverables/mdm-program-planning/2026-07-20-mdm-domain-program-breakdown.xlsx. progressed further 2026-07-20 PM (Domains & Roles Pro/Con Review): the steward-input path is now ACTIVE — owner/steward/BA candidates ranked live for Customer/Sales/Product/Finance with Eudias Tata + Kerri Voiss; domain list itself declared \"canonized with Robin and Mike already\" (transcript 19:13); cleaned matrix goes to Robin+Mike 2026-07-22. progressed 2026-07-21 (Candidate Matrix Cleanup, Steve+Patrick): matrix converged to presentation-ready minus a formatting/sort pass; sales rankings final as entered; single-data-owner-per-domain principle set; domains 5/6/7 stay undetailed per Robin (relayed); Wednesday presentation confirmed on. progressed 2026-07-22 (the actual Wednesday presentation, MDM Program Structure Review with Robin/Mike): matrix presented and well received (\"beyond what I was looking for\"); domain sequencing reconfirmed in the room as Customer > Sales > Finance > Product (\"I think customer is a really good one to start with\"; product ranked #4, resourcing-blocked pending September product-owner hires); domains 5-7 stay deferred until after the first MVP. Not phrased as a single formal locking statement, but this is the target milestone DQ-084 was tracking toward and Customer held. progressed 2026-07-28 (Domain Program Breakdown Review, Steve+Patrick): sequencing CORRECTED in the room to Customer > Sales > Product > Finance — Patrick read the canonical Pro/Con Evaluation workbook live (\"customer sales product finance is what we have listed on there\"; \"product is is third right now\"), attributing the order to the 7/22 session with Kerri; Steve accepted (16:47) and the program breakdown workbook was updated before going to Robin. CONTRADICTS the Finance-third/Product-fourth reading recorded from the 7/22 review — surfaced per protocol, logged as OPS-2026-07-28-001 in learnings/decisions.json; the 7/22 summary left intact as history. Customer still gated on steward weigh-in, and steward/owner naming now runs about a week behind (\"that's not gonna happen for another week now\", 19:47). progressed 2026-07-29 (desk work, no meeting): the naming ask was converted from a candidate list into a decision-ready one pager, core/deliverables/mdm-program-planning/2026-07-29-owner-steward-confirmation-sheet.md, scoped to Customer only for this week and carrying the role time commitment, the ranked picks, the risk flags and the specific decisions requested. Two seat conflicts were found while assembling it and are now named rather than latent: Michelle Mathison is carried as both Customer owner rank 2 and Customer steward rank 3, and Mandy Rolph is carried as both Customer steward rank 1 and Sales owner rank 2, so confirming her for Customer changes the Sales owner line to Erik Levy or Kevin Casey. The slip itself is now registered as R-026. Still open: no name is confirmed, and confirmation is Robin's and Mike's call, with Patrick's 2026-07-30 Robin session the nearest opening. progressed 2026-08-03 (ELT, relayed via Patrick's direct call): the ELT met the morning of 8/03 (moved up from 8/04) and the first domain is a go; Mike Spencer's written message is the pending recorded decision, and steward weigh-in remains the formal acceptance step in the Wave 1 plan (MT-421/422). Product (third) is on hold at ELT level with a possible data-owner change (Patrick proposed the potential replacement, a local candidate; no name spoken). source: core/meetings/summaries/2026-08-03-nahrup-1on1-with-patrick.md; core/meetings/transcripts/teams-export/2026-07-22-mdm-program-structure-review.md; core/meetings/transcripts/cluely-export/2026-07-22-mdm-program-structure-review.md; core/meetings/transcripts/teams-export/2026-07-28-mdm-domain-program-breakdown-review.md 12:58-16:47, 19:47-21:25; core/deliverables/mdm-program-planning/2026-07-29-owner-steward-confirmation-sheet.md; prior sources unchanged"
+      "status": "open -- progressed 2026-07-20 (live Steve/Patrick mural-board follow-up): Customer confirmed as the leading/presumptive choice, consistent with the DQ-044 Customer→Sales→Product resequencing (\"all but assured that it'll be customer\"). Still NOT officially locked -- explicitly blocked on steward buy-in (\"stewards have to lean in\"). Domain program breakdown (Technology Setup, Purview security schema determinations, after-action review, Wave 2 stub, and the 49 Miro tickets still Product-scoped and needing re-scope) captured in core/deliverables/mdm-program-planning/2026-07-20-mdm-domain-program-breakdown.xlsx. progressed further 2026-07-20 PM (Domains & Roles Pro/Con Review): the steward-input path is now ACTIVE — owner/steward/BA candidates ranked live for Customer/Sales/Product/Finance with Eudias Tata + Kerri Voiss; domain list itself declared \"canonized with Robin and Mike already\" (transcript 19:13); cleaned matrix goes to Robin+Mike 2026-07-22. progressed 2026-07-21 (Candidate Matrix Cleanup, Steve+Patrick): matrix converged to presentation-ready minus a formatting/sort pass; sales rankings final as entered; single-data-owner-per-domain principle set; domains 5/6/7 stay undetailed per Robin (relayed); Wednesday presentation confirmed on. progressed 2026-07-22 (the actual Wednesday presentation, MDM Program Structure Review with Robin/Mike): matrix presented and well received (\"beyond what I was looking for\"); domain sequencing reconfirmed in the room as Customer > Sales > Finance > Product (\"I think customer is a really good one to start with\"; product ranked #4, resourcing-blocked pending September product-owner hires); domains 5-7 stay deferred until after the first MVP. Not phrased as a single formal locking statement, but this is the target milestone DQ-084 was tracking toward and Customer held. progressed 2026-07-28 (Domain Program Breakdown Review, Steve+Patrick): sequencing CORRECTED in the room to Customer > Sales > Product > Finance — Patrick read the canonical Pro/Con Evaluation workbook live (\"customer sales product finance is what we have listed on there\"; \"product is is third right now\"), attributing the order to the 7/22 session with Kerri; Steve accepted (16:47) and the program breakdown workbook was updated before going to Robin. CONTRADICTS the Finance-third/Product-fourth reading recorded from the 7/22 review — surfaced per protocol, logged as OPS-2026-07-28-001 in learnings/decisions.json; the 7/22 summary left intact as history. Customer still gated on steward weigh-in, and steward/owner naming now runs about a week behind (\"that's not gonna happen for another week now\", 19:47). progressed 2026-07-29 (desk work, no meeting): the naming ask was converted from a candidate list into a decision-ready one pager, core/deliverables/mdm-program-planning/2026-07-29-owner-steward-confirmation-sheet.md, scoped to Customer only for this week and carrying the role time commitment, the ranked picks, the risk flags and the specific decisions requested. Two seat conflicts were found while assembling it and are now named rather than latent: Michelle Mathison is carried as both Customer owner rank 2 and Customer steward rank 3, and Mandy Rolph is carried as both Customer steward rank 1 and Sales owner rank 2, so confirming her for Customer changes the Sales owner line to Erik Levy or Kevin Casey. The slip itself is now registered as R-026. Still open: no name is confirmed, and confirmation is Robin's and Mike's call, with Patrick's 2026-07-30 Robin session the nearest opening. progressed 2026-08-03 (ELT, relayed via Patrick's direct call): the ELT met the morning of 8/03 (moved up from 8/04) and the first domain is a go; Mike Spencer's written message is the pending recorded decision, and steward weigh-in remains the formal acceptance step in the Wave 1 plan (MT-421/422). Product (third) is on hold at ELT level with a possible data-owner change (Patrick proposed the potential replacement, a local candidate; no name spoken). source: core/meetings/summaries/2026-08-03-nahrup-1on1-with-patrick.md; core/meetings/transcripts/teams-export/2026-07-22-mdm-program-structure-review.md; core/meetings/transcripts/cluely-export/2026-07-22-mdm-program-structure-review.md; core/meetings/transcripts/teams-export/2026-07-28-mdm-domain-program-breakdown-review.md 12:58-16:47, 19:47-21:25; core/deliverables/mdm-program-planning/2026-07-29-owner-steward-confirmation-sheet.md; prior sources unchanged PROGRESSED 2026-08-04: Patrick relayed the ELT go-ahead as explicitly covering the FIRST, SECOND and FOURTH domains plus the stewards and data owners (T8:45), the first statement enumerating three cleared domains, consistent with Product (third) on hold. source: core/meetings/transcripts/teams-export/2026-08-04-purview-subscription-decision.md 8:45. PROGRESSED 2026-08-05: Patrick's morning Teams message to Steve states domains 1 and 2 are approved with their roles and asks for a working session on them. Three relays now agree that leadership approved the domains AND the stewards and owners, but no individual name has been confirmed to Steve in writing or aloud in any of them, and Mike Spencer's ELT write-up had not landed as of the 1:00 PM stand-up. Scope discrepancy noted and left open: the 8/04 relay covers domains one, two and four; the 8/05 message names 1 and 2, most plausibly scoped to this week's work rather than restating the full approval. The Finance line needs the write-up to settle it and nothing in Wave 1 waits on it. Post-approval read-back sheet built at core/deliverables/mdm-program-planning/2026-08-05-owner-steward-confirmation-record.md (MT-365). Standing rule recorded there and on the 8/05 working-session deck: the July ranking sheet is not the approved list and must not be quoted as one."
     },
     {
       "id": "DQ-087",
@@ -7509,7 +7739,7 @@
       {
         "number": "00100010",
         "title": "Azure resource group naming for the data platform, and security groups as the access mechanism",
-        "status": "proposed",
+        "status": "accepted (naming pattern accepted in the room 2026-08-04: Patrick Stiller and Michael Kenney live, Steve organizing; see update note)",
         "date": "2026-08-02",
         "decider": "Steve Nahrup · Patrick Stiller · Michael Kenney",
         "supersedes": "—",

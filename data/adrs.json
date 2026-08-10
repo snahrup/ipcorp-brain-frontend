@@ -84,7 +84,7 @@
     {
       "number": "00100010",
       "title": "Azure resource group naming for the data platform, and security groups as the access mechanism",
-      "status": "proposed",
+      "status": "accepted (naming pattern accepted in the room 2026-08-04: Patrick Stiller and Michael Kenney live, Steve organizing; see update note)",
       "date": "2026-08-02",
       "decider": "Steve Nahrup · Patrick Stiller · Michael Kenney",
       "supersedes": "—",

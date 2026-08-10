@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-08-03T22:11:33.013Z",
+  "generatedAt": "2026-08-07T05:46:19.855Z",
   "sourceBrain": "C:/Users/snahrup/CascadeProjects/ipcorp-architecture-brain",
   "sourceHighWater": {
     "brainStatusUpdatedAt": "2026-06-11T15:21:15.069Z",
-    "meetingIndexUpdatedAt": "2026-08-03T22:11:32.754Z",
+    "meetingIndexUpdatedAt": "2026-08-07T05:46:19.277Z",
     "latestNativelyRun": "2026-06-11T15:21:15.069Z"
   },
   "classification": "internal-stakeholder-safe-draft",
   "redactionPolicy": "Raw captures, authentication material, internal agent rules, live-capture snippets, and workflow receipts are excluded.",
   "counts": {
-    "prepPackets": 16,
+    "prepPackets": 18,
     "cortexInsights": 28,
     "actionProposals": 18,
     "openQuestions": 96,

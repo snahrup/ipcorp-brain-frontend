@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-03T22:11:32.754Z",
+  "updatedAt": "2026-08-07T05:46:19.277Z",
   "readinessSummary": {
     "status": "rebuilt-from-brain-summaries",
     "nextBestPacket": "prep-packets/purview-advisory-follow-up.packet.json",
@@ -77,14 +77,106 @@
       }
     ],
     "note": "No targeted source evidence changed after effective cutoff 2026-06-11T13:37:38.658Z. Purview advisory follow-up remains the next best packet; Weekly Fabric remains background; shared knowledge-base review remains blocked on DQ-049/ADR-0007/R-023 plus sanitized frontend refresh/redaction review.",
-    "meetingCount": 116,
-    "newestMeeting": "2026-08-03",
+    "meetingCount": 122,
+    "newestMeeting": "2026-08-06",
     "oldestMeeting": "2025-10-10",
     "droppedStalePrepared": 10
   },
   "upcoming": [],
   "active": [],
   "recent": [
+    {
+      "id": "2026-08-06-team-celebration-building",
+      "title": "Team Celebration Building",
+      "date": "2026-08-06T12:00:00.000Z",
+      "day": "2026-08-06",
+      "attendees": "Patrick Stiller (organizer), Steve Nahrup, Eudias Tata, Matt Francis, Jason Christensen",
+      "summary": "This is an internal IT team morale and recognition workstream, not engagement delivery work. It matters to the brain only because it consumed Steve's day and produced real commitments with dates.",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-08-06-team-celebration-building",
+        "file": "Team Celebration Building [2026-08-06].png"
+      },
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-08-06-eudias-meeting-scheduling-call",
+      "title": "Eudias Meeting Scheduling Call",
+      "date": "2026-08-06T12:00:00.000Z",
+      "day": "2026-08-06",
+      "attendees": "Steve Nahrup, Patrick Stiller",
+      "summary": "The capture starts mid-sentence, so what Steve's opening line answers is not recoverable. What is clear from 0:05 on is Steve proposing a session \"today or tomorrow with you, me and Udius\", Cluely's mis-hearing of Eudias Tata. Patrick agreed and made it a request: \"If you can put something together between the three of us, that would be awesome\" (1:03), and added \"just bring that spreadsheet and google through it\" (1:10). That reference is ambiguous in this capture and is more likely the programs and projects tracking sheet than the achievements spreadsheet created later the same afternoon, si",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-08-06-eudias-meeting-scheduling-call",
+        "file": "Eudias Meeting Scheduling Call [2026-08-06].png"
+      },
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-08-06-coreapps-achievements-infographic-request",
+      "title": "CoreApps Achievements Infographic Request",
+      "date": "2026-08-06T12:00:00.000Z",
+      "day": "2026-08-06",
+      "attendees": "Steve Nahrup, Patrick Stiller",
+      "summary": "The first three minutes of the capture are not conversation. They are Patrick playing a generated newsroom-style audio piece another group had made about the core applications team, using Cowork and Clipchamp. Its content is that team's own accomplishments (Sarah, Lori, Gene, Elena). It is captured here only because it played into the microphone, and it is the thing Patrick wanted to beat.",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-08-06-coreapps-achievements-infographic-request",
+        "file": "CoreApps Achievements Infographic Request [2026-08-06].png"
+      },
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-08-05-fabric-bi-weekly-standup",
+      "title": "Fabric Bi-Weekly Stand-Up — 2026-08-05 — DID NOT OCCUR",
+      "date": "2026-08-05T12:00:00.000Z",
+      "day": "2026-08-05",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-08-04-purview-subscription-decision",
+      "title": "Purview Subscription Decision and Owner/Steward Confirmation",
+      "date": "2026-08-04T12:00:00.000Z",
+      "day": "2026-08-04",
+      "duration": "26 minutes of a 45-minute slot (1:00 to ~1:26 PM ET)",
+      "attendees": "Steve Nahrup (organizer, ran it), Patrick Stiller, Michael Thiel, Michael Kenney, Chris Meier",
+      "summary": "Steve opened by pointing the room at the direction email sent minutes earlier (C21:05-21:46) and confirmed the frame: use an existing subscription, rename it, register the three providers, create the first two resource groups (C22:04-22:47). The naming pattern survived contact with the room (\"it looks fine to me\", C23:00). The subscription did not.",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-08-04-purview-subscription-decision",
+        "file": "Purview Subscription Decision [2026-08-04].png"
+      },
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-08-04-nahrup-patrick-adhoc-call",
+      "title": "Nahrup / Patrick Ad-Hoc Debrief Call",
+      "date": "2026-08-04T12:00:00.000Z",
+      "day": "2026-08-04",
+      "duration": "4 minutes, roughly 1:21 to 1:25 PM ET",
+      "attendees": "Steve Nahrup, Patrick Stiller (phone)",
+      "summary": "The capture joins mid-sentence on something pulling from a database. Steve asked if Patrick meant \"the one that's like five grand\"; Patrick knew what that one was and said he is \"fine with the other one, that I granted you access to\", which reads as d82dbe25, the subscription Patrick granted Steve Owner on. The opening context is missing, so what exactly is pulling and from where is not certain from this record (0:01-0:18).",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-08-04-nahrup-patrick-adhoc-call",
+        "file": "Nahrup-Patrick Ad-Hoc Debrief [2026-08-04].png"
+      },
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
     {
       "id": "2026-08-03-nahrup-1on1-with-patrick",
       "title": "Nahrup 1-on-1 with Patrick (ELT outcome call)",
@@ -923,88 +1015,101 @@
       "readinessStatus": "captured",
       "feedsPackets": [],
       "feedsInsights": []
-    },
-    {
-      "id": "2026-05-20-power-bi-source-mapping",
-      "title": "Power BI Source Mapping",
-      "date": "2026-05-20T12:00:00.000Z",
-      "day": "2026-05-20",
-      "duration": "19:54",
-      "attendees": "speaker identities not fully resolved from Natively diarization",
-      "source": "Meeting notes",
-      "readinessStatus": "captured",
-      "infographic": {
-        "id": "2026-05-20-power-bi-source-mapping-bccb90a3",
-        "file": "meeting-infographic.png"
-      },
-      "feedsPackets": [],
-      "feedsInsights": []
-    },
-    {
-      "id": "2026-05-20-intercompany-item-mapping",
-      "title": "Intercompany Item Mapping",
-      "date": "2026-05-20T12:00:00.000Z",
-      "day": "2026-05-20",
-      "duration": "16:55",
-      "attendees": "speaker identities not fully resolved from Natively diarization",
-      "source": "Meeting notes",
-      "readinessStatus": "captured",
-      "infographic": {
-        "id": "2026-05-20-intercompany-item-mapping-a81c405c",
-        "file": "meeting-infographic.png"
-      },
-      "feedsPackets": [],
-      "feedsInsights": []
-    },
-    {
-      "id": "2026-05-20-fabric-weekly-stand-up",
-      "title": "Fabric Weekly Stand-Up",
-      "date": "2026-05-20T12:00:00.000Z",
-      "day": "2026-05-20",
-      "duration": "46:01",
-      "source": "Meeting notes",
-      "readinessStatus": "captured",
-      "feedsPackets": [],
-      "feedsInsights": []
-    },
-    {
-      "id": "2026-05-20-fabric-deep-dive-working-session",
-      "title": "Fabric Deep-Dive Working Session",
-      "date": "2026-05-20T12:00:00.000Z",
-      "day": "2026-05-20",
-      "duration": "45 min (approx; VTT has no end timestamp)",
-      "attendees": "Steve Nahrup (Data Architect), Matt Francis, Carrie, and additional Data & Analytics / business participants referenced in-session (e.g., \"Eudias,\" Kelly)",
-      "summary": "This was a whiteboard-style working session to bootstrap the data-domain model that will anchor the Microsoft Fabric build-out. The core problem the group kept circling: the company's subsidiary structure (Inter Plastic, NAC, HK, Molding Products) makes clean domain boundaries genuinely hard — by Steve's count this is roughly the eighth attempt at carving up the model. The group accepted that domains are a starting scaffold, not a finished taxonomy, and that the priority is simply to start rather than to perfect the groupings up front. Each domain will be delivered as a curated \"gold model\" th",
-      "source": "Meeting notes",
-      "readinessStatus": "captured",
-      "feedsPackets": [],
-      "feedsInsights": []
-    },
-    {
-      "id": "2026-05-19-preface-fabric-meeting",
-      "title": "Preface Fabric Meeting — Data Architecture & Migration Discussion",
-      "date": "2026-05-19T12:00:00.000Z",
-      "day": "2026-05-19",
-      "duration": "15-20 min (preceded the Plant Tour: \"We're running over the plant here in about 15 minutes\")",
-      "attendees": "Steve Nahrup, Patrick Stiller, Jason (visiting MES/data specialist — see Open Question on full identification), with Matt Tallarico, Stuart, Michael Kent referenced but not in-room",
-      "source": "Meeting notes",
-      "readinessStatus": "captured",
-      "feedsPackets": [],
-      "feedsInsights": []
-    },
-    {
-      "id": "2026-05-19-plant-tour",
-      "title": "Plant Tour — Facility Tour and MES System Review",
-      "date": "2026-05-19T12:00:00.000Z",
-      "day": "2026-05-19",
-      "duration": "full plant tour, ≥ 90 min (24/7 operation; multiple buildings traversed)",
-      "source": "Meeting notes",
-      "readinessStatus": "captured",
-      "feedsPackets": [],
-      "feedsInsights": []
     }
   ],
   "meetings": [
+    {
+      "id": "2026-08-06-team-celebration-building",
+      "title": "Team Celebration Building",
+      "date": "2026-08-06T12:00:00.000Z",
+      "day": "2026-08-06",
+      "attendees": "Patrick Stiller (organizer), Steve Nahrup, Eudias Tata, Matt Francis, Jason Christensen",
+      "summary": "This is an internal IT team morale and recognition workstream, not engagement delivery work. It matters to the brain only because it consumed Steve's day and produced real commitments with dates.",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-08-06-team-celebration-building",
+        "file": "Team Celebration Building [2026-08-06].png"
+      },
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-08-06-eudias-meeting-scheduling-call",
+      "title": "Eudias Meeting Scheduling Call",
+      "date": "2026-08-06T12:00:00.000Z",
+      "day": "2026-08-06",
+      "attendees": "Steve Nahrup, Patrick Stiller",
+      "summary": "The capture starts mid-sentence, so what Steve's opening line answers is not recoverable. What is clear from 0:05 on is Steve proposing a session \"today or tomorrow with you, me and Udius\", Cluely's mis-hearing of Eudias Tata. Patrick agreed and made it a request: \"If you can put something together between the three of us, that would be awesome\" (1:03), and added \"just bring that spreadsheet and google through it\" (1:10). That reference is ambiguous in this capture and is more likely the programs and projects tracking sheet than the achievements spreadsheet created later the same afternoon, si",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-08-06-eudias-meeting-scheduling-call",
+        "file": "Eudias Meeting Scheduling Call [2026-08-06].png"
+      },
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-08-06-coreapps-achievements-infographic-request",
+      "title": "CoreApps Achievements Infographic Request",
+      "date": "2026-08-06T12:00:00.000Z",
+      "day": "2026-08-06",
+      "attendees": "Steve Nahrup, Patrick Stiller",
+      "summary": "The first three minutes of the capture are not conversation. They are Patrick playing a generated newsroom-style audio piece another group had made about the core applications team, using Cowork and Clipchamp. Its content is that team's own accomplishments (Sarah, Lori, Gene, Elena). It is captured here only because it played into the microphone, and it is the thing Patrick wanted to beat.",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-08-06-coreapps-achievements-infographic-request",
+        "file": "CoreApps Achievements Infographic Request [2026-08-06].png"
+      },
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-08-05-fabric-bi-weekly-standup",
+      "title": "Fabric Bi-Weekly Stand-Up — 2026-08-05 — DID NOT OCCUR",
+      "date": "2026-08-05T12:00:00.000Z",
+      "day": "2026-08-05",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-08-04-purview-subscription-decision",
+      "title": "Purview Subscription Decision and Owner/Steward Confirmation",
+      "date": "2026-08-04T12:00:00.000Z",
+      "day": "2026-08-04",
+      "duration": "26 minutes of a 45-minute slot (1:00 to ~1:26 PM ET)",
+      "attendees": "Steve Nahrup (organizer, ran it), Patrick Stiller, Michael Thiel, Michael Kenney, Chris Meier",
+      "summary": "Steve opened by pointing the room at the direction email sent minutes earlier (C21:05-21:46) and confirmed the frame: use an existing subscription, rename it, register the three providers, create the first two resource groups (C22:04-22:47). The naming pattern survived contact with the room (\"it looks fine to me\", C23:00). The subscription did not.",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-08-04-purview-subscription-decision",
+        "file": "Purview Subscription Decision [2026-08-04].png"
+      },
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
+    {
+      "id": "2026-08-04-nahrup-patrick-adhoc-call",
+      "title": "Nahrup / Patrick Ad-Hoc Debrief Call",
+      "date": "2026-08-04T12:00:00.000Z",
+      "day": "2026-08-04",
+      "duration": "4 minutes, roughly 1:21 to 1:25 PM ET",
+      "attendees": "Steve Nahrup, Patrick Stiller (phone)",
+      "summary": "The capture joins mid-sentence on something pulling from a database. Steve asked if Patrick meant \"the one that's like five grand\"; Patrick knew what that one was and said he is \"fine with the other one, that I granted you access to\", which reads as d82dbe25, the subscription Patrick granted Steve Owner on. The opening context is missing, so what exactly is pulling and from where is not certain from this record (0:01-0:18).",
+      "source": "Meeting notes",
+      "readinessStatus": "captured",
+      "infographic": {
+        "id": "2026-08-04-nahrup-patrick-adhoc-call",
+        "file": "Nahrup-Patrick Ad-Hoc Debrief [2026-08-04].png"
+      },
+      "feedsPackets": [],
+      "feedsInsights": []
+    },
     {
       "id": "2026-08-03-nahrup-1on1-with-patrick",
       "title": "Nahrup 1-on-1 with Patrick (ELT outcome call)",
