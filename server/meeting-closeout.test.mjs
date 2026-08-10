@@ -4,13 +4,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import {
-  buildReviewPackage,
   inspectStoredMeetingPackage,
   listStoredPackages,
   listTodaysMeetings,
   persistMeetingPackage,
   processMeetingCloseout,
   resetTodayCalendarState,
+  synthesizeReviewPackage,
 } from "./meeting-closeout.mjs";
 
 const meeting = {
@@ -111,25 +111,163 @@ test("a calendar query error is distinct from an unavailable connection", async 
   assert.match(result.detail, /query failed/i);
 });
 
-test("buildReviewPackage creates every review category without external actions", () => {
-  const value = buildReviewPackage({
-    meeting,
-    transcript,
-    contextNotes: "The source mapping is the supporting context.",
-    recap: "The team aligned on the next Fabric delivery steps.",
-    relatedMaterial: ["https://example.test/meeting-recording"],
-  });
+function modelOutput(overrides = {}) {
+  const value = {
+    summary:
+      "Patrick and Steve aligned on the next Fabric delivery steps, and Steve took the workbook follow-up and the MT-42 source mapping update.",
+    commitments: [
+      {
+        text: "Send the Fabric workbook to Patrick Stiller.",
+        evidence: "Steve: I will send the Fabric workbook to Patrick tomorrow.",
+        due: "tomorrow",
+      },
+    ],
+    jiraProposals: [
+      {
+        operation: "Update",
+        jiraKey: "MT-42",
+        title: "Update MT-42 with the source mapping",
+        rationale: "Patrick asked for the source mapping on the existing item.",
+        evidence: "Patrick: Update MT-42 with the source mapping.",
+      },
+    ],
+    documentRequests: [
+      {
+        text: "Send Patrick Stiller the Fabric workbook.",
+        owner: "Patrick Stiller",
+        evidence: "Steve: I will send the Fabric workbook to Patrick tomorrow.",
+      },
+    ],
+    reminderCandidates: [
+      {
+        text: "Send the Fabric workbook.",
+        timing: "tomorrow",
+        evidence: "Steve: I will send the Fabric workbook to Patrick tomorrow.",
+      },
+    ],
+    supportingMaterial: [
+      { label: "Fabric review page", reference: "https://example.test/fabric-review" },
+    ],
+    emailDrafts: [
+      {
+        to: "Mike Spencer",
+        subject: "Fabric review recap",
+        body: "Mike,\n\nRecap from the Fabric delivery review.\n\nSteve",
+        evidence: "Steve: Email Mike with the recap.",
+      },
+    ],
+    themes: ["Fabric delivery", "Source mapping"],
+    notes: [],
+    ...overrides,
+  };
+  return `PACKAGE:\n${JSON.stringify(value)}\nEND PACKAGE`;
+}
+
+const stubModel = async () => modelOutput();
+
+test("synthesis builds the package from model output with verified evidence", async () => {
+  const value = await synthesizeReviewPackage(
+    {
+      meeting,
+      transcript,
+      contextNotes: "The source mapping is the supporting context.",
+      recap: "The team aligned on the next Fabric delivery steps.",
+      relatedMaterial: ["https://example.test/meeting-recording"],
+    },
+    stubModel
+  );
 
   assert.equal(value.meeting.title, meeting.title);
-  assert.ok(value.commitments.length > 0);
-  assert.ok(value.jiraProposals.length > 0);
-  assert.ok(value.supportingMaterial.length > 0);
-  assert.ok(value.documentRequests.length > 0);
-  assert.ok(value.reminderCandidates.length > 0);
-  assert.ok(value.emailDrafts.length > 0);
+  assert.equal(value.commitments.length, 1);
+  assert.match(value.commitments[0].text, /Fabric workbook/);
+  assert.equal(value.jiraProposals[0].jiraKey, "MT-42");
+  assert.ok(
+    value.supportingMaterial.some(
+      (item) => item.reference === "https://example.test/meeting-recording"
+    )
+  );
+  assert.equal(value.documentRequests.length, 1);
+  assert.equal(value.reminderCandidates.length, 1);
+  assert.equal(value.emailDrafts.length, 1);
+  assert.deepEqual(value.infographic.themes, ["Fabric delivery", "Source mapping"]);
+  assert.deepEqual(
+    value.infographic.metrics.map((item) => item.value),
+    [1, 1, 1, 1]
+  );
   assert.equal(value.externalActions.emailSent, false);
   assert.equal(value.externalActions.jiraChanged, false);
-  assert.equal(value.infographic.metrics.length, 4);
+});
+
+test("synthesis drops items whose evidence is not verbatim in the transcript", async () => {
+  const value = await synthesizeReviewPackage({ meeting, transcript }, async () =>
+    modelOutput({
+      commitments: [
+        {
+          text: "Send the Fabric workbook to Patrick Stiller.",
+          evidence: "Steve: I will send the Fabric workbook to Patrick tomorrow.",
+          due: "tomorrow",
+        },
+        {
+          text: "A fabricated obligation.",
+          evidence: "Steve: I promised something that was never said.",
+          due: null,
+        },
+      ],
+    })
+  );
+
+  assert.equal(value.commitments.length, 1);
+  assert.match(value.commitments[0].text, /Fabric workbook/);
+  assert.ok(value.synthesisNotes.some((note) => /1 commitment item dropped/.test(note)));
+});
+
+test("a mostly personal meeting produces an honest empty package", async () => {
+  const value = await synthesizeReviewPackage({ meeting, transcript }, async () =>
+    modelOutput({
+      summary:
+        "Most of this meeting was personal conversation. The only work item was a brief status check with nothing assigned.",
+      commitments: [],
+      jiraProposals: [],
+      documentRequests: [],
+      reminderCandidates: [],
+      supportingMaterial: [],
+      emailDrafts: [],
+      themes: ["Status check"],
+    })
+  );
+
+  assert.match(value.summary, /personal conversation/);
+  assert.equal(value.commitments.length, 0);
+  assert.equal(value.jiraProposals.length, 0);
+  assert.equal(value.emailDrafts.length, 0);
+  assert.deepEqual(
+    value.infographic.metrics.map((item) => item.value),
+    [0, 0, 0, 0]
+  );
+});
+
+test("synthesis failure fails closed with no fallback package", async () => {
+  const result = await processMeetingCloseout(
+    { meeting },
+    {
+      fixture: { transcripts: { [meeting.id]: { transcript } } },
+      runModel: async () => {
+        throw new Error("The model is unreachable.");
+      },
+    }
+  );
+
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "synthesis_unavailable");
+  assert.equal(result.package, undefined);
+  assert.match(result.detail, /stays unprocessed/);
+});
+
+test("unparseable synthesis output fails closed instead of guessing", async () => {
+  await assert.rejects(
+    synthesizeReviewPackage({ meeting, transcript }, async () => "I could not do that."),
+    { code: "synthesis_unavailable" }
+  );
 });
 
 test("missing Teams capture returns the pasted-transcript path", async () => {
@@ -161,6 +299,7 @@ test("Teams capture carries recap and related material into the stored package",
     { meeting },
     {
       brainRoot: root,
+      runModel: stubModel,
       fixture: {
         transcripts: {
           [meeting.id]: {
@@ -193,11 +332,10 @@ test("pasted transcript writes an idempotent Brain package and lists it for Work
   });
   await prepareBrainRoot(root);
 
-  const value = buildReviewPackage({
-    meeting,
-    transcript,
-    contextNotes: "Patrick Stiller asked for the workbook link.",
-  });
+  const value = await synthesizeReviewPackage(
+    { meeting, transcript, contextNotes: "Patrick Stiller asked for the workbook link." },
+    stubModel
+  );
 
   const first = await persistMeetingPackage(value, transcript, "cluely", { brainRoot: root });
   const second = await persistMeetingPackage(value, transcript, "cluely", { brainRoot: root });
@@ -233,7 +371,7 @@ test("a summary-marker stop resumes and repairs every later meeting piece once",
     await rm(root, { recursive: true, force: true });
   });
   await prepareBrainRoot(root);
-  const value = buildReviewPackage({ meeting, transcript });
+  const value = await synthesizeReviewPackage({ meeting, transcript }, stubModel);
 
   await assert.rejects(
     persistMeetingPackage(value, transcript, "teams", {
@@ -272,7 +410,7 @@ test("meeting persistence stops before writing when Brain instructions are missi
     assert.ok(root.startsWith(tmpdir()));
     await rm(root, { recursive: true, force: true });
   });
-  const value = buildReviewPackage({ meeting, transcript });
+  const value = await synthesizeReviewPackage({ meeting, transcript }, stubModel);
 
   await assert.rejects(persistMeetingPackage(value, transcript, "teams", { brainRoot: root }), {
     code: "brain_write_instructions_unavailable",
@@ -317,7 +455,7 @@ test("meeting persistence checks open MANIFEST rows and stops on a pending write
     ].join("\n"),
     "utf8"
   );
-  const value = buildReviewPackage({ meeting, transcript });
+  const value = await synthesizeReviewPackage({ meeting, transcript }, stubModel);
 
   await assert.rejects(persistMeetingPackage(value, transcript, "teams", { brainRoot: root }), {
     code: "brain_manifest_items_pending",

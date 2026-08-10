@@ -1,4 +1,4 @@
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { appendFile, mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve, sep } from "node:path";
@@ -465,15 +465,6 @@ async function meetingEvidence(meeting, options = {}) {
   }
 }
 
-function compactUnits(transcript) {
-  return transcript
-    .replace(/\r/g, "")
-    .split(/\n+|(?<=[.!?])\s+(?=[A-Z0-9])/)
-    .map((line) => line.replace(/\s+/g, " ").trim())
-    .filter((line) => line.length >= 8)
-    .slice(0, 2000);
-}
-
 function uniqueBy(items, selector) {
   const seen = new Set();
   return items.filter((item) => {
@@ -488,204 +479,324 @@ function cleanEvidence(value) {
   return value.replace(/^[-*•]\s*/, "").slice(0, 500);
 }
 
-function recipientFrom(line) {
-  const match = line.match(
-    /\b(?:email|message|send|reply to|follow up with)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/
+// ---------------------------------------------------------------------------
+// Model synthesis. The review package is written by an actual model reading
+// the whole transcript, not by keyword patterns. Pattern matching produced
+// review items like "Well, I'll drive you up the wall" as a commitment, which
+// poisons everything downstream. There is deliberately NO heuristic fallback:
+// if synthesis fails, the meeting stays unprocessed rather than storing junk.
+// ---------------------------------------------------------------------------
+
+const SYNTHESIS_TIMEOUT_MS = 10 * 60_000;
+
+function synthesisPromptFile() {
+  return join(
+    process.env.LOCALAPPDATA || join(process.env.USERPROFILE || ".", "AppData", "Local"),
+    "IPCorpBrain",
+    "meeting-closeout",
+    `synthesis-prompt.${process.pid}.${Date.now()}.md`
   );
-  if (!match) return null;
-  if (match[1] === "Patrick") return "Patrick Stiller";
-  return match[1];
 }
 
-function topThemes(units) {
-  const stop = new Set([
-    "about",
-    "after",
-    "again",
-    "also",
-    "because",
-    "before",
-    "could",
-    "from",
-    "have",
-    "just",
-    "meeting",
-    "need",
-    "that",
-    "their",
-    "there",
-    "they",
-    "this",
-    "what",
-    "when",
-    "where",
-    "which",
-    "with",
-    "would",
-    "your",
-    "yeah",
-  ]);
-  const counts = new Map();
-  for (const word of units
-    .join(" ")
-    .toLowerCase()
-    .match(/[a-z][a-z0-9-]{3,}/g) || []) {
-    if (stop.has(word)) continue;
-    counts.set(word, (counts.get(word) || 0) + 1);
-  }
-  return [...counts.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .slice(0, 4)
-    .map(([word]) => word.replace(/\b\w/g, (letter) => letter.toUpperCase()));
-}
-
-export function buildReviewPackage({
+export function buildSynthesisPrompt({
   meeting,
   transcript,
   contextNotes = "",
   recap = "",
   relatedMaterial = [],
 }) {
-  const units = compactUnits(transcript);
-  const commitmentPattern =
-    /\b(?:i(?:'ll| will| need to| can| should| am going to)|steve (?:will|owns|needs to)|my action|action for me)\b/i;
-  const commitments = uniqueBy(
-    units
-      .filter((line) => commitmentPattern.test(line))
-      .map((line) => ({
-        text: cleanEvidence(line),
-        evidence: cleanEvidence(line),
-        status: "Review",
-      })),
-    (item) => item.text
-  ).slice(0, 20);
+  return `You are analyzing a real workplace meeting transcript for Steve Nahrup,
+the data architect at IP Corporation. Steve is the speaker labeled "Steve";
+other speakers may be labeled "Them" or by name. The transcription is noisy:
+words are garbled, sentences fragment, and long stretches are personal small
+talk. Read through the noise and analyze only the genuine work content.
 
-  const jiraLines = units.filter((line) =>
-    /\b(?:jira|ticket|issue|epic|subtask|MT-\d+|IPC-\d+)\b/i.test(line)
+Meeting: ${meeting.title}
+Start: ${meeting.start}
+End: ${meeting.end || "not recorded"}
+Organizer: ${meeting.organizer || "not recorded"}
+Attendees: ${(meeting.attendees || []).join(", ") || "not recorded"}
+${contextNotes ? `Context notes from Steve: ${asText(contextNotes)}` : ""}
+${recap ? `Recording recap: ${asText(recap)}` : ""}
+${relatedMaterial.length ? `Related material: ${relatedMaterial.join("; ")}` : ""}
+
+TRANSCRIPT
+${asText(transcript).slice(0, 200_000)}
+END TRANSCRIPT
+
+Produce the meeting review package as JSON with exactly these fields:
+
+- "summary": 3 to 6 plain sentences describing what actually happened in work
+  terms: topics discussed, decisions made, direction given. If most of the
+  meeting was personal conversation with a few work items at the end, say
+  exactly that.
+- "commitments": ONLY things Steve himself explicitly agreed or committed to
+  do. Each: {"text": a clean one-sentence restatement of what Steve will do,
+  "evidence": the verbatim transcript line(s) that prove it, "due": stated
+  timing or null}. Someone else's task is not Steve's commitment. A fragment
+  like "I can put her as I" is transcription noise, not a commitment.
+- "jiraProposals": work items from this meeting that belong in Jira. Each:
+  {"operation": "Update" or "Create", "jiraKey": "MT-123" if an existing item
+  was named else null, "title": a real work-item title, "rationale": one
+  sentence on why this belongs in Jira, "evidence": the verbatim line(s)}.
+  Assignments given to Steve or his team count; passing mentions do not.
+- "documentRequests": artifacts someone asked to be sent, shared, or produced.
+  Each: {"text": what was requested, "owner": who asked, or null,
+  "evidence": verbatim line}.
+- "reminderCandidates": genuinely time-bound items worth a reminder. Each:
+  {"text": the item, "timing": the stated timing, "evidence": verbatim line}.
+- "supportingMaterial": real links, files, or systems referenced for the work.
+  Each: {"label": short name, "reference": the link or reference as spoken}.
+- "emailDrafts": ONLY if the meeting clearly requires an email follow-up from
+  Steve. Each: {"to": recipient name or null, "subject": subject line,
+  "body": the full draft, "evidence": verbatim line that requires it}. Write
+  the body in Steve's voice: plain, direct, first person, no filler. Never use
+  an em dash. Never write "reach out", "leverage", "robust", "streamline",
+  "delve", "worth noting", or "Additionally". Never abbreviate Patrick
+  Stiller's first name. Never mention AI or assistants.
+- "themes": 2 to 4 short phrases naming the real work topics of this meeting.
+- "notes": anything important for Steve's review that fits nowhere above, as
+  an array of short strings, or [].
+
+Rules that decide whether your output is usable:
+- Empty arrays are correct answers. A meeting with no commitments has an
+  empty commitments array. Do not pad.
+- Never invent content. Every commitments/jiraProposals/documentRequests/
+  reminderCandidates/emailDrafts item must carry "evidence" copied verbatim
+  from the transcript above; items whose evidence is not found verbatim are
+  discarded automatically.
+- Quality over quantity everywhere.
+
+Output exactly one JSON object between these markers and nothing else:
+PACKAGE:
+{ ... }
+END PACKAGE`;
+}
+
+export function parseSynthesisOutput(output) {
+  const block = /PACKAGE:[ \t]*\r?\n([\s\S]*?)END PACKAGE/m.exec(String(output || ""))?.[1];
+  const candidates = [];
+  if (block) candidates.push(block.trim());
+  const text = String(output || "");
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start !== -1 && end > start) candidates.push(text.slice(start, end + 1));
+  for (const candidate of candidates) {
+    try {
+      const value = JSON.parse(candidate);
+      if (value && typeof value === "object" && !Array.isArray(value)) return value;
+    } catch {
+      // Try the next salvage candidate.
+    }
+  }
+  return null;
+}
+
+function runSynthesisModel(prompt) {
+  return new Promise((resolvePromise, reject) => {
+    const file = synthesisPromptFile();
+    mkdir(dirname(file), { recursive: true })
+      .then(() => writeFile(file, prompt, "utf8"))
+      .then(() => {
+        // Opus on purpose: Steve chose quality over speed for meeting review.
+        const child = spawn(
+          "claude",
+          ["-p", `@${file}`, "--model", "opus", "--output-format", "text"],
+          { shell: true, windowsHide: true }
+        );
+        let out = "";
+        let err = "";
+        const timer = setTimeout(() => {
+          child.kill();
+          reject(new Error("Meeting synthesis timed out."));
+        }, SYNTHESIS_TIMEOUT_MS);
+        child.stdout.on("data", (chunk) => {
+          out += chunk.toString();
+        });
+        child.stderr.on("data", (chunk) => {
+          err += chunk.toString();
+        });
+        child.on("error", (cause) => {
+          clearTimeout(timer);
+          reject(cause);
+        });
+        child.on("close", (code) => {
+          clearTimeout(timer);
+          if (code === 0) resolvePromise(out);
+          else reject(new Error(`Meeting synthesis exited ${code}: ${err.slice(-300)}`));
+        });
+      })
+      .catch(reject);
+  });
+}
+
+function normalizeForEvidence(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function verifiedItems(items, transcript, pick) {
+  const haystack = normalizeForEvidence(transcript);
+  const dropped = [];
+  const kept = [];
+  for (const item of Array.isArray(items) ? items : []) {
+    const value = pick(item);
+    if (!value) continue;
+    const evidence = normalizeForEvidence(item.evidence);
+    if (evidence && haystack.includes(evidence)) kept.push(value);
+    else dropped.push(pick(item));
+  }
+  return { kept, dropped };
+}
+
+function synthesisError(detail) {
+  const error = new Error(detail);
+  error.code = "synthesis_unavailable";
+  return error;
+}
+
+/**
+ * Build the review package from real model analysis of the transcript.
+ * Every extracted item must quote the transcript verbatim or it is dropped.
+ * Throws synthesis_unavailable on model failure; callers must not fall back
+ * to anything weaker.
+ */
+export async function synthesizeReviewPackage(input, runModel = runSynthesisModel) {
+  const { meeting, transcript, contextNotes = "" } = input;
+  const output = await runModel(buildSynthesisPrompt(input));
+  const parsed = parseSynthesisOutput(output);
+  if (!parsed) throw synthesisError("The synthesis output was not a valid package.");
+  const summary = cleanEvidence(asText(parsed.summary));
+  if (!summary) throw synthesisError("The synthesis output had no meeting summary.");
+
+  const synthesisNotes = [];
+  const note = (label, dropped) => {
+    if (dropped.length) {
+      synthesisNotes.push(
+        `${dropped.length} ${label} item${dropped.length === 1 ? "" : "s"} dropped: evidence not found verbatim in the transcript.`
+      );
+    }
+  };
+
+  const commitments = verifiedItems(parsed.commitments, transcript, (item) =>
+    asText(item.text)
+      ? {
+          text: cleanEvidence(asText(item.text)),
+          evidence: cleanEvidence(asText(item.evidence)),
+          due: asText(item.due) || null,
+          status: "Review",
+        }
+      : null
   );
-  const jiraProposals = uniqueBy(
-    jiraLines.map((line) => {
-      const key = line.match(/\b(?:MT|IPC)-\d+\b/i)?.[0]?.toUpperCase() || null;
-      return {
-        operation: key ? "Update" : "Create",
-        jiraKey: key,
-        title: cleanEvidence(line).slice(0, 180),
-        rationale: "Proposed from the selected meeting for review.",
-        evidence: cleanEvidence(line),
-      };
-    }),
-    (item) => `${item.operation}-${item.jiraKey || item.title}`
-  ).slice(0, 20);
+  note("commitment", commitments.dropped);
 
-  const supportingPattern =
-    /https?:\/\/|\\\\|\b(?:sharepoint|onedrive|workbook|spreadsheet|deck|document|recording|recap|\.xlsx|\.docx|\.pptx|\.pdf)\b/i;
-  const supporting = uniqueBy(
+  const jiraProposals = verifiedItems(parsed.jiraProposals, transcript, (item) =>
+    asText(item.title)
+      ? {
+          operation: item.operation === "Update" ? "Update" : "Create",
+          jiraKey: /^(?:MT|IPC)-\d+$/i.test(asText(item.jiraKey))
+            ? asText(item.jiraKey).toUpperCase()
+            : null,
+          title: cleanEvidence(asText(item.title)).slice(0, 180),
+          rationale: cleanEvidence(asText(item.rationale)),
+          evidence: cleanEvidence(asText(item.evidence)),
+        }
+      : null
+  );
+  note("Jira proposal", jiraProposals.dropped);
+
+  const documentRequests = verifiedItems(parsed.documentRequests, transcript, (item) =>
+    asText(item.text)
+      ? {
+          text: cleanEvidence(asText(item.text)),
+          owner: asText(item.owner) || null,
+          status: "Review",
+        }
+      : null
+  );
+  note("document request", documentRequests.dropped);
+
+  const reminderCandidates = verifiedItems(parsed.reminderCandidates, transcript, (item) =>
+    asText(item.text)
+      ? {
+          text: cleanEvidence(asText(item.text)),
+          timing: asText(item.timing) || null,
+          status: "Candidate",
+        }
+      : null
+  );
+  note("reminder", reminderCandidates.dropped);
+
+  const emailDrafts = verifiedItems(parsed.emailDrafts, transcript, (item) =>
+    asText(item.body) && asText(item.subject)
+      ? {
+          to: asText(item.to) || null,
+          subject: cleanEvidence(asText(item.subject)).slice(0, 180),
+          body: asText(item.body).slice(0, 6_000),
+          status: "Draft only",
+          evidence: cleanEvidence(asText(item.evidence)),
+        }
+      : null
+  );
+  note("email draft", emailDrafts.dropped);
+
+  const supportingMaterial = uniqueBy(
     [
-      ...relatedMaterial.map((reference) => ({
-        label: cleanEvidence(reference).slice(0, 180),
-        reference: cleanEvidence(reference),
+      ...(input.relatedMaterial || []).map((reference) => ({
+        label: cleanEvidence(asText(reference)).slice(0, 180),
+        reference: cleanEvidence(asText(reference)),
         kind: "Related material",
       })),
-      ...units
-        .filter((line) => supportingPattern.test(line))
-        .map((line) => ({
-          label: cleanEvidence(line).slice(0, 180),
-          reference: cleanEvidence(line),
+      ...(Array.isArray(parsed.supportingMaterial) ? parsed.supportingMaterial : [])
+        .filter((item) => asText(item.reference))
+        .map((item) => ({
+          label: cleanEvidence(asText(item.label) || asText(item.reference)).slice(0, 180),
+          reference: cleanEvidence(asText(item.reference)),
           kind: "Mentioned in meeting",
         })),
     ],
     (item) => item.reference
   ).slice(0, 24);
 
-  const documentRequests = uniqueBy(
-    units
-      .filter(
-        (line) =>
-          /\b(?:send|share|provide|attach|upload|request|need)\b/i.test(line) &&
-          /\b(?:file|document|workbook|spreadsheet|deck|report|export|diagram|list)\b/i.test(line)
-      )
-      .map((line) => ({
-        text: cleanEvidence(line),
-        owner: null,
-        status: "Review",
-      })),
-    (item) => item.text
-  ).slice(0, 16);
+  const themes = (Array.isArray(parsed.themes) ? parsed.themes : [])
+    .map((theme) => cleanEvidence(asText(theme)).slice(0, 60))
+    .filter(Boolean)
+    .slice(0, 4);
 
-  const reminderCandidates = uniqueBy(
-    units
-      .filter((line) =>
-        /\b(?:follow up|remind|tomorrow|today|next week|monday|tuesday|wednesday|thursday|friday|by end of|due|deadline|before \d|after \d)\b/i.test(
-          line
-        )
-      )
-      .map((line) => ({
-        text: cleanEvidence(line),
-        timing:
-          line.match(
-            /\b(?:today|tomorrow|next week|monday|tuesday|wednesday|thursday|friday|by end of [^,.]+)/i
-          )?.[0] || null,
-        status: "Candidate",
-      })),
-    (item) => item.text
-  ).slice(0, 16);
-
-  const emailSignals = units.filter((line) =>
-    /\b(?:email|reply|message|send a note|follow up with)\b/i.test(line)
-  );
-  const emailDrafts = uniqueBy(
-    emailSignals.map((line) => {
-      const to = recipientFrom(line);
-      const commitmentBullets = commitments.slice(0, 4).map((item) => `- ${item.text}`);
-      const body = [
-        to ? `${to.split(" ")[0]},` : "Hi,",
-        "",
-        `Here is where ${meeting.title} landed:`,
-        "",
-        ...(commitmentBullets.length ? commitmentBullets : [`- ${cleanEvidence(line)}`]),
-        "",
-        "I will keep the remaining items moving and flag anything that needs a decision.",
-        "",
-        "Steve",
-      ].join("\n");
-      return {
-        to,
-        subject: `${meeting.title} follow-up`,
-        body,
-        status: "Draft only",
-        evidence: cleanEvidence(line),
-      };
-    }),
-    (item) => `${item.to || ""}-${item.subject}`
-  ).slice(0, 6);
-
-  const themes = topThemes(units);
   const packageId = `${meeting.start.slice(0, 10)}-${safeSlug(meeting.title)}`;
-  const summarySource = recap || units.slice(0, 3).join(" ");
   return {
     id: packageId,
     meeting,
     createdAt: new Date().toISOString(),
     source: "Pending persistence",
-    summary: cleanEvidence(summarySource || "Meeting text captured for review."),
+    summary,
     contextNotes: asText(contextNotes),
-    commitments,
-    jiraProposals,
-    supportingMaterial: supporting,
-    documentRequests,
-    reminderCandidates,
-    emailDrafts,
+    commitments: commitments.kept.slice(0, 20),
+    jiraProposals: jiraProposals.kept.slice(0, 20),
+    supportingMaterial,
+    documentRequests: documentRequests.kept.slice(0, 16),
+    reminderCandidates: reminderCandidates.kept.slice(0, 16),
+    emailDrafts: emailDrafts.kept.slice(0, 6),
+    synthesisNotes: [
+      ...synthesisNotes,
+      ...(Array.isArray(parsed.notes) ? parsed.notes : [])
+        .map((item) => cleanEvidence(asText(item)))
+        .filter(Boolean)
+        .slice(0, 8),
+    ],
     infographic: {
       headline: meeting.title,
       subhead: "Meeting closeout",
       metrics: [
-        { label: "Commitments", value: commitments.length },
-        { label: "Jira proposals", value: jiraProposals.length },
-        { label: "Document requests", value: documentRequests.length },
-        { label: "Reminders", value: reminderCandidates.length },
+        { label: "Commitments", value: commitments.kept.length },
+        { label: "Jira proposals", value: jiraProposals.kept.length },
+        { label: "Document requests", value: documentRequests.kept.length },
+        { label: "Reminders", value: reminderCandidates.kept.length },
       ],
       themes,
-      nextMoves: commitments.slice(0, 4).map((item) => item.text),
+      nextMoves: commitments.kept.slice(0, 4).map((item) => item.text),
     },
     files: {},
     externalActions: {
@@ -1187,13 +1298,28 @@ export async function processMeetingCloseout(payload, options = {}) {
       meeting,
     };
   }
-  const value = buildReviewPackage({
-    meeting,
-    transcript,
-    contextNotes: payload.contextNotes,
-    recap: evidence?.recap || "",
-    relatedMaterial: evidence?.relatedMaterial || [],
-  });
+  let value;
+  try {
+    value = await synthesizeReviewPackage(
+      {
+        meeting,
+        transcript,
+        contextNotes: payload.contextNotes,
+        recap: evidence?.recap || "",
+        relatedMaterial: evidence?.relatedMaterial || [],
+      },
+      options.runModel
+    );
+  } catch (error) {
+    // Fail closed. A meeting with no package is recoverable; a stored package
+    // full of pattern-matched junk poisons every downstream review.
+    return {
+      ok: false,
+      code: "synthesis_unavailable",
+      detail: `Meeting review synthesis failed: ${error instanceof Error ? error.message : String(error)} The meeting stays unprocessed; run it again when the model is reachable.`,
+      meeting,
+    };
+  }
   const stored = await persistMeetingPackage(value, transcript, source, options);
   const inspection = await inspectStoredMeetingPackage(stored, options);
   return inspection.complete
