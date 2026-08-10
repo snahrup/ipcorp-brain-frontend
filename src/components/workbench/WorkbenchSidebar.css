@@ -1,10 +1,18 @@
 .wb-sidebar .wb-brand {
   width: 100%;
-  min-height: 0;
+  /* The sidebar is a shrinking flex column. min-height: 0 let flexbox crush this
+     block when nav content exceeded the viewport, so the brand text overflowed
+     onto the "Workspace" label. flex: none keeps its natural height; overflow
+     goes to the sidebar's own overflow-y: auto scroll instead. */
+  flex: none;
   display: grid;
   gap: 10px;
   padding: 2px 6px 14px;
   border-bottom: 1px solid var(--line);
+}
+
+.wb-sidebar nav {
+  flex: none;
 }
 
 /* The mark is 1400x624. At the old 226px it rendered about 100px tall and dominated
@@ -86,7 +94,10 @@
 }
 
 .wb-sidebar .wb-sidebar-footer {
-  min-height: 0;
+  /* Same crush bug as .wb-brand — and margin-top: auto pins the footer to the
+     bottom on tall viewports instead of floating after the nav. */
+  flex: none;
+  margin-top: auto;
   display: grid;
   gap: 24px;
   padding: 18px 0 0;

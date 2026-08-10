@@ -11,15 +11,19 @@
   box-shadow: 0 18px 45px rgba(14, 35, 56, 0.09);
 }
 
+/* The panel takes programmatic focus when a run starts; a full-perimeter ring for
+   that non-keyboard focus read as a broken outline. Keyboard focus still shows. */
 .ar-panel:focus {
+  outline: none;
+}
+
+.ar-panel:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
 
 .ar-header,
 .ar-section-heading,
-.ar-run-strip,
-.ar-live,
 .ar-footer,
 .ar-source-heading,
 .ar-meeting-list article > div,
@@ -183,101 +187,211 @@
   opacity: 0.55;
 }
 
-.ar-run-strip {
-  justify-content: space-between;
-  gap: 16px;
-  padding: 10px 12px;
-  background: var(--panel-soft);
-  border: 1px solid var(--line);
+/* ── Run theater ─────────────────────────────────────────────────────────
+   One card that always answers: what is it doing, how far along is it, and
+   is it still alive. The 3px crown sweeps while running, holds green when
+   complete, and holds amber while paused. */
+
+.ar-theater {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: 18px 18px 14px;
+  background:
+    radial-gradient(120% 150% at 100% 0%, rgba(27, 94, 158, 0.055), transparent 55%),
+    linear-gradient(180deg, #fbfdfe, #f8fafc);
+  border: 1px solid rgba(27, 94, 158, 0.16);
   border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
-.ar-run-strip > div,
-.ar-run-times {
+.ar-theater::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  content: "";
+  background: var(--line);
+}
+
+.ar-theater[data-status="running"]::before,
+.ar-theater[data-status="stopping"]::before {
+  background: linear-gradient(
+    90deg,
+    rgba(27, 94, 158, 0.12),
+    var(--action-blue) 38%,
+    #6aa8dc 50%,
+    var(--action-blue) 62%,
+    rgba(27, 94, 158, 0.12)
+  );
+  background-size: 220% 100%;
+  animation: ar-sweep 2.4s linear infinite;
+}
+
+.ar-theater[data-status="completed"]::before {
+  background: var(--green);
+}
+
+.ar-theater[data-status="partial_success"]::before,
+.ar-theater[data-status="canceled"]::before,
+.ar-theater[data-status="interrupted"]::before {
+  background: var(--amber);
+}
+
+.ar-theater-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ar-theater-identity {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 9px;
-  min-width: 0;
 }
 
-.ar-run-strip code {
+.ar-theater-identity > strong {
+  color: var(--navy-2);
+  font-size: 12px;
+}
+
+.ar-theater-identity code {
   overflow: hidden;
   color: var(--muted);
   font: 10px var(--font-mono);
   text-overflow: ellipsis;
-}
-
-.ar-run-times {
-  justify-content: flex-end;
-  color: var(--text-soft);
-  font-size: 11px;
   white-space: nowrap;
 }
 
-.ar-run-times span {
-  display: inline-flex;
+.ar-theater-clock {
+  display: flex;
+  flex: none;
   align-items: center;
-  gap: 5px;
+  gap: 14px;
 }
 
-.ar-status {
+.ar-heartbeat {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 8px;
-  color: var(--action-blue);
-  background: rgba(27, 94, 158, 0.08);
-  border-radius: var(--radius-pill);
-  font-size: 10px;
-  font-weight: 800;
-}
-
-.ar-status[data-status="completed"] {
+  gap: 6px;
   color: var(--green);
-  background: var(--green-dim);
+  font-size: 10.5px;
+  font-weight: 700;
 }
 
-.ar-status[data-status="partial_success"],
-.ar-status[data-status="canceled"],
-.ar-status[data-status="interrupted"] {
+.ar-heartbeat i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentcolor;
+  animation: ar-pulse 1.6s ease-out infinite;
+}
+
+.ar-heartbeat[data-stale] {
   color: #8a5c12;
-  background: var(--amber-dim);
 }
 
-.ar-live {
-  gap: 11px;
-  padding: 13px 14px;
+.ar-elapsed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--navy-2);
-  background: rgba(27, 94, 158, 0.06);
-  border: 1px solid rgba(27, 94, 158, 0.18);
-  border-radius: var(--radius-md);
-}
-
-.ar-live > div {
-  min-width: 0;
-  flex: 1;
-}
-
-.ar-live strong {
+  font-family: var(--font-mono);
   font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-.ar-live p {
+.ar-theater-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ar-theater-phase {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.ar-phase-kicker {
+  color: var(--action-blue);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.ar-phase-title {
+  color: var(--navy);
+  font-family: var(--font-heading);
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.ar-phase-explainer {
+  max-width: 720px;
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.ar-phase-activity {
   overflow: hidden;
-  font-size: 11px;
+  margin-top: 2px;
+  color: var(--action-blue-dark);
+  font-size: 11.5px;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .ar-stop {
+  flex: none;
   color: #9a1830;
   background: #fff;
   border: 1px solid rgba(200, 16, 46, 0.28);
 }
 
+.ar-progress {
+  display: flex;
+  gap: 4px;
+}
+
+.ar-progress span {
+  height: 6px;
+  flex: 1;
+  border-radius: var(--radius-pill);
+  background: #e2e8ef;
+  transition: background var(--dur) ease;
+}
+
+.ar-progress span[data-state="complete"] {
+  background: var(--action-blue);
+}
+
+.ar-theater[data-status="completed"] .ar-progress span[data-state="complete"] {
+  background: var(--green);
+}
+
+.ar-progress span[data-state="active"] {
+  background: linear-gradient(90deg, var(--action-blue) 25%, #85b6e0 50%, var(--action-blue) 75%);
+  background-size: 200% 100%;
+  animation: ar-sweep 1.4s linear infinite;
+}
+
+.ar-progress span[data-state="paused"] {
+  background: var(--amber);
+}
+
 .ar-phases {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(10, minmax(0, 1fr));
   gap: 6px;
   margin: 0;
   padding: 0;
@@ -291,10 +405,14 @@
   gap: 5px;
   padding: 7px 8px;
   color: var(--muted);
-  background: var(--panel-soft);
+  background: #fff;
   border: 1px solid var(--line);
   border-radius: var(--radius-xs);
   font-size: 9px;
+  transition:
+    color var(--dur) ease,
+    background var(--dur) ease,
+    border-color var(--dur) ease;
 }
 
 .ar-phases li span {
@@ -313,7 +431,106 @@
 .ar-phases li[data-state="complete"] {
   color: var(--green);
   background: rgba(30, 123, 77, 0.06);
+  border-color: rgba(30, 123, 77, 0.16);
 }
+
+.ar-theater-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(27, 94, 158, 0.1);
+  color: var(--text-soft);
+  font-size: 10.5px;
+}
+
+.ar-safety {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 5px;
+  color: var(--navy-2);
+  font-weight: 600;
+}
+
+.ar-safety svg {
+  color: var(--action-blue);
+}
+
+/* ── Live activity log ───────────────────────────────────────────────────
+   The one deliberate dark anchor: saved run events streaming as receipts.
+   Concrete lines with timestamps are what make a long run feel alive. */
+
+.ar-feed-section .ar-section-heading small {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ar-feed {
+  max-height: 238px;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 12px 14px;
+  overflow-y: auto;
+  list-style: none;
+  color: #b7c9db;
+  background: var(--navy);
+  border: 1px solid #0b1c2d;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+.ar-feed[data-live] {
+  mask-image: linear-gradient(180deg, #000 78%, rgba(0, 0, 0, 0.25));
+}
+
+.ar-feed li {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 12px;
+  padding: 2.5px 0;
+  animation: ar-feed-in var(--dur) var(--ease-out);
+}
+
+.ar-feed li time {
+  color: #58809f;
+  font-variant-numeric: tabular-nums;
+}
+
+.ar-feed li span {
+  overflow-wrap: anywhere;
+}
+
+.ar-feed li[data-type="failure"] span,
+.ar-feed li[data-type="error"] span {
+  color: #f0b6c0;
+}
+
+.ar-feed .ar-feed-now {
+  color: #eaf2f9;
+  font-weight: 700;
+}
+
+.ar-feed .ar-feed-now time {
+  color: #7fb0d6;
+}
+
+.ar-caret {
+  display: inline-block;
+  width: 6px;
+  height: 11px;
+  margin-left: 5px;
+  vertical-align: -1px;
+  background: #7fb0d6;
+  animation: ar-blink 1.1s steps(1) infinite;
+}
+
+/* ── Counts ─────────────────────────────────────────────────────────────── */
 
 .ar-counts {
   min-width: 0;
@@ -340,12 +557,28 @@
 .ar-counts strong {
   color: var(--navy);
   font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ar-counts > div[data-alert] strong {
+  color: #9a1830;
 }
 
 .ar-counts span {
   color: var(--muted);
   font-size: 9px;
   line-height: 1.25;
+}
+
+/* Keyed remount when a value changes replays this once — a quiet tick, not a show. */
+.ar-count-value {
+  animation: ar-bump 0.45s var(--ease-out);
+}
+
+.ar-count-tick {
+  color: var(--navy-2);
+  font-variant-numeric: tabular-nums;
+  animation: ar-bump 0.45s var(--ease-out);
 }
 
 .ar-section {
@@ -381,6 +614,7 @@
 }
 
 .ar-source {
+  position: relative;
   min-width: 0;
   display: grid;
   gap: 7px;
@@ -388,6 +622,32 @@
   background: var(--panel-soft);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition:
+    background var(--dur) ease,
+    border-color var(--dur) ease;
+}
+
+/* A live read shows a thin indeterminate ribbon so "Loading" visibly moves. */
+.ar-source[data-state="loading"]::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--action-blue) 40%,
+    var(--action-blue) 60%,
+    transparent
+  );
+  background-size: 220% 100%;
+  animation: ar-sweep 1.8s linear infinite;
+}
+
+.ar-source[data-state="current"],
+.ar-source[data-state="empty"] {
+  border-color: rgba(30, 123, 77, 0.22);
 }
 
 .ar-source[data-state="partial"],
@@ -408,6 +668,10 @@
 .ar-source-heading > span {
   display: grid;
   color: var(--green);
+}
+
+.ar-source-state-icon {
+  animation: ar-pop 0.3s var(--ease-out);
 }
 
 .ar-source[data-state="loading"] .ar-source-heading > span {
@@ -575,6 +839,30 @@
 
 .ar-mdm-check[data-status="failed"] .ar-section-heading svg {
   color: var(--state-amber, #a86a00);
+}
+
+.ar-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  color: var(--action-blue);
+  background: rgba(27, 94, 158, 0.08);
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.ar-status[data-status="completed"] {
+  color: var(--green);
+  background: var(--green-dim);
+}
+
+.ar-status[data-status="partial_success"],
+.ar-status[data-status="canceled"],
+.ar-status[data-status="interrupted"] {
+  color: #8a5c12;
+  background: var(--amber-dim);
 }
 
 .ar-proposal[data-selected="true"] {
@@ -840,6 +1128,61 @@
   }
 }
 
+@keyframes ar-sweep {
+  from {
+    background-position: 110% 0;
+  }
+
+  to {
+    background-position: -110% 0;
+  }
+}
+
+@keyframes ar-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(30, 123, 77, 0.45);
+  }
+
+  70% {
+    box-shadow: 0 0 0 6px rgba(30, 123, 77, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(30, 123, 77, 0);
+  }
+}
+
+@keyframes ar-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes ar-feed-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes ar-bump {
+  0% {
+    color: var(--action-blue);
+    transform: scale(1.16);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes ar-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
 @media (max-width: 1100px) {
   .ar-source-grid,
   .ar-counts {
@@ -857,7 +1200,7 @@
   }
 
   .ar-phases {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -891,16 +1234,25 @@
     display: none;
   }
 
-  .ar-run-strip,
-  .ar-run-strip > div,
-  .ar-run-times {
+  .ar-theater-top,
+  .ar-theater-hero,
+  .ar-theater-foot {
     align-items: flex-start;
     flex-direction: column;
+    gap: 8px;
   }
 
-  .ar-run-times {
-    gap: 4px;
+  .ar-theater-clock {
+    flex-direction: row-reverse;
+  }
+
+  .ar-phase-activity {
     white-space: normal;
+  }
+
+  .ar-feed li {
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 8px;
   }
 
   .ar-source-grid,
@@ -916,14 +1268,6 @@
 
   .ar-counts > div:nth-child(3) {
     border-top: 1px solid var(--line);
-  }
-
-  .ar-live {
-    align-items: flex-start;
-  }
-
-  .ar-live p {
-    white-space: normal;
   }
 }
 
@@ -952,7 +1296,16 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ar-spin {
+  .ar-spin,
+  .ar-theater::before,
+  .ar-progress span[data-state="active"],
+  .ar-source[data-state="loading"]::after,
+  .ar-heartbeat i,
+  .ar-caret,
+  .ar-feed li,
+  .ar-count-value,
+  .ar-count-tick,
+  .ar-source-state-icon {
     animation: none;
   }
 }

@@ -6,12 +6,12 @@ import {
   Circle,
   Clock3,
   ExternalLink,
-  FileCheck2,
   LoaderCircle,
   Mail,
   PauseCircle,
   Play,
   RefreshCw,
+  ScrollText,
   ShieldCheck,
   Square,
   X,
@@ -27,16 +27,56 @@ import type {
 } from "./types";
 import "./activity-reconciliation.css";
 
+/* Labels are a frozen acceptance-tested contract (tests/activity-reconciliation.spec.ts,
+   docs/specs/workbench-activity-reconciliation.md). The explainer is presentation-only:
+   it teaches what each step does and why it is safe while the user waits. */
 const PHASES = [
-  ["preparing", "Prepare"],
-  ["reading_sources", "Read sources"],
-  ["classifying_evidence", "Classify"],
-  ["processing_meetings", "Check meetings"],
-  ["generating_visuals", "Save visuals"],
-  ["matching_jira", "Match Jira"],
-  ["preparing_proposals", "Prepare review"],
-  ["mdm_check", "MDM check"],
-  ["finalizing", "Save recap"],
+  [
+    "preparing",
+    "Prepare",
+    "Locking the scan window and loading each source's last confirmed position.",
+  ],
+  [
+    "reading_sources",
+    "Read sources",
+    "Reading Outlook and Teams since each source's saved position, with a 15-minute overlap so nothing is missed.",
+  ],
+  [
+    "classifying_evidence",
+    "Classify",
+    "Sorting new items into meetings, decisions, and work signals — provenance stays attached to every item.",
+  ],
+  [
+    "processing_meetings",
+    "Check meetings",
+    "Checking ready transcripts and completing meeting packets.",
+  ],
+  [
+    "generating_visuals",
+    "Save visuals",
+    "Saving updated meeting visuals and summaries to the Brain.",
+  ],
+  [
+    "matching_jira",
+    "Match Jira",
+    "Matching captured evidence against MT issues to find the work it belongs to.",
+  ],
+  [
+    "preparing_proposals",
+    "Prepare review",
+    "Drafting Jira updates for your review. Nothing is applied without your approval.",
+  ],
+  [
+    "delivering_drafts",
+    "Outlook drafts",
+    "Placing prepared follow-up emails into your Outlook Drafts folder. Nothing is sent.",
+  ],
+  ["mdm_check", "MDM check", "Running the chained Jira-vs-Brain consistency check."],
+  [
+    "finalizing",
+    "Save recap",
+    "Writing the run recap and saving each source's position for the next run.",
+  ],
 ] as const;
 
 const ACTIVE = new Set(["running", "stopping"]);
@@ -50,6 +90,8 @@ const FAILURE_STATES = new Set([
   "failed",
 ]);
 
+const FEED_LIMIT = 40;
+
 function formatTime(value: string | null | undefined) {
   if (!value) return "Not recorded";
   const date = new Date(value);
@@ -60,6 +102,18 @@ function formatTime(value: string | null | undefined) {
         day: "numeric",
         hour: "numeric",
         minute: "2-digit",
+      }).format(date);
+}
+
+function formatClock(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
       }).format(date);
 }
 
@@ -96,7 +150,8 @@ function SourceCard({ source }: { source: ActivitySourceProgress }) {
       data-testid={`activity-source-${source.id}`}
     >
       <div className="ar-source-heading">
-        <span aria-hidden="true">
+        {/* Keyed on state so the icon swap replays its pop-in when a read finishes. */}
+        <span aria-hidden="true" key={source.state} className="ar-source-state-icon">
           {source.state === "loading" ? (
             <LoaderCircle className="ar-spin" size={15} />
           ) : failed ? (
@@ -113,8 +168,18 @@ function SourceCard({ source }: { source: ActivitySourceProgress }) {
           (source.state === "loading" ? "Waiting to read this source." : "Read finished.")}
       </p>
       <div className="ar-source-counts">
-        <span>{source.itemCount} observed</span>
-        <span>{source.changedCount} new or changed</span>
+        <span>
+          <strong key={source.itemCount} className="ar-count-tick">
+            {source.itemCount}
+          </strong>{" "}
+          observed
+        </span>
+        <span>
+          <strong key={source.changedCount} className="ar-count-tick">
+            {source.changedCount}
+          </strong>{" "}
+          new or changed
+        </span>
       </div>
     </article>
   );
@@ -350,6 +415,23 @@ export function ActivityReconciliationPanel({
   const sources = run ? Object.values(run.sources) : [];
   const phaseIndex = PHASES.findIndex(([id]) => id === run?.phase.id);
   const elapsed = run ? duration(run.startedAt, run.finishedAt || now) : null;
+  const running = run ? ACTIVE.has(run.status) : false;
+  const complete = run ? COMPLETE.has(run.status) : false;
+  const paused = run ? run.status === "canceled" || run.status === "interrupted" : false;
+
+  /* Seconds since the run last reported anything — the heartbeat. Receipts in the live
+     log prove work is real; the heartbeat proves the connection to it is alive. */
+  const signalSeconds =
+    run && running && run.lastActivityAt
+      ? Math.max(0, Math.floor((now - new Date(run.lastActivityAt).getTime()) / 1_000))
+      : null;
+  const signalStale = signalSeconds !== null && signalSeconds > 20;
+
+  const feed = useMemo(() => (run?.events || []).slice(-FEED_LIMIT).reverse(), [run]);
+
+  const sourcesDone = sources.filter((source) => source.state !== "loading").length;
+  const explainer =
+    phaseIndex >= 0 ? PHASES[phaseIndex][2] : "Waiting for the run to report its first step.";
 
   return (
     <section
@@ -414,88 +496,196 @@ export function ActivityReconciliationPanel({
         </div>
       ) : (
         <>
-          <div className="ar-run-strip">
-            <div>
-              <span className="ar-status" data-status={run.status}>
-                {ACTIVE.has(run.status) && <LoaderCircle className="ar-spin" size={14} />}
-                {run.status === "canceled" && <PauseCircle size={14} />}
-                {COMPLETE.has(run.status) && <CheckCircle2 size={14} />}
-                {label(run.status)}
-              </span>
-              <strong>{run.baseline ? "Baseline" : "Incremental"}</strong>
-              <code>{run.id}</code>
+          {/* ── Run theater: one place that always answers "what is it doing, how far
+                 along is it, and is it still alive" ─────────────────────────────── */}
+          <div className="ar-theater" data-status={run.status}>
+            <div className="ar-theater-top">
+              <div className="ar-theater-identity">
+                <span className="ar-status" data-status={run.status}>
+                  {running && <LoaderCircle className="ar-spin" size={14} />}
+                  {run.status === "canceled" && <PauseCircle size={14} />}
+                  {COMPLETE.has(run.status) && <CheckCircle2 size={14} />}
+                  {label(run.status)}
+                </span>
+                <strong>{run.baseline ? "Baseline" : "Incremental"}</strong>
+                <code>{run.id}</code>
+              </div>
+              <div className="ar-theater-clock">
+                {running && signalSeconds !== null && (
+                  <span className="ar-heartbeat" data-stale={signalStale || undefined}>
+                    <i aria-hidden="true" />
+                    {signalStale
+                      ? `Still working · last signal ${signalSeconds}s ago`
+                      : `Live · signal ${signalSeconds}s ago`}
+                  </span>
+                )}
+                <span className="ar-elapsed">
+                  <Clock3 size={14} /> {elapsed}
+                </span>
+              </div>
             </div>
-            <div className="ar-run-times">
-              <span>
-                <Clock3 size={14} /> {elapsed}
-              </span>
-              <span>
-                {formatTime(windowRange?.from)} to {formatTime(windowRange?.to)}
-              </span>
-            </div>
-          </div>
 
-          <div className="ar-live" aria-live="polite" aria-atomic="true">
-            <span aria-hidden="true">
-              {ACTIVE.has(run.status) ? (
-                <LoaderCircle className="ar-spin" size={18} />
-              ) : (
-                <FileCheck2 size={18} />
+            <div className="ar-theater-hero" aria-live="polite" aria-atomic="true">
+              <div className="ar-theater-phase">
+                <span className="ar-phase-kicker">
+                  {complete
+                    ? `All ${PHASES.length} steps finished`
+                    : paused
+                      ? `Paused at step ${Math.max(1, phaseIndex + 1)} of ${PHASES.length}`
+                      : `Step ${Math.max(1, phaseIndex + 1)} of ${PHASES.length}`}
+                </span>
+                <strong className="ar-phase-title">
+                  {complete
+                    ? run.status === "completed"
+                      ? "Run complete"
+                      : "Run finished — some reads need attention"
+                    : run.phase.label}
+                </strong>
+                <p className="ar-phase-explainer">
+                  {complete
+                    ? "Everything below is saved with receipts. Review the Jira proposals and the recap — nothing was changed without them."
+                    : paused
+                      ? "The run stopped safely. Every source keeps its last confirmed position, so resuming loses nothing."
+                      : explainer}
+                </p>
+                {running && <p className="ar-phase-activity">{run.activity}</p>}
+              </div>
+              {running && (
+                <button
+                  type="button"
+                  className="ar-stop"
+                  onClick={() => void stop()}
+                  disabled={working || run.status === "stopping"}
+                >
+                  <Square size={14} /> {run.status === "stopping" ? "Stopping" : "Stop"}
+                </button>
               )}
-            </span>
-            <div>
-              <strong>{run.phase.label}</strong>
-              <p>{run.activity}</p>
             </div>
-            {ACTIVE.has(run.status) && (
-              <button
-                type="button"
-                className="ar-stop"
-                onClick={() => void stop()}
-                disabled={working || run.status === "stopping"}
-              >
-                <Square size={14} /> {run.status === "stopping" ? "Stopping" : "Stop"}
-              </button>
-            )}
+
+            <div
+              className="ar-progress"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={PHASES.length}
+              aria-valuenow={complete ? PHASES.length : Math.max(0, phaseIndex)}
+              aria-label="Run progress"
+            >
+              {PHASES.map(([id], index) => {
+                const state = complete
+                  ? "complete"
+                  : index < phaseIndex
+                    ? "complete"
+                    : index === phaseIndex
+                      ? paused
+                        ? "paused"
+                        : "active"
+                      : "waiting";
+                return <span key={id} data-state={state} />;
+              })}
+            </div>
+
+            <ol className="ar-phases" aria-label="Run phases">
+              {PHASES.map(([id, phaseLabel], index) => {
+                const state = complete
+                  ? "complete"
+                  : index < phaseIndex
+                    ? "complete"
+                    : index === phaseIndex
+                      ? "active"
+                      : "waiting";
+                return (
+                  <li key={id} data-state={state}>
+                    {state === "complete" ? <Check size={13} /> : <Circle size={10} />}
+                    <span>{phaseLabel}</span>
+                  </li>
+                );
+              })}
+            </ol>
+
+            <div className="ar-theater-foot">
+              <span>
+                Scanning {formatTime(windowRange?.from)} to {formatTime(windowRange?.to)}
+                {windowRange?.overlapMinutes ? ` · ${windowRange.overlapMinutes}-min overlap` : ""}
+              </span>
+              <span className="ar-safety">
+                <ShieldCheck size={13} /> Read-only until you approve proposals
+              </span>
+            </div>
           </div>
 
-          <ol className="ar-phases" aria-label="Run phases">
-            {PHASES.map(([id, phaseLabel], index) => {
-              const state =
-                index < phaseIndex ? "complete" : index === phaseIndex ? "active" : "waiting";
-              return (
-                <li key={id} data-state={state}>
-                  {state === "complete" ? <Check size={13} /> : <Circle size={10} />}
-                  <span>{phaseLabel}</span>
-                </li>
-              );
-            })}
-          </ol>
+          {(running || feed.length > 0) && (
+            <section className="ar-section ar-feed-section" aria-labelledby="activity-feed-title">
+              <div className="ar-section-heading">
+                <div>
+                  <span>Receipts</span>
+                  <h3 id="activity-feed-title">Live activity log</h3>
+                </div>
+                <small>
+                  <ScrollText size={13} /> Every line is a saved event on this run
+                </small>
+              </div>
+              <ol className="ar-feed" data-live={running || undefined}>
+                {running && (
+                  <li className="ar-feed-now" aria-hidden="true">
+                    <time>{formatClock(new Date(now).toISOString())}</time>
+                    <span>
+                      {run.activity}
+                      <i className="ar-caret" />
+                    </span>
+                  </li>
+                )}
+                {feed.length === 0 && !running && (
+                  <li>
+                    <time>--:--:--</time>
+                    <span>No events were recorded on this run.</span>
+                  </li>
+                )}
+                {feed.map((event) => (
+                  <li key={event.id} data-type={event.type}>
+                    <time>{formatClock(event.at)}</time>
+                    <span>{event.detail}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
 
           <fieldset className="ar-counts">
             <legend className="wb-sr-only">Run counts</legend>
             <div>
-              <strong>{run.counts.observed}</strong>
+              <strong key={run.counts.observed} className="ar-count-value">
+                {run.counts.observed}
+              </strong>
               <span>Observed</span>
             </div>
             <div>
-              <strong>{run.counts.new + run.counts.changed}</strong>
+              <strong key={run.counts.new + run.counts.changed} className="ar-count-value">
+                {run.counts.new + run.counts.changed}
+              </strong>
               <span>New or changed</span>
             </div>
             <div>
-              <strong>{run.counts.meetingsProcessed}</strong>
+              <strong key={run.counts.meetingsProcessed} className="ar-count-value">
+                {run.counts.meetingsProcessed}
+              </strong>
               <span>Meetings complete</span>
             </div>
             <div>
-              <strong>{run.counts.meetingsPending}</strong>
+              <strong key={run.counts.meetingsPending} className="ar-count-value">
+                {run.counts.meetingsPending}
+              </strong>
               <span>Meetings pending</span>
             </div>
             <div>
-              <strong>{run.counts.jiraProposals}</strong>
+              <strong key={run.counts.jiraProposals} className="ar-count-value">
+                {run.counts.jiraProposals}
+              </strong>
               <span>Jira proposals</span>
             </div>
-            <div>
-              <strong>{run.counts.failures}</strong>
+            <div data-alert={run.counts.failures > 0 || undefined}>
+              <strong key={run.counts.failures} className="ar-count-value">
+                {run.counts.failures}
+              </strong>
               <span>Source or meeting failures</span>
             </div>
           </fieldset>
@@ -506,7 +696,10 @@ export function ActivityReconciliationPanel({
                 <span>Coverage</span>
                 <h3 id="activity-sources-title">Source reads</h3>
               </div>
-              <small>Each source advances only after its own successful read.</small>
+              <small>
+                {sourcesDone} of {sources.length} sources read · each advances only after its own
+                successful read
+              </small>
             </div>
             <div className="ar-source-grid">
               {sources.map((source) => (
