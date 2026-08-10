@@ -16,7 +16,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityReconciliationPanel } from "../activity-reconciliation/ActivityReconciliationPanel";
+import { useActivityRunDock } from "../activity-reconciliation/ActivityRunDock";
 import { jiraGateway } from "./api";
 import "./jira-views.css";
 import { IssueTimeMetrics } from "./IssueTimeMetrics";
@@ -131,7 +131,7 @@ export function JiraWorkSurface() {
   const [showSwimlanes, setShowSwimlanes] = useState(false);
   const [selectedIssueKey, setSelectedIssueKey] = useState<string | null>(null);
   const [showReconciliation, setShowReconciliation] = useState(false);
-  const [showActivityReconciliation, setShowActivityReconciliation] = useState(false);
+  const activityDock = useActivityRunDock();
 
   const load = useCallback(async (refresh = false) => {
     if (refresh) setRefreshing(true);
@@ -432,9 +432,8 @@ export function JiraWorkSurface() {
             <button
               type="button"
               className="wb-primary-button"
-              onClick={() => setShowActivityReconciliation(true)}
-              aria-expanded={showActivityReconciliation}
-              title="Reads Outlook, Teams, and ready meeting transcripts, captures them to the Brain, and proposes Jira updates from that evidence."
+              onClick={() => activityDock.openPicker()}
+              title="Reads Outlook, Teams, and ready meeting transcripts, captures them to the Brain, and proposes Jira updates from that evidence. Opens a picker so you choose which steps this run covers."
             >
               <ScanSearch size={16} /> Reconcile activity
             </button>
@@ -442,14 +441,6 @@ export function JiraWorkSurface() {
           </div>
         </div>
       </div>
-
-      {showActivityReconciliation && (
-        <ActivityReconciliationPanel
-          onClose={() => setShowActivityReconciliation(false)}
-          startOnOpen
-          onOpenMdmReview={() => setShowReconciliation(true)}
-        />
-      )}
 
       <div className="wb-jira-count">
         <strong>{visibleIssues.length}</strong>

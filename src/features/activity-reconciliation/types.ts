@@ -8,7 +8,16 @@ export type ActivitySourceState =
   | "timed_out"
   | "malformed"
   | "failed"
-  | "canceled";
+  | "canceled"
+  | "skipped";
+
+export interface ActivityRunSteps {
+  sources?: string[] | null;
+  meetings?: boolean;
+  staleSweep?: boolean;
+  outlookDrafts?: boolean;
+  mdmCheck?: boolean;
+}
 
 export type ActivityRunStatus =
   | "running"
@@ -120,6 +129,7 @@ export interface ActivityRun {
   id: string;
   status: ActivityRunStatus;
   baseline: boolean;
+  steps?: ActivityRunSteps | null;
   startedAt: string;
   finishedAt: string | null;
   lastActivityAt: string;

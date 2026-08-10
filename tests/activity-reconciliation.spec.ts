@@ -287,16 +287,15 @@ test("runs the visible Work activity path and keeps Jira review approval-only", 
   page,
 }, testInfo) => {
   let current: ReturnType<typeof runFixture> | null = null;
-  let statusReads = 0;
+  // The test flips this once it has seen the running state, so the finish
+  // timing never races the dock's and panel's independent polling.
+  let finishRun = false;
   let starts = 0;
   let applies = 0;
   await page.route("http://127.0.0.1:8817/api/work/activity-reconciliation/**", async (route) => {
     const url = new URL(route.request().url());
     if (route.request().method() === "GET" && url.pathname.endsWith("/status")) {
-      if (current?.status === "running") {
-        statusReads += 1;
-        if (statusReads >= 2) current = runFixture("partial_success");
-      }
+      if (current?.status === "running" && finishRun) current = runFixture("partial_success");
       await fulfill(route, current);
       return;
     }
@@ -326,6 +325,10 @@ test("runs the visible Work activity path and keeps Jira review approval-only", 
   await expect(page.getByRole("button", { name: "Reconcile activity" })).toBeVisible();
   expect(starts).toBe(0);
   await page.getByRole("button", { name: "Reconcile activity" }).click();
+  // The picker is the new first stop: nothing reads a source until Start.
+  await expect(page.getByTestId("activity-picker")).toBeVisible();
+  expect(starts).toBe(0);
+  await page.getByTestId("picker-start").click();
   await expect.poll(() => starts).toBe(1);
   await expect(page.getByText("Reading source activity", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Stop", exact: true })).toBeVisible();
@@ -334,6 +337,7 @@ test("runs the visible Work activity path and keeps Jira review approval-only", 
     "loading"
   );
 
+  finishRun = true;
   await expect(page.getByRole("heading", { name: "Run recap" })).toBeVisible({ timeout: 8_000 });
   await expect(page.getByText("Fabric delivery review", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Teams direct messages: timed out", { exact: true })).toBeVisible();
@@ -392,6 +396,7 @@ test("stop records a canceled run and resume continues the same run", async ({ p
 
   await openWork(page);
   await page.getByRole("button", { name: "Reconcile activity" }).click();
+  await page.getByTestId("picker-start").click();
   await expect(page.getByRole("button", { name: "Stop", exact: true })).toBeVisible();
   await expect
     .poll(() =>
@@ -425,6 +430,7 @@ test("phone layout keeps the activity panel inside the Work viewport", async ({
   });
   await openWork(page);
   await page.getByRole("button", { name: "Reconcile activity" }).click();
+  await page.getByTestId("picker-start").click();
   const panel = page.getByTestId("activity-reconciliation-panel");
   await expect(panel).toBeVisible();
   const box = await panel.boundingBox();
@@ -441,16 +447,14 @@ test("phone layout keeps the activity panel inside the Work viewport", async ({
   });
 });
 
-test("shows loading and a clear status error without starting a source read", async ({ page }) => {
-  let releaseStatus: () => void = () => undefined;
-  const statusWait = new Promise<void>((resolve) => {
-    releaseStatus = resolve;
-  });
+test("the picker opens without a source read and a failed start shows a clear error", async ({
+  page,
+}) => {
   let starts = 0;
   await page.route("http://127.0.0.1:8817/api/work/activity-reconciliation/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
-    if (route.request().method() === "GET") {
-      await statusWait;
+    if (route.request().method() === "POST" && path.endsWith("/start")) {
+      starts += 1;
       await route.fulfill({
         status: 503,
         headers: {
@@ -459,13 +463,12 @@ test("shows loading and a clear status error without starting a source read", as
         },
         body: JSON.stringify({
           ok: false,
-          code: "activity_status_unavailable",
-          error: "Saved activity status is unavailable.",
+          code: "activity_start_unavailable",
+          error: "The activity run could not start right now.",
         }),
       });
       return;
     }
-    if (path.endsWith("/start")) starts += 1;
     await fulfill(route, null);
   });
 
@@ -473,10 +476,14 @@ test("shows loading and a clear status error without starting a source read", as
   const action = page.getByRole("button", { name: "Reconcile activity" });
   await action.focus();
   await page.keyboard.press("Enter");
-  await expect(page.getByText("Loading saved run history")).toBeVisible();
+  await expect(page.getByTestId("activity-picker")).toBeVisible();
   expect(starts).toBe(0);
-  releaseStatus();
-  await expect(page.getByRole("alert")).toContainText("Saved activity status is unavailable.");
+  await page.getByTestId("picker-start").click();
+  await expect(page.getByRole("alert")).toContainText(
+    "The activity run could not start right now."
+  );
+  expect(starts).toBe(1);
+  await expect(page.getByTestId("activity-reconciliation-panel")).toHaveCount(0);
 });
 
 test("shows a completed empty result without unchanged recap rows", async ({ page }) => {
@@ -516,6 +523,7 @@ test("shows a completed empty result without unchanged recap rows", async ({ pag
   });
   await openWork(page);
   await page.getByRole("button", { name: "Reconcile activity" }).click();
+  await page.getByTestId("picker-start").click();
   await expect(page.getByText("Completed", { exact: true })).toBeVisible();
   await expect(page.getByText("No new activity required changes")).toBeVisible();
   await expect(page.getByText("No Jira change is proposed for this run.")).toBeVisible();
@@ -582,6 +590,7 @@ test("select-all covers every proposal and the chained MDM check opens its revie
 
   await openWork(page);
   await page.getByRole("button", { name: "Reconcile activity" }).click();
+  await page.getByTestId("picker-start").click();
   await expect(page.getByTestId("activity-reconciliation-panel")).toHaveAttribute(
     "data-status",
     "completed"
@@ -601,4 +610,39 @@ test("select-all covers every proposal and the chained MDM check opens its revie
   await expect(mdmSection).toContainText("2 corrections");
   await page.getByTestId("activity-open-mdm-review").click();
   await expect(page.getByRole("heading", { name: "Refresh and reconcile MDM" })).toBeVisible();
+});
+
+test("a run stays visible as a dock pill on any page and toasts when it finishes", async ({
+  page,
+}) => {
+  let current: ReturnType<typeof runFixture> | null = runFixture("running");
+  await mockJira(page);
+  await page.route("http://127.0.0.1:8817/api/work/activity-reconciliation/**", (route) =>
+    fulfill(route, current)
+  );
+
+  // Land on the default page and never navigate to Work: the pill must appear
+  // anyway because the run belongs to the whole app, not one screen.
+  await page.goto("/");
+  const pill = page.getByTestId("activity-dock-pill");
+  await expect(pill).toBeVisible();
+  await expect(pill).toContainText("Reading source activity");
+  await expect(pill).toContainText("Step 2 of");
+
+  // The run finishes while the user is elsewhere: a toast announces it.
+  current = runFixture("completed");
+  const toast = page.getByTestId("activity-toast");
+  await expect(toast).toBeVisible({ timeout: 10_000 });
+  await expect(toast).toContainText("Activity reconciliation finished");
+  await expect(toast).toContainText("1 Jira proposal, 1 email draft, 1 meeting processed.");
+
+  // Open review from the toast: the panel overlays the current page.
+  await toast.getByRole("button", { name: "Open review" }).click();
+  const panel = page.getByTestId("activity-reconciliation-panel");
+  await expect(panel).toBeVisible();
+  await expect(panel).toHaveAttribute("data-status", "completed");
+
+  // Minimizing the panel leaves the review reminder pill behind.
+  await page.getByRole("button", { name: "Close activity reconciliation" }).click();
+  await expect(page.getByTestId("activity-dock-pill")).toContainText("Review ready");
 });

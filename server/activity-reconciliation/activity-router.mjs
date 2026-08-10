@@ -66,7 +66,13 @@ export function createActivityReconciliationRouter(service) {
         }
         if (request.method === "POST" && url.pathname === `${PREFIX}/start`) {
           const body = await readJsonBody(request);
-          return response(202, await service.start({ fresh: body.fresh === true }));
+          return response(
+            202,
+            await service.start({
+              fresh: body.fresh === true,
+              steps: body.steps && typeof body.steps === "object" ? body.steps : undefined,
+            })
+          );
         }
         if (request.method === "POST" && url.pathname === `${PREFIX}/stop`) {
           const body = await readJsonBody(request);

@@ -277,7 +277,7 @@
 
 .ar-phases {
   display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
   margin: 0;
   padding: 0;
@@ -954,5 +954,242 @@
 @media (prefers-reduced-motion: reduce) {
   .ar-spin {
     animation: none;
+  }
+}
+
+/* Floating run pill: visible on every page while a run is active or a finished
+   review is waiting. Sits left of the Workbench Agent launcher. */
+.ar-dock-pill {
+  position: fixed;
+  bottom: 22px;
+  right: 92px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(27, 94, 158, 0.3);
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(16, 42, 67, 0.18);
+  color: #163a5c;
+}
+
+.ar-dock-pill-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: none;
+  background: none;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ar-dock-pill[data-state="review"] {
+  border-color: rgba(29, 111, 66, 0.35);
+  color: #1d6f42;
+}
+
+.ar-dock-pill .ar-dock-pill-label {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ar-dock-pill small {
+  font-weight: 500;
+  color: #5b7089;
+  white-space: nowrap;
+}
+
+.ar-dock-pill-dismiss {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+  margin-right: 8px;
+  border: none;
+  background: none;
+  border-radius: 999px;
+  color: #5b7089;
+  cursor: pointer;
+}
+
+.ar-dock-pill-dismiss:hover {
+  background: rgba(16, 42, 67, 0.08);
+}
+
+.ar-dock-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4vh 16px;
+  background: rgba(12, 27, 43, 0.42);
+  overflow-y: auto;
+}
+
+.ar-dock-overlay {
+  width: min(980px, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 18px 48px rgba(9, 22, 36, 0.35);
+}
+
+.ar-picker {
+  width: min(480px, 100%);
+  margin-top: 6vh;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 18px 48px rgba(9, 22, 36, 0.35);
+}
+
+.ar-picker header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.ar-picker h2 {
+  font-size: 17px;
+  margin: 2px 0 0;
+}
+
+.ar-picker-presets {
+  display: flex;
+  gap: 8px;
+}
+
+.ar-picker-presets button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(27, 94, 158, 0.28);
+  background: rgba(27, 94, 158, 0.05);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ar-picker-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid rgba(16, 42, 67, 0.12);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.ar-picker-group legend {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5b7089;
+  padding: 0 4px;
+}
+
+.ar-picker-group label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.ar-picker-group input {
+  accent-color: #1b5e9e;
+}
+
+.ar-picker-hint {
+  font-size: 11px;
+  color: #5b7089;
+}
+
+.ar-picker-error {
+  font-size: 11.5px;
+  color: #a02b2b;
+}
+
+.ar-picker footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.ar-toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(29, 111, 66, 0.3);
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(9, 22, 36, 0.28);
+  font-size: 12.5px;
+  color: #1d6f42;
+}
+
+.ar-toast[data-kind="attention"] {
+  border-color: rgba(168, 106, 0, 0.35);
+  color: #a86a00;
+}
+
+.ar-toast div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #163a5c;
+}
+
+.ar-toast strong {
+  font-size: 12.5px;
+}
+
+.ar-toast span {
+  font-size: 11.5px;
+  color: #5b7089;
+}
+
+.ar-toast button {
+  border: 1px solid rgba(27, 94, 158, 0.3);
+  background: rgba(27, 94, 158, 0.06);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ar-toast button[aria-label="Dismiss"] {
+  border: none;
+  background: none;
+  padding: 3px;
+  color: #5b7089;
+}
+
+@media (max-width: 680px) {
+  .ar-dock-pill {
+    right: 16px;
+    bottom: 76px;
   }
 }

@@ -62,6 +62,7 @@ import {
   sortedInsights,
 } from "./data";
 import { workbenchSnapshot } from "./data/workbench";
+import { ActivityRunDockProvider } from "./features/activity-reconciliation/ActivityRunDock";
 import { WorkbenchAgent } from "./features/workbench-agent";
 import type { WorkshopSurface } from "./features/workshops/types";
 import { useWorkshopState } from "./features/workshops/useWorkshopState";
@@ -367,117 +368,126 @@ export default function App() {
 
   const activeLabel = viewCopy[activeView].label;
   return (
-    <div className={`wb-app ${sidebarOpen ? "nav-open" : "nav-collapsed"}`}>
-      <WorkbenchSidebar
-        activeView={activeView}
-        expanded={sidebarOpen}
-        onToggle={() => setSidebarOpen((value) => !value)}
-        onNavigate={navigate}
-        workshopNav={{
-          surface: workshopSurface,
-          step: workshop.state.step,
-          onSurface: setWorkshopSurface,
-          onStep: (step) => {
-            setWorkshopSurface("run");
-            workshop.patch({ step });
-          },
-          stageStatus: workshop.stageStatus,
-        }}
-      />
-
-      <main className="wb-workspace">
-        <WorkbenchHeader
-          label={activeLabel}
-          generatedAt={workbenchSnapshot.generatedAt}
-          query={query}
-          results={searchResults}
-          selectedIndex={searchSelectedIndex}
-          onQueryChange={(value) => {
-            setQuery(value);
-            setSearchSelectedIndex(-1);
-          }}
-          onSearchKeyDown={handleSearchKeyDown}
-          onOpenResult={openSearchResult}
-          onClear={() => {
-            setQuery("");
-            setSearchSelectedIndex(-1);
+    <ActivityRunDockProvider>
+      <div className={`wb-app ${sidebarOpen ? "nav-open" : "nav-collapsed"}`}>
+        <WorkbenchSidebar
+          activeView={activeView}
+          expanded={sidebarOpen}
+          onToggle={() => setSidebarOpen((value) => !value)}
+          onNavigate={navigate}
+          workshopNav={{
+            surface: workshopSurface,
+            step: workshop.state.step,
+            onSurface: setWorkshopSurface,
+            onStep: (step) => {
+              setWorkshopSurface("run");
+              workshop.patch({ step });
+            },
+            stageStatus: workshop.stageStatus,
           }}
         />
 
-        {/* mode="wait" holds the incoming view until the outgoing one reports its exit
+        <main className="wb-workspace">
+          <WorkbenchHeader
+            label={activeLabel}
+            generatedAt={workbenchSnapshot.generatedAt}
+            query={query}
+            results={searchResults}
+            selectedIndex={searchSelectedIndex}
+            onQueryChange={(value) => {
+              setQuery(value);
+              setSearchSelectedIndex(-1);
+            }}
+            onSearchKeyDown={handleSearchKeyDown}
+            onOpenResult={openSearchResult}
+            onClear={() => {
+              setQuery("");
+              setSearchSelectedIndex(-1);
+            }}
+          />
+
+          {/* mode="wait" holds the incoming view until the outgoing one reports its exit
             is complete. When a view owns async work that never settles, that report can
             fail to arrive and navigation deadlocks: the header and rail update but the
             page never changes. The entrance animation is what people actually see, so
             the outgoing view is simply replaced. */}
-        <AnimatePresence initial={false}>
-          <motion.section
-            key={activeView}
-            className="view-frame"
-            initial={reduceMotion ? false : { opacity: 0, y: 18, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {activeView === "today" && <TodayView onOpenWork={() => navigate("work")} />}
-            {activeView === "work" && (
-              <WorkView
-                items={workbenchSnapshot.workItems}
-                lanes={workbenchSnapshot.lanes}
-                onOpenDetail={openDetail}
-                onPreview={setApprovalPreview}
-              />
-            )}
-            {activeView === "daily-prep" && <DailyMeetingPrepView />}
-            {activeView === "meeting-wrap-up" && <MeetingWrapUpView />}
-            {activeView === "weekly-status" && <WeeklyStatusView />}
-            {activeView === "meetings" && (
-              <MeetingsWorkspaceView openDetail={openDetail} onFocusInGraph={focusMeetingInGraph} />
-            )}
-            {activeView === "workshops" && (
-              <Suspense fallback={<LazyViewFallback label="Opening Workshops" />}>
-                <LazyWorkshops
-                  surface={workshopSurface}
-                  controller={workshop}
-                  onSurfaceChange={setWorkshopSurface}
+          <AnimatePresence initial={false}>
+            <motion.section
+              key={activeView}
+              className="view-frame"
+              initial={reduceMotion ? false : { opacity: 0, y: 18, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {activeView === "today" && <TodayView onOpenWork={() => navigate("work")} />}
+              {activeView === "work" && (
+                <WorkView
+                  items={workbenchSnapshot.workItems}
+                  lanes={workbenchSnapshot.lanes}
+                  onOpenDetail={openDetail}
+                  onPreview={setApprovalPreview}
                 />
-              </Suspense>
-            )}
-            {activeView === "timeline" && <TimelineView openDetail={openDetail} />}
-            {activeView === "library" && <TeamLibraryView />}
-            {activeView === "connections" && (
-              <ConnectionsView sources={workbenchSnapshot.sources} />
-            )}
-            {activeView === "data-work" && (
-              <Suspense fallback={<LazyViewFallback label="Opening Data work" />}>
-                <LazyDataWork />
-              </Suspense>
-            )}
-            {activeView === "readiness" && (
-              <ReadinessView openDetail={openDetail} navigate={navigate} />
-            )}
-            {activeView === "packets" && <PacketsView openDetail={openDetail} query={query} />}
-            {activeView === "insights" && (
-              <Suspense fallback={<LazyViewFallback label="Opening How things connect" />}>
-                <LazyBrainExplorer />
-              </Suspense>
-            )}
-            {activeView === "actions" && <ActionsView openDetail={openDetail} query={query} />}
-            {activeView === "questions" && <QuestionsView openDetail={openDetail} query={query} />}
-            {activeView === "risks" && <RisksView openDetail={openDetail} query={query} />}
-            {activeView === "decisions" && <DecisionsView openDetail={openDetail} query={query} />}
-            {activeView === "sources" && <SourceHealthView />}
-          </motion.section>
-        </AnimatePresence>
-      </main>
+              )}
+              {activeView === "daily-prep" && <DailyMeetingPrepView />}
+              {activeView === "meeting-wrap-up" && <MeetingWrapUpView />}
+              {activeView === "weekly-status" && <WeeklyStatusView />}
+              {activeView === "meetings" && (
+                <MeetingsWorkspaceView
+                  openDetail={openDetail}
+                  onFocusInGraph={focusMeetingInGraph}
+                />
+              )}
+              {activeView === "workshops" && (
+                <Suspense fallback={<LazyViewFallback label="Opening Workshops" />}>
+                  <LazyWorkshops
+                    surface={workshopSurface}
+                    controller={workshop}
+                    onSurfaceChange={setWorkshopSurface}
+                  />
+                </Suspense>
+              )}
+              {activeView === "timeline" && <TimelineView openDetail={openDetail} />}
+              {activeView === "library" && <TeamLibraryView />}
+              {activeView === "connections" && (
+                <ConnectionsView sources={workbenchSnapshot.sources} />
+              )}
+              {activeView === "data-work" && (
+                <Suspense fallback={<LazyViewFallback label="Opening Data work" />}>
+                  <LazyDataWork />
+                </Suspense>
+              )}
+              {activeView === "readiness" && (
+                <ReadinessView openDetail={openDetail} navigate={navigate} />
+              )}
+              {activeView === "packets" && <PacketsView openDetail={openDetail} query={query} />}
+              {activeView === "insights" && (
+                <Suspense fallback={<LazyViewFallback label="Opening How things connect" />}>
+                  <LazyBrainExplorer />
+                </Suspense>
+              )}
+              {activeView === "actions" && <ActionsView openDetail={openDetail} query={query} />}
+              {activeView === "questions" && (
+                <QuestionsView openDetail={openDetail} query={query} />
+              )}
+              {activeView === "risks" && <RisksView openDetail={openDetail} query={query} />}
+              {activeView === "decisions" && (
+                <DecisionsView openDetail={openDetail} query={query} />
+              )}
+              {activeView === "sources" && <SourceHealthView />}
+            </motion.section>
+          </AnimatePresence>
+        </main>
 
-      <MobileTabBar activeView={activeView} onNavigate={navigate} />
-      <ErrorBoundary>
-        <WorkbenchAgent activeView={activeView} onNavigate={navigate} />
-      </ErrorBoundary>
+        <MobileTabBar activeView={activeView} onNavigate={navigate} />
+        <ErrorBoundary>
+          <WorkbenchAgent activeView={activeView} onNavigate={navigate} />
+        </ErrorBoundary>
 
-      <DetailDrawer detail={detail} onClose={() => setDetail(null)} />
-      <ApprovalDock preview={approvalPreview} onClose={() => setApprovalPreview(null)} />
-      <AdminSettings isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
-    </div>
+        <DetailDrawer detail={detail} onClose={() => setDetail(null)} />
+        <ApprovalDock preview={approvalPreview} onClose={() => setApprovalPreview(null)} />
+        <AdminSettings isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
+      </div>
+    </ActivityRunDockProvider>
   );
 }
 

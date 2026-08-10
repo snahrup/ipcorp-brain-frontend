@@ -678,3 +678,111 @@ test("a draft without a recipient stays in the panel instead of reaching Outlook
   assert.deepEqual(delivered, []);
   assert.equal(completed.emailDrafts[0].outlook.status, "recipient_review");
 });
+
+test("a run honors selected steps and skipped sources keep their saved positions", async (t) => {
+  let mdmChecked = 0;
+  let draftsDelivered = 0;
+  let meetingsProcessed = 0;
+  const readSources = [];
+  const { service } = await fixture(t, {
+    collectSources: async ({ windows }) => {
+      readSources.push(...Object.keys(windows));
+      return {
+        sources: Object.keys(windows).map((id) => ({
+          id,
+          state: "current",
+          confirmedThrough: windows[id].to,
+          detail: "Read succeeded.",
+          items: [
+            {
+              providerItemId: `${id}-item`,
+              eventAt: "2026-08-06T13:30:00.000Z",
+              title: "Fabric source mapping",
+              summary: "Patrick confirmed the source mapping on MT-42.",
+              status: "current",
+              jiraKey: "MT-42",
+            },
+          ],
+        })),
+      };
+    },
+    processMeeting: async () => {
+      meetingsProcessed += 1;
+      return { ok: true, id: "meeting" };
+    },
+    deliverEmailDrafts: async () => {
+      draftsDelivered += 1;
+      return { draftId: "draft" };
+    },
+    runMdmCheck: async () => {
+      mdmChecked += 1;
+      return { previewId: "p", proposalCount: 1 };
+    },
+    loadJiraIssues: async () => [
+      issue(),
+      {
+        key: "MT-77",
+        summary: "Forgotten intake cleanup",
+        description: "Old work.",
+        status: { name: "In Progress" },
+        updatedAt: "2026-04-01T09:00:00.000Z",
+        comments: [],
+        worklogs: [],
+      },
+    ],
+  });
+
+  const started = await service.start({
+    steps: {
+      sources: ["outlook_received", "brain_updates"],
+      meetings: false,
+      staleSweep: false,
+      outlookDrafts: false,
+      mdmCheck: false,
+    },
+  });
+  const completed = await service.waitForRun(started.run.id);
+
+  // Only the selected sources were read, and only they advanced.
+  assert.deepEqual(readSources.sort(), ["brain_updates", "outlook_received"]);
+  assert.equal(completed.sources.outlook_received.state, "current");
+  assert.equal(completed.sources.teams_channel_messages.state, "skipped");
+  assert.equal(mdmChecked, 0);
+  assert.equal(draftsDelivered, 0);
+  assert.equal(meetingsProcessed, 0);
+  assert.equal(
+    completed.jiraProposals.some((item) => item.confidence === "stale"),
+    false
+  );
+  assert.equal(completed.mdmCheck, null);
+  const skippedGroup = completed.recap.groups.find((group) => group.sourceId === "skipped_steps");
+  assert.ok(skippedGroup);
+
+  // A second full run reads the skipped source from its baseline, not from a
+  // falsely advanced position.
+  const second = await service.start({});
+  const secondRun = await service.waitForRun(second.run.id);
+  assert.equal(secondRun.windows.teams_channel_messages.from, "2026-01-01T00:00:00.000Z");
+  assert.notEqual(secondRun.windows.outlook_received.from, "2026-01-01T00:00:00.000Z");
+});
+
+test("default steps run everything exactly as before", async (t) => {
+  let mdmChecked = 0;
+  const { service } = await fixture(t, {
+    collectSources: async ({ windows }) => ({
+      sources: sourceResults(windows.outlook_received.to),
+    }),
+    runMdmCheck: async () => {
+      mdmChecked += 1;
+      return { previewId: "p", proposalCount: 0 };
+    },
+  });
+  const started = await service.start();
+  const completed = await service.waitForRun(started.run.id);
+  assert.equal(mdmChecked, 1);
+  assert.equal(completed.status, "completed");
+  assert.equal(
+    Object.values(completed.sources).some((source) => source.state === "skipped"),
+    false
+  );
+});

@@ -87,6 +87,29 @@ function activityError(code, message, status = 400, details) {
   return error;
 }
 
+/**
+ * Which parts of the workflow this run performs. Defaults to everything, so a
+ * plain start behaves exactly as before the picker existed. `sources: null`
+ * means every stream; a subset lists the selected stream ids.
+ */
+function normalizeSteps(steps) {
+  const sourceIds = new Set(ACTIVITY_SOURCES.map((source) => source.id));
+  const requested = Array.isArray(steps?.sources)
+    ? steps.sources.filter((id) => sourceIds.has(id))
+    : null;
+  return {
+    sources: requested?.length ? requested : null,
+    meetings: steps?.meetings !== false,
+    staleSweep: steps?.staleSweep !== false,
+    outlookDrafts: steps?.outlookDrafts !== false,
+    mdmCheck: steps?.mdmCheck !== false,
+  };
+}
+
+function sourceSelected(run, sourceId) {
+  return !run.steps?.sources || run.steps.sources.includes(sourceId);
+}
+
 function findRun(state, runId) {
   return state.runs.find((run) => run.id === runId) || null;
 }
@@ -143,7 +166,7 @@ function initialSources() {
   );
 }
 
-function newRun(state, startedAt) {
+function newRun(state, startedAt, steps) {
   const baseline = !ACTIVITY_SOURCES.some(
     (source) => state.sourcePositions[source.id]?.completedThrough
   );
@@ -151,6 +174,7 @@ function newRun(state, startedAt) {
     id: `activity-${startedAt.replace(/[-:.TZ]/g, "").slice(0, 14)}-${randomUUID().slice(0, 8)}`,
     status: "running",
     baseline,
+    steps: normalizeSteps(steps),
     startedAt,
     finishedAt: null,
     lastActivityAt: startedAt,
@@ -321,9 +345,37 @@ function recapFor(run) {
       links: [],
     });
   }
+  // The recap never quietly pretends a skipped step happened: everything the
+  // picker turned off for this run is named here.
+  const skippedNames = [];
+  if (run.steps?.sources) {
+    const skippedSources = ACTIVITY_SOURCES.filter(
+      (source) => !run.steps.sources.includes(source.id)
+    );
+    if (skippedSources.length) {
+      skippedNames.push(`Sources: ${skippedSources.map((source) => source.label).join(", ")}`);
+    }
+  }
+  if (run.steps?.meetings === false) skippedNames.push("Meeting processing and visuals");
+  if (run.steps?.staleSweep === false) skippedNames.push("Stale ticket sweep");
+  if (run.steps?.outlookDrafts === false) skippedNames.push("Outlook draft creation");
+  if (run.steps?.mdmCheck === false) skippedNames.push("MDM check (Jira vs. Brain)");
+  if (skippedNames.length) {
+    entries.push({
+      id: "skipped-steps",
+      sourceId: "skipped_steps",
+      destination: "source_status",
+      kind: "skipped",
+      title: "Not run this time",
+      detail: skippedNames.join(" · "),
+      receipt: null,
+      links: [],
+    });
+  }
   const EXTRA_SOURCE_LABELS = {
     stale_sweep: "Stale Jira work",
     mdm_check: "MDM check (Jira vs. Brain)",
+    skipped_steps: "Skipped this run",
   };
   const grouped = [];
   for (const entry of entries) {
@@ -354,7 +406,7 @@ function recapFor(run) {
   }
   return {
     generatedAt: run.finishedAt || run.lastActivityAt,
-    changedItemCount: entries.filter((item) => item.kind !== "proposal").length,
+    changedItemCount: entries.filter((item) => !["proposal", "skipped"].includes(item.kind)).length,
     proposalCount: entries.filter((item) => item.kind === "proposal").length,
     groups: grouped,
   };
@@ -370,7 +422,9 @@ export function createActivityReconciliationService(options) {
   const prepareJira =
     options.prepareJira ||
     (async ({ run, evidence, issues = [] }) =>
-      buildJiraReview(evidence, issues, { now: run?.startedAt }));
+      buildJiraReview(evidence, issues, {
+        now: run?.steps?.staleSweep === false ? null : run?.startedAt,
+      }));
   const runMdmCheck = typeof options.runMdmCheck === "function" ? options.runMdmCheck : null;
   const deliverEmailDrafts =
     typeof options.deliverEmailDrafts === "function" ? options.deliverEmailDrafts : null;
@@ -555,18 +609,22 @@ export function createActivityReconciliationService(options) {
   async function collect(runId) {
     const run = await getRun(runId);
     const runtimeById = new Map();
+    const selected = ACTIVITY_SOURCES.filter((source) => sourceSelected(run, source.id));
+    const selectedWindows = Object.fromEntries(
+      selected.map((source) => [source.id, run.windows[source.id]])
+    );
     let payload;
     try {
       payload = await options.collectSources({
         run: clone(run),
-        windows: clone(run.windows),
+        windows: clone(selectedWindows),
         isCancellationRequested: () => cancellationRequested(runId),
         onActivity: (detail) =>
           updateRun(runId, (current) => addEvent(current, "activity", detail, asIso(clock))),
       });
     } catch (error) {
       payload = {
-        sources: ACTIVITY_SOURCES.map((source) => ({
+        sources: selected.map((source) => ({
           id: source.id,
           state: error?.code === "m365_timeout" ? "timed_out" : "failed",
           items: [],
@@ -585,6 +643,22 @@ export function createActivityReconciliationService(options) {
       (Array.isArray(payload?.sources) ? payload.sources : []).map((item) => [item.id, item])
     );
     for (const source of ACTIVITY_SOURCES) {
+      // A stream that was not selected this run stays exactly where it was: no
+      // read, no position change, and an honest "skipped" card. The next run
+      // that includes it picks up from its old saved position.
+      if (!sourceSelected(run, source.id)) {
+        const at = asIso(clock);
+        await updateRun(runId, (current) => {
+          current.sources[source.id] = {
+            ...current.sources[source.id],
+            state: "skipped",
+            detail: "Not selected for this run. Its saved position is unchanged.",
+            startedAt: at,
+            finishedAt: at,
+          };
+        });
+        continue;
+      }
       const result = results.get(source.id) || {
         id: source.id,
         state: "malformed",
@@ -675,6 +749,9 @@ export function createActivityReconciliationService(options) {
     const run = await getRun(runId);
     const reviewEvidence = [];
     const reviewedMeetingIds = [];
+    if (run.steps?.meetings === false) {
+      return { completed: true, evidence: reviewEvidence, reviewedMeetingIds };
+    }
     const meetingEvidence = (run.evidence || []).filter(
       (item) =>
         item.sourceId === "teams_meeting_transcripts" &&
@@ -825,6 +902,7 @@ export function createActivityReconciliationService(options) {
   async function deliverDrafts(runId) {
     if (!deliverEmailDrafts) return;
     const run = await getRun(runId);
+    if (run.steps?.outlookDrafts === false) return;
     const pending = (run.emailDrafts || []).filter((item) => item.outlook?.status !== "created");
     if (!pending.length) return;
     await setPhase(runId, "delivering_drafts", "Creating Outlook drafts for mailbox review.");
@@ -897,7 +975,8 @@ export function createActivityReconciliationService(options) {
       // activity run itself, and it stays read-only: applying its corrections
       // still happens through the Reconcile MDM review.
       let mdmCheck = null;
-      if (runMdmCheck) {
+      const currentRun = await getRun(runId);
+      if (runMdmCheck && currentRun?.steps?.mdmCheck !== false) {
         await setPhase(runId, "mdm_check", "Running the MDM Jira-vs-Brain check.");
         try {
           const result = await runMdmCheck({ run: clone(await getRun(runId)) });
@@ -966,7 +1045,7 @@ export function createActivityReconciliationService(options) {
         addEvent(active, "resumed", "Resuming from the last saved checkpoint.", at);
         return { state, value: { run: clone(active), attached: false, resumed: true } };
       }
-      const run = newRun(state, at);
+      const run = newRun(state, at, startOptions.steps);
       addEvent(
         run,
         "started",

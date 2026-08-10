@@ -1,5 +1,10 @@
 import { GATEWAY } from "../../lib/gateway";
-import type { ActivityApplyReceipt, ActivityRun, ActivityStartResult } from "./types";
+import type {
+  ActivityApplyReceipt,
+  ActivityRun,
+  ActivityRunSteps,
+  ActivityStartResult,
+} from "./types";
 
 const API = `${GATEWAY}/work/activity-reconciliation`;
 
@@ -45,10 +50,10 @@ export const activityReconciliationApi = {
     request<ActivityRun | null>(`/status${runId ? `?runId=${encodeURIComponent(runId)}` : ""}`, {
       signal,
     }),
-  start: (fresh = false) =>
+  start: (fresh = false, steps?: ActivityRunSteps) =>
     request<ActivityStartResult>("/start", {
       method: "POST",
-      body: JSON.stringify({ fresh }),
+      body: JSON.stringify({ fresh, steps }),
     }),
   stop: (runId: string) =>
     request<ActivityRun>("/stop", {
