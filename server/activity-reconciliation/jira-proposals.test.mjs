@@ -112,3 +112,49 @@ test("similarity remains review-only, unrelated evidence is skipped, and no-op c
     true
   );
 });
+
+test("stale open items with no recent Jira activity and no evidence mention get a close proposal", () => {
+  const now = "2026-08-10T00:00:00.000Z";
+  const review = buildJiraReview(
+    [
+      evidence("direct", {
+        jiraKey: "MT-42",
+        jiraReferenceKind: "direct",
+        jiraContextSignals: ["Fabric source mapping activity"],
+      }),
+    ],
+    [
+      issue("MT-42", "Fabric source mapping", { updatedAt: "2026-03-01T12:00:00.000Z" }),
+      issue("MT-77", "Forgotten intake cleanup", { updatedAt: "2026-04-02T09:00:00.000Z" }),
+      issue("MT-78", "Old but finished work", {
+        updatedAt: "2026-03-15T09:00:00.000Z",
+        status: { name: "Done" },
+      }),
+      issue("MT-79", "Fresh work", { updatedAt: "2026-08-05T09:00:00.000Z" }),
+    ],
+    { now }
+  );
+
+  const stale = review.proposals.filter((item) => item.confidence === "stale");
+  assert.equal(stale.length, 1);
+  const proposal = stale[0];
+  assert.equal(proposal.issueKey, "MT-77");
+  assert.equal(proposal.sourceId, "stale_sweep");
+  assert.equal(proposal.selectedByDefault, false);
+  assert.ok(proposal.changes.some((change) => change.kind === "transition"));
+  assert.ok(proposal.reason.includes("129 days"));
+  // MT-42 is mentioned by evidence in this run, MT-78 is already done, and
+  // MT-79 is recent, so none of them may be swept.
+  assert.equal(
+    stale.some((item) => ["MT-42", "MT-78", "MT-79"].includes(item.issueKey)),
+    false
+  );
+});
+
+test("the stale sweep never runs without a reference time", () => {
+  const review = buildJiraReview(
+    [],
+    [issue("MT-77", "Forgotten intake cleanup", { updatedAt: "2026-01-02T09:00:00.000Z" })]
+  );
+  assert.equal(review.proposals.length, 0);
+});

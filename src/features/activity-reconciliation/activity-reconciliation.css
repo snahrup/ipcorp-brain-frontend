@@ -519,6 +519,35 @@
   font-size: 11px;
 }
 
+.ar-select-all {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid rgba(27, 94, 158, 0.24);
+  border-radius: 8px;
+  background: rgba(27, 94, 158, 0.04);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.ar-select-all input {
+  accent-color: var(--action-blue, #1b5e9e);
+}
+
+.ar-mdm-check-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.ar-mdm-check[data-status="failed"] .ar-section-heading svg {
+  color: var(--state-amber, #a86a00);
+}
+
 .ar-proposal[data-selected="true"] {
   background: rgba(27, 94, 158, 0.05);
   border-color: rgba(27, 94, 158, 0.32);

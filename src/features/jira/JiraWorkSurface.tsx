@@ -447,6 +447,7 @@ export function JiraWorkSurface() {
         <ActivityReconciliationPanel
           onClose={() => setShowActivityReconciliation(false)}
           startOnOpen
+          onOpenMdmReview={() => setShowReconciliation(true)}
         />
       )}
 

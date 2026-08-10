@@ -292,7 +292,70 @@ function findAssociation(evidence, issues) {
   };
 }
 
-export function buildJiraReview(evidenceItems, issues) {
+const STALE_AFTER_DAYS = 60;
+
+function daysBetween(earlierIso, laterIso) {
+  const earlier = new Date(earlierIso).getTime();
+  const later = new Date(laterIso).getTime();
+  if (!Number.isFinite(earlier) || !Number.isFinite(later)) return null;
+  return Math.floor((later - earlier) / 86_400_000);
+}
+
+function staleCloseProposal(issue, idleDays) {
+  const lastTouched = String(issue.updatedAt || "").slice(0, 10);
+  const body = [
+    `Closing this out: the last Jira activity on this item was ${lastTouched}, ${idleDays} days ago,`,
+    `and nothing in the reviewed Outlook, Teams, meeting, or Brain activity mentions it.`,
+    `Reopen it if the work is still needed.`,
+  ].join(" ");
+  const changes = [
+    { kind: "comment", body },
+    { kind: "transition", toStatus: "Done" },
+  ];
+  return {
+    id: proposalId({ stableId: `stale:${issue.key}:${issue.updatedAt}` }, issue.key, changes),
+    destination: "jira",
+    issueKey: issue.key,
+    title: `${issue.key}: ${issue.summary}`,
+    actionLabel: "close stale item",
+    reason: `No Jira activity for ${idleDays} days and no mention in any reviewed source. Proposing closure.`,
+    confidence: "stale",
+    requiresTargetReview: false,
+    evidenceIds: [],
+    sourceId: "stale_sweep",
+    expectedUpdated: issue.updatedAt || null,
+    before: {
+      summary: issue.summary,
+      status: statusName(issue),
+      updatedAt: issue.updatedAt || null,
+    },
+    after: { changes },
+    changes,
+    selectedByDefault: false,
+  };
+}
+
+/**
+ * Open items that nobody has touched in Jira for staleAfterDays and that no
+ * evidence in this run mentions get a close proposal in their own review
+ * group. Runs only when a reference time is supplied, so callers that never
+ * opted in keep their existing behavior.
+ */
+function staleSweep(safeIssues, referencedKeys, options) {
+  if (!options?.now) return [];
+  const staleAfterDays = Number(options.staleAfterDays) || STALE_AFTER_DAYS;
+  const proposals = [];
+  for (const issue of safeIssues) {
+    if (referencedKeys.has(issue.key)) continue;
+    if (DONE_STATES.has(plain(statusName(issue)))) continue;
+    const idleDays = daysBetween(issue.updatedAt, options.now);
+    if (idleDays === null || idleDays < staleAfterDays) continue;
+    proposals.push(staleCloseProposal(issue, idleDays));
+  }
+  return proposals;
+}
+
+export function buildJiraReview(evidenceItems, issues, options = {}) {
   const associations = [];
   const proposals = [];
   const skipped = [];
@@ -324,6 +387,13 @@ export function buildJiraReview(evidenceItems, issues) {
         reason: "The related Jira item is already current.",
       });
   }
+
+  // Any item evidence touched this run counts as "being discussed", whether or
+  // not the touch produced a proposal, so it is exempt from the stale sweep.
+  const referencedKeys = new Set(
+    associations.map((item) => item.issueKey).filter((key) => ISSUE_KEY.test(key || ""))
+  );
+  proposals.push(...staleSweep(safeIssues, referencedKeys, options));
 
   return { associations, proposals, skipped };
 }

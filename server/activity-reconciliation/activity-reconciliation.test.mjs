@@ -486,3 +486,77 @@ test("evidence after the fixed run start is deferred until the next run", async 
     true
   );
 });
+
+test("a stale open item gets a close proposal in its own recap group", async (t) => {
+  const { service } = await fixture(t, {
+    loadJiraIssues: async () => [
+      issue(),
+      {
+        key: "MT-77",
+        summary: "Forgotten intake cleanup",
+        description: "Old intake work nobody has touched.",
+        status: { name: "In Progress" },
+        updatedAt: "2026-04-01T09:00:00.000Z",
+        comments: [],
+        worklogs: [],
+      },
+    ],
+    collectSources: async ({ windows }) => ({
+      sources: sourceResults(windows.outlook_received.to),
+    }),
+  });
+
+  const started = await service.start();
+  const completed = await service.waitForRun(started.run.id);
+
+  const stale = completed.jiraProposals.filter((item) => item.confidence === "stale");
+  assert.equal(stale.length, 1);
+  assert.equal(stale[0].issueKey, "MT-77");
+  assert.equal(stale[0].sourceId, "stale_sweep");
+  const staleGroup = completed.recap.groups.find((group) => group.sourceId === "stale_sweep");
+  assert.ok(staleGroup);
+  assert.equal(staleGroup.sourceLabel, "Stale Jira work");
+});
+
+test("the MDM check runs after the activity run and lands in the recap", async (t) => {
+  let checked = 0;
+  const { service } = await fixture(t, {
+    collectSources: async ({ windows }) => ({
+      sources: sourceResults(windows.outlook_received.to),
+    }),
+    runMdmCheck: async () => {
+      checked += 1;
+      return { previewId: "mdm-preview-1", proposalCount: 3 };
+    },
+  });
+
+  const started = await service.start();
+  const completed = await service.waitForRun(started.run.id);
+
+  assert.equal(checked, 1);
+  assert.equal(completed.status, "completed");
+  assert.equal(completed.mdmCheck.status, "completed");
+  assert.equal(completed.mdmCheck.proposalCount, 3);
+  assert.equal(completed.mdmCheck.previewId, "mdm-preview-1");
+  const group = completed.recap.groups.find((item) => item.sourceId === "mdm_check");
+  assert.ok(group);
+  assert.equal(group.sourceLabel, "MDM check (Jira vs. Brain)");
+});
+
+test("an MDM check failure is reported without failing the activity run", async (t) => {
+  const { service } = await fixture(t, {
+    collectSources: async ({ windows }) => ({
+      sources: sourceResults(windows.outlook_received.to),
+    }),
+    runMdmCheck: async () => {
+      throw new Error("The MDM preview is unavailable.");
+    },
+  });
+
+  const started = await service.start();
+  const completed = await service.waitForRun(started.run.id);
+
+  assert.equal(completed.status, "completed");
+  assert.equal(completed.mdmCheck.status, "failed");
+  assert.match(completed.mdmCheck.detail, /unavailable/);
+});

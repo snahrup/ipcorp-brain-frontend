@@ -108,6 +108,7 @@ function getActivityReconciliationRouter() {
       inspectMeeting: inspectActivityMeeting,
       processMeeting: processActivityMeeting,
       applyJiraProposal: applyActivityJiraProposal,
+      runMdmCheck: runActivityMdmCheck,
     });
     activityReconciliationRouter = createActivityReconciliationRouter(service);
   }
@@ -124,6 +125,21 @@ async function loadActivityJiraIssues() {
   const fixture = await readActivityFixture();
   if (fixture) return Array.isArray(fixture.jiraIssues) ? fixture.jiraIssues : [];
   return searchMdmIssues();
+}
+
+// Chained after every activity run so one click covers both workflows. Reuses
+// the same preview path the Reconcile MDM modal calls, so opening that review
+// afterward picks up this already-generated result.
+async function runActivityMdmCheck() {
+  const fixture = await readActivityFixture();
+  if (fixture) {
+    return fixture.mdmCheck || { previewId: "fixture-mdm-preview", proposalCount: 0 };
+  }
+  const preview = await createReconciliationPreview({});
+  return {
+    previewId: preview?.id || null,
+    proposalCount: Array.isArray(preview?.proposals) ? preview.proposals.length : 0,
+  };
 }
 
 function getWorkbenchAgentRouter() {

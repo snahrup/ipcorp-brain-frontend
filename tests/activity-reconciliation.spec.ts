@@ -521,3 +521,78 @@ test("shows a completed empty result without unchanged recap rows", async ({ pag
   await expect(page.getByText("No Jira change is proposed for this run.")).toBeVisible();
   await expect(page.getByText(/unchanged/i)).toHaveCount(0);
 });
+
+test("select-all covers every proposal and the chained MDM check opens its review", async ({
+  page,
+}) => {
+  const base = runFixture("completed");
+  const completed = {
+    ...base,
+    jiraProposals: [
+      ...base.jiraProposals,
+      {
+        ...base.jiraProposals[0],
+        id: "jira-proposal-two",
+        issueKey: "MT-50",
+        title: "MT-50: Fabric policy review",
+        changes: [{ kind: "comment", body: "Policy review confirmed in the delivery meeting." }],
+      },
+      {
+        ...base.jiraProposals[0],
+        id: "jira-proposal-stale",
+        issueKey: "MT-77",
+        title: "MT-77: Forgotten intake cleanup",
+        actionLabel: "close stale item",
+        reason:
+          "No Jira activity for 129 days and no mention in any reviewed source. Proposing closure.",
+        confidence: "stale",
+        sourceId: "stale_sweep",
+        evidenceIds: [],
+        changes: [
+          { kind: "comment", body: "Closing this out: no activity since 2026-04-02." },
+          { kind: "transition", toStatus: "Done" },
+        ],
+      },
+    ],
+    mdmCheck: {
+      status: "completed",
+      generatedAt: "2026-08-06T14:02:31.000Z",
+      previewId: "mdm-preview-fixture",
+      proposalCount: 2,
+    },
+  };
+
+  let current: ReturnType<typeof runFixture> | null = null;
+  await page.route("http://127.0.0.1:8817/api/work/activity-reconciliation/**", (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (route.request().method() === "POST" && path.endsWith("/start")) {
+      current = runFixture("running");
+      return fulfill(route, { run: current, attached: false, resumed: false }, 202);
+    }
+    if (current?.status === "running") current = completed;
+    return fulfill(route, current);
+  });
+  await page.route("http://127.0.0.1:8817/api/jira/reconcile/preview", (route) =>
+    fulfill(route, { error: "Preview unavailable in this test." }, 500)
+  );
+
+  await openWork(page);
+  await page.getByRole("button", { name: "Reconcile activity" }).click();
+  await expect(page.getByTestId("activity-reconciliation-panel")).toHaveAttribute(
+    "data-status",
+    "completed"
+  );
+
+  await expect(page.getByText("close stale item · Stale match")).toBeVisible();
+
+  await page.getByTestId("activity-select-all").click();
+  await expect(page.getByTestId("activity-jira-approval")).toContainText("APPLY 3 JIRA PROPOSALS");
+  await page.getByTestId("activity-select-all").click();
+  await expect(page.getByTestId("activity-jira-approval")).toHaveCount(0);
+
+  const mdmSection = page.getByTestId("activity-mdm-check");
+  await expect(mdmSection).toBeVisible();
+  await expect(mdmSection).toContainText("2 corrections");
+  await page.getByTestId("activity-open-mdm-review").click();
+  await expect(page.getByRole("heading", { name: "Refresh and reconcile MDM" })).toBeVisible();
+});

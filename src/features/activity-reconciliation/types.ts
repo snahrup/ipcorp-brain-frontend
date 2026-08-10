@@ -57,7 +57,7 @@ export interface ActivityJiraProposal {
   title: string;
   actionLabel: string;
   reason: string;
-  confidence: "exact" | "candidate" | "strong" | "unmatched";
+  confidence: "exact" | "candidate" | "strong" | "unmatched" | "stale";
   requiresTargetReview: boolean;
   sourceId: string;
   evidenceIds: string[];
@@ -151,6 +151,13 @@ export interface ActivityRun {
   meetings: ActivityMeetingResult[];
   actualChanges: Array<Record<string, unknown>>;
   recap: ActivityRecap | null;
+  mdmCheck: {
+    status: "completed" | "failed";
+    generatedAt: string;
+    previewId?: string | null;
+    proposalCount?: number;
+    detail?: string | null;
+  } | null;
   events: Array<{ id: string; at: string; type: string; detail: string }>;
 }
 

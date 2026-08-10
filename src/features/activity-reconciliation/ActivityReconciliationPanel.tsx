@@ -35,6 +35,7 @@ const PHASES = [
   ["generating_visuals", "Save visuals"],
   ["matching_jira", "Match Jira"],
   ["preparing_proposals", "Prepare review"],
+  ["mdm_check", "MDM check"],
   ["finalizing", "Save recap"],
 ] as const;
 
@@ -170,9 +171,14 @@ function ProposalChange({ proposal }: { proposal: ActivityJiraProposal }) {
 interface Props {
   onClose: () => void;
   startOnOpen?: boolean;
+  onOpenMdmReview?: () => void;
 }
 
-export function ActivityReconciliationPanel({ onClose, startOnOpen = false }: Props) {
+export function ActivityReconciliationPanel({
+  onClose,
+  startOnOpen = false,
+  onOpenMdmReview,
+}: Props) {
   const [run, setRun] = useState<ActivityRun | null>(null);
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
@@ -300,6 +306,15 @@ export function ActivityReconciliationPanel({ onClose, startOnOpen = false }: Pr
       else next.add(id);
       return next;
     });
+    setConfirmation("");
+  };
+
+  const allSelected =
+    (run?.jiraProposals.length || 0) > 0 && selected.size === run?.jiraProposals.length;
+  const toggleAll = () => {
+    setSelected(
+      allSelected ? new Set() : new Set((run?.jiraProposals || []).map((proposal) => proposal.id))
+    );
     setConfirmation("");
   };
 
@@ -553,36 +568,46 @@ export function ActivityReconciliationPanel({ onClose, startOnOpen = false }: Pr
               {run.jiraProposals.length === 0 ? (
                 <p className="ar-empty-copy">No Jira change is proposed for this run.</p>
               ) : (
-                <div className="ar-proposal-list">
-                  {run.jiraProposals.map((proposal) => (
-                    <article
-                      key={proposal.id}
-                      className="ar-proposal"
-                      data-selected={selected.has(proposal.id)}
-                    >
-                      <label>
-                        <input
-                          type="checkbox"
-                          checked={selected.has(proposal.id)}
-                          onChange={() => toggleProposal(proposal.id)}
-                        />
-                        <span>
-                          <strong>{proposal.title}</strong>
-                          <small>
-                            {proposal.actionLabel} · {label(proposal.confidence)} match
-                            {proposal.requiresTargetReview ? " · Confirm suggested target" : ""}
-                          </small>
-                        </span>
-                      </label>
-                      <details>
-                        <summary>
-                          Review exact effects <ChevronDown size={14} />
-                        </summary>
-                        <ProposalChange proposal={proposal} />
-                      </details>
-                    </article>
-                  ))}
-                </div>
+                <>
+                  <label className="ar-select-all" data-testid="activity-select-all">
+                    <input type="checkbox" checked={allSelected} onChange={toggleAll} />
+                    <span>
+                      {allSelected
+                        ? "Clear the whole selection"
+                        : `Select all ${run.jiraProposals.length} proposals`}
+                    </span>
+                  </label>
+                  <div className="ar-proposal-list">
+                    {run.jiraProposals.map((proposal) => (
+                      <article
+                        key={proposal.id}
+                        className="ar-proposal"
+                        data-selected={selected.has(proposal.id)}
+                      >
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={selected.has(proposal.id)}
+                            onChange={() => toggleProposal(proposal.id)}
+                          />
+                          <span>
+                            <strong>{proposal.title}</strong>
+                            <small>
+                              {proposal.actionLabel} · {label(proposal.confidence)} match
+                              {proposal.requiresTargetReview ? " · Confirm suggested target" : ""}
+                            </small>
+                          </span>
+                        </label>
+                        <details>
+                          <summary>
+                            Review exact effects <ChevronDown size={14} />
+                          </summary>
+                          <ProposalChange proposal={proposal} />
+                        </details>
+                      </article>
+                    ))}
+                  </div>
+                </>
               )}
 
               {selectedProposals.length > 0 && (
@@ -621,6 +646,56 @@ export function ActivityReconciliationPanel({ onClose, startOnOpen = false }: Pr
                   </span>
                   <code>{receipt.id.slice(0, 12)}</code>
                 </div>
+              )}
+            </section>
+          )}
+
+          {COMPLETE.has(run.status) && run.mdmCheck && (
+            <section
+              className="ar-section ar-mdm-check"
+              aria-labelledby="activity-mdm-check-title"
+              data-testid="activity-mdm-check"
+              data-status={run.mdmCheck.status}
+            >
+              <div className="ar-section-heading">
+                <div>
+                  <span>Chained check</span>
+                  <h3 id="activity-mdm-check-title">MDM check (Jira vs. Brain)</h3>
+                </div>
+                {run.mdmCheck.status === "completed" ? (
+                  <CheckCircle2 size={18} />
+                ) : (
+                  <AlertCircle size={18} />
+                )}
+              </div>
+              {run.mdmCheck.status === "completed" ? (
+                <div className="ar-mdm-check-body">
+                  <p>
+                    The Jira-vs-Brain check ran automatically after this scan and proposed{" "}
+                    <strong>
+                      {run.mdmCheck.proposalCount ?? 0} correction
+                      {run.mdmCheck.proposalCount === 1 ? "" : "s"}
+                    </strong>
+                    . Corrections are applied from the Reconcile MDM review, with the same selection
+                    and confirmation flow as this one.
+                  </p>
+                  {onOpenMdmReview && (run.mdmCheck.proposalCount ?? 0) > 0 && (
+                    <button
+                      type="button"
+                      className="ar-primary"
+                      onClick={onOpenMdmReview}
+                      data-testid="activity-open-mdm-review"
+                    >
+                      <ShieldCheck size={16} /> Open the MDM review
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <p className="ar-mdm-check-body">
+                  The chained MDM check did not complete:{" "}
+                  {run.mdmCheck.detail || "no detail was returned"}. The activity results above are
+                  unaffected; run Reconcile MDM separately when Jira is reachable.
+                </p>
               )}
             </section>
           )}

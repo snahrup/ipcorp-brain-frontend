@@ -24,6 +24,7 @@ const RUN_PHASES = Object.freeze([
   { id: "generating_visuals", label: "Completing meeting packages and visuals" },
   { id: "matching_jira", label: "Matching evidence to Jira work" },
   { id: "preparing_proposals", label: "Preparing reviewable proposals" },
+  { id: "mdm_check", label: "Checking Jira against the Brain" },
   { id: "finalizing", label: "Saving the recap" },
 ]);
 
@@ -180,6 +181,7 @@ function newRun(state, startedAt) {
     actualChanges: [],
     recap: null,
     reviewError: null,
+    mdmCheck: null,
     events: [],
   };
 }
@@ -300,10 +302,33 @@ function recapFor(run) {
       links: change.links || [],
     });
   }
+  if (run.mdmCheck) {
+    entries.push({
+      id: "mdm-check",
+      sourceId: "mdm_check",
+      destination: "jira",
+      kind: run.mdmCheck.status === "failed" ? "failure" : "proposal",
+      title:
+        run.mdmCheck.status === "failed"
+          ? "MDM check did not complete"
+          : `MDM check ready: ${run.mdmCheck.proposalCount ?? 0} correction${run.mdmCheck.proposalCount === 1 ? "" : "s"} proposed`,
+      detail:
+        run.mdmCheck.status === "failed"
+          ? run.mdmCheck.detail || "The Jira-vs-Brain check failed."
+          : "Review and apply the corrections from the Reconcile MDM view.",
+      receipt: run.mdmCheck.previewId || null,
+      links: [],
+    });
+  }
+  const EXTRA_SOURCE_LABELS = {
+    stale_sweep: "Stale Jira work",
+    mdm_check: "MDM check (Jira vs. Brain)",
+  };
   const grouped = [];
   for (const entry of entries) {
     const source = ACTIVITY_SOURCES.find((item) => item.id === entry.sourceId);
-    const sourceLabel = source?.label || "Reviewed proposals";
+    const sourceLabel =
+      source?.label || EXTRA_SOURCE_LABELS[entry.sourceId] || "Reviewed proposals";
     let group = grouped.find((item) => item.sourceId === entry.sourceId);
     if (!group) {
       group = { sourceId: entry.sourceId, sourceLabel, destinations: [] };
@@ -342,7 +367,10 @@ export function createActivityReconciliationService(options) {
   const store = options.store;
   const clock = options.clock || (() => new Date());
   const prepareJira =
-    options.prepareJira || (async ({ evidence, issues = [] }) => buildJiraReview(evidence, issues));
+    options.prepareJira ||
+    (async ({ run, evidence, issues = [] }) =>
+      buildJiraReview(evidence, issues, { now: run?.startedAt }));
+  const runMdmCheck = typeof options.runMdmCheck === "function" ? options.runMdmCheck : null;
   const loadJiraIssues = options.loadJiraIssues || (async () => []);
   const processMeeting =
     options.processMeeting || (async () => ({ ok: false, code: "unavailable" }));
@@ -792,9 +820,31 @@ export function createActivityReconciliationService(options) {
       await prepareReview(runId, meetingReview);
       if (await cancellationRequested(runId)) return finishCanceled(runId);
 
+      // The MDM Jira-vs-Brain check chains automatically so one run covers
+      // both workflows. Its result is reported, never a reason to fail the
+      // activity run itself, and it stays read-only: applying its corrections
+      // still happens through the Reconcile MDM review.
+      let mdmCheck = null;
+      if (runMdmCheck) {
+        await setPhase(runId, "mdm_check", "Running the MDM Jira-vs-Brain check.");
+        try {
+          const result = await runMdmCheck({ run: clone(await getRun(runId)) });
+          mdmCheck = {
+            status: "completed",
+            generatedAt: asIso(clock),
+            previewId: result?.previewId || null,
+            proposalCount: Number.isFinite(result?.proposalCount) ? result.proposalCount : 0,
+            detail: result?.detail || null,
+          };
+        } catch (error) {
+          mdmCheck = { status: "failed", generatedAt: asIso(clock), detail: errorDetail(error) };
+        }
+      }
+
       await setPhase(runId, "finalizing", "Saving the changes-only recap and run history.");
       const at = asIso(clock);
       return updateRun(runId, (run, state) => {
+        run.mdmCheck = mdmCheck;
         run.status = run.counts.failures > 0 ? "partial_success" : "completed";
         run.finishedAt = at;
         run.resumable = false;
