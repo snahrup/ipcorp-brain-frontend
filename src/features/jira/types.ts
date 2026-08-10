@@ -145,6 +145,11 @@ export type ReconciliationProposal = {
     | "candidate-new-work"
     | string;
   title: string;
+  /** How this scan sees the underlying evidence: brand new, changed since it was
+   * last handled, or carried forward unresolved from an earlier scan. */
+  freshness?: "new" | "changed" | "carried";
+  /** Stable evidence identity used by the scan ledger to remember dispositions. */
+  fingerprint?: string | null;
   effect: Record<string, unknown>;
   exactJiraEffect: string;
   sourceReferences: Array<{ label: string; reference: string }>;
@@ -173,6 +178,19 @@ export type ReconciliationPreview = {
     safeToAutoApply: number;
     teamLibraryFiles: number;
     microsoft365Items: number;
+    /** ISO timestamp of the previous scan, or null on the very first one. */
+    sinceLastScan: string | null;
+    scanCount: number;
+    newEvidence: number;
+    changedEvidence: number;
+    carriedEvidence: number;
+    resolvedEvidence: number;
+    /** Start of the activity window; null when the window is switched off. */
+    activityWindowFrom: string | null;
+    activityWindowLabel: string;
+    /** Counted and disclosed, never proposed. */
+    olderThanWindow: number;
+    undatedEvidence: number;
   };
   summary: string;
 };

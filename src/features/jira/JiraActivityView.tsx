@@ -1,4 +1,4 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, LoaderCircle } from "lucide-react";
 import { useMemo } from "react";
 import { formatDate } from "../../lib/utils";
 import { formatSeconds } from "./IssueTimeMetrics";
@@ -49,9 +49,12 @@ function timeCell(issue: JiraIssue) {
 export function JiraActivityView({
   issues,
   onOpenIssue,
+  runningKeys = new Set(),
 }: {
   issues: JiraIssue[];
   onOpenIssue: (key: string) => void;
+  /** Issues with an agent actively working on them right now. */
+  runningKeys?: Set<string>;
 }) {
   const sorted = useMemo(
     () => [...issues].sort((a, b) => (a.lastActivityAt < b.lastActivityAt ? 1 : -1)),
@@ -66,37 +69,50 @@ export function JiraActivityView({
         <span>Time</span>
         <span>Most recent activity</span>
       </div>
-      {sorted.map((issue) => (
-        <div className="wb-jira-activity-row" key={issue.key}>
-          <div className="wb-jira-activity-key">
-            <button type="button" onClick={() => onOpenIssue(issue.key)}>
-              <strong>{issue.key}</strong>
-              <span>{issue.summary}</span>
-            </button>
-            <a
-              href={`https://ip-corporation.atlassian.net/browse/${issue.key}`}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`Open ${issue.key} in Jira`}
-              title="Open in Jira"
-            >
-              <ArrowUpRight size={13} />
-            </a>
-          </div>
-          <span className="wb-jira-activity-due">
-            {issue.dueDate ? formatDate(issue.dueDate) : "—"}
-          </span>
-          <span className="wb-jira-activity-time">{timeCell(issue)}</span>
-          <button
-            type="button"
-            className="wb-jira-activity-summary"
-            onClick={() => onOpenIssue(issue.key)}
+      {sorted.map((issue) => {
+        const running = runningKeys.has(issue.key);
+        return (
+          <div
+            className="wb-jira-activity-row"
+            key={issue.key}
+            data-agent-running={running ? "true" : undefined}
           >
-            <span>{issue.lastActivitySummary}</span>
-            <time dateTime={issue.lastActivityAt}>{relativeActivity(issue.lastActivityAt)}</time>
-          </button>
-        </div>
-      ))}
+            <div className="wb-jira-activity-key">
+              <button type="button" onClick={() => onOpenIssue(issue.key)}>
+                <strong>{issue.key}</strong>
+                {running && (
+                  <span className="wb-jira-agent-badge" role="status">
+                    <LoaderCircle className="wb-spin" size={12} aria-hidden="true" />
+                    Agent working
+                  </span>
+                )}
+                <span>{issue.summary}</span>
+              </button>
+              <a
+                href={`https://ip-corporation.atlassian.net/browse/${issue.key}`}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`Open ${issue.key} in Jira`}
+                title="Open in Jira"
+              >
+                <ArrowUpRight size={13} />
+              </a>
+            </div>
+            <span className="wb-jira-activity-due">
+              {issue.dueDate ? formatDate(issue.dueDate) : "—"}
+            </span>
+            <span className="wb-jira-activity-time">{timeCell(issue)}</span>
+            <button
+              type="button"
+              className="wb-jira-activity-summary"
+              onClick={() => onOpenIssue(issue.key)}
+            >
+              <span>{issue.lastActivitySummary}</span>
+              <time dateTime={issue.lastActivityAt}>{relativeActivity(issue.lastActivityAt)}</time>
+            </button>
+          </div>
+        );
+      })}
     </section>
   );
 }

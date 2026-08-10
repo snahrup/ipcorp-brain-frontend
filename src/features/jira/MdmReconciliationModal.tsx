@@ -8,6 +8,8 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useBodyScrollLock } from "../../lib/useBodyScrollLock";
 import { jiraGateway } from "./api";
 import type { ReconciliationPreview } from "./types";
 
@@ -21,6 +23,8 @@ const sourceLabels: Record<string, string> = {
 };
 
 export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
+  useBodyScrollLock();
+
   const modalRef = useRef<HTMLElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const applyingRef = useRef(false);
@@ -30,16 +34,26 @@ export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [manualReviews, setManualReviews] = useState<Set<string>>(new Set());
   const [proposalFilter, setProposalFilter] = useState("all");
+  const [showCarried, setShowCarried] = useState(false);
   const [confirmation, setConfirmation] = useState("");
   const [applying, setApplying] = useState(false);
+  const [dismissing, setDismissing] = useState(false);
   const [applyMessage, setApplyMessage] = useState<string | null>(null);
+  // How far back evidence may be and still count as something to act on. This week
+  // is the default because anything older has already had its chance to be handled;
+  // the wider settings are here for a deliberate catch-up, not for daily use.
+  const [windowDays, setWindowDays] = useState<number | "all" | null>(null);
+  const windowDaysRef = useRef<number | "all" | null>(null);
 
   const runPreview = useCallback(async (forceMicrosoft365 = false) => {
     setLoading(true);
     setError(null);
     setApplyMessage(null);
     try {
-      const next = await jiraGateway.previewReconciliation(forceMicrosoft365);
+      const next = await jiraGateway.previewReconciliation(
+        forceMicrosoft365,
+        windowDaysRef.current
+      );
       setPreview(next);
       setManualReviews(new Set());
       setProposalFilter("all");
@@ -60,6 +74,14 @@ export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     applyingRef.current = applying;
   }, [applying]);
+
+  // The ref carries the choice into runPreview, whose identity has to stay stable
+  // for the mount effect; setting it before the call keeps the two in step.
+  const changeWindow = (next: number | "all" | null) => {
+    windowDaysRef.current = next;
+    setWindowDays(next);
+    void runPreview();
+  };
 
   useEffect(() => {
     previousFocusRef.current =
@@ -115,12 +137,20 @@ export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
         ) || [],
     [manualReviews, preview, selected]
   );
+  // Carried candidates were already seen by an earlier scan and stay tucked away by
+  // default; only new and changed evidence is shouted. Nothing is deleted, just quiet.
+  const carriedCount = useMemo(
+    () => preview?.proposals.filter((proposal) => proposal.freshness === "carried").length || 0,
+    [preview]
+  );
   const filteredProposals = useMemo(
     () =>
       preview?.proposals.filter(
-        (proposal) => proposalFilter === "all" || proposal.category === proposalFilter
+        (proposal) =>
+          (proposalFilter === "all" || proposal.category === proposalFilter) &&
+          (showCarried || proposal.freshness !== "carried")
       ) || [],
-    [preview, proposalFilter]
+    [preview, proposalFilter, showCarried]
   );
   const categoryCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -143,10 +173,12 @@ export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
       const result = await jiraGateway.applyReconciliation(reviewedProposals, confirmation);
       const succeeded = result.results.filter((item) => item.ok).length;
       const failed = result.results.length - succeeded;
-      setApplyMessage(
-        `Jira read-back complete: ${succeeded} applied, ${failed} failed or partial.`
-      );
+      // Refresh first: runPreview clears the status line, so the recap has to land
+      // after the reload or the user never sees it.
       await runPreview();
+      setApplyMessage(
+        `Jira read-back complete: ${succeeded} applied, ${failed} failed or partial. Applied items are recorded in the scan ledger and stay out of future scans unless their source changes.`
+      );
     } catch (reason) {
       setError(
         reason instanceof Error ? reason.message : "The reviewed Jira batch was not applied."
@@ -156,7 +188,32 @@ export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
     }
   };
 
-  return (
+  const dismissSelected = async () => {
+    const fingerprints = (preview?.proposals || [])
+      .filter((proposal) => selected.has(proposal.id) && proposal.fingerprint)
+      .map((proposal) => proposal.fingerprint as string);
+    if (!fingerprints.length || dismissing) return;
+    setDismissing(true);
+    setError(null);
+    try {
+      const result = await jiraGateway.dismissReconciliation(fingerprints);
+      await runPreview();
+      setApplyMessage(
+        `${result.dismissed} evidence records marked reviewed with no Jira change. They stay out of future scans unless their source changes.`
+      );
+    } catch (reason) {
+      setError(
+        reason instanceof Error ? reason.message : "The selected evidence was not dismissed."
+      );
+    } finally {
+      setDismissing(false);
+    }
+  };
+
+  return createPortal(
+    // Same containing-block fix as JiraIssueModal: portalled to the body so this
+    // backdrop's position: fixed is relative to the viewport, not to the animated
+    // .view-frame it would otherwise be nested inside.
     <div className="wb-modal-backdrop" role="presentation">
       <section
         ref={modalRef}
@@ -279,6 +336,49 @@ export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
                     <h3>How much of Jira needs rebuilding</h3>
                   </div>
                 </div>
+                <div className="wb-reconcile-window-row">
+                  <p className="wb-reconcile-window">
+                    Candidates are limited to {preview.portfolioSummary.activityWindowLabel}
+                    {preview.portfolioSummary.activityWindowFrom
+                      ? `, from ${new Date(
+                          preview.portfolioSummary.activityWindowFrom
+                        ).toLocaleDateString()}`
+                      : ""}
+                    .{" "}
+                    {preview.portfolioSummary.olderThanWindow +
+                    preview.portfolioSummary.undatedEvidence ? (
+                      <>
+                        {preview.portfolioSummary.olderThanWindow} older and{" "}
+                        {preview.portfolioSummary.undatedEvidence} undated records were counted and
+                        left out.
+                      </>
+                    ) : (
+                      "Nothing older was held back."
+                    )}{" "}
+                    Scan #{preview.portfolioSummary.scanCount} was logged at{" "}
+                    {new Date(preview.generatedAt).toLocaleString()}.
+                  </p>
+                  <fieldset className="wb-reconcile-filters wb-window-picker">
+                    <legend className="sr-only">Activity window</legend>
+                    {(
+                      [
+                        { value: null, label: "This week" },
+                        { value: 30, label: "30 days" },
+                        { value: "all", label: "Everything" },
+                      ] as Array<{ value: number | "all" | null; label: string }>
+                    ).map((option) => (
+                      <button
+                        key={option.label}
+                        type="button"
+                        className={windowDays === option.value ? "is-active" : ""}
+                        onClick={() => changeWindow(option.value)}
+                        disabled={loading}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </fieldset>
+                </div>
                 <div className="wb-reconcile-metrics">
                   <article>
                     <strong>{preview.portfolioSummary.totalIssues}</strong>
@@ -288,21 +388,25 @@ export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
                     <strong>{preview.portfolioSummary.openIssues}</strong>
                     <span>Open issues</span>
                   </article>
-                  <article data-state="attention">
-                    <strong>{preview.portfolioSummary.staleOpenIssues}</strong>
-                    <span>Stale open issues</span>
+                  <article
+                    data-state={preview.portfolioSummary.newEvidence ? "attention" : undefined}
+                  >
+                    <strong>{preview.portfolioSummary.newEvidence}</strong>
+                    <span>New this scan</span>
+                  </article>
+                  <article
+                    data-state={preview.portfolioSummary.changedEvidence ? "attention" : undefined}
+                  >
+                    <strong>{preview.portfolioSummary.changedEvidence}</strong>
+                    <span>Changed since handled</span>
                   </article>
                   <article>
-                    <strong>{preview.portfolioSummary.evidenceRecords}</strong>
-                    <span>Evidence records compared</span>
-                  </article>
-                  <article>
-                    <strong>{preview.portfolioSummary.candidateChanges}</strong>
-                    <span>Review candidates</span>
+                    <strong>{preview.portfolioSummary.carriedEvidence}</strong>
+                    <span>Carried unresolved</span>
                   </article>
                   <article data-state="safe">
-                    <strong>{preview.portfolioSummary.safeToAutoApply}</strong>
-                    <span>Safe without review</span>
+                    <strong>{preview.portfolioSummary.resolvedEvidence}</strong>
+                    <span>Already handled, left alone</span>
                   </article>
                 </div>
                 <p className="wb-reconcile-asof">
@@ -310,8 +414,10 @@ export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
                   {preview.portfolioSummary.newestJiraUpdate
                     ? new Date(preview.portfolioSummary.newestJiraUpdate).toLocaleString()
                     : "not available"}
-                  . Team Library artifacts: {preview.portfolioSummary.teamLibraryFiles}. Microsoft
-                  365 evidence items: {preview.portfolioSummary.microsoft365Items}.
+                  . Stale open issues (informational, never auto-touched):{" "}
+                  {preview.portfolioSummary.staleOpenIssues}. Team Library artifacts:{" "}
+                  {preview.portfolioSummary.teamLibraryFiles}. Microsoft 365 evidence items:{" "}
+                  {preview.portfolioSummary.microsoft365Items}.
                 </p>
               </section>
 
@@ -346,7 +452,48 @@ export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
                       {filteredProposals.length} shown · {preview.proposals.length} total
                     </h3>
                   </div>
+                  {filteredProposals.length > 0 && (
+                    <div className="wb-inline-actions">
+                      <button
+                        type="button"
+                        className="wb-secondary-button"
+                        onClick={() => {
+                          const shown = filteredProposals.map((proposal) => proposal.id);
+                          const allShownSelected = shown.every((id) => selected.has(id));
+                          setSelected(allShownSelected ? new Set() : new Set(shown));
+                        }}
+                      >
+                        {filteredProposals.every((proposal) => selected.has(proposal.id))
+                          ? "Clear selection"
+                          : "Select all shown"}
+                      </button>
+                      <button
+                        type="button"
+                        className="wb-secondary-button"
+                        onClick={() => void dismissSelected()}
+                        disabled={dismissing || selected.size === 0}
+                      >
+                        {dismissing ? (
+                          <LoaderCircle className="wb-spin" size={15} />
+                        ) : (
+                          <CheckCircle2 size={15} />
+                        )}
+                        Mark selected reviewed · no Jira change
+                      </button>
+                    </div>
+                  )}
                 </div>
+                {carriedCount > 0 && (
+                  <button
+                    type="button"
+                    className="wb-carried-toggle"
+                    onClick={() => setShowCarried((current) => !current)}
+                  >
+                    {showCarried
+                      ? `Hide the ${carriedCount} carried candidates from earlier scans`
+                      : `${carriedCount} carried candidates from earlier scans are hidden · show them`}
+                  </button>
+                )}
                 {preview.proposals.length ? (
                   <fieldset className="wb-reconcile-filters">
                     <legend className="sr-only">Filter reconciliation candidates</legend>
@@ -384,7 +531,6 @@ export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
                           <input
                             type="checkbox"
                             checked={selected.has(proposal.id)}
-                            disabled={Boolean(proposal.uncertainty) && !manuallyReviewed}
                             aria-label={`Select reconciliation effect for ${proposal.issueKey}`}
                             onChange={(event) => {
                               const next = new Set(selected);
@@ -397,6 +543,9 @@ export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
                             <header>
                               <strong>{proposal.issueKey}</strong>
                               <span>{proposal.title}</span>
+                              {proposal.freshness ? (
+                                <em data-freshness={proposal.freshness}>{proposal.freshness}</em>
+                              ) : null}
                               {proposal.category ? (
                                 <em>{proposal.category.split("-").join(" ")}</em>
                               ) : null}
@@ -513,6 +662,7 @@ export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
           </div>
         </footer>
       </section>
-    </div>
+    </div>,
+    document.body
   );
 }

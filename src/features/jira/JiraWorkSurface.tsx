@@ -10,11 +10,13 @@ import {
   LoaderCircle,
   RefreshCw,
   Rows3,
+  ScanSearch,
   Search,
   ShieldCheck,
   UserRound,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ActivityReconciliationPanel } from "../activity-reconciliation/ActivityReconciliationPanel";
 import { jiraGateway } from "./api";
 import "./jira-views.css";
 import { IssueTimeMetrics } from "./IssueTimeMetrics";
@@ -49,7 +51,8 @@ function relativeTime(value: string) {
 function renderStatusColumns(
   issues: JiraIssue[],
   statuses: JiraStatus[],
-  onOpenIssue: (key: string) => void
+  onOpenIssue: (key: string) => void,
+  runningKeys: Set<string>
 ) {
   return (
     <section
@@ -70,28 +73,38 @@ function renderStatusColumns(
             </header>
             <div>
               {columnIssues.length ? (
-                columnIssues.map((issue) => (
-                  <button
-                    type="button"
-                    className="wb-jira-card"
-                    key={issue.key}
-                    onClick={() => onOpenIssue(issue.key)}
-                  >
-                    <span className="wb-jira-key">{issue.key}</span>
-                    <strong>{issue.summary}</strong>
-                    <div>
-                      <span>
-                        <UserRound size={13} />
-                        {issue.assignee?.displayName || "Unassigned"}
-                      </span>
-                      <time>{relativeTime(issue.updatedAt)}</time>
-                    </div>
-                    {issue.labels.length > 0 && (
-                      <small>{issue.labels.slice(0, 3).join(" · ")}</small>
-                    )}
-                    <IssueTimeMetrics tracking={issue.timeTracking} />
-                  </button>
-                ))
+                columnIssues.map((issue) => {
+                  const running = runningKeys.has(issue.key);
+                  return (
+                    <button
+                      type="button"
+                      className="wb-jira-card"
+                      data-agent-running={running ? "true" : undefined}
+                      key={issue.key}
+                      onClick={() => onOpenIssue(issue.key)}
+                    >
+                      {running && (
+                        <span className="wb-jira-agent-badge" role="status">
+                          <LoaderCircle className="wb-spin" size={12} aria-hidden="true" />
+                          Agent working
+                        </span>
+                      )}
+                      <span className="wb-jira-key">{issue.key}</span>
+                      <strong>{issue.summary}</strong>
+                      <div>
+                        <span>
+                          <UserRound size={13} />
+                          {issue.assignee?.displayName || "Unassigned"}
+                        </span>
+                        <time>{relativeTime(issue.updatedAt)}</time>
+                      </div>
+                      {issue.labels.length > 0 && (
+                        <small>{issue.labels.slice(0, 3).join(" · ")}</small>
+                      )}
+                      <IssueTimeMetrics tracking={issue.timeTracking} />
+                    </button>
+                  );
+                })
               ) : (
                 <p className="wb-muted">No live issues</p>
               )}
@@ -118,6 +131,7 @@ export function JiraWorkSurface() {
   const [showSwimlanes, setShowSwimlanes] = useState(false);
   const [selectedIssueKey, setSelectedIssueKey] = useState<string | null>(null);
   const [showReconciliation, setShowReconciliation] = useState(false);
+  const [showActivityReconciliation, setShowActivityReconciliation] = useState(false);
 
   const load = useCallback(async (refresh = false) => {
     if (refresh) setRefreshing(true);
@@ -138,6 +152,35 @@ export function JiraWorkSurface() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Which issues have an agent actively working on them right now, independent of
+  // whether that issue's own modal happens to be open. Before this, the only place a
+  // running dispatch was visible at all was inside the modal for that one issue — from
+  // the board itself, a card that had just been sent off looked identical to one that
+  // had not.
+  const [runningKeys, setRunningKeys] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const runs = await jiraGateway.agentRuns();
+        if (cancelled) return;
+        setRunningKeys(
+          new Set(runs.filter((run) => run.state === "running").map((run) => run.issueKey))
+        );
+      } catch {
+        // A failed poll leaves the last known set in place rather than clearing it —
+        // losing the gateway for a moment should not make a live run look like it
+        // stopped.
+      }
+    };
+    void poll();
+    const timer = window.setInterval(() => void poll(), 3000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, []);
 
   const visibleIssues = useMemo(() => {
     if (!initiative) return [];
@@ -369,15 +412,43 @@ export function JiraWorkSurface() {
             <RefreshCw className={refreshing ? "wb-spin" : ""} size={16} />
             {refreshing ? "Refreshing…" : "Refresh"}
           </button>
-          <button
-            type="button"
-            className="wb-primary-button"
-            onClick={() => setShowReconciliation(true)}
-          >
-            <ShieldCheck size={16} /> Reconcile MDM
-          </button>
+          {/* Two distinct workflows that both start with "Reconcile" and read as
+              twins at a glance. Labels are a frozen acceptance-tested contract
+              (tests/activity-reconciliation.spec.ts, docs/specs/workbench-activity-
+              reconciliation.md) — do not rename them to fix this. A caption plus a
+              native tooltip disambiguates without touching the accessible name. */}
+          <div className="wb-toolbar-action">
+            <button
+              type="button"
+              className="wb-primary-button"
+              onClick={() => setShowReconciliation(true)}
+              title="Checks Jira MT issues against the Brain and Team Library, proposes corrections to apply. Does not read Outlook, Teams, or meetings."
+            >
+              <ShieldCheck size={16} /> Reconcile MDM
+            </button>
+            <span className="wb-toolbar-action-hint">Jira vs. Brain</span>
+          </div>
+          <div className="wb-toolbar-action">
+            <button
+              type="button"
+              className="wb-primary-button"
+              onClick={() => setShowActivityReconciliation(true)}
+              aria-expanded={showActivityReconciliation}
+              title="Reads Outlook, Teams, and ready meeting transcripts, captures them to the Brain, and proposes Jira updates from that evidence."
+            >
+              <ScanSearch size={16} /> Reconcile activity
+            </button>
+            <span className="wb-toolbar-action-hint">Outlook, Teams, meetings → Jira</span>
+          </div>
         </div>
       </div>
+
+      {showActivityReconciliation && (
+        <ActivityReconciliationPanel
+          onClose={() => setShowActivityReconciliation(false)}
+          startOnOpen
+        />
+      )}
 
       <div className="wb-jira-count">
         <strong>{visibleIssues.length}</strong>
@@ -404,7 +475,11 @@ export function JiraWorkSurface() {
           onOpenIssue={(key) => setSelectedIssueKey(key)}
         />
       ) : mode === "activity" ? (
-        <JiraActivityView issues={visibleIssues} onOpenIssue={(key) => setSelectedIssueKey(key)} />
+        <JiraActivityView
+          issues={visibleIssues}
+          onOpenIssue={(key) => setSelectedIssueKey(key)}
+          runningKeys={runningKeys}
+        />
       ) : mode === "list" ? (
         <section className="wb-jira-list" aria-label="Live MDM Jira issue list">
           <div className="wb-jira-list-head">
@@ -414,25 +489,35 @@ export function JiraWorkSurface() {
             <span>Priority</span>
             <span>Updated</span>
           </div>
-          {visibleIssues.map((issue) => (
-            <button
-              type="button"
-              className="wb-jira-list-row"
-              key={issue.key}
-              onClick={() => setSelectedIssueKey(issue.key)}
-            >
-              <span className="wb-jira-list-summary">
-                <strong>{issue.key}</strong>
-                <span>{issue.summary}</span>
-                {issue.labels.length > 0 && <small>{issue.labels.slice(0, 3).join(" · ")}</small>}
-                <IssueTimeMetrics tracking={issue.timeTracking} />
-              </span>
-              <span className="wb-status wb-status-neutral">{issue.status.name}</span>
-              <span>{issue.assignee?.displayName || "Unassigned"}</span>
-              <span>{issue.priority.name}</span>
-              <time>{relativeTime(issue.updatedAt)}</time>
-            </button>
-          ))}
+          {visibleIssues.map((issue) => {
+            const running = runningKeys.has(issue.key);
+            return (
+              <button
+                type="button"
+                className="wb-jira-list-row"
+                data-agent-running={running ? "true" : undefined}
+                key={issue.key}
+                onClick={() => setSelectedIssueKey(issue.key)}
+              >
+                <span className="wb-jira-list-summary">
+                  <strong>{issue.key}</strong>
+                  {running && (
+                    <span className="wb-jira-agent-badge" role="status">
+                      <LoaderCircle className="wb-spin" size={12} aria-hidden="true" />
+                      Agent working
+                    </span>
+                  )}
+                  <span>{issue.summary}</span>
+                  {issue.labels.length > 0 && <small>{issue.labels.slice(0, 3).join(" · ")}</small>}
+                  <IssueTimeMetrics tracking={issue.timeTracking} />
+                </span>
+                <span className="wb-status wb-status-neutral">{issue.status.name}</span>
+                <span>{issue.assignee?.displayName || "Unassigned"}</span>
+                <span>{issue.priority.name}</span>
+                <time>{relativeTime(issue.updatedAt)}</time>
+              </button>
+            );
+          })}
         </section>
       ) : swimlanes ? (
         <section className="wb-jira-swimlanes" aria-label="Live MDM Jira board, grouped by epic">
@@ -445,12 +530,12 @@ export function JiraWorkSurface() {
                 <h3>{lane.label}</h3>
                 <strong>{lane.issues.length}</strong>
               </header>
-              {renderStatusColumns(lane.issues, visibleStatuses, setSelectedIssueKey)}
+              {renderStatusColumns(lane.issues, visibleStatuses, setSelectedIssueKey, runningKeys)}
             </section>
           ))}
         </section>
       ) : (
-        renderStatusColumns(visibleIssues, visibleStatuses, setSelectedIssueKey)
+        renderStatusColumns(visibleIssues, visibleStatuses, setSelectedIssueKey, runningKeys)
       )}
 
       {selectedIssueKey && (
