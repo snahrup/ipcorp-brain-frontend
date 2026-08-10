@@ -1,5 +1,6 @@
 import { ChevronRight, MessagesSquare, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { describeAction } from "./AgentActivity";
 import type { AgentMessage } from "./AgentDispatchButton";
 
 const TIME = new Intl.DateTimeFormat(undefined, {
@@ -27,10 +28,14 @@ export function AgentTranscript({
   messages,
   agentLabel,
   running,
+  steps,
+  lastAction,
 }: {
   messages: AgentMessage[];
   agentLabel: string;
   running: boolean;
+  steps?: number;
+  lastAction?: string | null;
 }) {
   const [open, setOpen] = useState(running);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
@@ -56,6 +61,11 @@ export function AgentTranscript({
   if (!count) return null;
 
   const spoken = messages.filter((m) => m.role === "agent").length;
+  // The gap between narrated messages can run minutes long on a healthy run, and that
+  // gap is exactly where this panel used to go static. Reusing the activity line's own
+  // numbers here means the reader never has to look elsewhere to see it is still moving.
+  const doing = describeAction(lastAction);
+  const stepCount = steps ?? 0;
 
   return (
     <section className="wb-tx" data-open={open ? "true" : undefined}>
@@ -119,7 +129,8 @@ export function AgentTranscript({
           })}
           {running && (
             <p className="wb-tx-pending" role="status">
-              {agentLabel} is still working. New messages appear here as they arrive.
+              {agentLabel} is still working{doing ? ` — ${doing}` : ""}
+              {stepCount > 0 ? ` (${stepCount} ${stepCount === 1 ? "step" : "steps"} so far)` : ""}.
             </p>
           )}
         </div>

@@ -213,7 +213,13 @@ export function AgentDispatchButton({
       )}
 
       {run?.messages?.length ? (
-        <AgentTranscript messages={run.messages} agentLabel={run.agentLabel} running={running} />
+        <AgentTranscript
+          messages={run.messages}
+          agentLabel={run.agentLabel}
+          running={running}
+          steps={run.steps}
+          lastAction={run.lastAction}
+        />
       ) : null}
 
       {run && !running && run.note && (

@@ -18,6 +18,12 @@ const ACTION_LABEL: Record<string, string> = {
   TodoWrite: "Planning the work",
 };
 
+/** Shared with AgentTranscript so the activity line and the conversation panel never disagree. */
+export function describeAction(tool?: string | null) {
+  if (!tool) return null;
+  return ACTION_LABEL[tool] ?? tool;
+}
+
 function elapsed(fromIso: string, now: number) {
   const seconds = Math.max(0, Math.round((now - new Date(fromIso).getTime()) / 1000));
   if (seconds < 60) return `${seconds}s`;
@@ -45,9 +51,8 @@ export function AgentActivity({ run }: { run: AgentRun | null }) {
   if (!run) return null;
 
   const steps = run.steps ?? 0;
-  const action = run.lastAction ? (ACTION_LABEL[run.lastAction] ?? run.lastAction) : null;
   // Before the first tool call there is still the clock, so something always moves.
-  const doing = action ?? "Getting started";
+  const doing = describeAction(run.lastAction) ?? "Getting started";
 
   return (
     <p className="wb-agent-activity">
