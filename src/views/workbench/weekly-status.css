@@ -1,0 +1,270 @@
+/* The weekly status screen: edit on the left, the real email on the right. */
+
+.wb-weekly-status {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.wb-ws-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.wb-ws-header h1 {
+  margin: 4px 0 6px;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+}
+
+.wb-ws-header p {
+  max-width: 62ch;
+  margin: 0;
+  color: #5b7185;
+  line-height: 1.5;
+}
+
+.wb-ws-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.wb-ws-controls label,
+.wb-ws-guidance {
+  display: grid;
+  gap: 5px;
+}
+
+.wb-ws-controls label span,
+.wb-ws-guidance span,
+.wb-ws-field > span,
+.wb-ws-chip span,
+.wb-ws-send label span {
+  color: #5b7185;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.wb-weekly-status input[type="text"],
+.wb-weekly-status input[type="date"],
+.wb-weekly-status textarea,
+.wb-weekly-status select {
+  width: 100%;
+  border: 1px solid #d3dde6;
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.wb-weekly-status textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.wb-ws-banner {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid #d3dde6;
+  border-left: 3px solid var(--brand-blue);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #f6f9fc;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.wb-ws-banner.is-error {
+  border-color: #f0c8c8;
+  border-left-color: #b91c1c;
+  background: #fff7f7;
+  color: #991b1b;
+}
+
+.wb-ws-banner.is-done {
+  border-color: #cfe6d4;
+  border-left-color: #15803d;
+  background: #f7fcf8;
+  color: #166534;
+}
+
+.wb-ws-empty {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  border: 1px dashed #d3dde6;
+  border-radius: 12px;
+  padding: 28px;
+  background: #fbfdff;
+  color: #5b7185;
+}
+
+.wb-ws-empty p {
+  max-width: 64ch;
+  margin: 0;
+  line-height: 1.55;
+}
+
+.wb-ws-body {
+  display: grid;
+  align-items: start;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
+}
+
+.wb-ws-editor,
+.wb-ws-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  background: #fff;
+}
+
+.wb-ws-evidence {
+  display: grid;
+  gap: 3px;
+  border-left: 3px solid var(--brand-blue);
+  padding-left: 10px;
+  color: #5b7185;
+  font-size: 12px;
+}
+
+.wb-ws-chips {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.wb-ws-chip {
+  display: grid;
+  gap: 4px;
+}
+
+.wb-ws-field {
+  display: grid;
+  gap: 7px;
+}
+
+.wb-ws-list-row {
+  display: grid;
+  align-items: start;
+  gap: 6px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.wb-ws-risk {
+  display: grid;
+  gap: 6px;
+  border: 1px solid #e4ebf2;
+  border-radius: 8px;
+  padding: 9px;
+  background: #fbfdff;
+}
+
+.wb-ws-risk > div {
+  display: grid;
+  align-items: center;
+  gap: 6px;
+  grid-template-columns: minmax(0, 1fr) 116px auto;
+}
+
+.wb-ws-remove,
+.wb-ws-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 32px;
+  border: 1px solid #d3dde6;
+  border-radius: 8px;
+  padding: 0 10px;
+  background: #fff;
+  color: #5b7185;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wb-ws-add {
+  justify-self: start;
+}
+
+.wb-ws-remove:hover,
+.wb-ws-add:hover {
+  border-color: var(--brand-blue);
+  color: var(--navy-2);
+}
+
+.wb-ws-source summary {
+  color: #5b7185;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.wb-ws-source ol {
+  max-height: 220px;
+  overflow-y: auto;
+  margin: 8px 0 0;
+  padding-left: 20px;
+  color: #5b7185;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.wb-ws-preview {
+  position: sticky;
+  top: 16px;
+}
+
+.wb-ws-preview header strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+}
+
+.wb-ws-preview iframe {
+  width: 100%;
+  min-height: 520px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.wb-ws-send {
+  display: grid;
+  gap: 9px;
+}
+
+.wb-ws-send label {
+  display: grid;
+  gap: 4px;
+}
+
+.wb-ws-send small {
+  color: #5b7185;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+@media (max-width: 1180px) {
+  .wb-ws-body {
+    grid-template-columns: 1fr;
+  }
+
+  .wb-ws-preview {
+    position: static;
+  }
+}
