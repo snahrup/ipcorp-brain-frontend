@@ -91,3 +91,4 @@ test-results/
 # through the same Tailwind scan (and keeps git status permanently dirty).
 # Untracked like CODEBASE.md; the hooks keep writing it on disk regardless.
 SESSION-JOURNAL.md
+.claude/
