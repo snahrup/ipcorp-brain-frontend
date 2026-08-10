@@ -31,6 +31,15 @@ export default defineConfig({
         // reloads the page; with it, the Meetings view shows the audit as of page
         // load and picks up a rerun on the next natural reload.
         "**/data/meeting-infographic-audit.json",
+        // The gateway (server/) is a separate Node process (`npm run dev:jira`,
+        // plain `node`, no --watch) with zero imports from src/. Editing it while
+        // the frontend tab is open was reloading the page for no functional
+        // benefit — caught live on 2026-08-09 when a concurrent session editing
+        // server/mdm-reconciliation/scan-ledger.mjs bounced this same tab
+        // (log: "page reload server/mdm-reconciliation/scan-ledger.mjs", twice,
+        // one minute apart). Editing server code already requires a manual
+        // gateway restart to take effect; it never needed a frontend reload too.
+        "**/server/**",
       ],
     },
     // Over the tunnel the browser is on a phone, where 127.0.0.1:8817 is the phone
