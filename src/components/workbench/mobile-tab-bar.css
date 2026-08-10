@@ -58,6 +58,10 @@
   .wb-app.nav-open {
     display: block;
     grid-template-columns: minmax(0, 1fr);
+    /* The desktop grid clips overflow so the sidebar/workspace panes can each scroll
+       independently. On a phone the body scrolls instead, and clipped overflow here
+       breaks position: sticky on the header below. */
+    overflow: visible;
   }
 
   /* The rail is replaced by the tab bar on a phone. An older 767px block turned the
@@ -79,9 +83,28 @@
     padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px));
   }
 
-  /* Let the header ride under the status bar in standalone mode. */
-  .wb-header {
+  /* The rail's brand mark is hidden at this width (see .wb-app > .wb-sidebar above),
+     so the header carries a compact logo and sticks to the very top. The higher
+     specificity here is required: this file loads before App.css's own mobile rules,
+     which still set position/top/padding for a now-deleted 64px-tall rail-as-topbar. */
+  .wb-app > .wb-workspace > .wb-header {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     padding-top: calc(8px + env(safe-area-inset-top, 0px));
+  }
+
+  .wb-app .wb-header-brand {
+    display: block;
+    flex: 0 0 auto;
+  }
+
+  .wb-header .wb-search {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .wb-page {
@@ -144,16 +167,25 @@
     width: 150px;
   }
 
-  /* Full-height sheets, the way a native modal presents on a phone. */
-  .wb-modal-backdrop {
+  /* Full-height sheets, the way a native modal presents on a phone. The extra
+     specificity (div. on the backdrop, backdrop-descendant on the sheet — this is
+     portalled to the body and sits outside .wb-app) is required: this file loads
+     before App.css, whose unconditional backdrop padding and modal sizing rules
+     would otherwise win the cascade. */
+  div.wb-modal-backdrop {
     padding: 0;
   }
 
-  .wb-jira-modal {
+  .wb-modal-backdrop .wb-jira-modal {
     max-width: 100%;
     max-height: 100%;
+    width: 100%;
     height: 100dvh;
     border-radius: 0;
+    /* Installed to the home screen the app paints edge to edge (viewport-fit=cover),
+       so the sheet itself clears the status bar and the home indicator. In-browser
+       both insets are 0 and this is inert. */
+    padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }

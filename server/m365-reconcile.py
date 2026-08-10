@@ -23,6 +23,17 @@ BRIDGE_PATH = os.environ.get(
 # Never replay it merely because Microsoft 365 is still working.
 ATTEMPT_TIMEOUT_SECONDS = 880
 OUTPUT_PATH = os.environ.get("M365_RECONCILE_OUTPUT")
+MODE = os.environ.get("M365_RECONCILE_MODE", "mdm").strip().lower()
+ACTIVITY_WINDOWS_TEXT = os.environ.get("M365_RECONCILE_WINDOWS", "{}")
+ACTIVITY_SOURCE_IDS = (
+    "outlook_received",
+    "outlook_replied",
+    "outlook_sent",
+    "teams_channel_messages",
+    "teams_group_messages",
+    "teams_direct_messages",
+    "teams_meeting_transcripts",
+)
 
 REQUEST = """
 This is a read-only reconciliation of the IP Corporation MDM Team / Fabric Data
@@ -60,6 +71,87 @@ real meeting. Do not infer a meeting or collaboration from topic similarity.
 """.strip()
 
 
+def _activity_request() -> str:
+    try:
+        windows = json.loads(ACTIVITY_WINDOWS_TEXT)
+    except json.JSONDecodeError:
+        windows = {}
+    safe_windows = {
+        source_id: {
+            "from": str((windows.get(source_id) or {}).get("from") or "")[:80],
+            "to": str((windows.get(source_id) or {}).get("to") or "")[:80],
+            "lateSweepFrom": str(
+                (windows.get(source_id) or {}).get("lateSweepFrom") or ""
+            )[:80],
+        }
+        for source_id in ACTIVITY_SOURCE_IDS
+    }
+    return f"""
+This is a read-only activity reconciliation for the IP Corporation MDM Team and
+Fabric Data Migration work. Read the authorized Microsoft 365 sources for the
+exact periods below. The upper time is fixed for this run. Also check the listed
+late-arrival period for items delivered or changed after their original date.
+
+Periods:
+{json.dumps(safe_windows, indent=2)}
+
+Return JSON only with this exact shape:
+{{
+  "asOf": "ISO timestamp",
+  "streams": {{
+    "outlook_received": {{"state": "current or empty or partial or unavailable or not_authorized or timed_out or malformed or failed", "confirmedThrough": "ISO timestamp or null", "detail": "coverage note", "items": []}},
+    "outlook_replied": {{"state": "...", "confirmedThrough": "...", "detail": "...", "items": []}},
+    "outlook_sent": {{"state": "...", "confirmedThrough": "...", "detail": "...", "items": []}},
+    "teams_channel_messages": {{"state": "...", "confirmedThrough": "...", "detail": "...", "items": []}},
+    "teams_group_messages": {{"state": "...", "confirmedThrough": "...", "detail": "...", "items": []}},
+    "teams_direct_messages": {{"state": "...", "confirmedThrough": "...", "detail": "...", "items": []}},
+    "teams_meeting_transcripts": {{"state": "...", "confirmedThrough": "...", "detail": "...", "items": []}}
+  }}
+}}
+
+Use one item shape across streams:
+{{
+  "providerItemId": "stable provider id when available",
+  "eventAt": "original event ISO timestamp",
+  "updatedAt": "delivered, received, or modified ISO timestamp when available",
+  "title": "short source title",
+  "summary": "concise factual work evidence",
+  "status": "current, completed, blocked, superseded, or unclear",
+  "jiraKey": "MT-### or null",
+  "linkedJiraKey": "MT-### from an existing stored link or null",
+  "jiraReferenceKind": "direct, quoted, forwarded, copied, attachment, stored_link, or unknown",
+  "jiraContextSignals": ["specific project, meeting, person, artifact, or named activity"],
+  "sourceReference": "subject, channel, or thread reference without a private URL",
+  "link": "safe HTTPS source link or null",
+  "worklogMinutes": 0,
+  "actionable": true,
+  "suggestedEmail": {{"to": "recipient or null", "subject": "draft subject", "body": "draft body"}} or null,
+  "meeting": {{"id": "meeting id", "title": "title", "start": "ISO", "end": "ISO or null", "organizer": "name or null", "attendees": []}} or null,
+  "transcriptReady": false,
+  "transcript": "ready Teams meeting text only, otherwise empty"
+}}
+
+Classify Outlook received, Steve's replies, and Steve's sent messages as separate
+events. Classify Teams channels, group chats, and direct chats separately. Put
+only completed meetings with a ready Teams transcript in the ready transcript
+stream. A completed meeting whose transcript is not ready may be returned there
+with transcriptReady false so it remains pending. Include only work related to
+the MDM, Microsoft Fabric, data governance, Purview, Power BI, data migration,
+and the related Jira MT initiative.
+
+Set jiraKey only when the item's own activity names the MT item. Mark direct
+references as direct and include at least one concrete supporting signal. If a
+key appears only in quoted, forwarded, copied, or attached material, preserve
+that reference kind and do not treat it as a confirmed target. Use
+linkedJiraKey only for an existing stored link tied to the same source identity.
+
+Do not send, draft in Microsoft 365, schedule, reply, react, edit, or change
+anything. A suggestedEmail value is review text in the response only. Do not
+include credentials, unrelated message bodies, personal application work, or
+private link query strings. Do not guess a Jira association or meeting attendee.
+""".strip()
+
+
 def _emit(payload: dict[str, Any]) -> None:
     text = json.dumps(payload)
     if OUTPUT_PATH:
@@ -92,6 +184,149 @@ def _json_from_text(value: str) -> dict[str, Any] | None:
     return None
 
 
+def _safe_activity_item(item: dict[str, Any], source_id: str) -> dict[str, Any]:
+    meeting = item.get("meeting") if isinstance(item.get("meeting"), dict) else None
+    suggested = (
+        item.get("suggestedEmail")
+        if isinstance(item.get("suggestedEmail"), dict)
+        else None
+    )
+    safe_meeting = None
+    if meeting:
+        attendees = meeting.get("attendees") if isinstance(meeting.get("attendees"), list) else []
+        safe_meeting = {
+            "id": str(meeting.get("id") or meeting.get("meetingId") or "")[:320],
+            "title": str(meeting.get("title") or meeting.get("subject") or "")[:240],
+            "start": str(meeting.get("start") or "")[:80],
+            "end": str(meeting.get("end") or "")[:80] or None,
+            "organizer": str(meeting.get("organizer") or "")[:160] or None,
+            "attendees": [str(value)[:160] for value in attendees[:50]],
+        }
+    safe_suggested = None
+    if suggested:
+        safe_suggested = {
+            "to": str(suggested.get("to") or "")[:240] or None,
+            "subject": str(suggested.get("subject") or "")[:240],
+            "body": str(suggested.get("body") or "")[:4000],
+        }
+    try:
+        worklog_minutes = int(item.get("worklogMinutes") or 0)
+    except (TypeError, ValueError):
+        worklog_minutes = 0
+    return {
+        "providerItemId": str(
+            item.get("providerItemId")
+            or item.get("itemId")
+            or item.get("messageId")
+            or item.get("id")
+            or ""
+        )[:320]
+        or None,
+        "eventAt": str(item.get("eventAt") or item.get("date") or "")[:80],
+        "updatedAt": str(
+            item.get("updatedAt")
+            or item.get("modifiedAt")
+            or item.get("receivedAt")
+            or ""
+        )[:80],
+        "title": str(item.get("title") or item.get("subject") or "")[:240],
+        "summary": str(item.get("summary") or "")[:1200],
+        "status": str(item.get("status") or "unclear")[:40],
+        "jiraKey": str(item.get("jiraKey") or "")[:20] or None,
+        "linkedJiraKey": str(item.get("linkedJiraKey") or "")[:20] or None,
+        "jiraReferenceKind": str(item.get("jiraReferenceKind") or "unknown")[:40],
+        "jiraContextSignals": [
+            str(signal)[:160]
+            for signal in (
+                item.get("jiraContextSignals")
+                if isinstance(item.get("jiraContextSignals"), list)
+                else []
+            )[:12]
+            if str(signal).strip()
+        ],
+        "sourceReference": str(item.get("sourceReference") or "")[:300],
+        "link": str(item.get("link") or item.get("webUrl") or "")[:1000] or None,
+        "worklogMinutes": max(0, min(1440, worklog_minutes)),
+        "actionable": item.get("actionable") is not False,
+        "suggestedEmail": safe_suggested,
+        "meeting": safe_meeting,
+        "transcriptReady": bool(item.get("transcriptReady")),
+        "transcript": (
+            str(item.get("transcript") or item.get("verbatimTranscript") or "")[:2_000_000]
+            if source_id == "teams_meeting_transcripts"
+            else ""
+        ),
+    }
+
+
+def _emit_activity(evidence: dict[str, Any]) -> int:
+    streams = evidence.get("streams")
+    if not isinstance(streams, dict):
+        _emit(
+            {
+                "ok": False,
+                "code": "activity_streams_missing",
+                "error": "Microsoft 365 did not return the required activity streams.",
+            }
+        )
+        return 4
+    safe_streams: dict[str, dict[str, Any]] = {}
+    allowed_states = {
+        "current",
+        "empty",
+        "partial",
+        "unavailable",
+        "not_authorized",
+        "timed_out",
+        "malformed",
+        "failed",
+    }
+    for source_id in ACTIVITY_SOURCE_IDS:
+        stream = streams.get(source_id)
+        if not isinstance(stream, dict):
+            safe_streams[source_id] = {
+                "state": "malformed",
+                "confirmedThrough": None,
+                "detail": "Microsoft 365 omitted this source stream.",
+                "items": [],
+            }
+            continue
+        raw_items = stream.get("items") if isinstance(stream.get("items"), list) else []
+        state = str(stream.get("state") or ("current" if raw_items else "empty")).lower()
+        if state not in allowed_states:
+            state = "malformed"
+        truncated = len(raw_items) > 1000
+        if truncated:
+            state = "partial"
+        detail = str(stream.get("detail") or stream.get("limitation") or "")[:420]
+        if truncated:
+            detail = f"{detail}{' ' if detail else ''}Only the first 1,000 items were returned."[:500]
+        safe_streams[source_id] = {
+            "state": state,
+            "confirmedThrough": (
+                None
+                if truncated
+                else str(stream.get("confirmedThrough") or "")[:80] or None
+            ),
+            "detail": detail,
+            "items": [
+                _safe_activity_item(item, source_id)
+                for item in raw_items[:1000]
+                if isinstance(item, dict)
+            ],
+        }
+    _emit(
+        {
+            "ok": True,
+            "data": {
+                "asOf": str(evidence.get("asOf") or "")[:80],
+                "streams": safe_streams,
+            },
+        }
+    )
+    return 0
+
+
 def main() -> int:
     if not os.path.isdir(BRIDGE_PATH):
         _emit(
@@ -110,7 +345,7 @@ def main() -> int:
         # Send exactly one broad request and wait on that same request. A slow
         # response must never cause a replay, duplicate collection, or new job.
         result = bridge.cowork_send_message(
-            REQUEST,
+            _activity_request() if MODE == "activity" else REQUEST,
             response_timeout_seconds=ATTEMPT_TIMEOUT_SECONDS,
             retry_on_timeout=False,
         )
@@ -163,6 +398,9 @@ def main() -> int:
                 }
             )
             return 4
+
+    if MODE == "activity":
+        return _emit_activity(evidence)
 
     items = evidence.get("items")
     if not isinstance(items, list):

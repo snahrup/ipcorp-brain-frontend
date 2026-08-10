@@ -227,8 +227,134 @@
 }
 
 @media (forced-colors: active) {
+  .wb-nav-subitem,
   .wb-team-safe-card,
   .wb-nav-item {
     border-color: CanvasText;
   }
+}
+
+.wb-nav-entry {
+  width: 100%;
+}
+
+.wb-nav-subitems {
+  position: relative;
+  margin: 2px 8px 5px 23px;
+  padding-left: 20px;
+}
+
+.wb-nav-subitems::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: #d6dde7;
+  content: "";
+}
+
+.wb-nav-subitem {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  color: #5f6c7e;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wb-nav-subitem span {
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.wb-nav-subitems .wb-nav-subitem small {
+  color: #8993a2;
+  font-size: 10px;
+}
+
+.wb-nav-subitem:hover {
+  color: #264d7b;
+  background: #f1f5f9;
+}
+
+.wb-nav-subitem.is-active {
+  color: #1e4f83;
+  background: #eaf1f8;
+}
+
+.wb-nav-subitem:focus-visible {
+  outline: 3px solid rgb(49 95 155 / 25%);
+  outline-offset: 2px;
+}
+
+/* Workshop stages: a third level that only appears while the Workshop page is open. */
+.wb-nav-stages {
+  display: grid;
+  gap: 1px;
+  margin: 4px 0 8px 12px;
+  padding-left: 10px;
+  border-left: 1px solid var(--wb-border, #e1e4e8);
+}
+
+.wb-nav-stage {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: var(--wb-text-2, #5a6169);
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.wb-nav-stage:hover {
+  background: #eef3f8;
+  color: #14314f;
+}
+
+.wb-nav-stage.is-active {
+  background: #e7eef6;
+  color: #14314f;
+  font-weight: 700;
+}
+
+.wb-nav-stage-num {
+  font-family: SFMono-Regular, Consolas, monospace;
+  font-size: 10px;
+  color: #8a9099;
+  flex: none;
+}
+
+.wb-nav-stage.is-active .wb-nav-stage-num {
+  color: #1b5e9e;
+}
+
+.wb-nav-stage-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wb-nav-stage-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
 }

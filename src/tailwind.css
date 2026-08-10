@@ -1,0 +1,156 @@
+/*
+ * Tailwind v4, theme + utilities only. Present for the ported
+ * evilrabbit/lifeline timeline and the moumenlab (shadcn registry) components,
+ * both of which are Tailwind-only by design.
+ *
+ * PREFLIGHT IS DELIBERATELY NOT IMPORTED. App.css is the product's styling
+ * source of truth (142KB of hand-written Workbench CSS) and Preflight's global
+ * reset would re-baseline every element under it. Importing the layers by hand
+ * is Tailwind's documented way to opt out. The cost is that native form chrome
+ * is never reset either — see .tw-button below, which is not optional.
+ *
+ * The theme layer is layered (it only declares custom properties). UTILITIES
+ * ARE UNLAYERED ON PURPOSE, and this is the part that is easy to get wrong:
+ * layered CSS loses to unlayered CSS regardless of specificity, and App.css is
+ * entirely unlayered — including bare element rules like `button { color:
+ * inherit }`. With utilities in @layer utilities, that single rule silently beat
+ * every text-* utility applied to a button, and ported components rendered
+ * dark-on-dark with no error anywhere.
+ *
+ * Unlayered, the cascade lands where it should. main.tsx imports this file
+ * BEFORE App.css, so:
+ *   - a utility (0,1,0) beats App.css's element selectors (0,0,1);
+ *   - App.css's own class rules (0,1,0) still win ties, because they come later.
+ * Utilities can therefore style new surfaces without re-skinning existing ones.
+ * Verified both directions: the lane chips take text-white, while .wb-nav-item
+ * and .wb-hero h1 keep their App.css colors.
+ */
+@layer theme;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css";
+
+/*
+ * Preflight is off, so nothing resets native form chrome: a bare <button> in a
+ * Tailwind-styled component renders with the browser's own `border: 2px outset`
+ * and grey face unless it sets both itself. App.css only sets `font: inherit`
+ * on buttons, which is why this is not already handled.
+ *
+ * `.tw-button` is the opt-in reset for buttons built with utilities. Existing
+ * Workbench buttons are untouched — they carry their own App.css class rules,
+ * which win ties against this file.
+ */
+.tw-button {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+}
+
+/*
+ * The Workbench palette, re-exported as Tailwind theme colors so ported
+ * components can be re-skinned with utilities instead of a parallel set of
+ * hard-coded hexes. Values mirror App.css :root — change them there first.
+ *
+ * IP Corporation Workbench v4: white and cool-gray surfaces, structural navy,
+ * corporate and action blues. Green, gold, and red are status colors only.
+ */
+@theme {
+  --font-heading: "Figtree", "Segoe UI", sans-serif;
+
+  --color-ipc-navy: #0e2338;
+  --color-ipc-navy-2: #14314f;
+  --color-ipc-blue: #446084;
+  --color-ipc-action: #1b5e9e;
+  --color-ipc-support: #2a4a6b;
+  --color-ipc-soft: #9fb0c2;
+
+  --color-ipc-bg: #f7f8f9;
+  --color-ipc-bg-2: #f0f2f4;
+  --color-ipc-panel: #ffffff;
+  --color-ipc-panel-soft: #fafbfc;
+  --color-ipc-line: #e1e4e8;
+  --color-ipc-line-strong: #d5d9de;
+
+  --color-ipc-text: #1b1d20;
+  --color-ipc-text-soft: #5a6169;
+  --color-ipc-muted: #8a9099;
+
+  --color-ipc-green: #1e7b4d;
+  --color-ipc-gold: #b0761a;
+  --color-ipc-red: #c8102e;
+
+  /* Timeline lanes. Each maps to one real seed collection. */
+  --color-lane-meeting: #1b5e9e;
+  --color-lane-decision: #0e2338;
+  --color-lane-candidate: #b0761a;
+  --color-lane-insight: #446084;
+  --color-lane-risk: #c8102e;
+}
+
+/* ---------------------------------------------------------------------------
+ * Lifeline intro choreography.
+ *
+ * The opening sweep is driven from JS: the scroll hook writes
+ * --lifeline-intro-progress on the section every frame, and the rail scales
+ * itself from that value so the dashed line draws exactly in step with the
+ * track's travel. Marker fades are ordinary CSS animations, delay-armed per
+ * column, so they bloom in a trailing wave behind the rail tip.
+ * ------------------------------------------------------------------------- */
+
+@keyframes lifeline-marker-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes lifeline-labels-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lifeline-rail-intro {
+  transform: scaleX(var(--lifeline-intro-progress, 0));
+  transform-origin: left center;
+}
+
+.lifeline-rail-intro-vertical {
+  transform: scaleY(var(--lifeline-intro-progress, 0));
+  transform-origin: top center;
+}
+
+.lifeline-marker-intro {
+  opacity: 0;
+  animation: lifeline-marker-in var(--lifeline-marker-fade-ms, 420ms) cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+}
+
+.lifeline-labels-intro {
+  opacity: 0;
+  animation: lifeline-labels-in var(--lifeline-labels-ms, 600ms) cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+}
+
+/* Pinned label column rides above the scrolling marker text it shields. */
+.lifeline-labels.is-pinned {
+  z-index: 20;
+}
+
+/* The timeline sets its own type stack rather than inheriting the body font,
+   so the dense numeric rows stay on one consistent face. */
+.lifeline-typeset {
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+}

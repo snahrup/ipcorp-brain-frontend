@@ -34,7 +34,10 @@ export function MobileTabBar({
     <nav className="wb-tabbar" aria-label="Main">
       {TABS.map((tab) => {
         const Icon = tab.icon;
-        const active = activeView === tab.key;
+        const active =
+          activeView === tab.key ||
+          (tab.key === "meetings" &&
+            (activeView === "daily-prep" || activeView === "meeting-wrap-up"));
         return (
           <button
             type="button"

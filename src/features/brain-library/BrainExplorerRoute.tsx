@@ -1,5 +1,4 @@
 import { ErrorBoundary } from "../../components/ErrorBoundary";
-import { OrbitalAssistant } from "../../components/OrbitalAssistant";
 import { BrainExplorer } from "../brain-explorer/BrainExplorer";
 
 export default function BrainExplorerRoute() {
@@ -21,7 +20,6 @@ export default function BrainExplorerRoute() {
           <BrainExplorer />
         </ErrorBoundary>
       </div>
-      <OrbitalAssistant />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   Clock3,
   FileCheck2,
   GitBranch,
+  History,
   ListChecks,
   LockKeyhole,
   type LucideIcon,
@@ -61,6 +62,9 @@ import {
   sortedInsights,
 } from "./data";
 import { workbenchSnapshot } from "./data/workbench";
+import { WorkbenchAgent } from "./features/workbench-agent";
+import type { WorkshopSurface } from "./features/workshops/types";
+import { useWorkshopState } from "./features/workshops/useWorkshopState";
 import { getAdminSettings } from "./lib/adminSettings";
 import {
   createSearchIndex,
@@ -87,11 +91,15 @@ import { MeetingsView } from "./views/MeetingsView";
 import { QuestionsView } from "./views/QuestionsView";
 import { RisksView } from "./views/RisksView";
 import { SourceHealthView } from "./views/SourceHealthView";
+import { TimelineView } from "./views/TimelineView";
 import {
   ConnectionsView,
+  DailyMeetingPrepView,
   MeetingsWorkspaceView,
+  MeetingWrapUpView,
   TeamLibraryView,
   TodayView,
+  WeeklyStatusView,
   WorkView,
 } from "./views/workbench";
 
@@ -134,6 +142,12 @@ const rawNavSections: NavSection[] = [
         helper: "Upcoming, active, recent signals",
         icon: CalendarDays,
         count: allMeetings.length,
+      },
+      {
+        key: "timeline",
+        label: "Timeline",
+        helper: "The chronology, day by day",
+        icon: History,
       },
     ],
   },
@@ -237,11 +251,33 @@ const learningCards = [
 
 const LazyBrainExplorer = lazy(() => import("./features/brain-library/BrainExplorerRoute"));
 const LazyDataWork = lazy(() => import("./features/data-work/DataWorkView"));
+const LazyWorkshops = lazy(() =>
+  import("./features/workshops/WorkshopsView").then((module) => ({ default: module.WorkshopsView }))
+);
 
 export default function App() {
-  const [activeView, setActiveView] = useState<ViewKey>("today");
+  const [activeView, setActiveView] = useState<ViewKey>(() => {
+    if (window.location.pathname === "/meetings/daily-prep") return "daily-prep";
+    if (window.location.pathname === "/meetings/wrap-up") return "meeting-wrap-up";
+    if (window.location.pathname === "/meetings") return "meetings";
+    return "today";
+  });
   const [detail, setDetail] = useState<Detail | null>(null);
+  useEffect(() => {
+    const handlePopState = () => {
+      if (window.location.pathname === "/meetings/daily-prep") setActiveView("daily-prep");
+      else if (window.location.pathname === "/meetings/wrap-up") setActiveView("meeting-wrap-up");
+      else if (window.location.pathname === "/meetings") setActiveView("meetings");
+      else setActiveView("today");
+      setDetail(null);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  // The workshop session lives above the view so the rail can show stage progress.
+  const workshop = useWorkshopState();
+  const [workshopSurface, setWorkshopSurface] = useState<WorkshopSurface>("prepare");
   const [query, setQuery] = useState("");
   const [searchSelectedIndex, setSearchSelectedIndex] = useState(-1);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
@@ -274,6 +310,15 @@ export default function App() {
 
   const navigate = (view: ViewKey) => {
     setActiveView(view);
+    const nextPath =
+      view === "daily-prep"
+        ? "/meetings/daily-prep"
+        : view === "meeting-wrap-up"
+          ? "/meetings/wrap-up"
+          : view === "meetings"
+            ? "/meetings"
+            : "/";
+    if (window.location.pathname !== nextPath) window.history.pushState({}, "", nextPath);
     setDetail(null);
   };
 
@@ -328,6 +373,16 @@ export default function App() {
         expanded={sidebarOpen}
         onToggle={() => setSidebarOpen((value) => !value)}
         onNavigate={navigate}
+        workshopNav={{
+          surface: workshopSurface,
+          step: workshop.state.step,
+          onSurface: setWorkshopSurface,
+          onStep: (step) => {
+            setWorkshopSurface("run");
+            workshop.patch({ step });
+          },
+          stageStatus: workshop.stageStatus,
+        }}
       />
 
       <main className="wb-workspace">
@@ -371,9 +426,22 @@ export default function App() {
                 onPreview={setApprovalPreview}
               />
             )}
+            {activeView === "daily-prep" && <DailyMeetingPrepView />}
+            {activeView === "meeting-wrap-up" && <MeetingWrapUpView />}
+            {activeView === "weekly-status" && <WeeklyStatusView />}
             {activeView === "meetings" && (
               <MeetingsWorkspaceView openDetail={openDetail} onFocusInGraph={focusMeetingInGraph} />
             )}
+            {activeView === "workshops" && (
+              <Suspense fallback={<LazyViewFallback label="Opening Workshops" />}>
+                <LazyWorkshops
+                  surface={workshopSurface}
+                  controller={workshop}
+                  onSurfaceChange={setWorkshopSurface}
+                />
+              </Suspense>
+            )}
+            {activeView === "timeline" && <TimelineView openDetail={openDetail} />}
             {activeView === "library" && <TeamLibraryView />}
             {activeView === "connections" && (
               <ConnectionsView sources={workbenchSnapshot.sources} />
@@ -402,6 +470,9 @@ export default function App() {
       </main>
 
       <MobileTabBar activeView={activeView} onNavigate={navigate} />
+      <ErrorBoundary>
+        <WorkbenchAgent activeView={activeView} onNavigate={navigate} />
+      </ErrorBoundary>
 
       <DetailDrawer detail={detail} onClose={() => setDetail(null)} />
       <ApprovalDock preview={approvalPreview} onClose={() => setApprovalPreview(null)} />

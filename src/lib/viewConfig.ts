@@ -5,6 +5,7 @@ import {
   CalendarDays,
   FileCheck2,
   GitBranch,
+  History,
   ListChecks,
   MessageSquareText,
   RadioTower,
@@ -72,6 +73,46 @@ export const viewCopy: Record<
     summary:
       "Upcoming, active, and recent meetings are grouped by the role they play in readiness.",
     action: "Open the linked packet",
+  },
+  "daily-prep": {
+    label: "Daily meeting prep",
+    eyebrow: "Morning review",
+    title: "Review today’s meeting packages before the day begins.",
+    summary:
+      "Open the prepared context, confirm what is available, and print the package for discussion.",
+    action: "Open today’s prep",
+  },
+  "meeting-wrap-up": {
+    label: "Meeting Wrap-up",
+    eyebrow: "Post-meeting review",
+    title: "Turn today’s meetings into reviewable follow-up.",
+    summary:
+      "Process a listed meeting, review the proposed work, and keep the completed package in the Brain.",
+    action: "Process a meeting",
+  },
+  "weekly-status": {
+    label: "Weekly Status",
+    eyebrow: "Weekly deliverable",
+    title: "Send leadership the week in one read.",
+    summary:
+      "Generate the status update from the week's real Jira movement, edit it, then create the Outlook draft.",
+    action: "Generate this week's update",
+  },
+  workshops: {
+    label: "Workshops",
+    eyebrow: "Working sessions",
+    title: "Run the session and leave with the decisions.",
+    summary:
+      "Prepare the run of show, walk the room through it, capture what gets decided, and hand each person their part.",
+    action: "Open the run of show",
+  },
+  timeline: {
+    label: "Timeline",
+    eyebrow: "Brain chronology",
+    title: "See the order things actually happened in.",
+    summary:
+      "Meetings, decisions, flagged topics, insights, and risk reviews on the day each record carries. Quiet stretches stay quiet.",
+    action: "Scrub the rail",
   },
   packets: {
     label: "Prep Packets",
@@ -170,6 +211,12 @@ export const navSections = [
         helper: "Upcoming, active, recent signals",
         icon: CalendarDays,
       },
+      {
+        key: "timeline" as ViewKey,
+        label: "Timeline",
+        helper: "The chronology, day by day",
+        icon: History,
+      },
     ],
   },
   {
@@ -238,6 +285,7 @@ export {
   CalendarDays,
   FileCheck2,
   GitBranch,
+  History,
   ListChecks,
   MessageSquareText,
   RadioTower,

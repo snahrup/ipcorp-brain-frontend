@@ -11,11 +11,16 @@ import {
   X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import meetingInfographicAudit from "../../../data/meeting-infographic-audit.json";
 import { brain, formatDate } from "../../data";
 import type { Detail, MeetingEntry } from "../../types/brain";
 import "./meetings.css";
 import { GATEWAY } from "../../lib/gateway";
 import { MeetingCard } from "./MeetingCard";
+import {
+  MeetingInfographicAudit,
+  type MeetingInfographicAuditSnapshot,
+} from "./MeetingInfographicAudit";
 import { MeetingsCalendar, meetingDay } from "./MeetingsCalendar";
 import { getMicrosoft365CoverageState, getSnapshotFreshness } from "./truthState";
 
@@ -180,6 +185,13 @@ export function MeetingsWorkspaceView({
           </div>
         </div>
       </section>
+
+      <MeetingInfographicAudit
+        audit={meetingInfographicAudit as MeetingInfographicAuditSnapshot}
+        meetings={archive}
+        currentSeedUpdatedAt={brain.meetingIndex.updatedAt ?? ""}
+        onOpenMeeting={(meeting) => openDetail({ kind: "meeting", value: meeting })}
+      />
 
       <div className="wb-meetings-layout">
         <div className="wb-meetings-side">

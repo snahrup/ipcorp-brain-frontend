@@ -1,5 +1,8 @@
 export { ConnectionsView } from "./ConnectionsView";
+export { DailyMeetingPrepView } from "./DailyMeetingPrepView";
 export { MeetingsWorkspaceView } from "./MeetingsWorkspaceView";
+export { MeetingWrapUpView } from "./MeetingWrapUpView";
 export { TeamLibraryView } from "./TeamLibraryView";
 export { TodayView } from "./TodayView";
+export { WeeklyStatusView } from "./WeeklyStatusView";
 export { WorkView } from "./WorkView";

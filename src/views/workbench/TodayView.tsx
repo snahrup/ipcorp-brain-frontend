@@ -12,6 +12,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { WorkspaceHero } from "../../components/workbench/WorkspaceHero";
 import { jiraGateway } from "../../features/jira/api";
+import { IssueTimeMetrics } from "../../features/jira/IssueTimeMetrics";
 import { JiraIssueModal } from "../../features/jira/JiraIssueModal";
 import { priorityRank, statusTone, TONE_LABEL } from "../../features/jira/jiraStatus";
 import type { JiraInitiative, JiraIssue } from "../../features/jira/types";
@@ -75,6 +76,7 @@ function IssueTile({
           <span className="wb-pill">{issue.subtasks.length} subtasks</span>
         )}
       </span>
+      <IssueTimeMetrics tracking={issue.timeTracking} />
     </button>
   );
 }

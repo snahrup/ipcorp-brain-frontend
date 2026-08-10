@@ -51,6 +51,12 @@ export function WorkbenchHeader({
     <header className="wb-header">
       <span className="wb-sr-only">IP Corporation Workbench · {label}</span>
 
+      <img
+        className="wb-header-brand"
+        src="/brand/ip-corporation-official.png"
+        alt="IP Corporation"
+      />
+
       <div className="wb-search">
         <Search size={18} aria-hidden="true" />
         <input
