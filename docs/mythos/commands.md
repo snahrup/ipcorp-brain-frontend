@@ -1,0 +1,28 @@
+# Commands
+
+- `node --test server/workbench-agent/*.test.mjs`
+- `npx playwright test tests/workbench-agent.spec.ts --project=chromium`
+- `npx biome check server/workbench-agent src/features/workbench-agent tests/workbench-agent.spec.ts`
+- `npm run typecheck`
+- `npm run build`
+- `C:\Apps\IP Corp Brain Launch.bat`
+- `npm run lint`
+- `npm run typecheck`
+- `npm run build`
+- `node --test server/meeting-closeout.test.mjs server/meeting-closeout-gateway.test.mjs`
+- `npx playwright test tests/meeting-closeout.spec.ts`
+- `npx biome check server/jira-gateway.mjs server/meeting-closeout.mjs server/meeting-closeout.test.mjs server/meeting-closeout-gateway.test.mjs src/features/meeting-closeout/MeetingCloseoutPanel.tsx src/features/meeting-closeout/meeting-closeout.css src/views/workbench/MeetingsWorkspaceView.tsx tests/meeting-closeout.spec.ts`
+- `npm run dev:workbench`
+- `node --test server/daily-meeting-prep.test.mjs`
+- `npx playwright test tests/daily-meeting-prep.spec.ts --project=chromium`
+- `node --test server/mdm-reconciliation/scan-ledger.test.mjs`
+- Gateway restart after server edits: kill the PID listening on 8817, then `Start-Process node -ArgumentList "server/jira-gateway.mjs"` from the repo root (the healer restarts it within 5 minutes otherwise).
+- `node --test server/activity-reconciliation/*.test.mjs server/mdm-reconciliation/scan-ledger.test.mjs server/meeting-closeout.test.mjs`
+- `npx playwright test tests/activity-reconciliation.spec.ts --project=chromium`
+- `npx biome check server/activity-reconciliation src/features/activity-reconciliation tests/activity-reconciliation.spec.ts`
+- `node --test server/activity-reconciliation/*.test.mjs server/meeting-closeout.test.mjs server/meeting-closeout-gateway.test.mjs`
+- `npx playwright test tests/activity-reconciliation.spec.ts`
+- `npx biome check server/activity-reconciliation server/meeting-closeout.mjs server/meeting-closeout.test.mjs server/meeting-closeout-gateway.test.mjs server/meeting-infographic-renderer.mjs server/jira-gateway.mjs src/features/activity-reconciliation src/features/jira/JiraWorkSurface.tsx tests/activity-reconciliation.spec.ts`
+- `python -m py_compile server/m365-reconcile.py`
+- `node --check server/jira-gateway.mjs`
+- `git diff --check`
