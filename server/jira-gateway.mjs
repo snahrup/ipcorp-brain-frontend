@@ -109,6 +109,7 @@ function getActivityReconciliationRouter() {
       processMeeting: processActivityMeeting,
       applyJiraProposal: applyActivityJiraProposal,
       runMdmCheck: runActivityMdmCheck,
+      deliverEmailDrafts: deliverActivityEmailDraft,
     });
     activityReconciliationRouter = createActivityReconciliationRouter(service);
   }
@@ -125,6 +126,25 @@ async function loadActivityJiraIssues() {
   const fixture = await readActivityFixture();
   if (fixture) return Array.isArray(fixture.jiraIssues) ? fixture.jiraIssues : [];
   return searchMdmIssues();
+}
+
+// Puts a prepared meeting follow-up into the real Outlook Drafts folder, so
+// review-approve-send happens in the mailbox. Same adapter as the weekly
+// status draft: it creates a draft and stops, with no path that sends mail.
+async function deliverActivityEmailDraft({ draft }) {
+  const fixture = await readActivityFixture();
+  if (fixture) return { draftId: `fixture-outlook-${draft.id}` };
+  const escaped = String(draft.body || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\n", "<br>\n");
+  const result = await createWeeklyStatusOutlookDraft({
+    to: [String(draft.to)],
+    subject: draft.subject,
+    html: `<div>${escaped}</div>`,
+  });
+  return { draftId: result?.draftId || result?.id || null };
 }
 
 // Chained after every activity run so one click covers both workflows. Reuses

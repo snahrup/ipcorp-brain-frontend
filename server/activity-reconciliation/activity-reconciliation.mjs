@@ -24,6 +24,7 @@ const RUN_PHASES = Object.freeze([
   { id: "generating_visuals", label: "Completing meeting packages and visuals" },
   { id: "matching_jira", label: "Matching evidence to Jira work" },
   { id: "preparing_proposals", label: "Preparing reviewable proposals" },
+  { id: "delivering_drafts", label: "Creating Outlook drafts" },
   { id: "mdm_check", label: "Checking Jira against the Brain" },
   { id: "finalizing", label: "Saving the recap" },
 ]);
@@ -371,6 +372,8 @@ export function createActivityReconciliationService(options) {
     (async ({ run, evidence, issues = [] }) =>
       buildJiraReview(evidence, issues, { now: run?.startedAt }));
   const runMdmCheck = typeof options.runMdmCheck === "function" ? options.runMdmCheck : null;
+  const deliverEmailDrafts =
+    typeof options.deliverEmailDrafts === "function" ? options.deliverEmailDrafts : null;
   const loadJiraIssues = options.loadJiraIssues || (async () => []);
   const processMeeting =
     options.processMeeting || (async () => ({ ok: false, code: "unavailable" }));
@@ -616,9 +619,19 @@ export function createActivityReconciliationService(options) {
       const review = await prepareJira({ run: clone(run), evidence: clone(jiraEvidence), issues });
       const at = asIso(clock);
       await updateRun(runId, (current) => {
+        // A resumed run rebuilds its drafts from saved evidence; carrying the
+        // saved Outlook status forward is what stops a resume from creating
+        // the same Outlook draft twice.
+        const priorOutlook = new Map(
+          (current.emailDrafts || [])
+            .filter((item) => item.outlook)
+            .map((item) => [item.id, item.outlook])
+        );
         current.associations = Array.isArray(review?.associations) ? review.associations : [];
         current.jiraProposals = Array.isArray(review?.proposals) ? review.proposals : [];
-        current.emailDrafts = drafts;
+        current.emailDrafts = drafts.map((item) =>
+          priorOutlook.has(item.id) ? { ...item, outlook: priorOutlook.get(item.id) } : item
+        );
         current.reviewError = null;
         current.skipped = [
           ...(current.skipped || []),
@@ -637,8 +650,15 @@ export function createActivityReconciliationService(options) {
     } catch (error) {
       const at = asIso(clock);
       await updateRun(runId, (current) => {
+        const priorOutlook = new Map(
+          (current.emailDrafts || [])
+            .filter((item) => item.outlook)
+            .map((item) => [item.id, item.outlook])
+        );
         current.reviewError = errorDetail(error);
-        current.emailDrafts = drafts;
+        current.emailDrafts = drafts.map((item) =>
+          priorOutlook.has(item.id) ? { ...item, outlook: priorOutlook.get(item.id) } : item
+        );
         current.counts.emailDrafts = drafts.length;
         refreshCounts(current);
         addEvent(
@@ -798,6 +818,55 @@ export function createActivityReconciliationService(options) {
     return { completed: true, evidence: reviewEvidence, reviewedMeetingIds };
   }
 
+  // Every prepared draft with a recipient becomes a real Outlook draft, so the
+  // review-approve-send step happens in the mailbox instead of only inside the
+  // panel. Draft only: this path never sends. Failures land on the individual
+  // draft, and an already-created draft is never created twice on resume.
+  async function deliverDrafts(runId) {
+    if (!deliverEmailDrafts) return;
+    const run = await getRun(runId);
+    const pending = (run.emailDrafts || []).filter((item) => item.outlook?.status !== "created");
+    if (!pending.length) return;
+    await setPhase(runId, "delivering_drafts", "Creating Outlook drafts for mailbox review.");
+    const setOutlook = (draftId, outlook, eventType, detail) =>
+      updateRun(runId, (current) => {
+        const target = (current.emailDrafts || []).find((item) => item.id === draftId);
+        if (target) target.outlook = outlook;
+        addEvent(current, eventType, detail, asIso(clock));
+      });
+    for (const draft of pending) {
+      if (await cancellationRequested(runId)) return;
+      if (!draft.to) {
+        await setOutlook(
+          draft.id,
+          {
+            status: "recipient_review",
+            detail: "Add a recipient before this draft can wait in Outlook.",
+          },
+          "outlook_draft_skipped",
+          `${draft.subject}: no recipient, kept in the panel only.`
+        );
+        continue;
+      }
+      try {
+        const result = await deliverEmailDrafts({ run: clone(run), draft: clone(draft) });
+        await setOutlook(
+          draft.id,
+          { status: "created", draftId: result?.draftId || null, detail: result?.detail || null },
+          "outlook_draft",
+          `Outlook draft created: ${draft.subject}`
+        );
+      } catch (error) {
+        await setOutlook(
+          draft.id,
+          { status: "failed", detail: errorDetail(error) },
+          "outlook_draft_failed",
+          `${draft.subject}: ${errorDetail(error)}`
+        );
+      }
+    }
+  }
+
   async function execute(runId) {
     try {
       await setPhase(
@@ -818,6 +887,9 @@ export function createActivityReconciliationService(options) {
 
       await setPhase(runId, "matching_jira", "Checking evidence against current MT work items.");
       await prepareReview(runId, meetingReview);
+      if (await cancellationRequested(runId)) return finishCanceled(runId);
+
+      await deliverDrafts(runId);
       if (await cancellationRequested(runId)) return finishCanceled(runId);
 
       // The MDM Jira-vs-Brain check chains automatically so one run covers

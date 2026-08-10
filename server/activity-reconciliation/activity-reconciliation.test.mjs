@@ -560,3 +560,121 @@ test("an MDM check failure is reported without failing the activity run", async 
   assert.equal(completed.mdmCheck.status, "failed");
   assert.match(completed.mdmCheck.detail, /unavailable/);
 });
+
+test("email drafts are created in Outlook and their status lands on the run", async (t) => {
+  const delivered = [];
+  const { service } = await fixture(t, {
+    collectSources: async ({ windows }) => ({
+      sources: sourceResults(windows.outlook_received.to, {
+        outlook_received: {
+          state: "current",
+          confirmedThrough: windows.outlook_received.to,
+          items: [
+            {
+              providerItemId: "mail-draft",
+              eventAt: "2026-08-06T13:30:00.000Z",
+              title: "Fabric source mapping",
+              summary: "Patrick asked for a follow-up email.",
+              status: "current",
+              jiraKey: "MT-42",
+              suggestedEmail: {
+                to: "Patrick Stiller",
+                subject: "Source mapping follow-up",
+                body: "Patrick,\n\nHere is the follow-up.\n\nSteve",
+              },
+            },
+          ],
+        },
+      }),
+    }),
+    deliverEmailDrafts: async ({ draft }) => {
+      delivered.push(draft.subject);
+      return { draftId: "outlook-draft-1" };
+    },
+  });
+
+  const started = await service.start();
+  const completed = await service.waitForRun(started.run.id);
+
+  assert.deepEqual(delivered, ["Source mapping follow-up"]);
+  assert.equal(completed.emailDrafts.length, 1);
+  assert.equal(completed.emailDrafts[0].outlook.status, "created");
+  assert.equal(completed.emailDrafts[0].outlook.draftId, "outlook-draft-1");
+});
+
+test("a failed Outlook draft is reported on the draft without failing the run", async (t) => {
+  const { service } = await fixture(t, {
+    collectSources: async ({ windows }) => ({
+      sources: sourceResults(windows.outlook_received.to, {
+        outlook_received: {
+          state: "current",
+          confirmedThrough: windows.outlook_received.to,
+          items: [
+            {
+              providerItemId: "mail-draft",
+              eventAt: "2026-08-06T13:30:00.000Z",
+              title: "Fabric source mapping",
+              summary: "Patrick asked for a follow-up email.",
+              status: "current",
+              jiraKey: "MT-42",
+              suggestedEmail: {
+                to: "Patrick Stiller",
+                subject: "Source mapping follow-up",
+                body: "Patrick,\n\nHere is the follow-up.\n\nSteve",
+              },
+            },
+          ],
+        },
+      }),
+    }),
+    deliverEmailDrafts: async () => {
+      throw new Error("Outlook is unavailable.");
+    },
+  });
+
+  const started = await service.start();
+  const completed = await service.waitForRun(started.run.id);
+
+  assert.equal(completed.status, "completed");
+  assert.equal(completed.emailDrafts[0].outlook.status, "failed");
+  assert.match(completed.emailDrafts[0].outlook.detail, /unavailable/);
+});
+
+test("a draft without a recipient stays in the panel instead of reaching Outlook", async (t) => {
+  const delivered = [];
+  const { service } = await fixture(t, {
+    collectSources: async ({ windows }) => ({
+      sources: sourceResults(windows.outlook_received.to, {
+        outlook_received: {
+          state: "current",
+          confirmedThrough: windows.outlook_received.to,
+          items: [
+            {
+              providerItemId: "mail-draft",
+              eventAt: "2026-08-06T13:30:00.000Z",
+              title: "Fabric source mapping",
+              summary: "A follow-up with no clear recipient.",
+              status: "current",
+              jiraKey: "MT-42",
+              suggestedEmail: {
+                to: null,
+                subject: "Source mapping follow-up",
+                body: "Here is the follow-up.",
+              },
+            },
+          ],
+        },
+      }),
+    }),
+    deliverEmailDrafts: async ({ draft }) => {
+      delivered.push(draft.subject);
+      return { draftId: "should-not-happen" };
+    },
+  });
+
+  const started = await service.start();
+  const completed = await service.waitForRun(started.run.id);
+
+  assert.deepEqual(delivered, []);
+  assert.equal(completed.emailDrafts[0].outlook.status, "recipient_review");
+});

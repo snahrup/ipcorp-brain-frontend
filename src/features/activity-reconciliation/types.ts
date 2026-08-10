@@ -75,6 +75,11 @@ export interface ActivityEmailDraft {
   subject: string;
   body: string;
   status: "draft_only";
+  outlook?: {
+    status: "created" | "failed" | "recipient_review";
+    draftId?: string | null;
+    detail?: string | null;
+  } | null;
 }
 
 export interface ActivityMeetingResult {

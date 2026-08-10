@@ -715,7 +715,25 @@ export function ActivityReconciliationPanel({
                     <summary>
                       <strong>{draft.subject}</strong>
                       <span>{draft.to || "Recipient needs review"}</span>
+                      {draft.outlook?.status === "created" && (
+                        <em className="ar-outlook-chip" data-state="created">
+                          In your Outlook Drafts
+                        </em>
+                      )}
+                      {draft.outlook?.status === "failed" && (
+                        <em className="ar-outlook-chip" data-state="failed">
+                          Outlook draft failed
+                        </em>
+                      )}
+                      {draft.outlook?.status === "recipient_review" && (
+                        <em className="ar-outlook-chip" data-state="recipient_review">
+                          Needs a recipient first
+                        </em>
+                      )}
                     </summary>
+                    {draft.outlook?.status === "failed" && draft.outlook.detail && (
+                      <p className="ar-outlook-failure">{draft.outlook.detail}</p>
+                    )}
                     <pre>{draft.body}</pre>
                   </details>
                 ))}

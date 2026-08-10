@@ -554,6 +554,10 @@ test("select-all covers every proposal and the chained MDM check opens its revie
         ],
       },
     ],
+    emailDrafts: base.emailDrafts.map((draft) => ({
+      ...draft,
+      outlook: { status: "created", draftId: "outlook-draft-fixture", detail: null },
+    })),
     mdmCheck: {
       status: "completed",
       generatedAt: "2026-08-06T14:02:31.000Z",
@@ -589,6 +593,8 @@ test("select-all covers every proposal and the chained MDM check opens its revie
   await expect(page.getByTestId("activity-jira-approval")).toContainText("APPLY 3 JIRA PROPOSALS");
   await page.getByTestId("activity-select-all").click();
   await expect(page.getByTestId("activity-jira-approval")).toHaveCount(0);
+
+  await expect(page.getByText("In your Outlook Drafts")).toBeVisible();
 
   const mdmSection = page.getByTestId("activity-mdm-check");
   await expect(mdmSection).toBeVisible();
