@@ -122,7 +122,7 @@ async function installCloseoutMock(page: Page, mode: "full" | "empty" | "refresh
           return json({ ok: true, data: [] });
         }
 
-        if (url.endsWith("/api/meeting-closeout/today")) {
+        if (url.includes("/api/meeting-closeout/today")) {
           if (mode === "empty") {
             return json({
               ok: true,

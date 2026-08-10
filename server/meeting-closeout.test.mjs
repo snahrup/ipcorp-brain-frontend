@@ -10,6 +10,7 @@ import {
   listTodaysMeetings,
   persistMeetingPackage,
   processMeetingCloseout,
+  resetTodayCalendarState,
 } from "./meeting-closeout.mjs";
 
 const meeting = {
@@ -333,4 +334,95 @@ test("meeting persistence checks open MANIFEST rows and stops on a pending write
       )
     )
   );
+});
+
+test("a slow calendar read runs in the background and later calls share one result", async () => {
+  resetTodayCalendarState();
+  let reads = 0;
+  let releaseRead = () => undefined;
+  const pending = new Promise((resolveRead) => {
+    releaseRead = () =>
+      resolveRead({ ok: true, data: { meetings: [{ ...meeting, title: "Live meeting" }] } });
+  });
+  const options = {
+    date: "2026-08-04",
+    preparedMeetings: [meeting],
+    fixture: null,
+    readCalendar: () => {
+      reads += 1;
+      return pending;
+    },
+  };
+
+  const first = await listTodaysMeetings(options);
+  assert.equal(first.availability, "loading");
+  assert.equal(first.meetings[0].id, meeting.id);
+  assert.equal(reads, 1);
+
+  // A second page visit while the read is still running never starts another read.
+  const second = await listTodaysMeetings(options);
+  assert.equal(second.availability, "loading");
+  assert.equal(reads, 1);
+
+  releaseRead();
+  await new Promise((resolveWait) => setTimeout(resolveWait, 20));
+
+  const third = await listTodaysMeetings(options);
+  assert.equal(third.availability, "current");
+  assert.equal(third.meetings[0].title, "Live meeting");
+  assert.equal(reads, 1);
+
+  // Cached: navigating back within the cache window is free.
+  const fourth = await listTodaysMeetings(options);
+  assert.equal(fourth.availability, "current");
+  assert.equal(reads, 1);
+});
+
+test("failures retry after a short window and force starts a fresh read", async () => {
+  resetTodayCalendarState();
+  const now = { value: Date.parse("2026-08-04T12:00:00.000Z") };
+  let reads = 0;
+  let nextResponse = { ok: false, data: { error: "Calendar query returned 500" } };
+  const options = {
+    date: "2026-08-04",
+    preparedMeetings: [meeting],
+    fixture: null,
+    clock: () => new Date(now.value),
+    readCalendar: () => {
+      reads += 1;
+      return Promise.resolve(nextResponse);
+    },
+  };
+
+  const first = await listTodaysMeetings(options);
+  assert.equal(first.availability, "loading");
+  await new Promise((resolveWait) => setTimeout(resolveWait, 20));
+
+  const failed = await listTodaysMeetings(options);
+  assert.equal(failed.availability, "error");
+  assert.equal(reads, 1);
+
+  // Still inside the failure window: the cached failure is served.
+  now.value += 10_000;
+  const cachedFailure = await listTodaysMeetings(options);
+  assert.equal(cachedFailure.availability, "error");
+  assert.equal(reads, 1);
+
+  // Past the failure window: the next visit retries on its own.
+  now.value += 30_000;
+  nextResponse = { ok: true, data: { meetings: [meeting] } };
+  const retry = await listTodaysMeetings(options);
+  assert.equal(retry.availability, "loading");
+  assert.equal(reads, 2);
+  await new Promise((resolveWait) => setTimeout(resolveWait, 20));
+  const recovered = await listTodaysMeetings(options);
+  assert.equal(recovered.availability, "current");
+
+  // A good cached answer stays put until Refresh forces a new read.
+  const cached = await listTodaysMeetings(options);
+  assert.equal(reads, 2);
+  assert.equal(cached.availability, "current");
+  const forced = await listTodaysMeetings({ ...options, force: true });
+  assert.equal(forced.availability, "loading");
+  assert.equal(reads, 3);
 });

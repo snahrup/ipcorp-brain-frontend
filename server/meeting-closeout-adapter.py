@@ -35,8 +35,10 @@ def calendar(bridge: Any, payload: dict[str, Any]) -> dict[str, Any]:
         action="start",
         wait_seconds=50,
     )
+    # One request, long patience: keep continuing the same job for up to about
+    # fifteen minutes instead of abandoning a query Cowork is still running.
     waits = 0
-    while isinstance(state, dict) and not state.get("terminal") and waits < 4:
+    while isinstance(state, dict) and not state.get("terminal") and waits < 17:
         job_id = str(state.get("job_id") or "")
         if not job_id:
             break

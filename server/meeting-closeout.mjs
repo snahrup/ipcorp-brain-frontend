@@ -80,11 +80,18 @@ async function loadFixture(fixturePath = process.env.MEETING_CLOSEOUT_FIXTURE) {
   return JSON.parse(await readFile(resolve(fixturePath), "utf8"));
 }
 
+// The calendar read waits on a Microsoft 365 job that can genuinely take many
+// minutes; killing the adapter early strands a query that Cowork is still
+// working on. Sixteen minutes covers the adapter's own fifteen-minute wait
+// budget. Transcript reads keep the shorter bound because the browser is
+// waiting on that request directly.
+const ADAPTER_TIMEOUTS_MS = { calendar: 16 * 60_000, transcript: 240_000 };
+
 async function runAdapter(command, payload = {}) {
   const python = process.env.MEETING_CLOSEOUT_PYTHON || "python";
   const { stdout } = await execFileAsync(python, [ADAPTER_PATH, command, JSON.stringify(payload)], {
     cwd: process.cwd(),
-    timeout: 240_000,
+    timeout: ADAPTER_TIMEOUTS_MS[command] || 240_000,
     windowsHide: true,
     maxBuffer: 8_000_000,
     env: process.env,
@@ -198,6 +205,32 @@ function calendarFailureAvailability(value) {
     : "error";
 }
 
+// One shared calendar read at a time, with its last answer cached, so opening
+// the wrap-up page never fires a duplicate Microsoft 365 query and navigating
+// away never strands one. A good answer is served for ten minutes; a failure
+// is retried after thirty seconds; Refresh forces a new read immediately.
+const TODAY_CACHE_GOOD_MS = 10 * 60_000;
+const TODAY_CACHE_FAILURE_MS = 30_000;
+let todayCalendarCache = null;
+let todayCalendarJob = null;
+
+export function resetTodayCalendarState() {
+  todayCalendarCache = null;
+  todayCalendarJob = null;
+}
+
+function loadingCalendarResponse(date, fallback) {
+  return {
+    date,
+    meetings: fallback,
+    source: fallback.length ? "brain_snapshot" : "microsoft_365",
+    availability: "loading",
+    microsoft365Available: true,
+    detail:
+      "The Outlook calendar read is still running. Prepared meetings stay available while it finishes.",
+  };
+}
+
 export async function listTodaysMeetings(options = {}) {
   const date = options.date || localDate();
   const fixture = options.fixture ?? (await loadFixture(options.fixturePath));
@@ -254,15 +287,75 @@ export async function listTodaysMeetings(options = {}) {
       detail: "Outlook returned no meetings for today.",
     };
   }
-  try {
-    const response = await runAdapter("calendar", { date });
-    const meetings = meetingCandidates(response).map(normalizeMeeting);
-    if (!response.ok) {
-      const availability = calendarFailureAvailability(response);
+  const clock = options.clock || (() => new Date());
+  const nowMs = clock().getTime();
+  const readCalendar = options.readCalendar || ((day) => runAdapter("calendar", { date: day }));
+
+  const cacheTtl = todayCalendarCache?.value?.microsoft365Available
+    ? TODAY_CACHE_GOOD_MS
+    : TODAY_CACHE_FAILURE_MS;
+  const cacheFresh =
+    todayCalendarCache &&
+    todayCalendarCache.date === date &&
+    nowMs - todayCalendarCache.at < cacheTtl;
+  if (!options.force && cacheFresh) return structuredClone(todayCalendarCache.value);
+
+  // A read already in flight is never duplicated, force or not: a second tab
+  // or a repeat visit attaches to the same pending answer.
+  if (todayCalendarJob?.date === date) return loadingCalendarResponse(date, fallback);
+
+  const work = (async () => {
+    try {
+      const response = await readCalendar(date);
+      const meetings = meetingCandidates(response).map(normalizeMeeting);
+      if (!response.ok) {
+        const availability = calendarFailureAvailability(response);
+        return {
+          date,
+          meetings: meetings.length ? meetings : fallback,
+          source: meetings.length ? "previous_calendar_result" : "brain_snapshot",
+          availability,
+          microsoft365Available: false,
+          detail:
+            availability === "unavailable"
+              ? "Microsoft 365 is unavailable or not connected."
+              : "The calendar query failed. Listed meetings remain available when present.",
+        };
+      }
+      if (meetings.length) {
+        return {
+          date,
+          meetings,
+          source: "microsoft_365",
+          availability: "current",
+          microsoft365Available: true,
+          detail: "Today's Outlook meetings are current.",
+        };
+      }
+      if (fallback.length) {
+        return {
+          date,
+          meetings: fallback,
+          source: "brain_snapshot",
+          availability: "fallback",
+          microsoft365Available: true,
+          detail: "Outlook returned no current meetings. Prepared meetings remain available.",
+        };
+      }
       return {
         date,
-        meetings: meetings.length ? meetings : fallback,
-        source: meetings.length ? "previous_calendar_result" : "brain_snapshot",
+        meetings: [],
+        source: "microsoft_365",
+        availability: "empty",
+        microsoft365Available: true,
+        detail: "Outlook returned no meetings for today.",
+      };
+    } catch (error) {
+      const availability = calendarFailureAvailability(error);
+      return {
+        date,
+        meetings: fallback,
+        source: "brain_snapshot",
         availability,
         microsoft365Available: false,
         detail:
@@ -271,48 +364,16 @@ export async function listTodaysMeetings(options = {}) {
             : "The calendar query failed. Listed meetings remain available when present.",
       };
     }
-    if (meetings.length) {
-      return {
-        date,
-        meetings,
-        source: "microsoft_365",
-        availability: "current",
-        microsoft365Available: true,
-        detail: "Today's Outlook meetings are current.",
-      };
-    }
-    if (fallback.length) {
-      return {
-        date,
-        meetings: fallback,
-        source: "brain_snapshot",
-        availability: "fallback",
-        microsoft365Available: true,
-        detail: "Outlook returned no current meetings. Prepared meetings remain available.",
-      };
-    }
-    return {
-      date,
-      meetings: [],
-      source: "microsoft_365",
-      availability: "empty",
-      microsoft365Available: true,
-      detail: "Outlook returned no meetings for today.",
-    };
-  } catch (error) {
-    const availability = calendarFailureAvailability(error);
-    return {
-      date,
-      meetings: fallback,
-      source: "brain_snapshot",
-      availability,
-      microsoft365Available: false,
-      detail:
-        availability === "unavailable"
-          ? "Microsoft 365 is unavailable or not connected."
-          : "The calendar query failed. Listed meetings remain available when present.",
-    };
-  }
+  })();
+  todayCalendarJob = { date, promise: work };
+  work
+    .then((value) => {
+      todayCalendarCache = { date, at: clock().getTime(), value: structuredClone(value) };
+    })
+    .finally(() => {
+      if (todayCalendarJob?.promise === work) todayCalendarJob = null;
+    });
+  return loadingCalendarResponse(date, fallback);
 }
 
 function transcriptError(value) {
@@ -1163,7 +1224,8 @@ async function readJsonBody(request) {
 export async function handleMeetingCloseoutRoute(request, url) {
   if (!url.pathname.startsWith("/api/meeting-closeout")) return null;
   if (request.method === "GET" && url.pathname === "/api/meeting-closeout/today") {
-    return { status: 200, body: { ok: true, data: await listTodaysMeetings() } };
+    const force = url.searchParams.get("force") === "1";
+    return { status: 200, body: { ok: true, data: await listTodaysMeetings({ force }) } };
   }
   if (request.method === "GET" && url.pathname === "/api/meeting-closeout/packages") {
     return { status: 200, body: { ok: true, data: await listStoredPackages() } };

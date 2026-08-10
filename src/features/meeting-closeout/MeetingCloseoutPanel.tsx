@@ -404,17 +404,33 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
     [preparedFallback]
   );
 
+  const pollTimerRef = useRef<number | null>(null);
+
+  // The server runs the calendar read as one shared background job and caches
+  // its answer, so this fetch returns immediately: either the cached result or
+  // a "loading" answer that this poll loop quietly rechecks. Navigating away
+  // and back never restarts the underlying Microsoft 365 query; only the
+  // Refresh button forces a fresh one.
   const refreshCalendar = useCallback(
-    async (initial = false, signal?: AbortSignal) => {
+    async (initial = false, signal?: AbortSignal, force = false) => {
       if (initial) setStatus("Loading today's calendar…");
-      else setRefreshing(true);
+      else if (force) setRefreshing(true);
       try {
-        const response = await fetch(`${GATEWAY}/meeting-closeout/today`, { signal });
+        const response = await fetch(
+          `${GATEWAY}/meeting-closeout/today${force ? "?force=1" : ""}`,
+          { signal }
+        );
         const body = (await response.json()) as ApiEnvelope<TodayResponse>;
         if (!response.ok || !body.ok || !body.data) {
           throw new Error(body.error || "The calendar query failed.");
         }
         applyTodayResponse(body.data);
+        if (body.data.availability === "loading" && !signal?.aborted) {
+          pollTimerRef.current = window.setTimeout(
+            () => void refreshCalendar(false, signal),
+            5_000
+          );
+        }
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") return;
         applyTodayResponse({
@@ -424,7 +440,7 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
           detail: "The calendar query could not be completed.",
         });
       } finally {
-        if (!initial) setRefreshing(false);
+        if (force) setRefreshing(false);
       }
     },
     [applyTodayResponse]
@@ -443,6 +459,7 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
       });
     return () => {
       controller.abort();
+      if (pollTimerRef.current !== null) window.clearTimeout(pollTimerRef.current);
     };
   }, [refreshCalendar]);
 
@@ -510,7 +527,7 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
             className="mc-refresh-button"
             data-testid="refresh-meetings"
             disabled={refreshing}
-            onClick={() => void refreshCalendar()}
+            onClick={() => void refreshCalendar(false, undefined, true)}
             type="button"
           >
             <RefreshCw className={refreshing ? "mc-spin" : undefined} size={15} />
