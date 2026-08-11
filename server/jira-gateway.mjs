@@ -8,6 +8,7 @@ import { createActivityReconciliationService } from "./activity-reconciliation/a
 import { createActivityReconciliationRouter } from "./activity-reconciliation/activity-router.mjs";
 import { collectActivitySources } from "./activity-reconciliation/activity-sources.mjs";
 import { createActivityStore } from "./activity-reconciliation/activity-store.mjs";
+import { writeProposalProse } from "./activity-reconciliation/voice-writer.mjs";
 import { dispatch as dispatchAgent, getRun, listRuns } from "./agent-dispatch.mjs";
 import { getDailyMeetingPrep, readDailyMeetingPrepFile } from "./daily-meeting-prep.mjs";
 import {
@@ -110,6 +111,7 @@ function getActivityReconciliationRouter() {
       applyJiraProposal: applyActivityJiraProposal,
       runMdmCheck: runActivityMdmCheck,
       deliverEmailDrafts: deliverActivityEmailDraft,
+      writeVoice: writeActivityVoice,
     });
     activityReconciliationRouter = createActivityReconciliationRouter(service);
   }
@@ -120,6 +122,27 @@ async function readActivityFixture() {
   const fixturePath = process.env.ACTIVITY_RECONCILIATION_FIXTURE;
   if (!fixturePath) return null;
   return JSON.parse(await readFile(resolve(fixturePath), "utf8"));
+}
+
+// Fixture runs stub the voice writer so tests never spawn the real model;
+// production wording always comes from the model in Steve's voice.
+async function writeActivityVoice(proposals) {
+  const fixture = await readActivityFixture();
+  if (!fixture) return writeProposalProse(proposals);
+  return {
+    written: proposals.map((proposal) => {
+      const filled = structuredClone(proposal);
+      for (const change of filled.changes) {
+        if (change.kind === "comment") change.body = change.body || "Fixture wording.";
+        if (change.kind === "worklog")
+          change.comment = change.comment || "Fixture worklog wording.";
+        if (change.kind === "create_issue")
+          change.description = change.description || "Fixture description.";
+      }
+      return filled;
+    }),
+    withheld: [],
+  };
 }
 
 async function loadActivityJiraIssues() {
@@ -1763,7 +1786,7 @@ async function transitionIssueTo(key, statusName) {
   });
 }
 
-async function addIssueComment(key, text) {
+export async function addIssueComment(key, text) {
   await jiraRequest(`/rest/api/3/issue/${key}/comment`, {
     method: "POST",
     body: JSON.stringify({ body: textToAdf(String(text)) }),
@@ -2731,7 +2754,7 @@ function sameActivityText(left, right) {
   return normalize(left) === normalize(right);
 }
 
-async function createActivityJiraIssue(change) {
+export async function createActivityJiraIssue(change) {
   const me = await jiraRequest("/rest/api/3/myself");
   const fields = {
     ...(change.fields || {}),

@@ -158,3 +158,34 @@ test("the stale sweep never runs without a reference time", () => {
   );
   assert.equal(review.proposals.length, 0);
 });
+
+test("proposals never carry templated prose; bodies wait for the voice writer", () => {
+  const review = buildJiraReview(
+    [
+      evidence("direct", {
+        jiraKey: "MT-42",
+        jiraReferenceKind: "direct",
+        jiraContextSignals: ["Fabric source mapping activity"],
+      }),
+      evidence("fresh", {
+        title: "Purview scan window planning",
+        summary: "Planning the Purview scan window ahead of the upgrade.",
+      }),
+    ],
+    [issue("MT-42", "Fabric source mapping")]
+  );
+
+  for (const proposal of review.proposals) {
+    for (const change of proposal.changes) {
+      if (change.kind === "comment" || change.kind === "worklog") {
+        assert.equal(change.body ?? null, null);
+        assert.equal(change.comment ?? null, null);
+      }
+      if (change.kind === "create_issue") assert.equal(change.description ?? null, null);
+    }
+    assert.ok(proposal.prose, `${proposal.id} must carry a prose brief for the voice writer`);
+    assert.ok(proposal.prose.evidence.length > 0);
+    const serialized = JSON.stringify(proposal);
+    assert.ok(!serialized.includes("I reviewed the"), "templated prose must be gone");
+  }
+});

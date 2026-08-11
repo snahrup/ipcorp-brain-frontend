@@ -406,6 +406,16 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
 
   const pollTimerRef = useRef<number | null>(null);
 
+  const loadPackages = useCallback(async (signal?: AbortSignal) => {
+    try {
+      const response = await fetch(`${GATEWAY}/meeting-closeout/packages`, { signal });
+      const body = (await response.json()) as ApiEnvelope<MeetingPackage[]>;
+      if (body.ok && Array.isArray(body.data)) setPackages(body.data);
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "AbortError")) setPackages([]);
+    }
+  }, []);
+
   // The server runs the calendar read as one shared background job and caches
   // its answer, so this fetch returns immediately: either the cached result or
   // a "loading" answer that this poll loop quietly rechecks. Navigating away
@@ -415,6 +425,9 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
     async (initial = false, signal?: AbortSignal, force = false) => {
       if (initial) setStatus("Loading today's calendar…");
       else if (force) setRefreshing(true);
+      // Refresh means refresh everything visible: saved wrap-ups included, so a
+      // package stored by a background run appears without leaving the page.
+      if (force) void loadPackages(signal);
       try {
         const response = await fetch(
           `${GATEWAY}/meeting-closeout/today${force ? "?force=1" : ""}`,
@@ -443,25 +456,18 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
         if (force) setRefreshing(false);
       }
     },
-    [applyTodayResponse]
+    [applyTodayResponse, loadPackages]
   );
 
   useEffect(() => {
     const controller = new AbortController();
     void refreshCalendar(true, controller.signal);
-    void fetch(`${GATEWAY}/meeting-closeout/packages`, { signal: controller.signal })
-      .then((response) => response.json() as Promise<ApiEnvelope<MeetingPackage[]>>)
-      .then((body) => {
-        if (body.ok && Array.isArray(body.data)) setPackages(body.data);
-      })
-      .catch((error) => {
-        if (!(error instanceof DOMException && error.name === "AbortError")) setPackages([]);
-      });
+    void loadPackages(controller.signal);
     return () => {
       controller.abort();
       if (pollTimerRef.current !== null) window.clearTimeout(pollTimerRef.current);
     };
-  }, [refreshCalendar]);
+  }, [refreshCalendar, loadPackages]);
 
   async function processMeeting(meeting: Meeting, pastedTranscript = "", notes = "") {
     setProcessingId(meeting.id);

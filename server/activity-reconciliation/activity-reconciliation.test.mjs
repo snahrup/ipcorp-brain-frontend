@@ -49,6 +49,20 @@ async function fixture(t, options = {}) {
   const service = createActivityReconciliationService({
     store: createActivityStore(join(root, "state.json")),
     clock: () => new Date(current.value),
+    // Unit tests never spawn the real voice model; wording is stubbed unless a
+    // test overrides this to exercise the withhold path.
+    writeVoice: async (proposals) => ({
+      written: proposals.map((proposal) => {
+        const filled = structuredClone(proposal);
+        for (const change of filled.changes) {
+          if (change.kind === "comment") change.body = "Stubbed wording for tests.";
+          if (change.kind === "worklog") change.comment = "Stubbed worklog wording.";
+          if (change.kind === "create_issue") change.description = "Stubbed description.";
+        }
+        return filled;
+      }),
+      withheld: [],
+    }),
     loadJiraIssues: async () => [issue()],
     processMeeting: async () => ({
       ok: true,
@@ -785,4 +799,60 @@ test("default steps run everything exactly as before", async (t) => {
     Object.values(completed.sources).some((source) => source.state === "skipped"),
     false
   );
+});
+
+test("proposal wording is model-written and failures withhold the proposal", async (t) => {
+  let voiced = 0;
+  const { service } = await fixture(t, {
+    collectSources: async ({ windows }) => ({
+      sources: sourceResults(windows.outlook_received.to, {
+        outlook_received: {
+          state: "current",
+          confirmedThrough: windows.outlook_received.to,
+          items: [
+            {
+              providerItemId: "mail-1",
+              eventAt: "2026-08-06T13:30:00.000Z",
+              title: "Fabric source mapping",
+              summary: "Patrick confirmed the source mapping on MT-42.",
+              status: "current",
+              jiraKey: "MT-42",
+              jiraReferenceKind: "direct",
+              jiraContextSignals: ["Fabric source mapping activity"],
+            },
+            {
+              providerItemId: "mail-2",
+              eventAt: "2026-08-06T13:31:00.000Z",
+              title: "Purview scan window planning",
+              summary: "Planning the Purview scan window ahead of the upgrade.",
+              status: "current",
+            },
+          ],
+        },
+      }),
+    }),
+    writeVoice: async (proposals) => {
+      voiced += 1;
+      const [first, ...rest] = proposals;
+      const filled = structuredClone(first);
+      for (const change of filled.changes) {
+        if (change.kind === "comment")
+          change.body = "Patrick confirmed the source mapping, so MT-42 reflects it now.";
+      }
+      return {
+        written: [filled],
+        withheld: rest.map((proposal) => ({ proposal, reason: "Wording unavailable (empty)." })),
+      };
+    },
+  });
+
+  const started = await service.start();
+  const completed = await service.waitForRun(started.run.id);
+
+  assert.equal(voiced, 1);
+  assert.equal(completed.jiraProposals.length, 1);
+  const comment = completed.jiraProposals[0].changes.find((change) => change.kind === "comment");
+  assert.match(comment.body, /Patrick confirmed the source mapping/);
+  assert.ok(!JSON.stringify(completed.jiraProposals).includes("I reviewed the"));
+  assert.ok(completed.skipped.some((item) => /Wording unavailable/.test(item.reason)));
 });

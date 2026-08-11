@@ -78,23 +78,18 @@ function isRelevant(evidence) {
   return [...words].some((word) => RELEVANCE_TERMS.has(word));
 }
 
-function commentAlreadyExists(issue, body) {
-  const proposed = plain(body);
+// No-op suppression works on the evidence substance, not on any generated
+// wording: if the issue already carries a comment containing this evidence,
+// the update would add nothing.
+function commentAlreadyExists(issue, evidenceText) {
+  const proposed = plain(evidenceText);
   if (!proposed) return true;
-  return (issue.comments || []).some((comment) => {
-    const existing = plain(comment.body);
-    return existing === proposed || existing.includes(proposed);
-  });
+  return (issue.comments || []).some((comment) => plain(comment.body).includes(proposed));
 }
 
-function worklogAlreadyExists(issue, body, minutes) {
-  const proposed = plain(body);
+function worklogAlreadyExists(issue, minutes) {
   const seconds = Math.round(minutes * 60);
-  return (issue.worklogs || []).some(
-    (worklog) =>
-      worklog.timeSpentSeconds === seconds &&
-      (plain(worklog.comment) === proposed || plain(worklog.comment).includes(proposed))
-  );
+  return (issue.worklogs || []).some((worklog) => worklog.timeSpentSeconds === seconds);
 }
 
 function proposalId(evidence, issueKey, changes) {
@@ -108,40 +103,39 @@ function statusName(issue) {
   return String(issue?.status?.name || issue?.status || "Unknown");
 }
 
-function commentBody(evidence, association = null) {
-  const sourceLabels = {
-    outlook_received: "received message",
-    outlook_replied: "reply",
-    outlook_sent: "sent message",
-    teams_channel_messages: "Teams channel update",
-    teams_group_messages: "Teams group update",
-    teams_direct_messages: "Teams direct update",
-    teams_meeting_transcripts: "meeting follow-up",
-    brain_updates: "Brain update",
+// The prose brief carries everything the voice writer needs to write this
+// update as Steve: verbatim evidence, the association reasoning, and the
+// issue facts. No wording is generated here, ever.
+function proseBrief(purposes, evidence, issue, association) {
+  return {
+    purposes,
+    issue: issue ? { key: issue.key, summary: issue.summary, status: statusName(issue) } : null,
+    facts: {
+      source: evidence?.sourceId || null,
+      sourceReference: evidence?.sourceReference || null,
+      associationReason: association?.reason || null,
+      signals: association?.signals || [],
+    },
+    evidence: [evidence?.title, evidence?.summary].filter(Boolean),
   };
-  const lines = [
-    `I reviewed the ${sourceLabels[evidence.sourceId] || "source update"} for ${evidence.title}.`,
-    evidence.summary || evidence.title,
-  ];
-  if (association?.reason) lines.push(`Why I am adding this here: ${association.reason}`);
-  if (evidence.sourceReference) lines.push(`Supporting source: ${evidence.sourceReference}`);
-  return lines.filter(Boolean).join("\n\n").slice(0, 4_000);
 }
 
 function existingIssueProposal(evidence, issue, association) {
   const changes = [];
-  const body = commentBody(evidence, association);
-  if (!commentAlreadyExists(issue, body)) {
-    changes.push({ kind: "comment", body });
+  const purposes = [];
+  if (!commentAlreadyExists(issue, evidence.summary || evidence.title)) {
+    changes.push({ kind: "comment", body: null });
+    purposes.push("comment");
   }
 
-  if (evidence.worklogMinutes > 0 && !worklogAlreadyExists(issue, body, evidence.worklogMinutes)) {
+  if (evidence.worklogMinutes > 0 && !worklogAlreadyExists(issue, evidence.worklogMinutes)) {
     changes.push({
       kind: "worklog",
       minutes: evidence.worklogMinutes,
-      comment: body,
+      comment: null,
       startedAt: evidence.eventAt || evidence.firstObservedAt,
     });
+    purposes.push("worklog");
   }
 
   const sourceStatus = plain(evidence.status);
@@ -172,6 +166,7 @@ function existingIssueProposal(evidence, issue, association) {
     },
     after: { changes },
     changes,
+    prose: purposes.length ? proseBrief(purposes, evidence, issue, association) : null,
     selectedByDefault: false,
   };
 }
@@ -190,7 +185,7 @@ function newIssueProposal(evidence) {
       projectKey: "MT",
       issueType: "Task",
       summary: evidence.title.slice(0, 240),
-      description: commentBody(evidence),
+      description: null,
       fields: {
         labels: ["activity-reconciliation", "mdm-workbench"],
         priority: { name: "Medium" },
@@ -215,6 +210,9 @@ function newIssueProposal(evidence) {
     before: null,
     after: { changes },
     changes,
+    prose: proseBrief(["description"], evidence, null, {
+      reason: "No existing MT item had enough matching evidence.",
+    }),
     selectedByDefault: false,
   };
 }
@@ -303,13 +301,8 @@ function daysBetween(earlierIso, laterIso) {
 
 function staleCloseProposal(issue, idleDays) {
   const lastTouched = String(issue.updatedAt || "").slice(0, 10);
-  const body = [
-    `Closing this out: the last Jira activity on this item was ${lastTouched}, ${idleDays} days ago,`,
-    `and nothing in the reviewed Outlook, Teams, meeting, or Brain activity mentions it.`,
-    `Reopen it if the work is still needed.`,
-  ].join(" ");
   const changes = [
-    { kind: "comment", body },
+    { kind: "comment", body: null },
     { kind: "transition", toStatus: "Done" },
   ];
   return {
@@ -331,6 +324,12 @@ function staleCloseProposal(issue, idleDays) {
     },
     after: { changes },
     changes,
+    prose: {
+      purposes: ["stale_close"],
+      issue: { key: issue.key, summary: issue.summary, status: statusName(issue) },
+      facts: { lastTouched, idleDays },
+      evidence: [`Last Jira activity ${lastTouched}, ${idleDays} days before this run.`],
+    },
     selectedByDefault: false,
   };
 }

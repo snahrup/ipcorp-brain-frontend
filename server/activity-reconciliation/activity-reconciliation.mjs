@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { classifyEvidence, normalizeEvidence, normalizeSourceState } from "./evidence.mjs";
 import { buildJiraReview, proposalConfirmation } from "./jira-proposals.mjs";
+import { writeProposalProse } from "./voice-writer.mjs";
 
 export const ACTIVITY_SOURCES = Object.freeze([
   { id: "outlook_received", label: "Outlook received" },
@@ -428,6 +429,7 @@ export function createActivityReconciliationService(options) {
   const runMdmCheck = typeof options.runMdmCheck === "function" ? options.runMdmCheck : null;
   const deliverEmailDrafts =
     typeof options.deliverEmailDrafts === "function" ? options.deliverEmailDrafts : null;
+  const writeVoice = options.writeVoice || writeProposalProse;
   const loadJiraIssues = options.loadJiraIssues || (async () => []);
   const processMeeting =
     options.processMeeting || (async () => ({ ok: false, code: "unavailable" }));
@@ -691,6 +693,17 @@ export function createActivityReconciliationService(options) {
     try {
       const issues = await loadJiraIssues({ run: clone(run), evidence: clone(jiraEvidence) });
       const review = await prepareJira({ run: clone(run), evidence: clone(jiraEvidence), issues });
+      // Every word posted as Steve is model-written from the evidence brief.
+      // A proposal whose wording fails the voice rules is withheld, never
+      // shipped with generated-template text.
+      const voiced = await writeVoice(Array.isArray(review?.proposals) ? review.proposals : []);
+      review.proposals = voiced.written;
+      for (const held of voiced.withheld) {
+        review.skipped = [
+          ...(review.skipped || []),
+          { evidenceId: held.proposal.evidenceIds?.[0] || held.proposal.id, reason: held.reason },
+        ];
+      }
       const at = asIso(clock);
       await updateRun(runId, (current) => {
         // A resumed run rebuilds its drafts from saved evidence; carrying the
