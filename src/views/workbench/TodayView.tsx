@@ -6,6 +6,7 @@ import {
   CircleDot,
   Inbox,
   LoaderCircle,
+  PauseCircle,
   RefreshCw,
   TriangleAlert,
 } from "lucide-react";
@@ -129,11 +130,17 @@ export function TodayView({ onOpenWork }: { onOpenWork: () => void }) {
     const soon: JiraIssue[] = [];
     const active: JiraIssue[] = [];
     const later: JiraIssue[] = [];
+    // Blocked and waiting work is held by someone else. It stays visible in its
+    // own section, but it never competes for "past due" or for First up: a due
+    // date that keeps aging while the item is blocked would otherwise pin it to
+    // the top of the day forever, which is exactly backwards.
+    const held: JiraIssue[] = [];
 
     for (const issue of open) {
       const due = day(issue.dueDate);
       const tone = statusTone(issue.status.name, issue.status.category);
-      if (due !== null && due < todayUtc) overdue.push(issue);
+      if (tone === "blocked" || tone === "waiting") held.push(issue);
+      else if (due !== null && due < todayUtc) overdue.push(issue);
       else if (due !== null && due <= todayUtc + 7 * DAY_MS) soon.push(issue);
       else if (tone === "active" || tone === "review") active.push(issue);
       else later.push(issue);
@@ -145,9 +152,12 @@ export function TodayView({ onOpenWork }: { onOpenWork: () => void }) {
       soon: soon.sort(sort),
       active: active.sort(sort),
       later: later.sort(sort),
+      held: held.sort(sort),
     };
   }, [initiative, todayUtc]);
 
+  // First up means the next thing Steve can actually act on, so held work is
+  // never a candidate.
   const firstUp = groups.overdue[0] ?? groups.soon[0] ?? groups.active[0] ?? groups.later[0];
 
   const sections: Array<{
@@ -170,6 +180,13 @@ export function TodayView({ onOpenWork }: { onOpenWork: () => void }) {
       helper: "Lands in the next seven days.",
       icon: CalendarClock,
       items: groups.soon,
+    },
+    {
+      key: "held",
+      label: "Waiting on someone else",
+      helper: "Blocked or on hold. Not yours to move until they answer.",
+      icon: PauseCircle,
+      items: groups.held,
     },
     {
       key: "active",
