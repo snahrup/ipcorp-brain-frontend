@@ -80,6 +80,15 @@ async function loadFixture(fixturePath = process.env.MEETING_CLOSEOUT_FIXTURE) {
   return JSON.parse(await readFile(resolve(fixturePath), "utf8"));
 }
 
+// A caller that passes `fixture` decides the answer, including passing null to
+// mean "no fixture, do the real read". `options.fixture ?? loadFixture()` read
+// that null as absent and fell back to MEETING_CLOSEOUT_FIXTURE, so a fixture
+// path left in the environment silently replaced the live calendar answer.
+async function resolveFixture(options) {
+  if ("fixture" in options) return options.fixture;
+  return loadFixture(options.fixturePath);
+}
+
 // The calendar read waits on a Microsoft 365 job that can genuinely take many
 // minutes; killing the adapter early strands a query that Cowork is still
 // working on. Sixteen minutes covers the adapter's own fifteen-minute wait
@@ -233,7 +242,7 @@ function loadingCalendarResponse(date, fallback) {
 
 export async function listTodaysMeetings(options = {}) {
   const date = options.date || localDate();
-  const fixture = options.fixture ?? (await loadFixture(options.fixturePath));
+  const fixture = await resolveFixture(options);
   const fallback = options.preparedMeetings ?? (await preparedMeetingsForToday(date));
   if (fixture) {
     const meetings = (fixture.todayMeetings || []).map(normalizeMeeting);
@@ -471,7 +480,7 @@ function usableEvidence(evidence) {
 }
 
 async function meetingEvidence(meeting, options = {}) {
-  const fixture = options.fixture ?? (await loadFixture(options.fixturePath));
+  const fixture = await resolveFixture(options);
   if (fixture) {
     const record = fixture.transcripts?.[meeting.id];
     if (!record) return null;
@@ -507,6 +516,13 @@ function uniqueBy(items, selector) {
 
 function cleanEvidence(value) {
   return value.replace(/^[-*•]\s*/, "").slice(0, 500);
+}
+
+// The executive readout is a paragraph the model wrote, not a quotation, so it
+// gets no length cap. Running it through cleanEvidence chopped it at 500
+// characters and left stored summaries ending mid-word.
+function cleanReadout(value) {
+  return value.replace(/^[-*•]\s*/, "").trim();
 }
 
 // ---------------------------------------------------------------------------
@@ -698,7 +714,7 @@ export async function synthesizeReviewPackage(input, runModel = runSynthesisMode
   const output = await runModel(buildSynthesisPrompt(input));
   const parsed = parseSynthesisOutput(output);
   if (!parsed) throw synthesisError("The synthesis output was not a valid package.");
-  const summary = cleanEvidence(asText(parsed.summary));
+  const summary = cleanReadout(asText(parsed.summary));
   if (!summary) throw synthesisError("The synthesis output had no meeting summary.");
 
   const synthesisNotes = [];

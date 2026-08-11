@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { lastActivity, mapIssue } from "./jira-gateway.mjs";
+import { activityIssueDescription, lastActivity, mapIssue } from "./jira-gateway.mjs";
 
 test("importing the gateway module does not start a second server", () => {
   // If the entry-point guard regressed, this import would have thrown EADDRINUSE
@@ -256,4 +256,47 @@ test("mapIssue exposes worklogs and last activity fields on the normalized issue
   assert.equal(issue.worklogs[0].timeSpentSeconds, 3600);
   assert.equal(issue.lastActivityAt, "2026-08-01T00:00:00.000-0500");
   assert.ok(issue.lastActivitySummary.includes("Steve"));
+});
+
+function adfText(node) {
+  if (!node) return "";
+  if (node.type === "text") return node.text || "";
+  return (node.content || []).map(adfText).join("");
+}
+
+test("a created issue carries the written description, not canned section text", () => {
+  // The voice writer already returns a full Objective / Context / Approach /
+  // Acceptance document in Steve's words. The builder used to drop that whole
+  // document into a single Context paragraph and stamp identical Approach,
+  // Decision and Acceptance bullets on every issue it made.
+  const description = [
+    "Objective",
+    "Rework the breakdown so governance stands on its own.",
+    "Context",
+    "Patrick said governance is sprinkled through the waves today.",
+    "Approach",
+    "Split the pre-wave into a governance project and renumber security to M0.",
+    "Acceptance",
+    "Patrick agrees the top tier reads portfolio, program, project, task.",
+  ].join("\n\n");
+
+  const document = activityIssueDescription({
+    summary: "Restructure the MDM breakdown",
+    description,
+  });
+  const rendered = (document.content || []).map(adfText).join("\n");
+
+  assert.match(rendered, /governance stands on its own/);
+  assert.match(rendered, /renumber security to M0/);
+  assert.match(rendered, /portfolio, program, project, task/);
+  assert.doesNotMatch(rendered, /Review the supporting source and confirm the current owner/);
+  assert.doesNotMatch(rendered, /The reviewed activity supports creating this work item/);
+  assert.doesNotMatch(rendered, /Track and complete/);
+});
+
+test("an issue with no written description is refused instead of templated", () => {
+  assert.throws(
+    () => activityIssueDescription({ summary: "Something nobody wrote wording for" }),
+    /description/i
+  );
 });

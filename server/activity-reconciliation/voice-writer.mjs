@@ -38,6 +38,10 @@ const BANNED_FRAGMENTS = [
   "utilize",
   "seamless",
   "I reviewed the",
+  // Steve banned "shape" on 2026-08-11 (as in "the shape of the recap") —
+  // matched with a leading space so "reshape"/"shaped" compounds inside other
+  // words do not false-positive, same approach as " gate".
+  " shape",
 ];
 
 function promptFile() {

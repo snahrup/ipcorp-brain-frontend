@@ -2789,41 +2789,65 @@ export async function createActivityJiraIssue(change) {
   return getIssue(created.key);
 }
 
-function activityIssueDescription(change) {
+const DESCRIPTION_HEADINGS = new Set([
+  "objective",
+  "context",
+  "approach",
+  "approach and activities",
+  "activities",
+  "decision",
+  "outcome",
+  "decision and outcome",
+  "acceptance",
+  "acceptance criteria",
+]);
+
+/**
+ * Render the written description into ADF. The voice writer already returns a
+ * whole Objective / Context / Approach / Acceptance document in Steve's words;
+ * this only marks it up. It used to bury that document in a single Context
+ * paragraph and stamp the same Approach, Decision and Acceptance bullets on
+ * every issue, which is the templated-voice text Steve banned. An issue with no
+ * written description is refused rather than filled with boilerplate.
+ */
+export function activityIssueDescription(change) {
   const text = (value) => ({ type: "text", text: String(value || "") });
   const paragraph = (value) => ({ type: "paragraph", content: [text(value)] });
   const heading = (value) => ({ type: "heading", attrs: { level: 2 }, content: [text(value)] });
   const bulletList = (items) => ({
     type: "bulletList",
-    content: items.map((item) => ({
-      type: "listItem",
-      content: [paragraph(item)],
-    })),
+    content: items.map((item) => ({ type: "listItem", content: [paragraph(item)] })),
   });
-  return {
-    version: 1,
-    type: "doc",
-    content: [
-      heading("Objective"),
-      paragraph(`Track and complete ${change.summary}.`),
-      heading("Context"),
-      paragraph(change.description || "A reviewed Workbench activity item supports this work."),
-      heading("Approach and activities"),
-      bulletList([
-        "Review the supporting source and confirm the current owner.",
-        "Complete the described work and record any decision that changes the delivery plan.",
-        "Keep progress, time, and status current as the work moves forward.",
-      ]),
-      heading("Decision and outcome"),
-      paragraph("The reviewed activity supports creating this work item in the MT initiative."),
-      heading("Acceptance criteria"),
-      bulletList([
-        "The supporting source is linked or cited in the work item.",
-        "The stated work is complete and its outcome is recorded.",
-        "Time and status match the work that was actually completed.",
-      ]),
-    ],
-  };
+
+  const written = String(change.description || "").trim();
+  if (!written) {
+    throw new GatewayError(
+      400,
+      `No written description was supplied for "${change.summary}". The wording has to come from the voice writer before the issue is created.`,
+      "missing_issue_description"
+    );
+  }
+
+  const content = [];
+  for (const block of written.split(/\r?\n\s*\r?\n/)) {
+    const lines = block
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+    if (!lines.length) continue;
+    if (lines.length === 1 && DESCRIPTION_HEADINGS.has(lines[0].replace(/:$/, "").toLowerCase())) {
+      content.push(heading(lines[0].replace(/:$/, "")));
+      continue;
+    }
+    const bullets = lines.filter((line) => /^[-*•]\s+/.test(line));
+    if (bullets.length === lines.length) {
+      content.push(bulletList(lines.map((line) => line.replace(/^[-*•]\s+/, ""))));
+      continue;
+    }
+    content.push(paragraph(lines.join(" ")));
+  }
+
+  return { version: 1, type: "doc", content };
 }
 
 async function applyActivityJiraProposal({ proposal }) {

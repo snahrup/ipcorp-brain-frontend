@@ -584,3 +584,50 @@ test("failures retry after a short window and force starts a fresh read", async 
   assert.equal(forced.availability, "loading");
   assert.equal(reads, 3);
 });
+
+test("a long executive readout is kept whole instead of cut mid-word", async () => {
+  // The readout is a paragraph, not a quotation. It was being run through the
+  // short-quote cleaner, which chopped it at 500 characters and left summaries
+  // ending mid-word ("...and pre-w").
+  const longSummary = `${"Steve walked the team through the breakdown workbook and they agreed the hierarchy. ".repeat(
+    9
+  )}Governance becomes its own project.`;
+  assert.ok(longSummary.length > 500, "the fixture has to exceed the old cap");
+
+  const value = await synthesizeReviewPackage({ meeting, transcript }, async () =>
+    modelOutput({ summary: longSummary })
+  );
+
+  assert.equal(value.summary, longSummary);
+  assert.ok(
+    value.summary.endsWith("Governance becomes its own project."),
+    `readout was truncated: ...${value.summary.slice(-40)}`
+  );
+});
+
+test("an explicit no-fixture caller reads the real calendar, whatever the environment says", async () => {
+  // A MEETING_CLOSEOUT_FIXTURE left in the environment used to win over a
+  // caller that had already said there is no fixture, so the wrap-up page
+  // served a stale recorded day instead of the live Outlook read.
+  resetTodayCalendarState();
+  const previous = process.env.MEETING_CLOSEOUT_FIXTURE;
+  process.env.MEETING_CLOSEOUT_FIXTURE = join(tmpdir(), "meeting-closeout-no-such-fixture.json");
+  try {
+    let reads = 0;
+    const value = await listTodaysMeetings({
+      date: "2026-08-04",
+      preparedMeetings: [meeting],
+      fixture: null,
+      readCalendar: () => {
+        reads += 1;
+        return new Promise(() => undefined);
+      },
+    });
+    assert.equal(value.availability, "loading");
+    assert.equal(reads, 1);
+  } finally {
+    if (previous === undefined) delete process.env.MEETING_CLOSEOUT_FIXTURE;
+    else process.env.MEETING_CLOSEOUT_FIXTURE = previous;
+    resetTodayCalendarState();
+  }
+});
