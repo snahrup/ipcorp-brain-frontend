@@ -389,6 +389,21 @@ function transcriptError(value) {
   );
 }
 
+const SPEAKER_TURN = /^[^\n:]{1,60}:\s*\S/m;
+
+/**
+ * A Teams capture with no speaker turns and almost no text is not a transcript.
+ * When the Microsoft bridge cannot reach the recording it answers
+ * conversationally ("I'll start by locating the meeting on your calendar."),
+ * and that sentence names no failure, so every phrase check above passes it.
+ * Synthesis then runs against one line of a non-answer. Pasted Cluely
+ * transcripts never reach this check; they take the supplied path.
+ */
+function capturedTranscriptUnusable(value) {
+  const text = asText(value);
+  return !SPEAKER_TURN.test(text) && text.length < 400;
+}
+
 function findText(value, keys, depth = 0) {
   if (depth > 5 || value == null) return "";
   if (typeof value === "string") return value.trim();
@@ -436,30 +451,45 @@ function findRelatedMaterial(value, depth = 0) {
   return [];
 }
 
+/**
+ * Keep only evidence a real capture could produce. The recap and related
+ * material are dropped when they repeat the transcript: the bridge often
+ * returns one blob of text with none of the specific keys, so the same string
+ * would otherwise arrive in the prompt three times as three kinds of evidence.
+ */
+function usableEvidence(evidence) {
+  const transcript = asText(evidence.transcript);
+  if (transcriptError(transcript) || capturedTranscriptUnusable(transcript)) return null;
+  const recap = asText(evidence.recap);
+  return {
+    transcript,
+    recap: recap === transcript ? "" : recap,
+    relatedMaterial: (evidence.relatedMaterial || []).filter(
+      (item) => asText(item) && asText(item) !== transcript
+    ),
+  };
+}
+
 async function meetingEvidence(meeting, options = {}) {
   const fixture = options.fixture ?? (await loadFixture(options.fixturePath));
   if (fixture) {
     const record = fixture.transcripts?.[meeting.id];
     if (!record) return null;
-    if (typeof record === "string") return { transcript: record, recap: "", relatedMaterial: [] };
-    return {
-      transcript: asText(record.transcript),
-      recap: asText(record.recap),
-      relatedMaterial: Array.isArray(record.relatedMaterial)
-        ? record.relatedMaterial.map(asText).filter(Boolean)
-        : [],
-    };
+    if (typeof record === "string") return usableEvidence({ transcript: record });
+    return usableEvidence({
+      transcript: record.transcript,
+      recap: record.recap,
+      relatedMaterial: Array.isArray(record.relatedMaterial) ? record.relatedMaterial : [],
+    });
   }
   try {
     const response = await runAdapter("transcript", { meeting });
     if (response.ok === false) return null;
-    const transcript = findText(response, ["transcript", "verbatimTranscript", "vtt"]);
-    if (transcriptError(transcript)) return null;
-    return {
-      transcript,
+    return usableEvidence({
+      transcript: findText(response, ["transcript", "verbatimTranscript", "vtt"]),
       recap: findText(response, ["recap", "recordingRecap", "summary"]),
       relatedMaterial: findRelatedMaterial(response),
-    };
+    });
   } catch {
     return null;
   }

@@ -287,6 +287,26 @@ test("missing Teams capture returns the pasted-transcript path", async () => {
   assert.equal(result.meeting.id, meeting.id);
 });
 
+test("a conversational bridge reply is not a Teams capture", async () => {
+  const preamble = "I'll start by locating the meeting on your calendar.";
+  const result = await processMeetingCloseout(
+    { meeting },
+    {
+      fixture: {
+        calendarAvailable: true,
+        todayMeetings: [meeting],
+        transcripts: { [meeting.id]: { transcript: preamble, recap: preamble } },
+      },
+      runModel: async () => {
+        throw new Error("Synthesis must never run against a non-transcript.");
+      },
+    }
+  );
+
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "transcript_unavailable");
+});
+
 test("Teams capture carries recap and related material into the stored package", async (t) => {
   const root = await mkdtemp(join(tmpdir(), "meeting-closeout-teams-"));
   t.after(async () => {
