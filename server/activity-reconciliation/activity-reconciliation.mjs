@@ -1247,7 +1247,7 @@ export function createActivityReconciliationService(options) {
         addEvent(
           current,
           "jira_applied",
-          `${receipt.results.length} approved Jira proposals applied with receipts.`,
+          `${receipt.results.length} approved Jira changes applied with receipts.`,
           receipt.completedAt
         );
         return { state, value: clone(receipt) };

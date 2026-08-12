@@ -837,7 +837,7 @@ export async function synthesizeReviewPackage(input, runModel = runSynthesisMode
       subhead: "Meeting closeout",
       metrics: [
         { label: "Commitments", value: commitments.kept.length },
-        { label: "Jira proposals", value: jiraProposals.kept.length },
+        { label: "Jira changes", value: jiraProposals.kept.length },
         { label: "Document requests", value: documentRequests.kept.length },
         { label: "Reminders", value: reminderCandidates.kept.length },
       ],
@@ -917,7 +917,7 @@ ${markdownList(
 
 ## Meeting infographic
 
-| Commitments | Jira proposals | Document requests | Reminders |
+| Commitments | Jira changes | Document requests | Reminders |
 |---:|---:|---:|---:|
 | ${value.commitments.length} | ${value.jiraProposals.length} | ${value.documentRequests.length} | ${value.reminderCandidates.length} |
 
