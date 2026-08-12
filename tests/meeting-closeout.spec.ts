@@ -251,6 +251,65 @@ test("meeting closeout follows the unavailable Teams capture path through review
   expect(requestFailures).toEqual([]);
 });
 
+test("a transcript in hand goes in BEFORE Process, with no wasted Teams lookup", async ({
+  page,
+}) => {
+  // Steve arrives holding the Cluely capture. The old sequence forced a
+  // Process click, a minutes-long Teams lookup, and a failure before the
+  // paste box appeared. Now the paste box opens directly from the meeting
+  // card, and the only process call carries the transcript.
+  await page.addInitScript(
+    ({ closeoutPackage, meeting }) => {
+      const originalFetch = window.fetch.bind(window);
+      const json = (body: unknown, status = 200) =>
+        new Response(JSON.stringify(body), {
+          status,
+          headers: { "Content-Type": "application/json" },
+        });
+      window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url =
+          typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+        if (url.endsWith("/api/meeting-closeout/packages")) return json({ ok: true, data: [] });
+        if (url.includes("/api/meeting-closeout/today")) {
+          return json({
+            ok: true,
+            data: { meetings: [meeting], source: "microsoft_365", availability: "current" },
+          });
+        }
+        if (url.endsWith("/api/meeting-closeout/process")) {
+          const payload =
+            typeof init?.body === "string"
+              ? (JSON.parse(init.body) as { transcript?: string })
+              : ({} as { transcript?: string });
+          if (!payload.transcript) {
+            return json(
+              { ok: false, error: "A transcript-less lookup ran; the shortcut regressed." },
+              500
+            );
+          }
+          return json({ ok: true, package: closeoutPackage });
+        }
+        return originalFetch(input, init);
+      };
+    },
+    { closeoutPackage, meeting }
+  );
+
+  await page.goto("/meetings/wrap-up", { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("today-meeting-card")).toContainText("Fabric Delivery Review");
+
+  await page.getByTestId("add-transcript-today-fabric-review").click();
+  await expect(page.getByTestId("transcript-fallback")).toBeVisible();
+
+  await page
+    .getByTestId("cluely-transcript")
+    .fill("Steve: I will send the Fabric workbook to Patrick tomorrow.");
+  await page.getByTestId("process-pasted-transcript").click();
+
+  await expect(page.getByTestId("meeting-closeout-review")).toBeVisible();
+  await expect(page.getByText("the shortcut regressed")).toHaveCount(0);
+});
+
 test("Meetings subpages are ordered and work as direct routes", async ({ page }) => {
   await installCloseoutMock(page, "empty");
   await page.route(/\/api\/meeting-prep\/daily(?:\?.*)?$/, async (route) => {

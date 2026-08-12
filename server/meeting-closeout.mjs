@@ -526,6 +526,93 @@ function cleanReadout(value) {
 }
 
 // ---------------------------------------------------------------------------
+// Raw capture cleanup. A raw Cluely capture labels every other voice "Them",
+// splits utterances across lines, and narrates the screen. The house rule is
+// that a capture is cleaned to Teams quality BEFORE anything downstream reads
+// it: named speakers, whole utterances, no narration, substance never cut and
+// no claim invented. If the cleanup cannot be produced, the meeting stays
+// unprocessed; raw junk is never stored for consistency's sake.
+// ---------------------------------------------------------------------------
+
+export function transcriptNeedsCleanup(text) {
+  return /^\s*(?:\*\*)?(?:Them|Me|Speaker \d+)(?:\*\*)?\s*[[:\d]/im.test(String(text || ""));
+}
+
+function buildTranscriptCleanupPrompt({ meeting, transcript }) {
+  const people = [meeting.organizer, ...(meeting.attendees || [])].filter(Boolean);
+  const roster = [...new Set(people)].join(", ") || "not listed";
+  return `Rewrite this raw meeting capture to the quality of a Microsoft Teams
+transcript. It came from a capture tool that labels the machine's owner "Me"
+and every other voice "Them".
+
+Meeting: ${meeting.title}
+People in the meeting: ${roster}
+"Me" is Steve Nahrup.
+
+Rules that decide whether your output is usable:
+- Attribute every utterance to a named person from the list above, using what
+  is said (names used in address, who answers whom, who runs the screen) to
+  tell the "Them" voices apart. No line may keep Me, Them, or Speaker labels.
+- Merge fragment lines into whole utterances under the earliest timestamp of
+  the fragment run. Keep the [m:ss] timestamps where present.
+- Strip screen narration, filler, and asides that carry no substance.
+- Fix obvious mis-transcriptions conservatively.
+- Where timestamps reset, note a capture restart on its own line.
+- Never cut substance. Never paraphrase a statement into a claim that was not
+  made. Never add anything that is not in the capture.
+- Format each turn as **Name** [m:ss] on one line, the utterance below it, a
+  blank line between turns.
+
+RAW CAPTURE
+${transcript}
+END RAW CAPTURE
+
+Output exactly:
+CLEANED:
+<the full cleaned transcript>
+END CLEANED`;
+}
+
+function parseCleanupOutput(output) {
+  return /CLEANED:[ \t]*\r?\n([\s\S]*?)END CLEANED/m.exec(String(output || ""))?.[1]?.trim() || "";
+}
+
+async function cleanupPastedTranscript(input, runModel = runSynthesisModel) {
+  const cleaned = parseCleanupOutput(await runModel(buildTranscriptCleanupPrompt(input)));
+  if (!cleaned || cleaned.length < 80 || transcriptNeedsCleanup(cleaned)) {
+    const error = new Error("The capture cleanup did not produce a fully attributed transcript.");
+    error.code = "transcript_cleanup_unavailable";
+    throw error;
+  }
+  return cleaned;
+}
+
+// ---------------------------------------------------------------------------
+// Snapshot refresh. The Meetings Overview reads a synced snapshot, not the
+// live Brain, and it sat frozen at 8/6 because nothing re-synced after new
+// packages landed. Every closeout that completes against the real Brain now
+// refreshes the snapshot. Best effort only: a failed sync logs and never
+// fails the run, and test roots never trigger it.
+// ---------------------------------------------------------------------------
+
+export function shouldRefreshSnapshot(options = {}, env = process.env) {
+  return !options.brainRoot && !env.MEETING_CLOSEOUT_BRAIN_ROOT;
+}
+
+function triggerSnapshotSync() {
+  try {
+    const child = spawn(process.execPath, [resolve(process.cwd(), "scripts", "sync-data.mjs")], {
+      windowsHide: true,
+      stdio: "ignore",
+      detached: true,
+    });
+    child.unref();
+  } catch {
+    // Best effort; the Refresh button and the next closeout try again.
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Model synthesis. The review package is written by an actual model reading
 // the whole transcript, not by keyword patterns. Pattern matching produced
 // review items like "Well, I'll drive you up the wall" as a commitment, which
@@ -1334,7 +1421,7 @@ export async function processMeetingCloseout(payload, options = {}) {
   const suppliedTranscript = asText(payload.transcript);
   const source = suppliedTranscript ? "cluely" : "teams";
   const evidence = suppliedTranscript ? null : await meetingEvidence(meeting, options);
-  const transcript = suppliedTranscript || asText(evidence?.transcript);
+  let transcript = suppliedTranscript || asText(evidence?.transcript);
   if (!transcript || transcriptError(transcript)) {
     return {
       ok: false,
@@ -1343,6 +1430,18 @@ export async function processMeetingCloseout(payload, options = {}) {
         "No Teams capture is available for this meeting. Paste the Cluely transcript and add any context notes.",
       meeting,
     };
+  }
+  if (suppliedTranscript && transcriptNeedsCleanup(transcript)) {
+    try {
+      transcript = await cleanupPastedTranscript({ meeting, transcript }, options.runModel);
+    } catch (error) {
+      return {
+        ok: false,
+        code: "transcript_cleanup_unavailable",
+        detail: `The raw capture could not be cleaned to Teams quality: ${error instanceof Error ? error.message : String(error)} The meeting stays unprocessed and nothing raw was stored.`,
+        meeting,
+      };
+    }
   }
   let value;
   try {
@@ -1368,6 +1467,7 @@ export async function processMeetingCloseout(payload, options = {}) {
   }
   const stored = await persistMeetingPackage(value, transcript, source, options);
   const inspection = await inspectStoredMeetingPackage(stored, options);
+  if (inspection.complete && shouldRefreshSnapshot(options)) triggerSnapshotSync();
   return inspection.complete
     ? { ok: true, package: stored, inspection }
     : {

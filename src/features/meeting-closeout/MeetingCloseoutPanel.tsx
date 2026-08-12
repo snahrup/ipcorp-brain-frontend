@@ -520,8 +520,8 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
           </span>
           <h2>Select a meeting to process</h2>
           <p>
-            Select Process. The Workbench identifies the meeting and looks for its Teams capture and
-            related material.
+            Have a Cluely capture already? Add transcript builds the package from it directly.
+            Process looks for the Teams capture first.
           </p>
         </div>
         <div className="mc-source-actions">
@@ -571,20 +571,38 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
                 {meeting.attendees.length ? ` · ${meeting.attendees.length} attendees` : ""}
               </p>
             </div>
-            <button
-              className="mc-process-button"
-              data-testid={`process-meeting-${meeting.id}`}
-              disabled={processingId !== null}
-              onClick={() => void processMeeting(meeting)}
-              type="button"
-            >
-              {processingId === meeting.id ? (
-                <LoaderCircle className="mc-spin" size={16} />
-              ) : (
-                <Sparkles size={16} />
-              )}
-              {processingId === meeting.id ? "Processing" : "Process"}
-            </button>
+            <div className="mc-card-actions">
+              <button
+                className="mc-secondary-button"
+                data-testid={`add-transcript-${meeting.id}`}
+                disabled={processingId !== null}
+                onClick={() => {
+                  // A capture in hand skips the Teams lookup entirely: open the
+                  // paste form directly instead of making a failed round trip
+                  // unlock it.
+                  setFallbackMeeting(meeting);
+                  setStatus(`Paste the transcript for ${meeting.title} and build the package.`);
+                }}
+                type="button"
+              >
+                <FileText size={15} />
+                Add transcript
+              </button>
+              <button
+                className="mc-process-button"
+                data-testid={`process-meeting-${meeting.id}`}
+                disabled={processingId !== null}
+                onClick={() => void processMeeting(meeting)}
+                type="button"
+              >
+                {processingId === meeting.id ? (
+                  <LoaderCircle className="mc-spin" size={16} />
+                ) : (
+                  <Sparkles size={16} />
+                )}
+                {processingId === meeting.id ? "Processing" : "Process"}
+              </button>
+            </div>
           </article>
         ))}
         {!meetings.length && today.availability === "empty" && (
@@ -636,8 +654,8 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
             <div>
               <h3>Paste the Cluely transcript</h3>
               <p>
-                No Teams capture is available for {fallbackMeeting.title}. Context notes are
-                optional.
+                {fallbackMeeting.title} builds directly from this transcript, no Teams lookup.
+                Context notes are optional.
               </p>
             </div>
           </div>

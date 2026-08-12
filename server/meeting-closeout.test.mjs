@@ -10,6 +10,7 @@ import {
   persistMeetingPackage,
   processMeetingCloseout,
   resetTodayCalendarState,
+  shouldRefreshSnapshot,
   synthesizeReviewPackage,
 } from "./meeting-closeout.mjs";
 
@@ -630,4 +631,144 @@ test("an explicit no-fixture caller reads the real calendar, whatever the enviro
     else process.env.MEETING_CLOSEOUT_FIXTURE = previous;
     resetTodayCalendarState();
   }
+});
+
+test("a raw Cluely capture is cleaned to Teams quality before anything reads it", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "meeting-closeout-cleanup-"));
+  t.after(async () => {
+    assert.ok(root.startsWith(tmpdir()));
+    await rm(root, { recursive: true, force: true });
+  });
+  await prepareBrainRoot(root);
+
+  const rawCapture = [
+    "Me [0:27] Did you have a chance to look at the workbook?",
+    "Them [0:40] No, where is it",
+    "Them [0:41] located?",
+    "Them [2:34] Hey, guys.",
+  ].join("\n");
+  const cleaned = [
+    "**Steve Nahrup** [0:27]",
+    "Did you have a chance to look at the workbook?",
+    "",
+    "**Eudias Tata** [0:40]",
+    "No, where is it located?",
+    "",
+    "**Patrick Stiller** [2:34]",
+    "Hey, guys.",
+  ].join("\n");
+
+  let cleanupCalls = 0;
+  let synthesisSawCleaned = false;
+  const runModel = async (prompt) => {
+    if (prompt.includes("END RAW CAPTURE")) {
+      cleanupCalls += 1;
+      return `CLEANED:
+${cleaned}
+END CLEANED`;
+    }
+    synthesisSawCleaned = prompt.includes("**Eudias Tata** [0:40]");
+    return modelOutput({
+      summary: "Steve walked Patrick Stiller and Eudias Tata through the workbook.",
+      commitments: [],
+      jiraProposals: [],
+      supportingMaterial: [],
+      documentRequests: [],
+      reminderCandidates: [],
+      emailDrafts: [],
+      themes: ["Workbook"],
+    });
+  };
+
+  const result = await processMeetingCloseout(
+    { meeting, transcript: rawCapture },
+    { brainRoot: root, runModel }
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(cleanupCalls, 1, "the capture went through exactly one cleanup pass");
+  assert.ok(synthesisSawCleaned, "synthesis read the cleaned transcript, not the raw one");
+  const stored = await readFile(join(root, result.package.files.transcript), "utf8");
+  assert.match(stored, /\*\*Eudias Tata\*\* \[0:40\]/);
+  assert.doesNotMatch(stored, /^Them /m, "no unattributed speaker survives to storage");
+});
+
+test("a cleanup that fails or leaves Them labels keeps the meeting unprocessed", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "meeting-closeout-cleanup-fail-"));
+  t.after(async () => {
+    assert.ok(root.startsWith(tmpdir()));
+    await rm(root, { recursive: true, force: true });
+  });
+  await prepareBrainRoot(root);
+
+  const rawCapture = "Them [0:40] No, where is it located?";
+  const stillDirty = await processMeetingCloseout(
+    { meeting, transcript: rawCapture },
+    {
+      brainRoot: root,
+      runModel: async () =>
+        `CLEANED:
+Them [0:40] No, where is it located, plus enough padding to pass any length check on the cleaned output of this capture.
+END CLEANED`,
+    }
+  );
+  assert.equal(stillDirty.ok, false);
+  assert.equal(stillDirty.code, "transcript_cleanup_unavailable");
+
+  const crashed = await processMeetingCloseout(
+    { meeting, transcript: rawCapture },
+    {
+      brainRoot: root,
+      runModel: async () => {
+        throw new Error("The model is unreachable.");
+      },
+    }
+  );
+  assert.equal(crashed.ok, false);
+  assert.equal(crashed.code, "transcript_cleanup_unavailable");
+  await assert.rejects(
+    readFile(
+      join(
+        root,
+        "core",
+        "meetings",
+        "transcripts",
+        "cluely-export",
+        "2026-08-04-fabric-delivery-review.md"
+      )
+    ),
+    undefined,
+    "nothing raw was stored"
+  );
+});
+
+test("an already attributed paste skips the cleanup pass entirely", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "meeting-closeout-cleanup-skip-"));
+  t.after(async () => {
+    assert.ok(root.startsWith(tmpdir()));
+    await rm(root, { recursive: true, force: true });
+  });
+  await prepareBrainRoot(root);
+
+  let cleanupCalls = 0;
+  const runModel = async (prompt) => {
+    if (prompt.includes("END RAW CAPTURE")) {
+      cleanupCalls += 1;
+      return "CLEANED:\nshould never be used\nEND CLEANED";
+    }
+    return modelOutput();
+  };
+
+  const result = await processMeetingCloseout(
+    { meeting, transcript },
+    { brainRoot: root, runModel }
+  );
+  assert.equal(result.ok, true);
+  assert.equal(cleanupCalls, 0, "clean text goes straight to synthesis");
+});
+
+test("the snapshot refresh fires only against the real Brain", () => {
+  assert.equal(shouldRefreshSnapshot({ brainRoot: "C:/tmp/x" }, {}), false);
+  assert.equal(shouldRefreshSnapshot({}, { MEETING_CLOSEOUT_BRAIN_ROOT: "C:/tmp/y" }), false);
+  assert.equal(shouldRefreshSnapshot({}, {}), true);
 });
