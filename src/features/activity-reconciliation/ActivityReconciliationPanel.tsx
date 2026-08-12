@@ -835,7 +835,7 @@ export function ActivityReconciliationPanel({
                 <div className="ar-receipt" role="status">
                   <CheckCircle2 size={17} />
                   <span>
-                    {receipt.results.length} approved Jira proposal
+                    {receipt.results.length} approved Jira change
                     {receipt.results.length === 1 ? "" : "s"} applied with saved readback receipts.
                   </span>
                   <code>{receipt.id.slice(0, 12)}</code>
