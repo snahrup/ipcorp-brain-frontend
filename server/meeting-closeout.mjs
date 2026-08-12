@@ -889,7 +889,7 @@ ${value.summary}
 
 ${markdownList(value.commitments, (item) => item.text)}
 
-## Proposed Jira work
+## Recommended Jira changes
 
 ${markdownList(
   value.jiraProposals,

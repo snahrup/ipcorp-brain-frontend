@@ -362,7 +362,7 @@ test("two attached callers receive one saved Jira apply receipt", async (t) => {
   const run = await service.waitForRun(started.run.id);
   assert.equal(run.jiraProposals.length, 1);
   const proposalIds = [run.jiraProposals[0].id];
-  const confirmation = "APPLY 1 JIRA PROPOSAL";
+  const confirmation = "APPLY 1 JIRA CHANGE";
   const first = service.applySelected(run.id, proposalIds, confirmation);
   const second = service.applySelected(run.id, proposalIds, confirmation);
   release();

@@ -294,12 +294,12 @@ function PackageReview({ value }: { value: MeetingPackage }) {
         />
         <ReviewSection
           icon={<TicketCheck size={16} />}
-          title="Jira proposals"
+          title="Recommended Jira changes"
           items={value.jiraProposals}
           empty="No Jira work was proposed."
           renderMeta={(item) => (
             <small>
-              {[item.operation, item.jiraKey].filter(Boolean).join(" ") || "Proposal only"}
+              {[item.operation, item.jiraKey].filter(Boolean).join(" ") || "Recommendation only"}
             </small>
           )}
         />

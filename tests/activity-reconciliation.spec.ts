@@ -347,9 +347,9 @@ test("runs the visible Work activity path and keeps Jira review approval-only", 
     hasText: "MT-42: Define governed customer domain",
   });
   await proposal.getByRole("checkbox").check();
-  const apply = page.getByRole("button", { name: "Apply selected Jira proposals" });
+  const apply = page.getByRole("button", { name: "Apply selected Jira changes" });
   await expect(apply).toBeDisabled();
-  await page.getByLabel("Type APPLY 1 JIRA PROPOSAL").fill("APPLY 1 JIRA PROPOSAL");
+  await page.getByLabel("Type APPLY 1 JIRA CHANGE").fill("APPLY 1 JIRA CHANGE");
   await expect(apply).toBeEnabled();
   await apply.click();
   await expect(page.getByText(/applied with saved readback receipts/i)).toBeVisible();
@@ -599,7 +599,7 @@ test("select-all covers every proposal and the chained MDM check opens its revie
   await expect(page.getByText("close stale item · Stale match")).toBeVisible();
 
   await page.getByTestId("activity-select-all").click();
-  await expect(page.getByTestId("activity-jira-approval")).toContainText("APPLY 3 JIRA PROPOSALS");
+  await expect(page.getByTestId("activity-jira-approval")).toContainText("APPLY 3 JIRA CHANGES");
   await page.getByTestId("activity-select-all").click();
   await expect(page.getByTestId("activity-jira-approval")).toHaveCount(0);
 
@@ -634,7 +634,7 @@ test("a run stays visible as a dock pill on any page and toasts when it finishes
   const toast = page.getByTestId("activity-toast");
   await expect(toast).toBeVisible({ timeout: 10_000 });
   await expect(toast).toContainText("Activity reconciliation finished");
-  await expect(toast).toContainText("1 Jira proposal, 1 email draft, 1 meeting processed.");
+  await expect(toast).toContainText("1 Jira change, 1 email draft, 1 meeting processed.");
 
   // Open review from the toast: the panel overlays the current page.
   await toast.getByRole("button", { name: "Open review" }).click();

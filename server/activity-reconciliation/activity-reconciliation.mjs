@@ -24,7 +24,7 @@ const RUN_PHASES = Object.freeze([
   { id: "processing_meetings", label: "Checking completed meetings" },
   { id: "generating_visuals", label: "Completing meeting packages and visuals" },
   { id: "matching_jira", label: "Matching evidence to Jira work" },
-  { id: "preparing_proposals", label: "Preparing reviewable proposals" },
+  { id: "preparing_proposals", label: "Preparing reviewable changes" },
   { id: "delivering_drafts", label: "Creating Outlook drafts" },
   { id: "mdm_check", label: "Checking Jira against the Brain" },
   { id: "finalizing", label: "Saving the recap" },
@@ -323,7 +323,7 @@ function recapFor(run) {
       destination: "jira",
       kind: "applied",
       title: change.title,
-      detail: change.detail || "Approved Jira proposal applied.",
+      detail: change.detail || "Approved Jira change applied.",
       receipt: change.receipt || null,
       links: change.links || [],
     });
@@ -381,8 +381,7 @@ function recapFor(run) {
   const grouped = [];
   for (const entry of entries) {
     const source = ACTIVITY_SOURCES.find((item) => item.id === entry.sourceId);
-    const sourceLabel =
-      source?.label || EXTRA_SOURCE_LABELS[entry.sourceId] || "Reviewed proposals";
+    const sourceLabel = source?.label || EXTRA_SOURCE_LABELS[entry.sourceId] || "Reviewed changes";
     let group = grouped.find((item) => item.sourceId === entry.sourceId);
     if (!group) {
       group = { sourceId: entry.sourceId, sourceLabel, destinations: [] };
@@ -689,7 +688,11 @@ export function createActivityReconciliationService(options) {
     const drafts = emailDraftsFromEvidence([
       ...new Map(draftEvidence.map((item) => [item.stableId, item])).values(),
     ]);
-    await setPhase(runId, "preparing_proposals", "Preparing Jira and email proposals for review.");
+    await setPhase(
+      runId,
+      "preparing_proposals",
+      "Preparing Jira changes and email drafts for review."
+    );
     try {
       const issues = await loadJiraIssues({ run: clone(run), evidence: clone(jiraEvidence) });
       const review = await prepareJira({ run: clone(run), evidence: clone(jiraEvidence), issues });
@@ -730,7 +733,7 @@ export function createActivityReconciliationService(options) {
         addEvent(
           current,
           "review",
-          `${current.jiraProposals.length} Jira proposals and ${drafts.length} email drafts are ready for review.`,
+          `${current.jiraProposals.length} recommended Jira changes and ${drafts.length} email drafts are ready for review.`,
           at
         );
       });
@@ -1129,7 +1132,7 @@ export function createActivityReconciliationService(options) {
     if (!["completed", "partial_success"].includes(run.status)) {
       throw activityError(
         "run_not_reviewable",
-        "Jira proposals can be applied only after the activity run finishes.",
+        "Jira changes can be applied only after the activity run finishes.",
         409
       );
     }
@@ -1137,10 +1140,7 @@ export function createActivityReconciliationService(options) {
       .map((id) => run.jiraProposals.find((proposal) => proposal.id === id))
       .filter(Boolean);
     if (!proposals.length || proposals.length !== selectedIds.length) {
-      throw activityError(
-        "invalid_proposal_selection",
-        "Select only proposals from this saved run."
-      );
+      throw activityError("invalid_proposal_selection", "Select only changes from this saved run.");
     }
     const expected = proposalConfirmation(proposals);
     if (confirmation !== expected) {
@@ -1238,7 +1238,7 @@ export function createActivityReconciliationService(options) {
             id: `${key}:${result.proposalId}`,
             sourceId: result.sourceId,
             title: result.title,
-            detail: "Approved Jira proposal applied and read back.",
+            detail: "Approved Jira change applied and read back.",
             receipt: result.receipt,
             links: result.links,
           })),

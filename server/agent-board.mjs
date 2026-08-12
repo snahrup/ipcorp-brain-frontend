@@ -252,8 +252,8 @@ export function buildAgentBoard(inputs) {
         waiting.push(
           card({
             id: `proposal-${proposal.id}`,
-            kind: "jira-proposal",
-            title: proposal.title || "Jira proposal",
+            kind: "recommended-change",
+            title: proposal.title || "Recommended Jira change",
             detail: `Pending review: ${proposal.actionLabel || "change"}.`,
             at: latest.finishedAt,
             age: ageLabel(now, latest.finishedAt),
@@ -292,7 +292,7 @@ export function buildAgentBoard(inputs) {
             id: `receipt-${receipt.id}`,
             kind: "jira-apply",
             title: `Applied ${(receipt.proposalIds || []).length} Jira change${(receipt.proposalIds || []).length === 1 ? "" : "s"}`,
-            detail: "Approved proposals written to the board with readback checks.",
+            detail: "Approved changes written to the board with readback checks.",
             at: receipt.finishedAt,
             age: ageLabel(now, receipt.finishedAt),
             tone: "ok",

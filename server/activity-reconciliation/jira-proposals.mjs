@@ -399,5 +399,5 @@ export function buildJiraReview(evidenceItems, issues, options = {}) {
 
 export function proposalConfirmation(proposals) {
   const count = Array.isArray(proposals) ? proposals.length : 0;
-  return `APPLY ${count} JIRA ${count === 1 ? "PROPOSAL" : "PROPOSALS"}`;
+  return `APPLY ${count} JIRA ${count === 1 ? "CHANGE" : "CHANGES"}`;
 }

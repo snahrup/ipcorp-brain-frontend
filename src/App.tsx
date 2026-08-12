@@ -178,7 +178,7 @@ const rawNavSections: NavSection[] = [
       {
         key: "actions",
         label: "Actions",
-        helper: "Gated proposals and next moves",
+        helper: "Recommendations and next moves",
         icon: ListChecks,
         count: brain.actionProposals.length,
       },
@@ -799,7 +799,7 @@ function ReadinessView({
         />
         <MetricCard
           icon={ListChecks}
-          label="Open proposals"
+          label="Open recommendations"
           value={openProposals.length}
           helper="Need review"
           tone="green"
@@ -1242,7 +1242,7 @@ function ActionsView({
           tone="amber"
         />
         <ActionLane
-          title="Other proposals"
+          title="Other recommendations"
           helper="Useful context, lower urgency, or already handled."
           proposals={remaining}
           openDetail={openDetail}

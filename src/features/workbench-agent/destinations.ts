@@ -239,7 +239,7 @@ export const WORKBENCH_DESTINATIONS: Record<
         hints: ["actions", "proposals"],
       },
       { key: "review", label: "Review before execution", hints: ["review", "proposed"] },
-      { key: "other", label: "Other proposals", hints: ["other", "proposal"] },
+      { key: "other", label: "Other recommendations", hints: ["other", "recommendation"] },
     ]),
   },
   questions: {

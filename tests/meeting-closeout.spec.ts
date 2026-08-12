@@ -72,7 +72,7 @@ const closeoutPackage = {
     subhead: "Meeting closeout",
     metrics: [
       { label: "Commitments", value: 1 },
-      { label: "Jira proposals", value: 1 },
+      { label: "Jira changes", value: 1 },
       { label: "Document requests", value: 1 },
       { label: "Reminders", value: 1 },
     ],
@@ -230,7 +230,9 @@ test("meeting closeout follows the unavailable Teams capture path through review
   await expect(page.getByTestId("meeting-closeout-review")).toBeVisible();
   await expect(page.getByTestId("meeting-infographic")).toContainText("Fabric Delivery Review");
   await expect(page.getByRole("heading", { name: "My commitments", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Jira proposals", exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Recommended Jira changes", exact: true })
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Supporting material", exact: true })
   ).toBeVisible();

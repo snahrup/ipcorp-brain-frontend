@@ -95,7 +95,7 @@ export const viewCopy: Record<
     eyebrow: "Post-meeting review",
     title: "Turn today’s meetings into reviewable follow-up.",
     summary:
-      "Process a listed meeting, review the proposed work, and keep the completed package in the Brain.",
+      "Process a listed meeting, review the recommended changes, and keep the completed package in the Brain.",
     action: "Process a meeting",
   },
   "weekly-status": {
@@ -143,7 +143,7 @@ export const viewCopy: Record<
     eyebrow: "Approval queue",
     title: "Actions are proposed moves, not silent automation.",
     summary:
-      "Gated proposals show suggested action, wording, risk level, and approval boundary before anything happens.",
+      "Each recommendation shows the suggested action, wording, risk level, and what approval it needs before anything happens.",
     action: "Review gated actions",
   },
   questions: {
@@ -250,7 +250,7 @@ export const navSections = [
       {
         key: "actions" as ViewKey,
         label: "Actions",
-        helper: "Gated proposals and next moves",
+        helper: "Recommendations and next moves",
         icon: ListChecks,
       },
       {

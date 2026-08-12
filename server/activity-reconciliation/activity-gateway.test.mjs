@@ -128,7 +128,7 @@ test("the mounted activity routes complete a fixture run and reuse one apply rec
     const request = {
       runId: run.id,
       proposalIds: [run.jiraProposals[0].id],
-      confirmation: "APPLY 1 JIRA PROPOSAL",
+      confirmation: "APPLY 1 JIRA CHANGE",
     };
     const firstResponse = await fetch(`${baseUrl}/api/work/activity-reconciliation/jira/apply`, {
       method: "POST",

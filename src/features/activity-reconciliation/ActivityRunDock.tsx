@@ -147,7 +147,7 @@ export function ActivityRunDockProvider({ children }: { children: ReactNode }) {
       setToast({
         kind: "completed",
         title: "Activity reconciliation finished",
-        detail: `${proposals} Jira proposal${proposals === 1 ? "" : "s"}, ${drafts} email draft${drafts === 1 ? "" : "s"}, ${meetings} meeting${meetings === 1 ? "" : "s"} processed.`,
+        detail: `${proposals} Jira change${proposals === 1 ? "" : "s"}, ${drafts} email draft${drafts === 1 ? "" : "s"}, ${meetings} meeting${meetings === 1 ? "" : "s"} processed.`,
       });
     } else if (run.status === "interrupted") {
       setToast({

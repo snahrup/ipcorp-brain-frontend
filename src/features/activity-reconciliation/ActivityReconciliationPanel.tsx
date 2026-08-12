@@ -387,7 +387,7 @@ export function ActivityReconciliationPanel({
     () => (run?.jiraProposals || []).filter((proposal) => selected.has(proposal.id)),
     [run, selected]
   );
-  const expectedConfirmation = `APPLY ${selectedProposals.length} JIRA ${selectedProposals.length === 1 ? "PROPOSAL" : "PROPOSALS"}`;
+  const expectedConfirmation = `APPLY ${selectedProposals.length} JIRA ${selectedProposals.length === 1 ? "CHANGE" : "CHANGES"}`;
 
   const apply = async () => {
     if (!run || !selectedProposals.length) return;
@@ -543,7 +543,7 @@ export function ActivityReconciliationPanel({
                 </strong>
                 <p className="ar-phase-explainer">
                   {complete
-                    ? "Everything below is saved with receipts. Review the Jira proposals and the recap — nothing was changed without them."
+                    ? "Everything below is saved with receipts. Review the recommended Jira changes and the recap — nothing was changed without them."
                     : paused
                       ? "The run stopped safely. Every source keeps its last confirmed position, so resuming loses nothing."
                       : explainer}
@@ -608,7 +608,7 @@ export function ActivityReconciliationPanel({
                 {windowRange?.overlapMinutes ? ` · ${windowRange.overlapMinutes}-min overlap` : ""}
               </span>
               <span className="ar-safety">
-                <ShieldCheck size={13} /> Read-only until you approve proposals
+                <ShieldCheck size={13} /> Read-only until you approve changes
               </span>
             </div>
           </div>
@@ -680,7 +680,7 @@ export function ActivityReconciliationPanel({
               <strong key={run.counts.jiraProposals} className="ar-count-value">
                 {run.counts.jiraProposals}
               </strong>
-              <span>Jira proposals</span>
+              <span>Recommended Jira changes</span>
             </div>
             <div data-alert={run.counts.failures > 0 || undefined}>
               <strong key={run.counts.failures} className="ar-count-value">
@@ -745,10 +745,11 @@ export function ActivityReconciliationPanel({
               <div className="ar-section-heading">
                 <div>
                   <span>Approval required</span>
-                  <h3 id="activity-jira-review-title">Review Jira proposals</h3>
+                  <h3 id="activity-jira-review-title">Review recommended Jira changes</h3>
                 </div>
                 <small>
-                  {run.jiraProposals.length} proposal{run.jiraProposals.length === 1 ? "" : "s"}
+                  {run.jiraProposals.length} recommended change
+                  {run.jiraProposals.length === 1 ? "" : "s"}
                 </small>
               </div>
               <div className="ar-review-notice">
@@ -826,7 +827,7 @@ export function ActivityReconciliationPanel({
                     ) : (
                       <ShieldCheck size={16} />
                     )}
-                    Apply selected Jira proposals
+                    Apply selected Jira changes
                   </button>
                 </div>
               )}
