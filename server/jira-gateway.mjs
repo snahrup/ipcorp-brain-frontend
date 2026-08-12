@@ -1,7 +1,7 @@
 import { execFile as execFileCallback } from "node:child_process";
 import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
-import { extname, join, resolve, sep } from "node:path";
+import { basename, extname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { createActivityReconciliationService } from "./activity-reconciliation/activity-reconciliation.mjs";
@@ -1784,6 +1784,55 @@ async function transitionIssueTo(key, statusName) {
     method: "POST",
     body: JSON.stringify({ transition: { id: match.id } }),
   });
+}
+
+/**
+ * Attach a real file to an MT issue. This exists so deliverables land ON the
+ * ticket instead of being described by an internal storage path in the text,
+ * which means nothing to anyone reading the board. Multipart per Jira's
+ * attachment API; Content-Type is left to FormData so the boundary is right.
+ */
+export async function addIssueAttachment(key, filePath, fetchFn = fetch) {
+  if (!ISSUE_KEY_RE.test(key)) {
+    throw new GatewayError(400, "Only MT initiative issues are allowed.", "outside_mdm_scope");
+  }
+  const bytes = await readFile(resolve(filePath));
+  const filename = basename(filePath);
+  const form = new FormData();
+  form.append("file", new Blob([bytes]), filename);
+  const config = await getJiraConfig();
+  let response;
+  try {
+    response = await fetchFn(`${config.baseUrl}/rest/api/3/issue/${key}/attachments`, {
+      method: "POST",
+      headers: {
+        Authorization: config.auth,
+        Accept: "application/json",
+        "X-Atlassian-Token": "no-check",
+      },
+      body: form,
+      signal: AbortSignal.timeout(60_000),
+    });
+  } catch {
+    throw new GatewayError(503, "Jira could not be reached.", "jira_unreachable");
+  }
+  if (!response.ok) {
+    throw new GatewayError(
+      response.status,
+      `Jira refused the attachment upload with HTTP ${response.status}.`,
+      "jira_attachment_failed"
+    );
+  }
+  const data = await response.json();
+  const saved = Array.isArray(data) ? data[0] : null;
+  if (!saved?.id || saved.filename !== filename) {
+    throw new GatewayError(
+      409,
+      "Jira did not confirm the attachment. Review the issue before retrying.",
+      "jira_attachment_unverified"
+    );
+  }
+  return { id: saved.id, filename: saved.filename, size: saved.size ?? bytes.length };
 }
 
 export async function addIssueComment(key, text) {

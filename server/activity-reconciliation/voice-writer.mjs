@@ -42,6 +42,16 @@ const BANNED_FRAGMENTS = [
   // matched with a leading space so "reshape"/"shaped" compounds inside other
   // words do not false-positive, same approach as " gate".
   " shape",
+  // Internal storage never appears in Jira text. A deliverable is attached to
+  // the issue or linked from the Team Library; a repo-relative or local path
+  // means nothing to a reader of the board.
+  "ipcorp-architecture-brain",
+  "core/meetings/",
+  "core/deliverables/",
+  "core/decisions/",
+  "natively/meeting-infographics",
+  "_intake/",
+  "C:\\Users",
 ];
 
 function promptFile() {
@@ -75,6 +85,10 @@ Rules that decide whether your output is usable:
   taxonomy, chargeback, topology, corpus, augmenting, gate or gating in the
   blocking sense, note as the name for a message, or any "I reviewed the X"
   template opener. Patrick Stiller is always Patrick, never shortened.
+- Never write the word brain, never name an internal repository, and never
+  reference a file by a storage path. A deliverable is attached to the issue
+  or linked from the Team Library; describe it by what it is, not where it
+  sits on disk.
 - Ground every sentence in the supplied evidence and facts. Add nothing the
   evidence does not support. Quote or restate the evidence naturally.
 - Each brief lists its purposes; write one distinct entry per purpose:
@@ -128,6 +142,9 @@ export function violatesVoiceRules(text) {
     if (needle.trim() && lowered.includes(needle)) return fragment.trim();
   }
   if (/\bpat\b/i.test(value)) return "Pat";
+  // "Brain" is Steve's private name for the knowledge base. Word-bounded so
+  // brainstorm and brainstorming stay legal.
+  if (/\bbrain\b/i.test(value)) return "brain";
   return null;
 }
 

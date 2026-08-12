@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
-import { activityIssueDescription, lastActivity, mapIssue } from "./jira-gateway.mjs";
+import {
+  activityIssueDescription,
+  addIssueAttachment,
+  lastActivity,
+  mapIssue,
+} from "./jira-gateway.mjs";
 
 test("importing the gateway module does not start a second server", () => {
   // If the entry-point guard regressed, this import would have thrown EADDRINUSE
@@ -299,4 +307,44 @@ test("an issue with no written description is refused instead of templated", () 
     () => activityIssueDescription({ summary: "Something nobody wrote wording for" }),
     /description/i
   );
+});
+
+test("attachments upload as real multipart files and verify the readback", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "jira-attach-"));
+  const file = join(dir, "walkthrough-infographic.png");
+  await writeFile(file, Buffer.from("png-bytes-here"));
+
+  let captured = null;
+  const fakeFetch = async (url, options) => {
+    captured = { url, options };
+    return {
+      ok: true,
+      json: async () => [{ id: "10001", filename: "walkthrough-infographic.png", size: 14 }],
+    };
+  };
+
+  const saved = await addIssueAttachment("MT-474", file, fakeFetch);
+  assert.equal(saved.id, "10001");
+  assert.equal(saved.filename, "walkthrough-infographic.png");
+
+  assert.match(captured.url, /\/rest\/api\/3\/issue\/MT-474\/attachments$/);
+  assert.equal(captured.options.method, "POST");
+  assert.equal(captured.options.headers["X-Atlassian-Token"], "no-check");
+  assert.ok(captured.options.headers.Authorization, "auth header present");
+  assert.equal(captured.options.headers["Content-Type"], undefined);
+  const entry = captured.options.body.get("file");
+  assert.ok(entry, "FormData carries the file field");
+
+  // A readback that does not match the file we sent is a refusal, not a pass.
+  const wrongReadback = async () => ({
+    ok: true,
+    json: async () => [{ id: "10002", filename: "something-else.bin" }],
+  });
+  await assert.rejects(
+    () => addIssueAttachment("MT-474", file, wrongReadback),
+    /did not confirm the attachment/
+  );
+
+  // Non-MT issues stay out of scope.
+  await assert.rejects(() => addIssueAttachment("OTHER-1", file, fakeFetch), /MT initiative/);
 });
