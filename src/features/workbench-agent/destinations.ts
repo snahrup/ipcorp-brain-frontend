@@ -18,6 +18,16 @@ export const WORKBENCH_DESTINATIONS: Record<
       },
     ]),
   },
+  "agent-board": {
+    label: viewCopy["agent-board"].label,
+    sections: sections([
+      {
+        key: "agent-board-view",
+        label: "What the agent is doing, without asking it.",
+        hints: ["agent board", "kanban", "automation status", "waiting on steve"],
+      },
+    ]),
+  },
   work: {
     label: viewCopy.work.label,
     sections: sections([

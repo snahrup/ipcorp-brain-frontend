@@ -2,6 +2,7 @@ import { WorkbenchAgentError } from "./protocol.mjs";
 
 export const VIEW_KEYS = [
   "today",
+  "agent-board",
   "work",
   "library",
   "data-work",
@@ -23,6 +24,7 @@ export const VIEW_KEYS = [
 
 export const DEFAULT_SECTIONS = {
   today: ["summary", "active-work", "needs-review", "sources"],
+  "agent-board": ["watching", "working", "waiting", "delivered"],
   work: ["jira-work", "portfolio", "reconciliation", "activity"],
   library: ["team-library", "guides", "files", "preview"],
   "data-work": ["models", "sources", "migrations", "quality"],

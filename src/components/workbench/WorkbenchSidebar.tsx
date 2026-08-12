@@ -10,6 +10,7 @@ import {
   PlugZap,
   Presentation,
   ShieldCheck,
+  SquareKanban,
 } from "lucide-react";
 import { STAGES } from "../../features/workshops/data";
 import type { WorkshopSurface } from "../../features/workshops/types";
@@ -27,6 +28,12 @@ type SidebarItem = {
 
 const primaryItems: SidebarItem[] = [
   { key: "today", label: "Today", helper: "What needs attention", icon: Home },
+  {
+    key: "agent-board",
+    label: "Agent Board",
+    helper: "Is the agent keeping up",
+    icon: SquareKanban,
+  },
   { key: "work", label: "Work", helper: "List and board", icon: BriefcaseBusiness },
   { key: "meetings", label: "Meetings", helper: "Prepare and follow up", icon: CalendarDays },
   {

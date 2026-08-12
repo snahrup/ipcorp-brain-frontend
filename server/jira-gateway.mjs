@@ -9,6 +9,7 @@ import { createActivityReconciliationRouter } from "./activity-reconciliation/ac
 import { collectActivitySources } from "./activity-reconciliation/activity-sources.mjs";
 import { createActivityStore } from "./activity-reconciliation/activity-store.mjs";
 import { writeProposalProse } from "./activity-reconciliation/voice-writer.mjs";
+import { buildAgentBoard } from "./agent-board.mjs";
 import { dispatch as dispatchAgent, getRun, listRuns } from "./agent-dispatch.mjs";
 import { getDailyMeetingPrep, readDailyMeetingPrepFile } from "./daily-meeting-prep.mjs";
 import {
@@ -22,6 +23,7 @@ import {
   handleMeetingCloseoutRoute,
   inspectStoredMeetingPackage,
   listStoredPackages,
+  listTodaysMeetings,
   processMeetingCloseout,
 } from "./meeting-closeout.mjs";
 import { generateBreakdown, minutesToJiraEstimate } from "./subtask-breakdown.mjs";
@@ -3021,6 +3023,47 @@ async function route(request, response) {
           origin
         );
       }
+    }
+
+    if (request.method === "GET" && url.pathname === "/api/agent-board") {
+      // Each source is gathered independently so one failure never blanks the
+      // board; the builder turns a failed source into a visible red card.
+      const gather = async (fn) => {
+        try {
+          return { ok: true, ...(await fn()) };
+        } catch (error) {
+          return { ok: false, error: error instanceof Error ? error.message : String(error) };
+        }
+      };
+      const [calendar, packages, activityState, agentRuns] = await Promise.all([
+        gather(async () => {
+          const data = await listTodaysMeetings({});
+          if (data.availability === "error") {
+            throw new Error(data.detail || "The Outlook calendar read failed.");
+          }
+          return { date: data.date, availability: data.availability, meetings: data.meetings };
+        }),
+        gather(async () => ({ items: await listStoredPackages() })),
+        gather(async () => {
+          const raw = await readFile(resolve(ACTIVITY_RECONCILIATION_STATE_PATH), "utf8").catch(
+            (error) => {
+              if (error?.code === "ENOENT") return null;
+              throw error;
+            }
+          );
+          return { state: raw ? JSON.parse(raw) : { runs: [], applyReceipts: {} } };
+        }),
+        gather(async () => ({ items: listRuns() })),
+      ]);
+      return sendJson(
+        response,
+        200,
+        {
+          ok: true,
+          data: buildAgentBoard({ now: new Date(), calendar, packages, activityState, agentRuns }),
+        },
+        origin
+      );
     }
 
     const meetingCloseout = await handleMeetingCloseoutRoute(request, url);

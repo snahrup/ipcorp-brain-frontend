@@ -1,0 +1,147 @@
+/* Agent Board: four read-only lanes. Tone is the whole point of the surface,
+   so the color signal sits on the card edge where a scan catches it. */
+
+.wb-board-freshness {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--wb-ink-soft, #5f6672);
+  font-size: 13px;
+  margin: 2px 2px 0;
+}
+
+.wb-board-sources-down {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #d6453d55;
+  background: #d6453d14;
+  color: #8d2621;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+}
+
+.wb-board-lanes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(240px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+@media (max-width: 1180px) {
+  .wb-board-lanes {
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .wb-board-lanes {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wb-board-lane {
+  background: var(--wb-surface-2, #f5f3ee);
+  border: 1px solid var(--wb-line, #e3ded4);
+  border-radius: 14px;
+  padding: 12px;
+  min-height: 200px;
+}
+
+.wb-board-lane-head {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: baseline;
+  gap: 8px;
+  padding: 2px 4px 10px;
+}
+
+.wb-board-lane-head h2 {
+  font-size: 15px;
+  margin: 0;
+}
+
+.wb-board-lane-head p {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--wb-ink-soft, #5f6672);
+}
+
+.wb-board-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wb-board-empty {
+  margin: 6px 4px;
+  font-size: 13px;
+  color: var(--wb-ink-soft, #5f6672);
+}
+
+.wb-board-card {
+  background: var(--wb-surface, #fffdf9);
+  border: 1px solid var(--wb-line, #e3ded4);
+  border-left: 4px solid #b9c2b6;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wb-board-card[data-tone="amber"] {
+  border-left-color: #c98a1b;
+  background: #c98a1b0d;
+}
+
+.wb-board-card[data-tone="red"] {
+  border-left-color: #d6453d;
+  background: #d6453d0d;
+}
+
+.wb-board-card strong {
+  font-size: 13.5px;
+  line-height: 1.35;
+}
+
+.wb-board-card p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--wb-ink-soft, #4d5560);
+}
+
+.wb-board-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.wb-board-kind {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wb-ink-soft, #6a7280);
+}
+
+.wb-board-age {
+  font-size: 11.5px;
+  color: var(--wb-ink-soft, #6a7280);
+  white-space: nowrap;
+}
+
+.wb-board-card[data-tone="red"] .wb-board-age {
+  color: #a03029;
+  font-weight: 600;
+}
+
+.wb-board-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}

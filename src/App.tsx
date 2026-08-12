@@ -94,6 +94,7 @@ import { RisksView } from "./views/RisksView";
 import { SourceHealthView } from "./views/SourceHealthView";
 import { TimelineView } from "./views/TimelineView";
 import {
+  AgentBoardView,
   ConnectionsView,
   DailyMeetingPrepView,
   MeetingsWorkspaceView,
@@ -420,6 +421,7 @@ export default function App() {
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             >
               {activeView === "today" && <TodayView onOpenWork={() => navigate("work")} />}
+              {activeView === "agent-board" && <AgentBoardView />}
               {activeView === "work" && (
                 <WorkView
                   items={workbenchSnapshot.workItems}

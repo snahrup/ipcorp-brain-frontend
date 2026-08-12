@@ -27,6 +27,14 @@ export const viewCopy: Record<
     summary: "Prepared work, open decisions, waiting items, and recent progress in one place.",
     action: "Review first up",
   },
+  "agent-board": {
+    label: "Agent Board",
+    eyebrow: "Automation status",
+    title: "What the agent is doing, without asking it.",
+    summary:
+      "Only the agent's own pipelines write this board. Cards age amber then red on their own, so a glance answers whether it is keeping up.",
+    action: "Check what is waiting on you",
+  },
   work: {
     label: "Work",
     eyebrow: "Team knowledge work",
