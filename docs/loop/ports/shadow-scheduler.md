@@ -54,7 +54,10 @@ acts.
 
 - Flag used: `LOOP_MODE=shadow` on the running gateway (first light per the rollout plan).
 - What ran: `GET /api/loop/status?pass=1` at 2026-08-13T01:46:23Z against the live Agent Board.
-- Evidence: 27 open items considered, 27 shadow rows recorded, zero duplicates on re-pass.
+- Evidence: first pass 27 open items considered, 27 shadow rows recorded. Second live
+  pass minutes later: 28 considered (one genuinely new board item had appeared),
+  exactly 1 recorded; zero duplicates for the 27 already shadowed. Idempotence and
+  new-work pickup both proven on real data.
   Verdicts: 11 show-tier (9 recommended Jira changes as jira-create/top, 2 drafts as
   draft-deliver/none) and 16 ask-tier (commitments and captures whose kinds are not yet
   policy classes, failing closed exactly as designed). Ledger at
