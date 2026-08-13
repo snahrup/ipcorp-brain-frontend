@@ -10,8 +10,52 @@ genuinely critical judgment.
 Patterns, prompts, and modules get lifted; no prior platform runs alongside it.
 Three schedulers fighting over one day is how babysitting comes back.
 
-Dates note: most D-drive forks show a single "migration snapshot 2026-06-16"
+About the dates: most D-drive forks show a single "migration snapshot 2026-06-16"
 commit; real activity is judged from file mtimes and Steve-authored commits.
+
+---
+
+## Ground rules, carved in on 2026-08-12
+
+Steve set these explicitly and they outrank everything below.
+
+**1. Ports, not transplants.** Nothing from a prior repo lands on main
+without, in order: a one-page spec of the wanted behavior, a failing test in
+THIS repo describing it, the port made small and green, and one end-to-end
+exercise against real data behind a flag. A donor piece that cannot clear
+that in about a day gets rewritten fresh and small with the donor as
+reference. Borrowed code that cannot be characterized by tests does not come
+in, regardless of how much prior work it represents. Adoption is never a
+favor to the past.
+
+**What this cuts from the survey tables below** (adopt-as-code demoted to
+reference-only): wshobson-agents (zero files; we dispatch a handful of role
+types), open-multi-agent's DAG machinery (only the loop-detector and
+typed-output ideas survive; the day is a prioritized list, not a DAG),
+agent-flow (one event pipeline only, and the hooks-observability repo wins
+because it has the human-in-the-loop round trip), claude-mem,
+claude-subconscious, canary, ralphy, hermes-agent, switchboard (patterns and
+UX reference only). mission-control's daemon contributes its skeleton and
+its credential-scrub regexes, not its five thousand lines.
+
+**2. One policy, two columns.** Every work class carries an autonomy tier
+(auto-run, run-then-show, ask-first) AND a model tier: none (plain code
+first, always), local open-source models for mechanical work (rescans,
+formatting, digests), flat-rate subscription models (Sonnet-class, Codex)
+for ticket drafting and coding, and top Claude only for judgment,
+verification of consequence, and anything in Steve's voice. The receipts
+ledger tracks tokens per work class next to success rate, so cost is a
+weekly number, never a background fear.
+
+**3. One surface, one voice.** All loop state lands on the Agent Board;
+no new dashboards. Exactly one agent, the foreman, ever addresses Steve:
+escalations, the morning standup (what ran overnight, what is staged for
+approval, what is red and why), and the evening retro (what shipped, what
+failed and its cost, what changed in trust tiers), all assembled from
+receipts. Every escalation carries four fields: what failed, where, what it
+impacted, and the fix in flight, with the receipt linked. "Trust the output
+because there was an output" is never an acceptable posture; unverified
+results are reported as unverified.
 
 ---
 
@@ -44,7 +88,7 @@ Workbench already trusts.
 |---|---|
 | Praxis / Auto-Claude (`apps/backend/prompts/`, `agents/`) | The 28-prompt roster: spec gatherer, researcher, writer, critic; planner; coder in an isolated git worktree; the qa_reviewer + qa_fixer pair; complexity_assessor (a ready-made decide input); followup_planner; insight_extractor. All Claude Agent SDK native, same SDK as the Workbench rail agent. Axon inside it is the heartbeat daemon pattern (:8400, agents report liveness over SSE) that the Agent Board's aging tones re-derived. |
 | mission-control (`scripts/daemon/`) | The loop skeleton, ~5k lines: `scheduler.ts` (cron plus poll), `dispatcher.ts` (retry queue with backoff, active-run lifecycle), `prompt-builder.ts` (context-rich prompt assembly, the closest analog to dispatching on a Jira ticket), `runner.ts` (output parsing), `security.ts` (credential-scrub regex set). |
-| Multica | The task lifecycle standard: enqueue, claim, start, complete/fail, report blockers, progress streaming. Lift the lifecycle contract, not the platform. |
+| Multica | The task lifecycle standard: enqueue, claim, start, complete/fail, report blockers, progress streaming. Lift the lifecycle spec, not the platform. |
 | open-multi-agent (`src/task/`, `src/orchestrator/`, `src/agent/`) | TypeScript, same language as the gateway: task queue, DAG scheduler, agent pool, `loop-detector.ts` (runaway-agent guard), `structured-output.ts` (typed readback). Modules, not the framework. |
 | Paperclip (`agents/`) | The org layer: agents as named roles with owned domains and budgets. The roster concept and governance copy; the Workbench stays the single company. |
 | wshobson-agents (`plugins/`) | 541 role/skill definitions to harvest selectively; `plugin-eval/.../judge.py` is an LLM-judge layer reusable in verify. |
@@ -65,7 +109,7 @@ point.
 | MRI (`server/`) | The convergence loop: scan, build a graph-fed fix prompt (the agent knows where the break sits and what cascades), spawn, verify, rescan, repeat until zero findings across rounds. Causality distinguishes direct fixes from cascade resolutions; an append-only progress memory stops repeated mistakes between rounds. Also `claude_accounts.py` for account rotation under parallel dispatch. |
 | Workbench (built) | Readback checks after every Jira write, verbatim-evidence checks on every extracted claim, fail-closed everywhere. The house standard the loop inherits. |
 | autoresearch (installed skill) | Commit before verify, revert on failure. Adopt the semantics; nothing to port. |
-| canary | The evidence-by-default contract: every run emits a self-contained report plus a replayable script. Philosophy lift; its Playwright scope stays browser work. |
+| canary | The evidence-by-default rule: every run emits a self-contained report plus a replayable script. Philosophy lift; its Playwright scope stays browser work. |
 | open-multi-agent | `loop-detector.ts` and structured outputs feed this station too. |
 
 ### Sense (built; two additions available)
@@ -120,7 +164,7 @@ document; Dagster is heavier than a daily loop needs).
 ## Build order
 
 1. **The dispatcher.** Mission-control's daemon shape plus Multica's
-   lifecycle contract, running inside the gateway: walk the Agent Board
+   lifecycle spec, running inside the gateway: walk the Agent Board
    state every few minutes, chase missing captures (ping Steve only for the
    paste), process meetings, run reconciliation, dispatch eligible tickets
    to agents with MRI-style context-rich prompts built by a prompt
