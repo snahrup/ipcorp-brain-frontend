@@ -772,3 +772,35 @@ test("the snapshot refresh fires only against the real Brain", () => {
   assert.equal(shouldRefreshSnapshot({}, { MEETING_CLOSEOUT_BRAIN_ROOT: "C:/tmp/y" }), false);
   assert.equal(shouldRefreshSnapshot({}, {}), true);
 });
+
+test("a cached-only read never starts a Microsoft call", async () => {
+  // The loop polls the board every few minutes. Left alone it expires the
+  // calendar cache and starts a fresh Microsoft read every ~15 minutes,
+  // which is a billed Copilot task each time. Background pollers must be
+  // able to read the cache and never initiate.
+  resetTodayCalendarState();
+  let reads = 0;
+  const options = {
+    date: "2026-08-13",
+    preparedMeetings: [meeting],
+    fixture: null,
+    readCalendar: () => {
+      reads += 1;
+      return Promise.resolve({ ok: true, data: { meetings: [meeting] } });
+    },
+  };
+
+  const cold = await listTodaysMeetings({ ...options, cachedOnly: true });
+  assert.equal(reads, 0, "a cold cached-only read starts nothing");
+  assert.equal(cold.availability, "stale");
+  assert.equal(cold.meetings[0].id, meeting.id, "prepared meetings still list");
+
+  // A real caller warms the cache.
+  await listTodaysMeetings(options);
+  await new Promise((r) => setTimeout(r, 20));
+  assert.equal(reads, 1);
+
+  const warm = await listTodaysMeetings({ ...options, cachedOnly: true });
+  assert.equal(reads, 1, "cached-only serves the cache without a new read");
+  assert.equal(warm.availability, "current");
+});

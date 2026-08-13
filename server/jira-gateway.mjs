@@ -127,7 +127,7 @@ function getActivityReconciliationRouter() {
 // The Agent Board and the loop read the SAME assembled state, so they can
 // never disagree about what work exists. Each source is gathered
 // independently; a failed source becomes a visible red card, never a blank.
-async function assembleAgentBoard() {
+async function assembleAgentBoard({ cachedOnly = false } = {}) {
   const gather = async (fn) => {
     try {
       return { ok: true, ...(await fn()) };
@@ -137,7 +137,7 @@ async function assembleAgentBoard() {
   };
   const [calendar, packages, activityState, agentRuns] = await Promise.all([
     gather(async () => {
-      const data = await listTodaysMeetings({});
+      const data = await listTodaysMeetings({ cachedOnly });
       if (data.availability === "error") {
         throw new Error(data.detail || "The Outlook calendar read failed.");
       }
@@ -3502,7 +3502,9 @@ if (isMainModule) {
       const tick = async () => {
         try {
           const ledger = await getLoopLedger();
-          const board = await assembleAgentBoard();
+          // cachedOnly: the loop reads what a person's visit already fetched
+          // and never starts a Microsoft call of its own.
+          const board = await assembleAgentBoard({ cachedOnly: true });
           await shadowPass({ board, policy: await getLoopPolicy(), ledger, now: new Date() });
           const et = new Intl.DateTimeFormat("en-US", {
             timeZone: "America/New_York",

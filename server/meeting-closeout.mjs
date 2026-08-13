@@ -309,6 +309,24 @@ export async function listTodaysMeetings(options = {}) {
     nowMs - todayCalendarCache.at < cacheTtl;
   if (!options.force && cacheFresh) return structuredClone(todayCalendarCache.value);
 
+  // Background pollers read; they never initiate. The loop walks the board
+  // every few minutes, and without this it expired the cache and started a
+  // fresh Microsoft read roughly every fifteen minutes all night, each one a
+  // billed Copilot task. Only a person's visit or an explicit refresh may
+  // start a read.
+  if (options.cachedOnly) {
+    if (todayCalendarCache?.date === date) return structuredClone(todayCalendarCache.value);
+    return {
+      date,
+      meetings: fallback,
+      source: fallback.length ? "brain_snapshot" : "microsoft_365",
+      availability: "stale",
+      microsoft365Available: true,
+      detail:
+        "No cached calendar answer yet. Background reads never start a Microsoft call; open the page or use Refresh.",
+    };
+  }
+
   // A read already in flight is never duplicated, force or not: a second tab
   // or a repeat visit attaches to the same pending answer.
   if (todayCalendarJob?.date === date) return loadingCalendarResponse(date, fallback);
