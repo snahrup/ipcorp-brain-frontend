@@ -1,7 +1,11 @@
 # Data model
 
-One SQLite file owned by the gateway (`%LOCALAPPDATA%/IPCorpBrain/loop.db`),
-WAL mode, append-biased. The board reads it; the loop writes it. Nothing
+One ledger owned by the gateway. Designed as SQLite; v1 runs the same shape
+and rules as an atomic-write JSON store
+(`%LOCALAPPDATA%/IPCorpBrain/loop-ledger.json`) because the SQLite native
+dep segfaults on this machine's Node (evidence in
+`ports/receipts-ledger.md`). The module API is the agreement; the engine can
+change underneath without callers noticing. Append-biased either way. The board reads it; the loop writes it. Nothing
 here duplicates state that already lives elsewhere (Jira, packages, the
 activity store); rows reference those sources by id and path.
 
