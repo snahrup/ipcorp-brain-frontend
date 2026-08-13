@@ -52,8 +52,9 @@ imported from ...\server\loop\policy.test.mjs
 
 ## 4. Real exercise (flagged, real data)
 
-- Flag used: none needed; pure module, exercised by the shadow scheduler
-  port when it lands.
+- Exercised by the live shadow pass of 2026-08-13T01:46Z: 27 real board items
+  classified under policy.json v1, pinned and fail-closed behavior observed on
+  real data; see `shadow-scheduler.md`.
 - What ran: full unit suite.
 - Evidence links: test run in the commit that carries this file.
 
@@ -62,6 +63,6 @@ imported from ...\server\loop\policy.test.mjs
 - [x] Spec complete before code
 - [x] Red before green, output pasted
 - [x] Implementation small and fully explainable
-- [ ] Real end-to-end exercise linked (arrives with the shadow scheduler port)
+- [x] Real end-to-end exercise linked (shadow scheduler port, 2026-08-13T01:46Z)
 - [x] Banned-word scan clean on any human-read text
 - [x] Commit links this file

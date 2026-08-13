@@ -52,14 +52,15 @@ measured things).
 
 ## 4. Real exercise (flagged, real data)
 
-- Arrives with the shadow scheduler port, which writes real would-do
-  receipts on live board state.
+- Done via the shadow scheduler port: the 2026-08-13T01:46Z live pass wrote 27
+  shadow runs and receipts to the real ledger; see `shadow-scheduler.md` for the
+  full evidence.
 
 ## 5. Sign-off
 
 - [x] Spec complete before code
 - [x] Red before green, output pasted
 - [x] Implementation small and fully explainable
-- [ ] Real end-to-end exercise linked (shadow scheduler port)
+- [x] Real end-to-end exercise linked (shadow scheduler port, 2026-08-13T01:46Z)
 - [x] Banned-word scan clean on any human-read text
 - [x] Commit links this file

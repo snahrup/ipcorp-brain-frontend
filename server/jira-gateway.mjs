@@ -12,6 +12,9 @@ import { writeProposalProse } from "./activity-reconciliation/voice-writer.mjs";
 import { buildAgentBoard } from "./agent-board.mjs";
 import { dispatch as dispatchAgent, getRun, listRuns } from "./agent-dispatch.mjs";
 import { getDailyMeetingPrep, readDailyMeetingPrepFile } from "./daily-meeting-prep.mjs";
+import { openLedger } from "./loop/ledger.mjs";
+import { loadPolicy } from "./loop/policy.mjs";
+import { shadowPass } from "./loop/shadow.mjs";
 import {
   applyDispositions,
   classifyEvidence,
@@ -118,6 +121,60 @@ function getActivityReconciliationRouter() {
     activityReconciliationRouter = createActivityReconciliationRouter(service);
   }
   return activityReconciliationRouter;
+}
+
+// The Agent Board and the loop read the SAME assembled state, so they can
+// never disagree about what work exists. Each source is gathered
+// independently; a failed source becomes a visible red card, never a blank.
+async function assembleAgentBoard() {
+  const gather = async (fn) => {
+    try {
+      return { ok: true, ...(await fn()) };
+    } catch (error) {
+      return { ok: false, error: error instanceof Error ? error.message : String(error) };
+    }
+  };
+  const [calendar, packages, activityState, agentRuns] = await Promise.all([
+    gather(async () => {
+      const data = await listTodaysMeetings({});
+      if (data.availability === "error") {
+        throw new Error(data.detail || "The Outlook calendar read failed.");
+      }
+      return { date: data.date, availability: data.availability, meetings: data.meetings };
+    }),
+    gather(async () => ({ items: await listStoredPackages() })),
+    gather(async () => {
+      const raw = await readFile(resolve(ACTIVITY_RECONCILIATION_STATE_PATH), "utf8").catch(
+        (error) => {
+          if (error?.code === "ENOENT") return null;
+          throw error;
+        }
+      );
+      return { state: raw ? JSON.parse(raw) : { runs: [], applyReceipts: {} } };
+    }),
+    gather(async () => ({ items: listRuns() })),
+  ]);
+  return buildAgentBoard({ now: new Date(), calendar, packages, activityState, agentRuns });
+}
+
+const LOOP_LEDGER_PATH = join(
+  process.env.LOCALAPPDATA || join(process.env.USERPROFILE || ".", "AppData", "Local"),
+  "IPCorpBrain",
+  "loop-ledger.json"
+);
+let loopLedgerPromise = null;
+function getLoopLedger() {
+  if (!loopLedgerPromise) loopLedgerPromise = openLedger(LOOP_LEDGER_PATH);
+  return loopLedgerPromise;
+}
+let loopPolicyPromise = null;
+function getLoopPolicy() {
+  if (!loopPolicyPromise) {
+    loopPolicyPromise = readFile(resolve("server", "loop", "policy.json"), "utf8").then((raw) =>
+      loadPolicy(JSON.parse(raw))
+    );
+  }
+  return loopPolicyPromise;
 }
 
 async function readActivityFixture() {
@@ -3026,44 +3083,44 @@ async function route(request, response) {
     }
 
     if (request.method === "GET" && url.pathname === "/api/agent-board") {
-      // Each source is gathered independently so one failure never blanks the
-      // board; the builder turns a failed source into a visible red card.
-      const gather = async (fn) => {
-        try {
-          return { ok: true, ...(await fn()) };
-        } catch (error) {
-          return { ok: false, error: error instanceof Error ? error.message : String(error) };
-        }
+      return sendJson(response, 200, { ok: true, data: await assembleAgentBoard() }, origin);
+    }
+
+    if (request.method === "GET" && url.pathname === "/api/loop/status") {
+      const mode = process.env.LOOP_MODE === "shadow" ? "shadow" : "off";
+      const ledger = await getLoopLedger();
+      const body = {
+        mode,
+        policyVersion: (await getLoopPolicy()).version,
+        tokensByClass: await ledger.tokensByClass({
+          since: new Date(Date.now() - 7 * 24 * 3_600_000).toISOString(),
+        }),
       };
-      const [calendar, packages, activityState, agentRuns] = await Promise.all([
-        gather(async () => {
-          const data = await listTodaysMeetings({});
-          if (data.availability === "error") {
-            throw new Error(data.detail || "The Outlook calendar read failed.");
-          }
-          return { date: data.date, availability: data.availability, meetings: data.meetings };
-        }),
-        gather(async () => ({ items: await listStoredPackages() })),
-        gather(async () => {
-          const raw = await readFile(resolve(ACTIVITY_RECONCILIATION_STATE_PATH), "utf8").catch(
-            (error) => {
-              if (error?.code === "ENOENT") return null;
-              throw error;
-            }
+      if (url.searchParams.get("pass") === "1") {
+        if (mode !== "shadow") {
+          return sendJson(
+            response,
+            409,
+            { ok: false, error: "LOOP_MODE is off; the loop stays dark and no pass runs." },
+            origin
           );
-          return { state: raw ? JSON.parse(raw) : { runs: [], applyReceipts: {} } };
-        }),
-        gather(async () => ({ items: listRuns() })),
-      ]);
-      return sendJson(
-        response,
-        200,
-        {
-          ok: true,
-          data: buildAgentBoard({ now: new Date(), calendar, packages, activityState, agentRuns }),
-        },
-        origin
+        }
+        const board = await assembleAgentBoard();
+        body.pass = await shadowPass({
+          board,
+          policy: await getLoopPolicy(),
+          ledger,
+          now: new Date(),
+        });
+      }
+      const runs = await ledger.runsWithVerification();
+      const shadows = runs.filter((run) => run.state === "shadow");
+      body.shadowRuns = shadows.length;
+      body.lastPass = shadows.reduce(
+        (latest, run) => (run.startedAt > latest ? run.startedAt : latest),
+        ""
       );
+      return sendJson(response, 200, { ok: true, data: body }, origin);
     }
 
     const meetingCloseout = await handleMeetingCloseoutRoute(request, url);
