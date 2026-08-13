@@ -81,11 +81,33 @@ Later port worth taking back: hash-chained manifests under an identity the
 runtime agent cannot touch. Our ledger is append-only by API; TrendOperator's
 is tamper-evident by construction, which is stronger.
 
-Deliberately NOT adopted: the computer-use stack (UI-TARS, accessibility
-driving). TrendOperator needs it because its platform has no sanctioned API;
-the Workbench acts only through verified APIs with readback, and importing
-screen-driving would import that project's hardest reliability problem
-without its justification.
+**Computer use: narrow lane, not a stack (amended 2026-08-13 at Steve's
+direction).** The principle stands: APIs with readback first, always. But
+two surfaces earn a computer-use lane because the principle itself justifies
+them, and Trope CUA (Steve's local repo) is the approved vehicle: it acts on
+UI Automation element indexes rather than pixels, routes through
+background-safe lanes so Steve's real cursor and foreground app are never
+stolen, returns receipts (`background_safe`, `foreground_changed`,
+`cursor_moved`) that feed the verify station, and records trajectories.
+
+1. **Cluely transcript fetch.** Cluely has no API; today Steve hand-copies
+   every capture. A `transcript-fetch` skill reads the transcript from the
+   Cluely window and hands it to the existing cleanup pipeline. Read-only.
+2. **Outlook proof-and-send.** The API send path stamps a Copilot footer,
+   which is why sends are manual today. The lane: open the draft in the
+   Outlook desktop app, screenshot-proof recipients and formatting, and on
+   Steve's per-instance instruction click Send in the UI (footer-free),
+   then verify via the API read of Sent Items. Double verification, and
+   email-send stays pinned ask-first; this changes who does the clicking
+   after Steve says send, never whether he is asked.
+
+Anything with a working API keeps using the API. Every computer-use skill
+carries the full failure-path spec, and every action stores its receipt,
+before/after screenshots, and (for consequential flows) the trajectory
+recording under the evidence root: `%LOCALAPPDATA%/IPCorpBrain/evidence` by
+default, `EVIDENCE_ROOT` moves it to an external SSD when one is
+designated, TrendOperator's retention classes and capacity thresholds
+apply.
 
 ## Rollout order with kill switches
 

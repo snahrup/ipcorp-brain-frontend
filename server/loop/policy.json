@@ -2,7 +2,12 @@
   "version": 1,
   "comment": "The loop's standing policy. Changed only by commit. Autonomy: ask < show < auto. Model: none | local | subscription | top. email-send and meeting-invite are pinned ask-first in code; entries here are documentation of that fact, not the enforcement.",
   "classes": {
-    "meeting-process": { "autonomy": "auto", "model": "top", "tools": "closeout", "promoteAt": 10 },
+    "meeting-process": {
+      "autonomy": "auto",
+      "model": "top",
+      "tools": "closeout",
+      "promoteAt": 10
+    },
     "snapshot-sync": {
       "autonomy": "auto",
       "model": "none",
@@ -15,11 +20,36 @@
       "tools": "closeout",
       "promoteAt": 10
     },
-    "log-digest": { "autonomy": "auto", "model": "local", "tools": "read-only", "promoteAt": 10 },
-    "board-refresh": { "autonomy": "auto", "model": "none", "tools": "read-only", "promoteAt": 10 },
-    "jira-comment": { "autonomy": "show", "model": "top", "tools": "jira-write", "promoteAt": 10 },
-    "jira-create": { "autonomy": "show", "model": "top", "tools": "jira-write", "promoteAt": 10 },
-    "jira-close": { "autonomy": "ask", "model": "top", "tools": "jira-write", "promoteAt": 10 },
+    "log-digest": {
+      "autonomy": "auto",
+      "model": "local",
+      "tools": "read-only",
+      "promoteAt": 10
+    },
+    "board-refresh": {
+      "autonomy": "auto",
+      "model": "none",
+      "tools": "read-only",
+      "promoteAt": 10
+    },
+    "jira-comment": {
+      "autonomy": "show",
+      "model": "top",
+      "tools": "jira-write",
+      "promoteAt": 10
+    },
+    "jira-create": {
+      "autonomy": "show",
+      "model": "top",
+      "tools": "jira-write",
+      "promoteAt": 10
+    },
+    "jira-close": {
+      "autonomy": "ask",
+      "model": "top",
+      "tools": "jira-write",
+      "promoteAt": 10
+    },
     "draft-deliver": {
       "autonomy": "show",
       "model": "none",
@@ -38,12 +68,34 @@
       "tools": "artifacts",
       "promoteAt": 10
     },
-    "briefing": { "autonomy": "auto", "model": "top", "tools": "read-only", "promoteAt": 10 },
-    "email-send": { "autonomy": "ask", "model": "top", "tools": "outlook-send", "promoteAt": 10 },
+    "briefing": {
+      "autonomy": "auto",
+      "model": "top",
+      "tools": "read-only",
+      "promoteAt": 10
+    },
+    "email-send": {
+      "autonomy": "ask",
+      "model": "top",
+      "tools": "outlook-send",
+      "promoteAt": 10
+    },
     "meeting-invite": {
       "autonomy": "ask",
       "model": "top",
       "tools": "outlook-send",
+      "promoteAt": 10
+    },
+    "transcript-fetch": {
+      "autonomy": "show",
+      "model": "none",
+      "tools": "trope-cluely",
+      "promoteAt": 10
+    },
+    "email-proof": {
+      "autonomy": "show",
+      "model": "top",
+      "tools": "trope-outlook",
       "promoteAt": 10
     }
   }
