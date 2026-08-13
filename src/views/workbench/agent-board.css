@@ -91,6 +91,60 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  /* A card renders as an article, a link or a button depending on whether it
+     has something to point at, so the shared look is written once and the
+     browser's own link and button styling is undone here. */
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Only a card that points somewhere reacts to a pointer. A card with nothing
+   to point at is deliberately inert, so it never invites a tap. */
+a.wb-board-card,
+button.wb-board-card {
+  cursor: pointer;
+  /* Thumb-sized on the phone, where this board is read most. */
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+a.wb-board-card:hover,
+button.wb-board-card:hover {
+  border-color: #9aa6b4;
+  box-shadow: 0 6px 16px rgba(9, 29, 48, 0.1);
+}
+
+a.wb-board-card:active,
+button.wb-board-card:active {
+  transform: translateY(1px);
+}
+
+a.wb-board-card:focus-visible,
+button.wb-board-card:focus-visible {
+  outline: 2px solid var(--accent, #1f6feb);
+  outline-offset: 2px;
+}
+
+/* The affordance line: what a tap will actually do. */
+.wb-board-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #3c6382;
+}
+
+a.wb-board-card:hover .wb-board-go {
+  text-decoration: underline;
 }
 
 .wb-board-card[data-tone="amber"] {
@@ -177,6 +231,136 @@
   line-height: 1.55;
 }
 
+/* The standup is read at arm's length on a phone, so the headline carries the
+   glance and everything under it is a fragment with a number in front of it.
+   Nothing here is allowed to grow into a paragraph. */
+
+.wb-standup-headline {
+  font-family: var(--font-heading, inherit);
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.wb-standup-group {
+  margin-top: 10px;
+}
+
+.wb-standup-group h3 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wb-ink-soft, #6a7280);
+}
+
+.wb-standup-group[data-group="act"] h3 {
+  color: #a03029;
+}
+
+.wb-standup-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wb-standup-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13.5px;
+  line-height: 1.3;
+  padding: 5px 8px 5px 10px;
+  border-radius: 8px;
+  border-left: 3px solid var(--wb-line, #e3ded4);
+  background: var(--wb-surface-2, #f5f3ee);
+}
+
+.wb-standup-group[data-group="act"] .wb-standup-item {
+  border-left-color: #d6453d;
+  background: #d6453d0d;
+}
+
+.wb-standup-count {
+  min-width: 22px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--wb-surface, #fffdf9);
+  border: 1px solid var(--wb-line, #e3ded4);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 12.5px;
+  text-align: center;
+}
+
+.wb-standup-group[data-group="act"] .wb-standup-count {
+  color: #a03029;
+  border-color: #d6453d55;
+}
+
+.wb-standup-link {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  text-decoration: underline;
+  text-decoration-color: var(--wb-line, #cfc8ba);
+  text-underline-offset: 3px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wb-standup-link:hover,
+.wb-standup-link:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+.wb-standup-unverified {
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8a6414;
+  border: 1px solid #c98a1b55;
+  background: #c98a1b14;
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+/* Landing from a standup link: the card says "this one" for a moment so the
+   jump does not leave Steve scanning the lane for what he just tapped. */
+.wb-board-card[data-flash="true"] {
+  animation: wb-card-flash 2.2s ease-out;
+}
+
+@keyframes wb-card-flash {
+  0%,
+  60% {
+    box-shadow: 0 0 0 3px #4a6d8c66;
+  }
+  100% {
+    box-shadow: 0 0 0 0 #4a6d8c00;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wb-board-card[data-flash="true"] {
+    animation: none;
+    box-shadow: 0 0 0 3px #4a6d8c66;
+  }
+}
+
 .wb-board-shadow {
   background: var(--wb-surface-2, #f5f3ee);
   border: 1px dashed var(--wb-line, #d8d2c6);
@@ -229,6 +413,73 @@
   color: #1e6b46;
 }
 
+/* The read-only card detail. It rides the Jira modal shell so the phone gets
+   the same full-height sheet, the same scroll lock and the same close control
+   without a second dialog pattern to keep in step. */
+.wb-board-modal-kind {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #63758a;
+}
+
+.wb-board-modal-detail {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #33465c;
+}
+
+.wb-board-modal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid #cad5df;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f4f74;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.wb-board-modal-link:hover {
+  border-color: #9aa6b4;
+  text-decoration: underline;
+}
+
+.wb-board-modal-block h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #63758a;
+}
+
+.wb-board-modal-block p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #33465c;
+}
+
+.wb-board-modal-block ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #33465c;
+}
+
+.wb-board-modal-block li {
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 680px) {
   .wb-board-standup,
   .wb-board-shadow {
@@ -239,7 +490,25 @@
     padding: 12px 14px;
   }
 
+  a.wb-board-card,
+  button.wb-board-card {
+    min-height: 48px;
+  }
+
+  .wb-board-go {
+    font-size: 12.5px;
+  }
+
   .wb-board-card strong {
     font-size: 14.5px;
+  }
+
+  .wb-standup-headline {
+    font-size: 17px;
+  }
+
+  .wb-standup-item {
+    font-size: 14.5px;
+    padding: 8px 10px 8px 12px;
   }
 }

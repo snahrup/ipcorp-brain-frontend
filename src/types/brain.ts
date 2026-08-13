@@ -56,6 +56,18 @@ export type MeetingEntry = {
   readinessStatus: string;
   /** Matched meeting infographic, when one was produced for this meeting. */
   infographic?: { id: string; file: string };
+  /**
+   * Promised work out of the room, decoded from the closeout package: what
+   * Steve owes, requested documents with their owner, reminders, and the
+   * Jira changes recommended from the discussion. Read-only in the UI.
+   */
+  followUps?: Array<{
+    kind: "commitment" | "document-request" | "reminder" | "jira-change";
+    text: string;
+    owner?: string;
+    when?: string;
+    operation?: string;
+  }>;
   packet?: string;
   source?: string;
   whyNow?: string;

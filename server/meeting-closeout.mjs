@@ -1044,7 +1044,7 @@ Source: \`${summaryReference}\`
 | Review area | Count | Status |
 |---|---:|---|
 | Steve's commitments | ${value.commitments.length} | REVIEW |
-| Jira proposals | ${value.jiraProposals.length} | PREPARED |
+| Recommended Jira changes | ${value.jiraProposals.length} | PREPARED |
 | Supporting material | ${value.supportingMaterial.length} | REVIEW |
 | Document requests | ${value.documentRequests.length} | REVIEW |
 | Reminder candidates | ${value.reminderCandidates.length} | PREPARED |
@@ -1366,7 +1366,62 @@ export async function persistMeetingPackage(value, transcript, source, options =
     changelogMarker,
     `\n| ${date} | ${localTime()} ET | Workbench | ${finalValue.files.transcript}; ${finalValue.files.summary}; ${finalValue.files.taskSpec}; ${finalValue.files.runReport}; ${finalValue.files.infographicHtml}; ${finalValue.files.infographicPng}; ${finalValue.files.infographicStatus}; _intake/processed.log; CHANGELOG.md | ${changelogMarker}, review package, and saved infographic. Email and Jira remained review-only. No staged file was left unwritten. |\n`
   );
-  return finalValue;
+  const brainCommit = await commitCloseoutFiles({
+    brainRoot,
+    files: finalValue.files,
+    meetingId: finalValue.id,
+    meetingTitle: finalValue.meeting.title,
+  });
+  return { ...finalValue, brainCommit };
+}
+
+/**
+ * Commit the closeout's own files, and only its own files.
+ *
+ * The scheduled NotebookLM job refuses to stage another workflow's
+ * uncommitted work, which is correct, and it means a closeout that writes
+ * without committing blocks the real infographic for every meeting behind
+ * it. That is exactly what happened on 2026-08-13: the 12:10 pass found the
+ * 12:01 closeout sitting untracked and stood down without invoking
+ * NotebookLM. The standing rule is files, knowledge update, validation, and
+ * the commit in the same run.
+ *
+ * Staging is by explicit path, never `-A`: sweeping up a bystander
+ * workflow's files would be the same defect pointed the other way.
+ */
+export async function commitCloseoutFiles({ brainRoot, files, meetingId, meetingTitle }) {
+  const paths = [
+    ...Object.values(files || {}).filter(Boolean),
+    "_intake/processed.log",
+    "CHANGELOG.md",
+  ];
+  const git = (args) => execFileAsync("git", args, { cwd: brainRoot });
+  try {
+    await git(["add", "--", ...paths]);
+    const staged = await git(["diff", "--cached", "--name-only"]);
+    if (!staged.stdout.trim()) {
+      return {
+        committed: false,
+        detail: "Nothing new to commit; these paths are already recorded.",
+      };
+    }
+    const message =
+      `Meeting closeout: ${meetingTitle} (${meetingId})\n\n` +
+      `Summary, transcript, task spec, run report, and infographic files\n` +
+      `written and committed in the same run by the Workbench closeout, so\n` +
+      `the scheduled post-meeting job never finds them as dirty overlap.`;
+    await git(["commit", "-m", message]);
+    const hash = await git(["log", "-1", "--format=%h"]);
+    return { committed: true, commit: hash.stdout.trim() };
+  } catch (error) {
+    // A failed commit must be visible on the package, never thrown: the
+    // files themselves were written and the closeout result is real. The
+    // board renders committed:false as work still owed.
+    return {
+      committed: false,
+      detail: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 export async function inspectStoredMeetingPackage(value, options = {}) {

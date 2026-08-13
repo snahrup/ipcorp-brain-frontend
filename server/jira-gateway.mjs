@@ -127,7 +127,11 @@ function getActivityReconciliationRouter() {
 // The Agent Board and the loop read the SAME assembled state, so they can
 // never disagree about what work exists. Each source is gathered
 // independently; a failed source becomes a visible red card, never a blank.
-async function assembleAgentBoard({ cachedOnly = false } = {}) {
+// The default is CACHED. A caller that wants a live Microsoft read has to ask
+// for one in so many words. This defaulted to live and the board route omitted
+// the argument, which is the whole reason forty billed tasks ran overnight on
+// 2026-08-13. Safe is the default; expensive is opt-in.
+async function assembleAgentBoard({ cachedOnly = true } = {}) {
   const gather = async (fn) => {
     try {
       return { ok: true, ...(await fn()) };
@@ -155,7 +159,30 @@ async function assembleAgentBoard({ cachedOnly = false } = {}) {
     }),
     gather(async () => ({ items: listRuns() })),
   ]);
-  return buildAgentBoard({ now: new Date(), calendar, packages, activityState, agentRuns });
+  return buildAgentBoard({
+    now: new Date(),
+    calendar,
+    packages,
+    activityState,
+    agentRuns,
+    jiraBaseUrl: await jiraBrowseBaseUrl(),
+  });
+}
+
+/**
+ * The host a card's Jira link is built from. A browse link needs the host and
+ * nothing else, so an unreachable credential store must not fail a board read
+ * the way a credentialed call does: the last host read stays usable, and with
+ * nothing read yet the cards carry the issue key and no link at all.
+ */
+let lastKnownJiraBaseUrl = "";
+async function jiraBrowseBaseUrl() {
+  try {
+    lastKnownJiraBaseUrl = (await getJiraConfig()).baseUrl;
+  } catch {
+    // The credential store is unreachable right now. Nothing is guessed.
+  }
+  return lastKnownJiraBaseUrl;
 }
 
 const LOOP_LEDGER_PATH = join(
@@ -3084,7 +3111,21 @@ async function route(request, response) {
     }
 
     if (request.method === "GET" && url.pathname === "/api/agent-board") {
-      return sendJson(response, 200, { ok: true, data: await assembleAgentBoard() }, origin);
+      // This route defaulted to a LIVE Microsoft read, and the board view polls
+      // it every sixty seconds. On 2026-08-13 that produced forty billed
+      // Copilot tasks between 1:15 AM and 10:04 AM, all asking for the same
+      // day's calendar. Steve's words: "that's a fucking glaring sign that I'm
+      // using it programmatically."
+      //
+      // A timer now reads what is already cached. Only an explicit refresh,
+      // which is a person pressing the button, may start a Microsoft call.
+      const refresh = url.searchParams.get("refresh") === "1";
+      return sendJson(
+        response,
+        200,
+        { ok: true, data: await assembleAgentBoard({ cachedOnly: !refresh }) },
+        origin
+      );
     }
 
     if (request.method === "GET" && url.pathname === "/api/loop/status") {
@@ -3106,7 +3147,9 @@ async function route(request, response) {
             origin
           );
         }
-        const board = await assembleAgentBoard();
+        // A status poll never starts a Microsoft call. Same reason as the
+        // board route above.
+        const board = await assembleAgentBoard({ cachedOnly: true });
         body.pass = await shadowPass({
           board,
           policy: await getLoopPolicy(),

@@ -97,3 +97,46 @@
 .meeting-infographic-close:hover {
   background: rgba(255, 255, 255, 0.24);
 }
+
+/* Promised work out of the room. Small labelled rows, thumb-sized on a phone. */
+.meeting-followup-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.meeting-followup {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  line-height: 1.35;
+}
+.meeting-followup-kind {
+  flex: none;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #eef2f8;
+  color: #33507a;
+}
+.meeting-followup-commitment {
+  background: #fdeeee;
+  color: #8a2f2f;
+}
+.meeting-followup-document-request {
+  background: #eef6ee;
+  color: #2f6b3a;
+}
+.meeting-followup-reminder {
+  background: #fdf6e7;
+  color: #7a5b1f;
+}
+.meeting-followup-text {
+  font-size: 13px;
+  color: #24303f;
+}

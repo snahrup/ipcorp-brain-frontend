@@ -321,6 +321,40 @@ function pairLeftoversByDay(meetings, infographics, claimed) {
   return paired;
 }
 
+/**
+ * Decode the closeout package embedded in a summary and flatten the promised
+ * work into short, typed follow-up entries. Anything malformed yields [] —
+ * a card with no follow-ups beats a card with invented ones.
+ */
+export function extractFollowUps(md) {
+  const markers = [...md.matchAll(/<!--\s*WORKBENCH_CLOSEOUT_JSON\s+([A-Za-z0-9+/=]+)\s*-->/g)];
+  if (!markers.length) return [];
+  let pkg;
+  try {
+    pkg = JSON.parse(Buffer.from(markers[markers.length - 1][1], "base64").toString("utf8"));
+  } catch {
+    return [];
+  }
+  const out = [];
+  for (const c of pkg.commitments ?? []) {
+    const text = strip(String(c.text ?? c.title ?? ""));
+    if (text) out.push({ kind: "commitment", text, owner: c.owner || "Steve" });
+  }
+  for (const d of pkg.documentRequests ?? []) {
+    const text = strip(String(d.text ?? ""));
+    if (text) out.push({ kind: "document-request", text, owner: d.owner || undefined });
+  }
+  for (const r of pkg.reminderCandidates ?? []) {
+    const text = strip(String(r.text ?? ""));
+    if (text) out.push({ kind: "reminder", text, when: r.timing || undefined });
+  }
+  for (const j of pkg.jiraProposals ?? []) {
+    const text = strip(String(j.title ?? ""));
+    if (text) out.push({ kind: "jira-change", text, operation: j.operation || undefined });
+  }
+  return out.slice(0, 16);
+}
+
 /** One entry per file in core/meetings/summaries. */
 export function buildMeetings(brain) {
   const infographics = indexInfographics(brain);
@@ -347,15 +381,27 @@ export function buildMeetings(brain) {
       .trim();
 
     const meta = (md.match(/^>\s*Source:\s*(.*)$/m) || [])[1] || "";
-    const attendees = (meta.match(/Attendees:\s*([^·]+)/) || [])[1];
+    // Two summary generations exist. The old pipeline wrote a `> Source:`
+    // meta line; the Workbench closeout writes bold labels. Read both, or the
+    // Meetings Overview shows a card with nobody in the room.
+    const attendees =
+      (meta.match(/Attendees:\s*([^·]+)/) || [])[1] ||
+      (md.match(/^\*\*Attendees:\*\*\s*(.*)$/m) || [])[1];
     const duration = (meta.match(/Duration:\s*~?\s*([^·]+)/) || [])[1];
 
-    const summaryBlock = md.split(/^##\s+Summary\s*$/m)[1] || "";
+    const summaryBlock =
+      md.split(/^##\s+Summary\s*$/m)[1] || md.split(/^##\s+Executive readout\s*$/m)[1] || "";
     const summary = summaryBlock
       .split(/^##\s+/m)[0]
       .split(/\n\s*\n/)
       .map((s) => s.trim())
       .filter((s) => s && !s.startsWith(">") && !s.startsWith("<!--"))[0];
+
+    // The closeout embeds its whole review package as base64 JSON. That is
+    // where the promised work lives: what Steve owes, to whom, and the Jira
+    // changes recommended from the room. Decode the LAST marker (a re-run
+    // appends a fresher one) and fail closed to an empty list.
+    const followUps = extractFollowUps(md);
 
     const art = matchInfographic(
       infographics.filter((entry) => !claimed.has(entry.folder)),
@@ -375,6 +421,7 @@ export function buildMeetings(brain) {
       source: "Meeting notes",
       readinessStatus: "captured",
       infographic: art ? { id: art.folder, file: art.file } : undefined,
+      followUps: followUps.length ? followUps : undefined,
       feedsPackets: [],
       feedsInsights: [],
     });
