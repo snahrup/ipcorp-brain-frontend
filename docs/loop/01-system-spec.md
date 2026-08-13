@@ -117,6 +117,48 @@ top-model tier and the voice rules, because Steve reads it.
 | Snapshot refresh | `shouldRefreshSnapshot` + sync trigger |
 | Agent runtime | Claude Agent SDK (already a dependency), CLI adapters for local models |
 
+## Design work in the loop
+
+The loop produces artifacts people look at: meeting infographics, kickoff
+packets, the weekly status HTML, briefing cards. Design is in scope exactly
+this far:
+
+- **One designer role in the roster** (`prompts/designer.md`), scoped to
+  those artifact classes, run-then-show tier. It works from the IP
+  Corporation Workbench Design System in Claude Design (the pushed
+  components and tokens) and the repo stylesheets; it never invents a look.
+- **A design-consistency check on the verify ladder** for human-facing
+  artifacts: house tokens used, layout rules held, banned words absent.
+
+Explicitly excluded: the loop redesigning the Workbench's own UI (dev work,
+human-initiated, always), and any new design platform. The Claude Design
+round trip stays an on-demand tool for feature work.
+
+## Where it runs: local, and why that is not a preference
+
+The loop lives on this machine, inside the existing gateway process, kept
+alive by a Windows scheduled task (donor: local-mission-control's install
+scripts). Cloud is ruled out by structure, not taste:
+
+- The Microsoft 365 bridge is a local process riding Steve's cached session
+  because the tenant blocks the hosted connector. A cloud loop cannot reach
+  it without shipping his session off the machine.
+- The Brain is OneDrive-synced local disk; Jira credentials live in the
+  local store; worktrees are local git.
+- Model spend stays flat-rate only when the Claude and Codex CLIs run where
+  Steve is authenticated. A cloud loop would push work onto metered API,
+  which the house rules forbid, and the local open-source tier (Ollama)
+  is by definition here.
+
+Single-machine risks, answered: autostart on boot; the Agent Board goes
+stale-red if the loop dies, so a dead loop is visible within minutes, never
+silent; durable state (Brain, repo, receipts backups) already syncs through
+OneDrive and GitHub. The loop is catch-up-shaped — it reads state on wake —
+so a machine that was off simply catches up, it does not lose the day. If
+off-hours coverage ever matters, the answer is a small always-on box on the
+local network, because the bridge constraint follows the session, not a
+cloud region.
+
 ## What is explicitly not in scope for v1
 
 - No chat control layer changes (the rail agent stays as is).
