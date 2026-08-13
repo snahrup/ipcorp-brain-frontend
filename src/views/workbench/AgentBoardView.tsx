@@ -31,10 +31,25 @@ type Board = {
   lanes: BoardLane[];
 };
 
+type LoopStatus = {
+  mode: string;
+  shadowRuns: number;
+  todayVerdicts: {
+    workItemId: string;
+    title: string;
+    classId: string;
+    autonomyTier: string;
+    modelTier: string;
+  }[];
+  latestStandup: { forDate: string; body: string; at: string } | null;
+};
+
 const REFRESH_MS = 60_000;
 
 export function AgentBoardView() {
   const [board, setBoard] = useState<Board | null>(null);
+  const [loop, setLoop] = useState<LoopStatus | null>(null);
+  const [loopError, setLoopError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -55,6 +70,18 @@ export function AgentBoardView() {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
       setLoading(false);
+    }
+    try {
+      const response = await fetch(`${GATEWAY}/loop/status`);
+      const payload = (await response.json()) as { ok: boolean; data?: LoopStatus; error?: string };
+      if (!payload.ok || !payload.data) {
+        throw new Error(payload.error || "The loop status read failed.");
+      }
+      setLoop(payload.data);
+      setLoopError(null);
+    } catch (cause) {
+      setLoop(null);
+      setLoopError(cause instanceof Error ? cause.message : String(cause));
     }
   }, []);
 
@@ -110,6 +137,49 @@ export function AgentBoardView() {
             </span>
           ))}
         </div>
+      )}
+
+      {loop?.latestStandup && (
+        <section className="wb-board-standup" data-testid="board-standup">
+          <header>
+            <h2>Standup, {loop.latestStandup.forDate}</h2>
+            <span>from the foreman, assembled from receipts</span>
+          </header>
+          <p>{loop.latestStandup.body}</p>
+        </section>
+      )}
+
+      {loop && loop.mode === "shadow" && Array.isArray(loop.todayVerdicts) && (
+        <section className="wb-board-shadow" data-testid="board-shadow-strip">
+          <header>
+            <h2>Shadow: what the loop WOULD do</h2>
+            <span>
+              {loop.todayVerdicts.length} verdict{loop.todayVerdicts.length === 1 ? "" : "s"} today,
+              nothing executed
+            </span>
+          </header>
+          <div className="wb-board-shadow-items">
+            {loop.todayVerdicts.slice(0, 8).map((verdict) => (
+              <span
+                className="wb-board-shadow-item"
+                data-tier={verdict.autonomyTier}
+                key={verdict.workItemId}
+                title={verdict.title}
+              >
+                <strong>{verdict.autonomyTier}</strong> {verdict.classId}
+              </span>
+            ))}
+            {loop.todayVerdicts.length === 0 && (
+              <span className="wb-board-empty">No verdicts yet today.</span>
+            )}
+          </div>
+        </section>
+      )}
+
+      {loopError && (
+        <p className="wb-board-empty" data-testid="board-loop-error">
+          Loop status unreadable: {loopError}
+        </p>
       )}
 
       {error ? (

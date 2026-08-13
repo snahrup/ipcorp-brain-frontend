@@ -12,6 +12,7 @@ import { writeProposalProse } from "./activity-reconciliation/voice-writer.mjs";
 import { buildAgentBoard } from "./agent-board.mjs";
 import { dispatch as dispatchAgent, getRun, listRuns } from "./agent-dispatch.mjs";
 import { getDailyMeetingPrep, readDailyMeetingPrepFile } from "./daily-meeting-prep.mjs";
+import { assembleStandup } from "./loop/briefing.mjs";
 import { openLedger } from "./loop/ledger.mjs";
 import { loadPolicy } from "./loop/policy.mjs";
 import { shadowPass } from "./loop/shadow.mjs";
@@ -3120,7 +3121,36 @@ async function route(request, response) {
         (latest, run) => (run.startedAt > latest ? run.startedAt : latest),
         ""
       );
+      const today = new Date().toISOString().slice(0, 10);
+      body.todayVerdicts = shadows
+        .filter((run) => String(run.startedAt).slice(0, 10) === today)
+        .map((run) => ({
+          workItemId: run.workItemId,
+          title: run.title || run.workItemId,
+          classId: run.classId,
+          autonomyTier: run.autonomyTier || "ask",
+          modelTier: run.modelTier || "top",
+        }));
+      body.latestStandup = await ledger.latestBriefing("standup");
       return sendJson(response, 200, { ok: true, data: body }, origin);
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/loop/standup") {
+      if (process.env.LOOP_MODE !== "shadow") {
+        return sendJson(
+          response,
+          409,
+          { ok: false, error: "LOOP_MODE is off; no briefing is generated in the dark." },
+          origin
+        );
+      }
+      const ledger = await getLoopLedger();
+      const briefing = await assembleStandup({
+        ledger,
+        board: await assembleAgentBoard(),
+        now: new Date(),
+      });
+      return sendJson(response, 200, { ok: true, data: briefing }, origin);
     }
 
     const meetingCloseout = await handleMeetingCloseoutRoute(request, url);
@@ -3463,5 +3493,38 @@ if (isMainModule) {
     console.log(`IP Corp Workbench data gateway ready at http://${HOST}:${PORT}`);
     console.log(`Scope locked to Jira project ${INITIATIVE_KEY}.`);
     console.log("Team Library access is read-only.");
+    if (process.env.LOOP_MODE === "shadow") {
+      console.log("Loop is in shadow: passes and the 8:00 standup run in-process.");
+      // The loop's clock, in-process so no OS scheduler is involved: every
+      // five minutes run a shadow pass, and inside the 8:00-8:30 ET weekday
+      // window assemble the standup (idempotent per day, so the window
+      // firing twice changes nothing).
+      const tick = async () => {
+        try {
+          const ledger = await getLoopLedger();
+          const board = await assembleAgentBoard();
+          await shadowPass({ board, policy: await getLoopPolicy(), ledger, now: new Date() });
+          const et = new Intl.DateTimeFormat("en-US", {
+            timeZone: "America/New_York",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+            weekday: "short",
+          }).formatToParts(new Date());
+          const part = (type) => et.find((p) => p.type === type)?.value ?? "";
+          const weekday = part("weekday");
+          const hour = Number(part("hour"));
+          const minute = Number(part("minute"));
+          const isWeekday = !["Sat", "Sun"].includes(weekday);
+          if (isWeekday && hour === 8 && minute < 30) {
+            await assembleStandup({ ledger, board, now: new Date() });
+          }
+        } catch (error) {
+          console.log(`Loop tick failed: ${error instanceof Error ? error.message : error}`);
+        }
+      };
+      setInterval(() => void tick(), 5 * 60_000);
+      setTimeout(() => void tick(), 15_000);
+    }
   });
 }

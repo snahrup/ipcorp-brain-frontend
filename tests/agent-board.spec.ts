@@ -93,12 +93,41 @@ const board = {
   ],
 };
 
+const loopStatus = {
+  mode: "shadow",
+  policyVersion: 1,
+  tokensByClass: {},
+  shadowRuns: 3,
+  lastPass: "2026-08-11T19:59:00.000Z",
+  todayVerdicts: [
+    {
+      workItemId: "proposal-p1",
+      title: "Create: digest",
+      classId: "jira-create",
+      autonomyTier: "show",
+      modelTier: "top",
+    },
+  ],
+  latestStandup: {
+    forDate: "2026-08-11",
+    body: "Overnight the loop shadowed the board and touched nothing.",
+    at: "2026-08-11T12:00:00.000Z",
+  },
+};
+
 async function openBoard(page: Page) {
   await page.route("http://127.0.0.1:8817/api/agent-board", async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({ ok: true, data: board }),
+    });
+  });
+  await page.route("http://127.0.0.1:8817/api/loop/status", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, data: loopStatus }),
     });
   });
   await page.goto("/");
@@ -126,7 +155,22 @@ test("stale work is loud and a dead source is declared, not hidden", async ({ pa
   );
 });
 
+test("the standup and shadow strip render from the loop status", async ({ page }) => {
+  await openBoard(page);
+  await expect(page.getByTestId("board-standup")).toContainText("touched nothing");
+  const strip = page.getByTestId("board-shadow-strip");
+  await expect(strip).toContainText("1 verdict today");
+  await expect(strip).toContainText("jira-create");
+});
+
 test("a failed board read shows the failure and never a stale-looking board", async ({ page }) => {
+  await page.route("http://127.0.0.1:8817/api/loop/status", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, data: loopStatus }),
+    });
+  });
   await page.route("http://127.0.0.1:8817/api/agent-board", async (route) => {
     await route.fulfill({
       status: 200,

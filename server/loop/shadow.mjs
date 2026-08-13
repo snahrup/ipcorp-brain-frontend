@@ -57,6 +57,9 @@ export async function shadowPass({ board, policy, ledger, now }) {
         agentRole: "shadow",
         modelUsed: "none",
         state: "shadow",
+        autonomyTier: verdict.autonomyTier,
+        modelTier: verdict.modelTier,
+        title: String(item.title || "").slice(0, 120),
         startedAt: at.toISOString(),
         finishedAt: at.toISOString(),
       });
