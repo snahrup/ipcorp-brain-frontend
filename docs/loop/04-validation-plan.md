@@ -55,6 +55,38 @@ retro runs automatically:
    failure rate by more than the written threshold keeps its assignment;
    the retro flags it for a policy commit.
 
+## Adopted from TrendOperator (Steve's parallel build, 2026-08-13)
+
+Steve's TrendOperator spec converged on the same loop independently, and
+four of its rules are stronger than ours were. They bind the dispatcher
+port when it is built:
+
+1. **No action without observability.** If the receipts ledger cannot be
+   written, the loop refuses to act before the next action, not after. A
+   health check on the ledger is a startup and per-pass precondition.
+2. **Skill specs carry the failure path.** Every dispatcher skill defines
+   preconditions, allowed actions, expected result, verification rule,
+   timeout, retry limit, recovery, audit evidence, and permitted next
+   states. A skill without its failure path is incomplete.
+3. **Immutable briefs, reconcile before resume.** A dispatch brief freezes
+   at dispatch; the agent cannot rewrite its own objective mid-run. On any
+   restart, the dispatcher compares last intended action against last
+   verified result before acting, so a consequential action never repeats.
+   This generalizes the Cowork one-job rule to everything.
+4. **Degraded model mode.** When a tier's model is unreachable: checkpoint,
+   then pause or use a smaller APPROVED model. Judgment work is never
+   silently handed to a weaker model.
+
+Later port worth taking back: hash-chained manifests under an identity the
+runtime agent cannot touch. Our ledger is append-only by API; TrendOperator's
+is tamper-evident by construction, which is stronger.
+
+Deliberately NOT adopted: the computer-use stack (UI-TARS, accessibility
+driving). TrendOperator needs it because its platform has no sanctioned API;
+the Workbench acts only through verified APIs with readback, and importing
+screen-driving would import that project's hardest reliability problem
+without its justification.
+
 ## Rollout order with kill switches
 
 1. Everything ships dark behind `LOOP_ENABLED=0`.
