@@ -1300,6 +1300,21 @@ export async function persistMeetingPackage(value, transcript, source, options =
     meetingId: infographicId,
     browserFactory: options.browserFactory,
   });
+  // The template card is a preview, never the deliverable. Marking the status
+  // pending keeps the scheduled NotebookLM job treating this meeting's
+  // infographic phase as unfinished; the completed card used to squat the
+  // canonical path and the real job skipped the meeting forever.
+  try {
+    const status = JSON.parse(await readFile(infographicStatusPath, "utf8"));
+    if (status.status === "complete") {
+      status.status = "placeholder_pending_notebooklm";
+      status.note =
+        "Workbench template card only. The scheduled NotebookLM job owns the real infographic.";
+      await writeFile(infographicStatusPath, `${JSON.stringify(status, null, 2)}\n`, "utf8");
+    }
+  } catch {
+    // The render already failed loudly if the status file is unwritable.
+  }
   const finalValue = {
     ...nextValue,
     createdAt: existingPackage?.createdAt || nextValue.createdAt,

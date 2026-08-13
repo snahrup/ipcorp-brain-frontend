@@ -226,7 +226,7 @@ export function ActivityRunDockProvider({ children }: { children: ReactNode }) {
                   <CheckCircle2 size={14} />
                   <span className="ar-dock-pill-label">Review ready</span>
                   <small>
-                    {reviewCount} proposal{reviewCount === 1 ? "" : "s"}
+                    {reviewCount} recommended change{reviewCount === 1 ? "" : "s"}
                   </small>
                 </>
               )}

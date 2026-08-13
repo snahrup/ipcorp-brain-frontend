@@ -116,6 +116,19 @@ export async function openLedger(path) {
       return state.classStates[classId] || null;
     },
 
+    async appendBriefing(briefing) {
+      if (!briefing?.kind) throw new Error("A briefing needs a kind.");
+      const row = { id: `briefing-${randomUUID()}`, ...briefing };
+      state.briefings.push(row);
+      await persist();
+      return row;
+    },
+
+    async latestBriefing(kind) {
+      const rows = state.briefings.filter((row) => row.kind === kind);
+      return rows.length ? rows[rows.length - 1] : null;
+    },
+
     async reload() {
       state = await loadState(path);
     },

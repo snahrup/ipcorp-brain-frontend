@@ -144,3 +144,19 @@ test("class state persists across reopen and survives the earned-autonomy round 
   const raw = JSON.parse(await readFile(path, "utf8"));
   assert.ok(Array.isArray(raw.receipts), "the file is the documented shape");
 });
+
+test("briefings store append-only with a latest read", async (t) => {
+  const ledger = await freshLedger(t);
+  assert.equal(await ledger.latestBriefing("standup"), null);
+  await ledger.appendBriefing({
+    kind: "standup",
+    forDate: "2026-08-13",
+    body: "Overnight the loop shadowed 28 items.",
+    receiptIds: ["receipt-1"],
+    at: NOW.toISOString(),
+  });
+  const latest = await ledger.latestBriefing("standup");
+  assert.equal(latest.forDate, "2026-08-13");
+  assert.match(latest.body, /shadowed 28/);
+  assert.equal(typeof ledger.updateBriefing, "undefined");
+});
