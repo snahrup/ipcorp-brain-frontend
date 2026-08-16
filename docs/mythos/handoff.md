@@ -1,6 +1,33 @@
 # Handoff
 
-## Current closeout: creative meeting visuals and execution architecture (2026-08-14)
+## Current: Phase 0 preserve and rewrite (2026-08-16)
+
+The build sequence was stopped on 2026-08-15 by three independent reviews. Verdict: no go on
+the sequence, continue the project. The previous plan created Jira issues automatically before
+building the protections that make an external effect safe to retry, and its action identity
+rule contradicted itself.
+
+Anything below this entry that names a next implementation block is history. The build order
+now lives in `docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md`, phases 0 through 8.
+
+Phase 0 done: the 116 uncommitted paths are 11 recovery points on `main`, pushed
+`34b6684..90e9c64`; the inventory and the parked work are recorded at
+`docs/mythos/evidence/20260816-phase-0-checkout-inventory.md`; the plan is rewritten; the
+superseded documents carry history banners; Phase 1 checks are frozen at
+`docs/mythos/gates/20260816-action-safe-state.md`.
+
+Phase 0 open: Steve confirms the order, then the automatic Phase 0 infographic.
+
+Next: Phase 1, Action-Safe State. Action identity, lease fencing, resume safety, the external
+effect lifecycle, completion authority, cancellation, and the redaction and allowlist work moved
+forward out of the old Phase 15. Nine checks, eight failure exercises, no live external effect.
+Recommended in a branch or worktree so a later reviewer can tell a new regression from the work
+already in `main`.
+
+Paused, not discarded: the meeting-to-execution bridge at `3095f5c`. Read-only, creates nothing,
+rebuilt on the corrected identity in Phase 3.
+
+## Previous closeout: creative meeting visuals and execution architecture (2026-08-14)
 
 The meeting index has been rebuilt from the reviewed provider receipts. It contains 123
 real meetings, 109 selected creative visuals, and 14 meetings with no selected visual

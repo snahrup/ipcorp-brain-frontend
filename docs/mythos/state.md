@@ -1,18 +1,31 @@
 # Current Task
 
-Build the first real meeting-to-execution bridge: stable follow-up identity, direct Jira
-links, and truthful cached work-run state in every meeting modal.
+Phase 0: preserve the checkout and rewrite every active plan around the reviewed build order.
 
-- Status: implementation started
-- Acceptance file: `docs/mythos/gates/20260814-200003-meeting-action-visibility.md`
-- Immediate cause: meeting follow-ups are static text, the export drops Jira keys, and the
-  modal does not read Agent Board evidence
-- This increment: make existing Jira and run evidence visible, and state plainly when neither
-  exists
-- Next increment: automatic Jira link or creation, saved autonomous suitability, and dispatch
-  through the five-perspective review cycle
-- Safety: no Jira, Microsoft 365, Brain, email, or Teams effect during implementation checks
-- Preserve: every unrelated edit in the shared checkout
+- Status: in progress, 2026-08-16
+- Authority: `docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md`
+- Why: three independent reviews on 2026-08-15 stopped the previous sequence. It created Jira
+  issues automatically before building the protections that make an external effect safe to
+  retry. Verdict was no go on the sequence, continue the project.
+- Done: checkout inventoried and committed as 11 recovery points on `main`, pushed
+  `34b6684..90e9c64`; the parked work recorded; the plan rewritten; Phase 1 checks frozen at
+  `docs/mythos/gates/20260816-action-safe-state.md`
+- Open: Steve confirms the revised order, then the automatic Phase 0 infographic
+- Next: Phase 1, Action-Safe State. First code phase. No live external effect in it.
+- Safety: Phase 0 changes documents and git only
+
+## Paused work
+
+The meeting-to-execution bridge was started before the review landed and is paused, not
+discarded. It is committed at `3095f5c` and is read-only: it shows an existing Jira key and an
+existing run when those exist, and says plainly when neither does. It creates nothing.
+
+Its identity is known to be wrong in the way the review described. It derives from evidence
+content, so changed evidence makes a second record instead of a new revision. Phase 1 replaces
+that with a permanent lineage plus revisions, and Phase 3 rebuilds this feature on top of it.
+
+Its earlier acceptance file, `docs/mythos/gates/20260814-200003-meeting-action-visibility.md`,
+is superseded by Phase 3 of the build plan.
 
 ## Previous current task
 

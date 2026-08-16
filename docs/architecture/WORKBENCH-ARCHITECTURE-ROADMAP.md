@@ -2,6 +2,11 @@
 
 Reviewed 2026-08-14 against the live code, local runtime, current data, and the full design set.
 
+> **History as of 2026-08-16.** The current build order lives in
+> `docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md`. Where this roadmap and that plan
+> disagree, the plan wins. This file also predates the one-request Today snapshot, so any
+> statement here about Today making several requests is stale.
+
 ## Recommendation
 
 Pause new feature work after the current Today and meeting closeout work is verified. The next work should be a foundation sequence, not another page or isolated capability.

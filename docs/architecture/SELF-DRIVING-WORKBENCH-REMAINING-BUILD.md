@@ -2,6 +2,23 @@
 
 Reviewed: 2026-08-14
 
+> **History. Its build order was rejected on 2026-08-15 and must not be followed.**
+>
+> The authoritative plan is `docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md`.
+>
+> Specifically rejected here: the Block A, Block B, and Block C order at the end of this file,
+> because Block B creates Jira issues automatically before Block C builds the shared
+> staged-action service; the Phase 3A scope, which compressed three phases into one; the
+> identity rule that puts an evidence hash in the action id; the "performed once" promise; the
+> five mandatory reviewer passes; and the placement of the effect-safety and redaction work in
+> Phase 15.
+>
+> Still useful and still accurate: the status vocabulary, the current scorecard, the meeting
+> source audit, the per-area proof matrix, and the automatic phase infographic step. Read those
+> parts freely. Do not take the ordering from this file.
+>
+> The review that stopped it: `docs/architecture/reviews/20260815-build-sequence-review.md`.
+
 This is the current dependency-ordered build plan for the self-driving Workbench. It
 combines the Workbench specs, the TrendOperator package, the LoopX review, the useful
 parts of earlier apps, the live code, the meeting source audit, and the current test

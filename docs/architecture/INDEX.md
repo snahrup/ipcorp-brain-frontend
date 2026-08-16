@@ -23,8 +23,10 @@ shell owns the daily operating experience:
 
 | Area | Current reference | Notes |
 | --- | --- | --- |
-| Full remaining build | `docs/architecture/SELF-DRIVING-WORKBENCH-REMAINING-BUILD.md` | Current status, definition of finished, dependency order, donor destinations, blockers, proof matrix, and next three blocks. |
-| Ordered build plan | `docs/architecture/WORKBENCH-ARCHITECTURE-ROADMAP.md` | The August plan wins over May-era graph-first plans. |
+| **Build order** | `docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md` | **Authoritative.** Phases 0 through 8, product success measures, action identity, effect lifecycle, and review levels. Decides what gets built next. |
+| Why the order changed | `docs/architecture/reviews/20260815-build-sequence-review.md` | The three-reviewer verdict that stopped the previous sequence. |
+| Status, scorecard, source audit | `docs/architecture/SELF-DRIVING-WORKBENCH-REMAINING-BUILD.md` | History for ordering. Still accurate for the status vocabulary, scorecard, meeting source audit, and proof matrix. Its Block A/B/C order is rejected. |
+| Earlier roadmap | `docs/architecture/WORKBENCH-ARCHITECTURE-ROADMAP.md` | History. Predates the one-request Today snapshot. |
 | Feature donors | `docs/architecture/FEATURE-DONOR-MATRIX.md` | Patterns to port into the Workbench, not apps to run beside it. |
 | Prior app survey | `docs/self-driving-workbench-map.md` | Useful donor work from Ghostwork, Mission Control, Praxis, Multica, MRI, and related apps. |
 | Loop intent and checks | `docs/loop/00-charter.md` through `docs/loop/04-validation-plan.md` | Current loop work stays in shadow until each module has evidence. |
@@ -65,7 +67,7 @@ on its own.
 | Launcher and ports | `C:\Apps\IP Corp Brain Launch.bat`, gateway `8817`, Vite `5217`, strict port enabled. |
 | Styling | Tailwind v4 utilities-only plus existing custom CSS. No Preflight. |
 | Local state | `%LOCALAPPDATA%\IPCorpBrain\`, not repo files while the dev server is running. |
-| External effects | Clear Jira and Brain work can advance automatically after duplicate checks, five review perspectives, convergence, and readback. Communication classes begin with review and can earn narrow autonomy from measured clean repetitions. |
+| External effects | None are live yet, and none may go live before Phase 1 Action-Safe State and Phase 4 of the build plan. Review depth then follows consequence, using review levels 0 through 4, not five mandatory passes on everything. Communication classes begin with review and can earn narrow autonomy from measured clean repetitions. |
 | Loop mode | Each work class advances separately through observe, draft, reviewed execution, and autonomous execution. There is no global autonomy switch. |
 | Visual artifacts | Codex image generation is preferred for meeting visuals. NotebookLM remains available for future artifact types. PPT-like placeholders are rejected. |
 
@@ -76,10 +78,10 @@ on its own.
 | Today | One server snapshot with one ID, one capture time, Jira, Agent Board, activity-run, loop state, and partial-source notes. | Move more source stores onto the shared state engine and expand health reporting. |
 | Agent Board | Four lanes, cache-only polling, saved ticket runs, source state. | Add convergence rounds, frozen release packages, exceptions, value, impact, and maturity evidence. |
 | Meetings | Prep and wrap-up surfaces, multi-source transcript comparison, an eight-step saved closeout job, Codex visual retrieval, exact receipt-selected display, and a retained NotebookLM path. The current index has 123 real meetings, 109 reviewed visuals, and 14 source-blocked meetings with no selected visual. | Make the production image worker restart-safe, recover incomplete historical sources, and build the meeting-to-execution bridge. |
-| Meeting-to-execution | Evidence-backed commitments, Jira work, document requests, reminders, and communication drafts are already extracted. | Give every follow-up one saved action record, auto-link or create clear Jira work, assess autonomous suitability, run five-perspective convergence, and show live state beside the meeting item. |
+| Meeting-to-execution | Evidence-backed commitments, Jira work, document requests, reminders, and communication drafts are already extracted. | Phase 3 of the build plan: one saved action record per follow-up on a permanent lineage, existing Jira matches suggested, recommendation-only payloads, and truthful run state beside the meeting item. Creating Jira work waits for Phase 4. |
 | Activity reconciliation | Proposal/review/apply path, saved run lifecycle, overlap suppression, stop/resume, review-first Jira changes, and review-only email content exist. | Move every source unit onto the shared saved-step engine, close the remaining 14 partial acceptance items, and route clear Jira work through the common action service. |
 | Brain Explorer | Current 2D semantic map and sanitized read models. | Repair deeper Brain processing, add richer source evidence, then improve exploration. |
-| Self-driving loop | Shadow sense/classification, receipts, standup, Cluely fetch lane. | Dispatcher, five-perspective convergence, staged action and exception service, full dress rehearsals, maturity scoring, foreman cards, memory, and evening retro. |
+| Self-driving loop | Shadow sense/classification, receipts, standup, Cluely fetch lane. | Deferred to Phases 6 through 8, after the real-meeting pilot measures what actually fails: shadow dispatch, risk-selected review, the staged action and exception service, maturity scoring, foreman cards, memory, and evening retro. |
 
 ## Historical Notes
 
