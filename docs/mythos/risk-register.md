@@ -1,5 +1,23 @@
 # Risk Register
 
+- The meeting job is now the first production consumer of the saved work-item engine.
+  Activity reconciliation still uses its older run store for its other stages and is the
+  next migration target.
+- A recycled Windows PID can make an old lease look live until its 30-minute expiry. That
+  favors duplicate-work prevention over immediate recovery and remains visible in status.
+- Full-project Chromium currently has seven older failures outside the saved meeting path.
+  The meeting path passes in Chromium and Firefox, but those wider failures remain visible
+  follow-up work.
+- The append-only event journal is intentionally simple and currently reads the full
+  journal to assign the next sequence. This is correct for the first consumer, but it
+  needs compaction or an indexed store before very high event volume.
+- Today currently carries the complete Jira initiative payload inside its snapshot. The
+  live response is large. A later read-model pass should trim it to fields Today renders
+  while leaving the full Jira endpoint available to Work.
+- Full-project lint is still red from existing graph-generator and generated JSON
+  findings. Touched files pass focused checks, but repo-wide lint remains visible work.
+- Automatic execution remains off. Meeting closeout is the first production consumer;
+  activity reconciliation is next.
 - The request spans UI help, external services, and repo maintenance. A permissive tool
   runner would turn a bad model choice into a real change. The service must allow only
   registered tools and targets, then require exact confirmation for every change.

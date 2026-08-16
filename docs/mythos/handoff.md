@@ -1,5 +1,178 @@
 # Handoff
 
+## Current closeout: creative meeting visuals and execution architecture (2026-08-14)
+
+The meeting index has been rebuilt from the reviewed provider receipts. It contains 123
+real meetings, 109 selected creative visuals, and 14 meetings with no selected visual
+because their evidence is missing, incomplete, or conflicting. The selector has no selected
+placeholder, failed, pending, rejected, or source-blocked receipt. The historical files and
+late unreviewed outputs remain preserved but unselected.
+
+Every matching meeting source was compared. Teams evidence leads when available; secondary
+captures fill only uncovered material. Duplicate representations are collapsed, source
+hashes are saved, and disagreement stops generation instead of being smoothed over. The
+two attached TrendOperator archives were also confirmed byte-identical, so only one needed
+review.
+
+Fresh verification passed: 16 focused visual selector and generator checks, the 123-meeting
+audit, TypeScript through the production build, and actual desktop plus phone image-route
+checks in Chromium and Firefox. All 109 selected image files resolve. The only build warning
+is the already-known large JavaScript chunk.
+
+The current remaining-work authority is
+`docs/architecture/SELF-DRIVING-WORKBENCH-REMAINING-BUILD.md`. It now specifies one action
+record per meeting follow-up, automatic Jira link or creation for clear work, autonomous
+suitability and live run state, five review perspectives per convergence round, full dress
+rehearsals for work awaiting signoff, work-class maturity, an Initiative Value reviewer,
+and an Impact and Dependency reviewer before and after execution. This is architecture,
+not a claim that the action engine is already built.
+
+## Scout refresh: visuals and self-driving Workbench remaining work (2026-08-14)
+
+Current live state was refreshed after the saved meeting job work. Gateway health passed,
+`/api/today/snapshot` returned one coherent snapshot with Jira, Agent Board,
+reconciliation, and loop sources all ok, and `/api/agent-board?cache=1` returned 0
+watching, 0 working, 49 waiting, and 1 delivered. Meeting index now has 131 meetings,
+52 displayable visuals, and 79 without a displayed visual.
+
+The visual selector and regenerator tests passed. The remaining legacy-visual dry run
+found 51 ready replacements, 0 blocked, 7 multiple-transcript cases, and 0 no-transcript
+cases. The 2026-06-17 Purview pilot now has a real Codex-generated creative PNG and a
+provider receipt with source hashes, output hash, dimensions, superseded local-renderer
+receipt, and review notes. The server-side nested Codex path still has a real risk:
+its first attempt hit `CryptUnprotectData failed: 2148073483`, so finish the batch
+through a proven built-in image flow or a worker path that can reliably read sources.
+
+Focused verification passed: 37 Node tests across visual selection, visual generation
+receipts, Today snapshot, Workbench state, saved-step runner, and meeting job; TypeScript
+passed; production build passed with the known large-bundle warning.
+
+The ordered remaining-work audit is now:
+`docs/mythos/evidence/20260814-self-driving-workbench-remaining-work.md`.
+
+## Saved meeting closeout job (2026-08-14, complete)
+
+Meeting Wrap-up is now the first real consumer of the common Workbench state engine. Each
+user-started closeout has one saved work item and eight ordered stages: discover, reconcile
+sources, synthesize, store, generate visual, associate, verify display, and finalize.
+
+The process call returns an accepted job immediately. The UI restores saved progress,
+shows every stage, stops between safe stages, resumes the same job, and restores the review
+package when complete. Startup continues prepared or interrupted work after a dead local
+process. Failed and user-stopped work waits for an explicit resume.
+
+Transcript cleanup, comparison, consolidation, and source receipts remain in place. Raw
+meeting text stays out of events, logs, status responses, and browser payloads. Activity
+reconciliation now attaches to the same meeting job instead of opening a second closeout
+path.
+
+Codex remains the preferred visual provider. Verified NotebookLM output can still be
+reused, and the NotebookLM integration remains available for later artifact types. A
+provider failure creates no substitute image. Final completion requires the PNG, saved
+receipt, association, processed row, change row, real Workbench image response, PNG decode,
+and saved hash to agree.
+
+Verification passed: 88 saved meeting and activity server checks, 10 Chromium and Firefox
+browser checks, TypeScript, production build, focused Biome, and the diff whitespace
+check. The saved-job browser flow also passed at 390 by 844 without horizontal overflow.
+The fresh re-review found no remaining actionable issue.
+
+Next implementation block: move the rest of activity reconciliation onto the same saved
+work-item and ordered receipt model. Do not start a live reconciliation run, Jira change,
+or email action as part of that build.
+
+- Acceptance checks: `docs/mythos/gates/20260814-033500-workbench-meeting-job.md`
+- Evidence: `docs/mythos/evidence/20260814-workbench-meeting-job.md`
+- Review: `docs/mythos/reviews/20260814-042332-workbench-meeting-job-final-review.md`
+
+## Workbench Foundation Block 1 (2026-08-14, complete)
+
+The Workbench now has the common state and Today foundation needed for the remaining
+program. `server/workbench-state/index.mjs` owns versioned state records, append-only
+events, replayed work items, Windows-safe lease operations, exact retry no-ops, changed
+retry conflicts, and ordered turn receipts. Automatic execution is still off.
+
+`/api/today/snapshot` now assembles Jira, cache-only Agent Board, saved reconciliation,
+and loop state once per capture. Today reads only that snapshot for its page data. A
+partial or unavailable source remains visible without wiping out healthy source data.
+
+The live Aug 14 3:24 AM ET page showed 0 delivered today, 0 working, 49 waiting on Steve,
+104 open Jira items, the saved run as partial success with three failures, and loop off.
+Desktop and phone checks had no browser error, failed request, Microsoft request, or
+horizontal overflow.
+
+The current architecture map is `docs/architecture/INDEX.md`; prior-app, TrendOperator,
+and LoopX patterns are in `docs/architecture/FEATURE-DONOR-MATRIX.md`. LoopX remains a
+reference only.
+
+Next implementation block: make meeting closeout the first resumable consumer of the
+state engine, with saved steps for discovery, transcript reconciliation, synthesis,
+storage, visual generation, association, display verification, and final completion.
+After that, move reconciliation onto the same work-item and receipt model.
+
+- Acceptance checks: `docs/mythos/gates/20260814-024852-workbench-foundation-block-1.md`
+- Evidence: `docs/mythos/evidence/20260814-workbench-foundation-block-1.md`
+- Review: `docs/mythos/reviews/20260814-032700-workbench-foundation-block-1-final-review.md`
+
+## Workbench Today, transcript reconciliation, and image generation (2026-08-14)
+
+Today is now the live first answer for Jira, Agent Board, saved reconciliation state,
+persisted ticket-agent history, and the local loop. Its header says `Current` and names
+the sources it is reading. It shows the complete lane counts, previews two delivered and
+waiting cards, and links to Agent Board for the rest.
+
+The final pre-midnight state was 10 delivered, 0 working, 49 waiting on Steve, and 104
+open Jira issues. After the local date changed to August 14, Today correctly reset the
+day-scoped count to 0 delivered while keeping 0 working, 49 waiting, and 104 open issues.
+The saved activity run `activity-20260814011850-0e48fb03` finished with 1,480
+items observed, 86 new, 4 changed, three meeting repairs, two excerpt-only partials, 25
+Jira proposals, four email drafts, and two MDM corrections. Nothing was applied or sent.
+
+Meeting closeout now compares every matching transcript source. Equivalent text is
+deduplicated. Different useful captures are cleaned and merged into one comprehensive
+context artifact with source paths, coverage labels, and SHA-256 receipts. Originals are
+preserved. A partial capture may support a full source but cannot be the sole basis for a
+completed package. Reprocessing replaces the prior closeout section instead of stacking
+another marker.
+
+Three live meeting packages were repaired in Brain commits `48db2e9`, `e1469ce`, and
+`3e53127`. Weekly Dev/Data Stand-up and ETL UPDATE remain partial until full captures are
+available. The gateway was restarted, loop mode remained `shadow`, and seven reduced
+ticket-agent histories were restored.
+
+The scheduled infographic pass completed successfully and restored three overwritten
+verification receipts without making duplicate visuals in Brain commit `1374209`.
+Meeting closeout no longer makes an HTML or screenshot placeholder. It reuses a verified
+Codex or NotebookLM PNG, prefers Codex `$imagegen` for a missing image, and otherwise
+leaves the package honestly partial. NotebookLM remains available for images and other
+Studio artifact types.
+
+The real Codex proof task `019ffe5a-0f38-79c2-a8ce-1933f5038277` produced a reviewed
+1672 by 941 PNG with SHA-256
+`2eb87e4752946801e8289063d8013dafae21f907a9a446cda329a889d0340896`. The server
+retrieves the result through that exact task ID, validates it, and files it atomically.
+No real Brain package was touched by the proof.
+
+The remaining architecture work is ordered in
+`docs/architecture/WORKBENCH-ARCHITECTURE-ROADMAP.md`. The first action is to align the
+conflicting May and August product documents, followed by one coherent Today snapshot,
+strict production versus test state roots, resumable closeout jobs, full reconciliation
+evidence, Brain ingestion repair, code separation, and only then live loop execution.
+
+The loop now records every successful pass, including a pass that finds no new card. This
+keeps its visible heartbeat current without creating duplicate shadow work. The final live
+pass considered 49 items, recorded 0, and advanced the time to 12:10 AM ET.
+
+Verification passed: 131 combined focused server checks, 7 focused Today browser checks,
+TypeScript, production build, focused Biome, and real desktop plus phone checks with no
+browser errors, failed requests, or horizontal overflow. The local server was restarted
+from the current checkout with loop mode still in shadow.
+
+- Acceptance checks: `docs/mythos/gates/20260813-212000-workbench-today-freshness.md`
+- Evidence: `docs/mythos/evidence/20260813-workbench-today-freshness.md`
+- Initial review: `docs/mythos/reviews/20260813-224720-workbench-today-freshness-review.md`
+- Final review: `docs/mythos/reviews/20260814-001600-workbench-final-review.md`
+
 ## Workbench activity reconciliation (2026-08-06, complete)
 
 The Work screen now has a user-started activity reconciliation panel. It reads Outlook,

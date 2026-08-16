@@ -1,5 +1,120 @@
 # Current Task
 
+Build the first real meeting-to-execution bridge: stable follow-up identity, direct Jira
+links, and truthful cached work-run state in every meeting modal.
+
+- Status: implementation started
+- Acceptance file: `docs/mythos/gates/20260814-200003-meeting-action-visibility.md`
+- Immediate cause: meeting follow-ups are static text, the export drops Jira keys, and the
+  modal does not read Agent Board evidence
+- This increment: make existing Jira and run evidence visible, and state plainly when neither
+  exists
+- Next increment: automatic Jira link or creation, saved autonomous suitability, and dispatch
+  through the five-perspective review cycle
+- Safety: no Jira, Microsoft 365, Brain, email, or Teams effect during implementation checks
+- Preserve: every unrelated edit in the shared checkout
+
+## Previous current task
+
+Close the meeting visual recovery and define the next implementation sequence for the
+self-driving Workbench.
+
+- Status: visual recovery complete for every evidence-ready meeting; execution bridge planned
+- Current result: 123 real meetings, 109 selected reviewed visuals, 14 source-blocked meetings
+  with no selected visual, and 0 selected placeholder, failed, pending, or rejected receipts
+- Source rule: compare every matching file, use Teams first, fill only genuine gaps, hash the
+  evidence, and stop on unresolved disagreement
+- Verification: 16 focused selector and generator checks, 123-meeting audit, production build,
+  and desktop plus phone image checks in Chromium and Firefox passed
+- Architecture result: meeting follow-ups now have a dependency-ordered plan for automatic
+  Jira handling, autonomous suitability, five-perspective convergence, full dress rehearsal,
+  value analysis, impact analysis, and per-class maturity
+- Current authority: `docs/architecture/SELF-DRIVING-WORKBENCH-REMAINING-BUILD.md`
+- Next implementation block: durable production visual worker and source recovery, then the
+  meeting action ledger plus activity trust, then convergence and staged execution
+- Safety: no live Jira, email, Teams, or Outlook effect was performed
+
+## Previous active task
+
+Move activity reconciliation onto the common saved work-item and receipt model, using the
+completed meeting job as the first proven consumer.
+
+- Status: next implementation block
+- Prerequisite: saved meeting job completed 2026-08-14 04:23 ET
+- Started: 2026-08-14 04:34 ET
+- Acceptance checks: `docs/mythos/gates/20260814-043457-workbench-activity-completion.md`
+- Current checkpoint: existing 25-item spec and current implementation mapped; common
+  lifecycle, email-review safety, and missing acceptance evidence frozen before edits
+- Scout refresh 2026-08-14 14:45 ET: live Today snapshot and Agent Board checked, visual
+  replacement state checked, focused tests/typecheck/build passed, and the ordered
+  remaining-work audit was written to
+  `docs/mythos/evidence/20260814-self-driving-workbench-remaining-work.md`.
+- Safety: no live Jira, email, Teams, or Outlook change; no automatic production run
+- Preserve: all unrelated work in the shared checkout
+
+## Previous completed work
+
+Make meeting closeout the first resumable consumer of the Workbench state engine.
+
+- Status: complete
+- Started: 2026-08-14 03:35 ET
+- Finished: 2026-08-14 04:23 ET
+- Acceptance checks: `docs/mythos/gates/20260814-033500-workbench-meeting-job.md`
+- Result: eight saved stages, async start, redacted status, stop and resume, startup
+  recovery, exact-stage retry, verified PNG display, and one meeting job shared by activity
+  reconciliation
+- Evidence: `docs/mythos/evidence/20260814-workbench-meeting-job.md`
+- Review: `docs/mythos/reviews/20260814-042332-workbench-meeting-job-final-review.md`
+- Safety: no live Jira, email, Teams, or Outlook change; tests cannot reach real model or
+  image work
+- Preserve: all unrelated work in the shared checkout, plus
+  `MEETING_CLOSEOUT_STATE_DIR` and `MEETING_CLOSEOUT_SYNTHESIS_BIN`
+
+## Earlier completed work
+
+Build Workbench Foundation Block 1: the restart-safe state engine, server-produced Today
+snapshot, and current architecture index that all later meeting, reconciliation, agent,
+and self-driving work will use.
+
+- Status: complete
+- Started: 2026-08-14 02:48 ET
+- Finished: 2026-08-14 03:27 ET
+- Acceptance checks: `docs/mythos/gates/20260814-024852-workbench-foundation-block-1.md`
+- Result: append-only state and replay, Windows-safe lease operations, exact retry no-ops,
+  one Today snapshot response, live desktop and phone proof, and current architecture map
+- Evidence: `docs/mythos/evidence/20260814-workbench-foundation-block-1.md`
+- Review: `docs/mythos/reviews/20260814-032700-workbench-foundation-block-1-final-review.md`
+- Preserve: all unrelated work in the shared checkout
+
+## Earlier completed work
+
+Make Today reflect the current Workbench, preserve completed ticket-agent evidence across
+local server restarts, reconcile multiple meeting captures, replace local visual
+placeholders with verified Codex or NotebookLM images, and publish the ordered architecture
+roadmap for the remaining Workbench work.
+
+- Status: complete
+- Started: 2026-08-13 21:20 ET
+- Finished: 2026-08-14 00:16 ET
+- Acceptance checks: `docs/mythos/gates/20260813-212000-workbench-today-freshness.md`
+- Current checkpoint: Today, saved reconciliation, transcript consolidation, Codex-first
+  image generation, final live restart proof, architecture review, and fresh review complete
+- Confirmed before edits: Today is Jira-only; Jira was read live at 21:09 ET; Agent Board
+  had 2 delivered items and 31 waiting; loop was shadow-only; activity reconciliation was
+  last completed on August 10; in-memory ticket-agent history was empty after restart
+- Preserve: all unrelated work in the shared checkout
+- Safety: no Jira apply, email send, Teams send, Outlook draft delivery, or overlapping
+  Microsoft request
+- Result: After the local date changed to August 14, Today correctly shows 0 delivered,
+  0 working, 49 waiting, 104 open issues, the prior activity run as old, and current
+  shadow loop state. Seven ticket-agent summaries survive restart. Failed image generation
+  leaves no placeholder. The ordered remaining-work plan is
+  `docs/architecture/WORKBENCH-ARCHITECTURE-ROADMAP.md`.
+- Evidence: `docs/mythos/evidence/20260813-workbench-today-freshness.md`
+- Review: `docs/mythos/reviews/20260814-001600-workbench-final-review.md`
+
+## Earlier completed work
+
 Implement the user-triggered Workbench activity reconciliation workflow from the
 approved copy-ready specification.
 
@@ -21,7 +136,7 @@ approved copy-ready specification.
 - Safety: no email send, no unreviewed Jira change, and no real meeting or Brain write
   during verification
 
-## Previous completed work
+## Earlier completed work
 
 Build a dependable, global Workbench agent for guidance, navigation, UI assistance,
 connected-service lookup, and confirmed maintenance.

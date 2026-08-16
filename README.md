@@ -1,8 +1,14 @@
 # IP Corp Brain Frontend
 
+**Current status, 2026-08-14**: This repo now hosts the IP Corporation Workbench. The
+active product, runtime, donor-pattern, and build-order references are
+`docs/architecture/INDEX.md`, `docs/architecture/FEATURE-DONOR-MATRIX.md`, and
+`docs/architecture/WORKBENCH-ARCHITECTURE-ROADMAP.md`. Older graph-first notes below are
+history when they disagree with those files.
+
 Sanitized frontend/design package for the IP Corp Architecture Brain.
 
-This repository is intentionally **not** the raw brain repo. It contains only the stakeholder-safe contract layer needed to design and build a web experience for browsing readiness, meetings, risks, decisions, open questions, Cortex insights, and proposed actions.
+This repository is intentionally **not** the raw brain repo. It contains only the stakeholder-safe read layer needed to design and build a web experience for browsing readiness, meetings, risks, decisions, open questions, Cortex insights, and proposed actions.
 
 ## Current Status
 
@@ -49,7 +55,7 @@ The app is a working intelligence surface, not a marketing site:
 - Action proposal review queue
 - Source health and freshness checks
 
-## Non-Negotiable Boundary
+## Non-Negotiable Repo Rule
 
 Do not add raw captures, SQL credentials, internal `AGENTS.md` / `CLAUDE.md` content, or private transcript text to this repository. If the frontend needs more context, add a sanitized field to the data contract first.
 
@@ -72,6 +78,9 @@ npm run ci                # Full local gate
 - Playwright for E2E (critical flows only — no unit tests needed for this surface).
 
 ### Key Documentation
+- `docs/architecture/INDEX.md` — Current Workbench product and runtime reference.
+- `docs/architecture/FEATURE-DONOR-MATRIX.md` — What to lift from earlier apps and external references.
+- `docs/architecture/WORKBENCH-ARCHITECTURE-ROADMAP.md` — Ordered build plan for the full Workbench program.
 - `CLAUDE.md` — Project rules, mission, and agent instructions (read on every session).
 - `context/design-system.md` — Visual DNA, motion philosophy, and component rules (read before touching CSS or layout).
 - `DATA_CONTRACT.md` — Exact types and redaction policy.
@@ -80,12 +89,12 @@ npm run ci                # Full local gate
 ### Syncing Fresh Data
 The `scripts/sync-data.mjs` pulls from the private `ipcorp-architecture-brain` repo (natively/ contract layer only). See the script header for current requirements. After a sync, commit the updated `data/*.json` + `export-manifest.json`.
 
-## Architecture Notes (2026-05)
+## Architecture Notes (2026-05, Historical)
 
 - Single-page React + Vite + framer-motion (heavy but intentional for the "context assembly" feeling).
 - All domain data lives in the sanitized `data/frontend-seed.json` (bundled at build time).
 - The app is currently being refactored out of a 1.8k LOC monolith (`App.tsx`) into proper views + primitives while preserving 100% of the existing visual and interaction behavior.
-- Design system is fully custom (no Tailwind) — tokens and complex glassmorphism live in `src/App.css`.
+- Current styling uses Tailwind v4 utilities-only plus custom CSS. The old "no Tailwind" note is history.
 
 ## Contributing / Handoff
 

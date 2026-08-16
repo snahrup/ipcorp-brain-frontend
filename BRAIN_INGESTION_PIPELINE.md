@@ -3,6 +3,12 @@
 **Owner**: Steve + agents operating on the IP Corp Architecture Brain  
 **Goal**: Every single piece of information that enters the brain — regardless of size, shape, or source (transcript, book, architecture doc, PBI, dataflow definition, ADR, meeting note, system description, diagram, run report, etc.) — is processed to a consistent, high-fidelity, provenance-rich state before it contributes to the graphs and insights.
 
+**Current status, 2026-08-14**: This remains the active intent for Brain processing, but
+some examples below are May history. The running Workbench uses the current 2D semantic
+map, and deeper community synthesis is still planned work. Follow
+`docs/architecture/INDEX.md` and `docs/architecture/WORKBENCH-ARCHITECTURE-ROADMAP.md`
+for the current build order.
+
 This is the foundation. The 3D Knowledge Graph + Orbital experience is only as valuable as the depth and correctness of what feeds it.
 
 ## Core Principles

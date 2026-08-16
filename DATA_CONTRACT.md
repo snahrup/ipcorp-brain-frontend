@@ -1,8 +1,14 @@
 # Data Contract
 
-**Canonical runtime types live in `src/data.ts`.** This document defines the stakeholder contract, redaction policy, and high-level shape. The implementation in `data.ts` may contain additional optional fields for UI convenience — those are derived and safe.
+**Current runtime types live in `src/data.ts`.** This document defines the stakeholder
+read-model rules, redaction policy, and high-level shape. The implementation in `data.ts`
+may contain additional optional fields for UI convenience — those are derived and safe.
 
-**Last aligned**: 2026-05-28 (post-audit tooling + docs pass). Current snapshot counts in `data/export-manifest.json`.
+**Current status, 2026-08-14**: The static `data/` files remain the safe seed and Brain
+export shape. Live Workbench page snapshots are server-owned runtime responses and should
+be aligned through `docs/architecture/INDEX.md` before adding new fields.
+
+**Last aligned before Workbench runtime work**: 2026-05-28. Current snapshot counts live in `data/export-manifest.json`.
 
 The frontend consumes sanitized read models under `data/`.
 
@@ -118,4 +124,3 @@ type ActionProposal = {
   tags: string[];
 };
 ```
-

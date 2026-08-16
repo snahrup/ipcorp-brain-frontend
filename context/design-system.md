@@ -93,6 +93,10 @@ Motion should **explain state and assembly**, never decorate:
 4. Run a design-review or hallmark pass and capture the rationale here under Learnings.
 
 ## Learnings
+- [2026-08-15] After each well-defined Workbench build phase passes its written
+  completion checks and Steve and the builder agree it is finished, automatically create a
+  source-backed creative infographic plus receipt. The project-local `phase-infographic` skill
+  is a manual rerun or repair option, not a step Steve should have to request.
 - [2026-08-10] The Activity reconciliation panel now uses the "run theater"
   pattern: a live heartbeat driven by `run.lastActivityAt` (amber past 20s), a
   plain-language explainer per phase, a segmented progress bar sized from the

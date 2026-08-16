@@ -3,6 +3,11 @@
 **Date**: 2026-05-28  
 **Owner Mindset**: Build this the way I would if it were my own deliverable to a sophisticated client who expects excellence.
 
+**Current status, 2026-08-14**: This is a historical May plan. It remains useful for
+graph ambition, but the active Workbench product, runtime, launcher, palette, graph
+engine, and build order now live in `docs/architecture/INDEX.md` and
+`docs/architecture/WORKBENCH-ARCHITECTURE-ROADMAP.md`.
+
 ## Guiding Principles
 - The 3D Knowledge Graphs (3d-force-graph) are the soul of the experience.
 - Every major section of the brain deserves a distinct, immersive texture.

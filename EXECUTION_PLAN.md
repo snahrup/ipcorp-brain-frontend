@@ -2,6 +2,10 @@
 
 **Status**: Plan created. Awaiting explicit "start" command from Steve.
 
+**Current status, 2026-08-14**: This is a historical May execution plan. The active
+ordered Workbench program now lives in `docs/architecture/INDEX.md` and
+`docs/architecture/WORKBENCH-ARCHITECTURE-ROADMAP.md`.
+
 **Goal**: Take the current state of the ipcorp-brain-frontend to a complete, premium, production-grade, client-ready application — with sophisticated real-data 3D knowledge graphs as the unmistakable centerpiece — and finish it without further prompting once execution begins.
 
 **Execution Philosophy (once started)**:

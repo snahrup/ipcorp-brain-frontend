@@ -2,7 +2,14 @@
 
 **The primary, living interface to the full ipcorp-architecture-brain knowledge base.**
 
-**Status**: Active vision document (as of 2026-05-29). This is the single source of truth for what we are building, why, and how we judge success. It supersedes earlier briefs when they conflict.
+**Current status, 2026-08-14**: This remains useful for Brain Explorer ambition and
+source-evidence standards. The active product shell is now the IP Corporation Workbench:
+Today, Agent Board, Work, Meetings, and Brain Explorer. Current runtime, launcher,
+palette, graph engine, and build order are named in `docs/architecture/INDEX.md` and
+`docs/architecture/WORKBENCH-ARCHITECTURE-ROADMAP.md`.
+
+**Historical status**: Active vision document as of 2026-05-29. Sections below describe
+the May graph-first cockpit direction and may disagree with the running Workbench.
 
 ---
 

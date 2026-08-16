@@ -1,5 +1,12 @@
 # Commands
 
+- `node --test server/activity-reconciliation/*.test.mjs server/meeting-closeout*.test.mjs server/workbench-state/*.test.mjs`
+- `npx playwright test tests/meeting-closeout.spec.ts --project=chromium --project=firefox`
+- `npx biome check server/meeting-closeout.mjs server/meeting-closeout-job.mjs server/jira-gateway.mjs server/workbench-state/step-runner.mjs server/meeting-closeout.test.mjs server/meeting-closeout-job.test.mjs server/meeting-closeout-gateway.test.mjs server/workbench-state/step-runner.test.mjs src/features/meeting-closeout/MeetingCloseoutPanel.tsx src/features/meeting-closeout/meeting-closeout.css tests/meeting-closeout.spec.ts`
+- `node --test server/workbench-state/state-engine.test.mjs server/today-snapshot.test.mjs server/today-snapshot-gateway.test.mjs`
+- `npx playwright test tests/smoke.spec.ts --project=chromium --grep "Today|Board read|loop is off|phone"`
+- `node .frontend-verify/live-today.mjs`
+- `npx biome check server/workbench-state server/today-snapshot.mjs server/today-snapshot.test.mjs server/today-snapshot-gateway.test.mjs server/jira-gateway.mjs src/views/workbench/TodayView.tsx tests/smoke.spec.ts docs/architecture/INDEX.md docs/architecture/FEATURE-DONOR-MATRIX.md`
 - `node --test server/workbench-agent/*.test.mjs`
 - `npx playwright test tests/workbench-agent.spec.ts --project=chromium`
 - `npx biome check server/workbench-agent src/features/workbench-agent tests/workbench-agent.spec.ts`
