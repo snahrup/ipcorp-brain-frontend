@@ -78,6 +78,14 @@ const closeoutPackage = {
     ],
     themes: ["Fabric", "Delivery", "Workbook"],
     nextMoves: ["Send the Fabric workbook."],
+    saved: {
+      id: "2026-08-04-fabric-delivery-review",
+      file: "2026-08-04-fabric-delivery-review-codex.png",
+      sha256: "fixture-image-hash",
+      width: 1200,
+      height: 675,
+      provider: "codex",
+    },
   },
   files: {
     transcript: "core/meetings/transcripts/cluely-export/2026-08-04-fabric-delivery-review.md",
@@ -119,6 +127,9 @@ async function installCloseoutMock(page: Page, mode: "full" | "empty" | "refresh
           typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
         if (url.endsWith("/api/meeting-closeout/packages")) {
+          return json({ ok: true, data: [] });
+        }
+        if (url.endsWith("/api/meeting-closeout/jobs")) {
           return json({ ok: true, data: [] });
         }
 
@@ -270,6 +281,7 @@ test("a transcript in hand goes in BEFORE Process, with no wasted Teams lookup",
         const url =
           typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
         if (url.endsWith("/api/meeting-closeout/packages")) return json({ ok: true, data: [] });
+        if (url.endsWith("/api/meeting-closeout/jobs")) return json({ ok: true, data: [] });
         if (url.includes("/api/meeting-closeout/today")) {
           return json({
             ok: true,
@@ -308,6 +320,103 @@ test("a transcript in hand goes in BEFORE Process, with no wasted Teams lookup",
 
   await expect(page.getByTestId("meeting-closeout-review")).toBeVisible();
   await expect(page.getByText("the shortcut regressed")).toHaveCount(0);
+});
+
+test("a saved meeting job shows stages, stops safely, resumes, and restores its result", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(
+    ({ closeoutPackage, meeting }) => {
+      const originalFetch = window.fetch.bind(window);
+      const json = (body: unknown, status = 200) =>
+        new Response(JSON.stringify(body), {
+          status,
+          headers: { "Content-Type": "application/json" },
+        });
+      const workItemId = "meeting-closeout-ui-test";
+      let serverStatus = "running";
+      const names = [
+        "discover",
+        "reconcile_sources",
+        "synthesize",
+        "store",
+        "generate_visual",
+        "associate",
+        "verify_display",
+        "finalize",
+      ];
+      const job = (status: string) => ({
+        workItemId,
+        status,
+        stopRequested: status === "stop_requested",
+        meeting,
+        steps: names.map((name, index) => ({
+          name,
+          index,
+          attempts: index <= 2 ? 1 : 0,
+          status:
+            status === "completed"
+              ? "succeeded"
+              : index < 2
+                ? "succeeded"
+                : index === 2 && status === "running"
+                  ? "running"
+                  : "pending",
+        })),
+        failure: null,
+        result: status === "completed" ? { ok: true, package: closeoutPackage } : null,
+      });
+
+      window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url =
+          typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+        if (url.endsWith("/api/meeting-closeout/packages")) return json({ ok: true, data: [] });
+        if (url.endsWith("/api/meeting-closeout/jobs")) return json({ ok: true, data: [] });
+        if (url.includes("/api/meeting-closeout/today")) {
+          return json({
+            ok: true,
+            data: { meetings: [meeting], source: "microsoft_365", availability: "current" },
+          });
+        }
+        if (url.endsWith("/api/meeting-closeout/process")) {
+          return json({ ok: true, accepted: true, job: job("pending") }, 202);
+        }
+        if (url.endsWith(`/api/meeting-closeout/jobs/${workItemId}/stop`)) {
+          serverStatus = "stop_requested";
+          return json({ ok: true, job: job(serverStatus) });
+        }
+        if (url.endsWith(`/api/meeting-closeout/jobs/${workItemId}/resume`)) {
+          serverStatus = "completed";
+          return json({ ok: true, accepted: true, job: job("running") }, 202);
+        }
+        if (url.endsWith(`/api/meeting-closeout/jobs/${workItemId}`)) {
+          return json({ ok: true, job: job(serverStatus) });
+        }
+        return originalFetch(input, init);
+      };
+    },
+    { closeoutPackage, meeting }
+  );
+
+  await page.goto("/meetings/wrap-up", { waitUntil: "domcontentloaded" });
+  await page.getByTestId("add-transcript-today-fabric-review").click();
+  await page
+    .getByTestId("cluely-transcript")
+    .fill("Steve: I will send the Fabric workbook to Patrick tomorrow.");
+  await page.getByTestId("process-pasted-transcript").click();
+
+  const job = page.getByTestId("meeting-closeout-job");
+  await expect(job).toBeVisible();
+  await expect(job).toContainText("Write the review package");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true
+  );
+  await page.getByRole("button", { name: "Stop after this stage" }).click();
+  await expect(page.getByText(/Stop requested/).first()).toBeVisible();
+  await page.getByRole("button", { name: "Resume saved job" }).click();
+  await expect(page.getByTestId("meeting-closeout-review")).toBeVisible();
+  await expect(page.getByTestId("meeting-infographic")).toContainText("Fabric Delivery Review");
 });
 
 test("Meetings subpages are ordered and work as direct routes", async ({ page }) => {
