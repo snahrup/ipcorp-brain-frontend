@@ -330,7 +330,14 @@ test("runs the visible Work activity path and keeps Jira review approval-only", 
   expect(starts).toBe(0);
   await page.getByTestId("picker-start").click();
   await expect.poll(() => starts).toBe(1);
+  const activePanel = page.getByTestId("activity-reconciliation-panel");
   await expect(page.getByText("Reading source activity", { exact: true })).toBeVisible();
+  await expect(activePanel).toBeFocused();
+  await expect(activePanel.locator('[aria-live="polite"]')).toContainText(
+    "Reading source activity"
+  );
+  await expect(activePanel.getByText("Baseline", { exact: true })).toBeVisible();
+  await expect(activePanel.getByText(/^Scanning .+ to .+$/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Stop", exact: true })).toBeVisible();
   await expect(page.getByTestId("activity-source-outlook_received")).toHaveAttribute(
     "data-state",
@@ -338,7 +345,9 @@ test("runs the visible Work activity path and keeps Jira review approval-only", 
   );
 
   finishRun = true;
-  await expect(page.getByRole("heading", { name: "Run recap" })).toBeVisible({ timeout: 8_000 });
+  const recapHeading = page.getByRole("heading", { name: "Run recap" });
+  await expect(recapHeading).toBeVisible({ timeout: 8_000 });
+  await expect(recapHeading).toBeFocused();
   await expect(page.getByText("Fabric delivery review", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Teams direct messages: timed out", { exact: true })).toBeVisible();
   await expect(page.getByText(/unchanged/i)).toHaveCount(0);
@@ -357,10 +366,62 @@ test("runs the visible Work activity path and keeps Jira review approval-only", 
 
   await page.getByText("Customer domain follow-up", { exact: true }).click();
   await expect(page.getByText(/I have the customer domain update/)).toBeVisible();
+  const browserStorage = await page.evaluate(() => ({
+    local: Object.fromEntries(Object.entries(localStorage)),
+    session: Object.fromEntries(Object.entries(sessionStorage)),
+  }));
+  expect(JSON.stringify(browserStorage)).not.toContain("I have the customer domain update");
   await page.screenshot({
     path: testInfo.outputPath("activity-reconciliation-complete.png"),
     fullPage: true,
   });
+});
+
+test("a second Work view attaches to the active run without starting another run", async ({
+  page,
+}) => {
+  let current: ReturnType<typeof runFixture> | null = null;
+  let starts = 0;
+
+  const mockActivity = async (target: Page) => {
+    await target.route(
+      "http://127.0.0.1:8817/api/work/activity-reconciliation/**",
+      async (route) => {
+        const path = new URL(route.request().url()).pathname;
+        if (route.request().method() === "POST" && path.endsWith("/start")) {
+          starts += 1;
+          current = runFixture("running");
+          await fulfill(route, { run: current, attached: starts > 1, resumed: false }, 202);
+          return;
+        }
+        await fulfill(route, current);
+      }
+    );
+  };
+
+  await mockActivity(page);
+  await openWork(page);
+  await page.getByRole("button", { name: "Reconcile activity" }).click();
+  await page.getByTestId("picker-start").click();
+  await expect(page.getByTestId("activity-reconciliation-panel")).toBeVisible();
+  await expect(page.getByText("activity-20260806140000-fixture", { exact: true })).toBeVisible();
+  expect(starts).toBe(1);
+
+  const secondView = await page.context().newPage();
+  try {
+    await mockActivity(secondView);
+    await openWork(secondView);
+    await expect(secondView.getByTestId("activity-dock-pill")).toBeVisible();
+    await secondView.getByRole("button", { name: "Reconcile activity" }).click();
+    await expect(secondView.getByTestId("activity-reconciliation-panel")).toBeVisible();
+    await expect(
+      secondView.getByText("activity-20260806140000-fixture", { exact: true })
+    ).toBeVisible();
+    await expect(secondView.getByTestId("activity-picker")).toHaveCount(0);
+    expect(starts).toBe(1);
+  } finally {
+    await secondView.close();
+  }
 });
 
 test("stop records a canceled run and resume continues the same run", async ({ page }) => {
@@ -562,10 +623,7 @@ test("select-all covers every proposal and the chained MDM check opens its revie
         ],
       },
     ],
-    emailDrafts: base.emailDrafts.map((draft) => ({
-      ...draft,
-      outlook: { status: "created", draftId: "outlook-draft-fixture", detail: null },
-    })),
+    emailDrafts: base.emailDrafts,
     mdmCheck: {
       status: "completed",
       generatedAt: "2026-08-06T14:02:31.000Z",
@@ -603,7 +661,9 @@ test("select-all covers every proposal and the chained MDM check opens its revie
   await page.getByTestId("activity-select-all").click();
   await expect(page.getByTestId("activity-jira-approval")).toHaveCount(0);
 
-  await expect(page.getByText("In your Outlook Drafts")).toBeVisible();
+  await expect(page.getByText("Draft only", { exact: true })).toBeVisible();
+  await expect(page.getByText("Customer domain follow-up", { exact: true })).toBeVisible();
+  await expect(page.getByText("In your Outlook Drafts")).toHaveCount(0);
 
   const mdmSection = page.getByTestId("activity-mdm-check");
   await expect(mdmSection).toBeVisible();

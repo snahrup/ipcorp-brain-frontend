@@ -15,7 +15,6 @@ export interface ActivityRunSteps {
   sources?: string[] | null;
   meetings?: boolean;
   staleSweep?: boolean;
-  outlookDrafts?: boolean;
   mdmCheck?: boolean;
 }
 

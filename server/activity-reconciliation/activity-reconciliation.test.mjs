@@ -140,6 +140,99 @@ test("baseline run keeps one fixed upper time and produces review-only results",
   );
 });
 
+test("the common lifecycle follows one activity run through completion", async (t) => {
+  const calls = [];
+  const lifecycle = {
+    async prepareRun(run) {
+      calls.push(["prepare", run.id, run.status]);
+    },
+    async claimRun(run) {
+      calls.push(["claim", run.id, run.status]);
+    },
+    async phaseChanged(run) {
+      calls.push(["phase", run.id, run.phase.id]);
+    },
+    async runStopped(run) {
+      calls.push(["stopped", run.id, run.status]);
+    },
+    async runInterrupted(run) {
+      calls.push(["interrupted", run.id, run.status]);
+    },
+    async runCompleted(run) {
+      calls.push(["completed", run.id, run.status]);
+    },
+  };
+  const { service } = await fixture(t, {
+    lifecycle,
+    collectSources: async ({ windows }) => ({
+      sources: sourceResults(windows.outlook_received.to),
+    }),
+  });
+
+  const started = await service.start();
+  const completed = await service.waitForRun(started.run.id);
+
+  assert.equal(completed.status, "completed");
+  assert.deepEqual(
+    calls.filter(([kind]) => kind !== "phase"),
+    [
+      ["prepare", started.run.id, "running"],
+      ["claim", started.run.id, "running"],
+      ["completed", started.run.id, "completed"],
+    ]
+  );
+  assert.deepEqual(
+    calls.filter(([kind]) => kind === "phase").map(([, , phase]) => phase),
+    [
+      "reading_sources",
+      "classifying_evidence",
+      "processing_meetings",
+      "matching_jira",
+      "preparing_proposals",
+      "finalizing",
+    ]
+  );
+});
+
+test("email follow-up content stays in Workbench review without creating an Outlook draft", async (t) => {
+  let outlookCalls = 0;
+  const { service } = await fixture(t, {
+    collectSources: async ({ windows }) => ({
+      sources: sourceResults(windows.outlook_received.to, {
+        outlook_received: {
+          state: "current",
+          confirmedThrough: windows.outlook_received.to,
+          items: [
+            {
+              providerItemId: "mail-review-only",
+              eventAt: "2026-08-06T13:30:00.000Z",
+              title: "Fabric review follow-up",
+              summary: "Patrick asked for a follow-up after the review.",
+              suggestedEmail: {
+                to: "patrick@example.test",
+                subject: "Fabric review follow-up",
+                body: "Patrick,\n\nHere is the review follow-up.\n\nSteve",
+              },
+            },
+          ],
+        },
+      }),
+    }),
+    deliverEmailDrafts: async () => {
+      outlookCalls += 1;
+      return { draftId: "must-not-be-created" };
+    },
+  });
+
+  const started = await service.start();
+  const completed = await service.waitForRun(started.run.id);
+
+  assert.equal(completed.emailDrafts.length, 1);
+  assert.equal(completed.emailDrafts[0].to, "patrick@example.test");
+  assert.equal(completed.emailDrafts[0].outlook, undefined);
+  assert.equal(outlookCalls, 0);
+});
+
 test("meeting Jira and email follow-ups reach the activity review", async (t) => {
   const { service } = await fixture(t, {
     collectSources: async ({ windows }) => ({
@@ -433,6 +526,62 @@ test("an unchanged ready meeting retries after a partial save without persisting
   assert.equal(savedState.includes("PRIVATE TRANSCRIPT VALUE"), false);
 });
 
+test("a pending transcript remains eligible after the normal source window has moved on", async (t) => {
+  let transcriptReady = false;
+  let attempts = 0;
+  const meetingAt = "2026-08-06T13:00:00.000Z";
+  const { service, current } = await fixture(t, {
+    collectSources: async ({ windows }) => ({
+      sources: sourceResults(windows.teams_meeting_transcripts.to, {
+        teams_meeting_transcripts: {
+          state: "current",
+          confirmedThrough: windows.teams_meeting_transcripts.to,
+          items: [
+            {
+              providerItemId: "meeting-pending-transcript",
+              eventAt: meetingAt,
+              title: "Fabric transcript retry",
+              summary: transcriptReady
+                ? "The Teams transcript is ready."
+                : "The meeting ended and its transcript is still pending.",
+              transcriptReady,
+              transcript: transcriptReady ? "Steve: The source mapping is confirmed." : null,
+              meeting: {
+                id: "meeting-pending-transcript",
+                title: "Fabric transcript retry",
+                start: meetingAt,
+              },
+            },
+          ],
+        },
+      }),
+    }),
+    processMeeting: async () => {
+      attempts += 1;
+      return {
+        ok: true,
+        id: "meeting-pending-transcript",
+        receipt: { packageHash: "pending-retry-package" },
+        links: [{ label: "Meeting visual", href: "/meeting-pending-transcript.png" }],
+      };
+    },
+  });
+
+  const first = await service.start();
+  const pending = await service.waitForRun(first.run.id);
+  assert.equal(pending.meetings[0].status, "pending_transcript");
+  assert.equal(attempts, 0);
+
+  transcriptReady = true;
+  current.value = "2026-09-20T14:00:00.000Z";
+  const second = await service.start();
+  assert.equal(second.run.windows.teams_meeting_transcripts.pendingMeetingRetryFrom, meetingAt);
+  const completed = await service.waitForRun(second.run.id);
+
+  assert.equal(attempts, 1);
+  assert.equal(completed.meetings[0].status, "completed");
+});
+
 test("a source position cannot advance past the run start", async (t) => {
   let calls = 0;
   const { service, current } = await fixture(t, {
@@ -575,7 +724,7 @@ test("an MDM check failure is reported without failing the activity run", async 
   assert.match(completed.mdmCheck.detail, /unavailable/);
 });
 
-test("email drafts are created in Outlook and their status lands on the run", async (t) => {
+test("email follow-ups remain review content and never reach Outlook automatically", async (t) => {
   const delivered = [];
   const { service } = await fixture(t, {
     collectSources: async ({ windows }) => ({
@@ -610,48 +759,9 @@ test("email drafts are created in Outlook and their status lands on the run", as
   const started = await service.start();
   const completed = await service.waitForRun(started.run.id);
 
-  assert.deepEqual(delivered, ["Source mapping follow-up"]);
+  assert.deepEqual(delivered, []);
   assert.equal(completed.emailDrafts.length, 1);
-  assert.equal(completed.emailDrafts[0].outlook.status, "created");
-  assert.equal(completed.emailDrafts[0].outlook.draftId, "outlook-draft-1");
-});
-
-test("a failed Outlook draft is reported on the draft without failing the run", async (t) => {
-  const { service } = await fixture(t, {
-    collectSources: async ({ windows }) => ({
-      sources: sourceResults(windows.outlook_received.to, {
-        outlook_received: {
-          state: "current",
-          confirmedThrough: windows.outlook_received.to,
-          items: [
-            {
-              providerItemId: "mail-draft",
-              eventAt: "2026-08-06T13:30:00.000Z",
-              title: "Fabric source mapping",
-              summary: "Patrick asked for a follow-up email.",
-              status: "current",
-              jiraKey: "MT-42",
-              suggestedEmail: {
-                to: "Patrick Stiller",
-                subject: "Source mapping follow-up",
-                body: "Patrick,\n\nHere is the follow-up.\n\nSteve",
-              },
-            },
-          ],
-        },
-      }),
-    }),
-    deliverEmailDrafts: async () => {
-      throw new Error("Outlook is unavailable.");
-    },
-  });
-
-  const started = await service.start();
-  const completed = await service.waitForRun(started.run.id);
-
-  assert.equal(completed.status, "completed");
-  assert.equal(completed.emailDrafts[0].outlook.status, "failed");
-  assert.match(completed.emailDrafts[0].outlook.detail, /unavailable/);
+  assert.equal(completed.emailDrafts[0].outlook, undefined);
 });
 
 test("a draft without a recipient stays in the panel instead of reaching Outlook", async (t) => {
@@ -690,7 +800,8 @@ test("a draft without a recipient stays in the panel instead of reaching Outlook
   const completed = await service.waitForRun(started.run.id);
 
   assert.deepEqual(delivered, []);
-  assert.equal(completed.emailDrafts[0].outlook.status, "recipient_review");
+  assert.equal(completed.emailDrafts[0].outlook, undefined);
+  assert.equal(completed.emailDrafts[0].to, null);
 });
 
 test("a run honors selected steps and skipped sources keep their saved positions", async (t) => {
@@ -751,7 +862,6 @@ test("a run honors selected steps and skipped sources keep their saved positions
       sources: ["outlook_received", "brain_updates"],
       meetings: false,
       staleSweep: false,
-      outlookDrafts: false,
       mdmCheck: false,
     },
   });

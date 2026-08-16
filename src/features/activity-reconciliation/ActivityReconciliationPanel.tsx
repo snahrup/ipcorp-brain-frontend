@@ -66,11 +66,6 @@ const PHASES = [
     "Prepare review",
     "Drafting Jira updates for your review. Nothing is applied without your approval.",
   ],
-  [
-    "delivering_drafts",
-    "Outlook drafts",
-    "Placing prepared follow-up emails into your Outlook Drafts folder. Nothing is sent.",
-  ],
   ["mdm_check", "MDM check", "Running the chained Jira-vs-Brain consistency check."],
   [
     "finalizing",

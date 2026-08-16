@@ -25,7 +25,6 @@ const RUN_PHASES = Object.freeze([
   { id: "generating_visuals", label: "Completing meeting packages and visuals" },
   { id: "matching_jira", label: "Matching evidence to Jira work" },
   { id: "preparing_proposals", label: "Preparing reviewable changes" },
-  { id: "delivering_drafts", label: "Creating Outlook drafts" },
   { id: "mdm_check", label: "Checking Jira against the Brain" },
   { id: "finalizing", label: "Saving the recap" },
 ]);
@@ -102,7 +101,6 @@ function normalizeSteps(steps) {
     sources: requested?.length ? requested : null,
     meetings: steps?.meetings !== false,
     staleSweep: steps?.staleSweep !== false,
-    outlookDrafts: steps?.outlookDrafts !== false,
     mdmCheck: steps?.mdmCheck !== false,
   };
 }
@@ -130,17 +128,30 @@ function addEvent(run, type, detail, at) {
 
 function sourceWindows(state, startedAt) {
   const baselineFrom = "2026-01-01T00:00:00.000Z";
+  const pendingMeetingFrom = Object.values(state.meetingStates || {})
+    .filter((item) => item?.status === "pending_transcript" && item.eventAt)
+    .map((item) => item.eventAt)
+    .filter((value) => Number.isFinite(Date.parse(value)))
+    .sort()
+    .at(0);
   return Object.fromEntries(
     ACTIVITY_SOURCES.map((source) => {
       const position = state.sourcePositions[source.id]?.completedThrough || null;
+      const regularFrom = position ? subtractMinutes(position, 15) : baselineFrom;
+      const regularLateSweepFrom = position ? subtractDays(startedAt, 7) : baselineFrom;
+      const includePendingMeeting =
+        source.id === "teams_meeting_transcripts" &&
+        pendingMeetingFrom &&
+        Date.parse(pendingMeetingFrom) < Date.parse(regularFrom);
       return [
         source.id,
         {
-          from: position ? subtractMinutes(position, 15) : baselineFrom,
+          from: includePendingMeeting ? pendingMeetingFrom : regularFrom,
           to: startedAt,
-          lateSweepFrom: position ? subtractDays(startedAt, 7) : baselineFrom,
+          lateSweepFrom: includePendingMeeting ? pendingMeetingFrom : regularLateSweepFrom,
           overlapMinutes: position ? 15 : 0,
           previousPosition: position,
+          pendingMeetingRetryFrom: includePendingMeeting ? pendingMeetingFrom : null,
         },
       ];
     })
@@ -359,7 +370,6 @@ function recapFor(run) {
   }
   if (run.steps?.meetings === false) skippedNames.push("Meeting processing and visuals");
   if (run.steps?.staleSweep === false) skippedNames.push("Stale ticket sweep");
-  if (run.steps?.outlookDrafts === false) skippedNames.push("Outlook draft creation");
   if (run.steps?.mdmCheck === false) skippedNames.push("MDM check (Jira vs. Brain)");
   if (skippedNames.length) {
     entries.push({
@@ -426,8 +436,7 @@ export function createActivityReconciliationService(options) {
         now: run?.steps?.staleSweep === false ? null : run?.startedAt,
       }));
   const runMdmCheck = typeof options.runMdmCheck === "function" ? options.runMdmCheck : null;
-  const deliverEmailDrafts =
-    typeof options.deliverEmailDrafts === "function" ? options.deliverEmailDrafts : null;
+  const lifecycle = options.lifecycle || null;
   const writeVoice = options.writeVoice || writeProposalProse;
   const loadJiraIssues = options.loadJiraIssues || (async () => []);
   const processMeeting =
@@ -449,6 +458,12 @@ export function createActivityReconciliationService(options) {
     return { state };
   });
 
+  async function notifyLifecycle(method, run) {
+    const listener = lifecycle?.[method];
+    if (typeof listener !== "function") return null;
+    return listener(clone(run));
+  }
+
   async function updateRun(runId, mutator) {
     return store.update((state) => {
       const run = findRun(state, runId);
@@ -468,7 +483,7 @@ export function createActivityReconciliationService(options) {
 
   async function setPhase(runId, id, activity) {
     const at = asIso(clock);
-    return updateRun(runId, (run) => {
+    const run = await updateRun(runId, (run) => {
       run.phase = phaseFor(id, at);
       if (id === "reading_sources") {
         for (const source of Object.values(run.sources || {})) {
@@ -477,6 +492,8 @@ export function createActivityReconciliationService(options) {
       }
       addEvent(run, "phase", activity || run.phase.label, at);
     });
+    await notifyLifecycle("phaseChanged", run);
+    return run;
   }
 
   async function cancellationRequested(runId) {
@@ -486,7 +503,7 @@ export function createActivityReconciliationService(options) {
 
   async function finishCanceled(runId) {
     const at = asIso(clock);
-    return updateRun(runId, (run) => {
+    const run = await updateRun(runId, (run) => {
       run.status = "canceled";
       run.finishedAt = at;
       run.resumable = true;
@@ -494,6 +511,8 @@ export function createActivityReconciliationService(options) {
       run.recap = recapFor(run);
       addEvent(run, "canceled", "Stopped after the current safe unit. The run can resume.", at);
     });
+    await notifyLifecycle("runStopped", run);
+    return run;
   }
 
   async function saveSourceResult(runId, sourceResult, runtimeById) {
@@ -817,6 +836,8 @@ export function createActivityReconciliationService(options) {
           state.meetingStates[evidence.stableId] = {
             status: "pending_transcript",
             contentHash: evidence.contentHash,
+            eventAt: evidence.eventAt || evidence.meeting?.start || null,
+            meetingId: evidence.meeting?.id || null,
             lastAttemptAt: at,
             runId,
           };
@@ -869,6 +890,8 @@ export function createActivityReconciliationService(options) {
           state.meetingStates[evidence.stableId] = {
             status: result?.ok ? "complete" : "partial",
             contentHash: evidence.contentHash,
+            eventAt: evidence.eventAt || evidence.meeting?.start || null,
+            meetingId: evidence.meeting?.id || null,
             lastAttemptAt: at,
             runId,
             packageId: result?.id || null,
@@ -900,6 +923,8 @@ export function createActivityReconciliationService(options) {
           state.meetingStates[evidence.stableId] = {
             status: "failed",
             contentHash: evidence.contentHash,
+            eventAt: evidence.eventAt || evidence.meeting?.start || null,
+            meetingId: evidence.meeting?.id || null,
             lastAttemptAt: at,
             runId,
           };
@@ -911,58 +936,9 @@ export function createActivityReconciliationService(options) {
     return { completed: true, evidence: reviewEvidence, reviewedMeetingIds };
   }
 
-  // Every prepared draft with a recipient becomes a real Outlook draft, so the
-  // review-approve-send step happens in the mailbox instead of only inside the
-  // panel. Draft only: this path never sends. Failures land on the individual
-  // draft, and an already-created draft is never created twice on resume.
-  async function deliverDrafts(runId) {
-    if (!deliverEmailDrafts) return;
-    const run = await getRun(runId);
-    if (run.steps?.outlookDrafts === false) return;
-    const pending = (run.emailDrafts || []).filter((item) => item.outlook?.status !== "created");
-    if (!pending.length) return;
-    await setPhase(runId, "delivering_drafts", "Creating Outlook drafts for mailbox review.");
-    const setOutlook = (draftId, outlook, eventType, detail) =>
-      updateRun(runId, (current) => {
-        const target = (current.emailDrafts || []).find((item) => item.id === draftId);
-        if (target) target.outlook = outlook;
-        addEvent(current, eventType, detail, asIso(clock));
-      });
-    for (const draft of pending) {
-      if (await cancellationRequested(runId)) return;
-      if (!draft.to) {
-        await setOutlook(
-          draft.id,
-          {
-            status: "recipient_review",
-            detail: "Add a recipient before this draft can wait in Outlook.",
-          },
-          "outlook_draft_skipped",
-          `${draft.subject}: no recipient, kept in the panel only.`
-        );
-        continue;
-      }
-      try {
-        const result = await deliverEmailDrafts({ run: clone(run), draft: clone(draft) });
-        await setOutlook(
-          draft.id,
-          { status: "created", draftId: result?.draftId || null, detail: result?.detail || null },
-          "outlook_draft",
-          `Outlook draft created: ${draft.subject}`
-        );
-      } catch (error) {
-        await setOutlook(
-          draft.id,
-          { status: "failed", detail: errorDetail(error) },
-          "outlook_draft_failed",
-          `${draft.subject}: ${errorDetail(error)}`
-        );
-      }
-    }
-  }
-
   async function execute(runId) {
     try {
+      await notifyLifecycle("claimRun", await getRun(runId));
       await setPhase(
         runId,
         "reading_sources",
@@ -981,9 +957,6 @@ export function createActivityReconciliationService(options) {
 
       await setPhase(runId, "matching_jira", "Checking evidence against current MT work items.");
       await prepareReview(runId, meetingReview);
-      if (await cancellationRequested(runId)) return finishCanceled(runId);
-
-      await deliverDrafts(runId);
       if (await cancellationRequested(runId)) return finishCanceled(runId);
 
       // The MDM Jira-vs-Brain check chains automatically so one run covers
@@ -1010,7 +983,7 @@ export function createActivityReconciliationService(options) {
 
       await setPhase(runId, "finalizing", "Saving the changes-only recap and run history.");
       const at = asIso(clock);
-      return updateRun(runId, (run, state) => {
+      const completed = await updateRun(runId, (run, state) => {
         run.mdmCheck = mdmCheck;
         run.status = run.counts.failures > 0 ? "partial_success" : "completed";
         run.finishedAt = at;
@@ -1026,14 +999,18 @@ export function createActivityReconciliationService(options) {
           at
         );
       });
+      await notifyLifecycle("runCompleted", completed);
+      return completed;
     } catch (error) {
       const at = asIso(clock);
-      return updateRun(runId, (run) => {
+      const interrupted = await updateRun(runId, (run) => {
         run.status = "interrupted";
         run.resumable = true;
         run.cancelRequested = false;
         addEvent(run, "interrupted", `The run stopped: ${errorDetail(error)}`, at);
       });
+      await notifyLifecycle("runInterrupted", interrupted).catch(() => null);
+      return interrupted;
     }
   }
 
@@ -1075,7 +1052,19 @@ export function createActivityReconciliationService(options) {
       state.activeRunId = run.id;
       return { state, value: { run: clone(run), attached: false, resumed: false } };
     });
-    if (!result.attached) launch(result.run.id);
+    if (!result.attached) {
+      try {
+        await notifyLifecycle("prepareRun", result.run);
+      } catch (error) {
+        await updateRun(result.run.id, (run) => {
+          run.status = "interrupted";
+          run.resumable = true;
+          addEvent(run, "interrupted", `The run did not start: ${errorDetail(error)}`, at);
+        });
+        throw error;
+      }
+      launch(result.run.id);
+    }
     return result;
   }
 
@@ -1112,6 +1101,7 @@ export function createActivityReconciliationService(options) {
       current.resumeCount = (current.resumeCount || 0) + 1;
       addEvent(current, "resumed", "Resuming from the last saved checkpoint.", at);
     });
+    await notifyLifecycle("prepareRun", run);
     launch(run.id);
     return run;
   }

@@ -42,7 +42,6 @@ interface PickerState {
   sourceGroups: Record<string, boolean>;
   meetings: boolean;
   staleSweep: boolean;
-  outlookDrafts: boolean;
   mdmCheck: boolean;
 }
 
@@ -50,7 +49,6 @@ const EVERYTHING: PickerState = {
   sourceGroups: { outlook: true, teams: true, transcripts: true, brain: true },
   meetings: true,
   staleSweep: true,
-  outlookDrafts: true,
   mdmCheck: true,
 };
 
@@ -58,14 +56,12 @@ const QUICK_JIRA: PickerState = {
   sourceGroups: { outlook: true, teams: true, transcripts: false, brain: true },
   meetings: false,
   staleSweep: false,
-  outlookDrafts: false,
   mdmCheck: false,
 };
 
 function stepsFromPicker(picker: PickerState): ActivityRunSteps | undefined {
   const allSources = SOURCE_GROUPS.every((group) => picker.sourceGroups[group.id]);
-  const everythingElse =
-    picker.meetings && picker.staleSweep && picker.outlookDrafts && picker.mdmCheck;
+  const everythingElse = picker.meetings && picker.staleSweep && picker.mdmCheck;
   if (allSources && everythingElse) return undefined;
   return {
     sources: allSources
@@ -75,7 +71,6 @@ function stepsFromPicker(picker: PickerState): ActivityRunSteps | undefined {
         ]),
     meetings: picker.meetings,
     staleSweep: picker.staleSweep,
-    outlookDrafts: picker.outlookDrafts,
     mdmCheck: picker.mdmCheck,
   };
 }
@@ -339,16 +334,6 @@ export function ActivityRunDockProvider({ children }: { children: ReactNode }) {
                     }
                   />
                   <span>Sweep stale tickets (60+ days idle, unmentioned)</span>
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={picker.outlookDrafts}
-                    onChange={(event) =>
-                      setPicker((current) => ({ ...current, outlookDrafts: event.target.checked }))
-                    }
-                  />
-                  <span>Create Outlook drafts for follow-up emails</span>
                 </label>
                 <label>
                   <input
