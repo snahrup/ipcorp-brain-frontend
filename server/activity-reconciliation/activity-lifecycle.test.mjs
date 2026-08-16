@@ -285,7 +285,11 @@ test("completion records the ordered receipt before completing the work item", a
   });
   const result = await lifecycle.runCompleted(completed);
   assert.equal(result.receipt.status, "appended");
-  assert.equal(result.completion.status, "appended");
+  // Completion now goes through completeWorkItem, which rechecks ownership and the
+  // verification receipt before appending, so it reports "completed" rather than the raw
+  // append result. The inner append is still the recorded event.
+  assert.equal(result.completion.status, "completed");
+  assert.equal(result.completion.event.status, "appended");
 
   const events = await listEvents(state);
   const receipt = events.find((event) => event.type === "turn_receipt.recorded");

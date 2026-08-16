@@ -1,11 +1,16 @@
 import { createHash, randomUUID } from "node:crypto";
+import { existsSync } from "node:fs";
 import { mkdir, open, readFile, rename } from "node:fs/promises";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import {
   appendEvent,
+  completeWorkItem,
   createWorkItem,
+  isOwnerWriteCurrent,
   listEvents,
   projectWorkItems,
+  quarantineRecord,
+  stateSegmentFor,
   WORKBENCH_STATE_SCHEMA_VERSION,
 } from "./index.mjs";
 
@@ -137,16 +142,31 @@ function validateSteps(steps) {
   return names;
 }
 
+/**
+ * AS-03. Replacing unsafe characters with an underscore folded "a/b" and "a_b" onto one
+ * directory, so two different jobs shared saved steps. Segments are collision resistant now.
+ *
+ * A job written under the old segment keeps working: when the old directory exists and the
+ * new one does not, the old path is used, so an interrupted job still resumes after this
+ * change instead of losing its completed steps.
+ */
+function jobDirPath(state, workItemId) {
+  const modern = snapshotPath(state, "saved-step-jobs", stateSegmentFor(workItemId));
+  const legacy = snapshotPath(state, "saved-step-jobs", safeFilePart(workItemId));
+  if (modern !== legacy && !existsSync(modern) && existsSync(legacy)) return legacy;
+  return modern;
+}
+
 function stepDirPath(state, workItemId) {
-  return snapshotPath(state, "saved-step-jobs", safeFilePart(workItemId), "steps");
+  return join(jobDirPath(state, workItemId), "steps");
 }
 
 function inputPath(state, workItemId) {
-  return snapshotPath(state, "saved-step-jobs", safeFilePart(workItemId), "input.json");
+  return join(jobDirPath(state, workItemId), "input.json");
 }
 
 function receiptPath(state, workItemId) {
-  return snapshotPath(state, "saved-step-jobs", safeFilePart(workItemId), "turn-receipt.json");
+  return join(jobDirPath(state, workItemId), "turn-receipt.json");
 }
 
 function artifactPath(state, workItemId, stepIndex, stepName) {
@@ -401,12 +421,28 @@ export async function runSavedStepJob(state, options) {
   }
 
   let completed = false;
+  let lease = claim.lease;
+  // One clock for the whole run. A caller driving a fixed clock must have the heartbeat and
+  // the ownership recheck read that same clock, or a normal run looks like a lost lease.
+  const runClock = () => (options?.now ? options.now : nowIso());
   try {
     const outputs = {};
     for (let stepIndex = 0; stepIndex < options.steps.length; stepIndex += 1) {
       let events = await listEvents(state);
       if (hasActiveStopRequest(events, workItemId)) {
         return { status: "stopped", workItemId, job: await projectSavedStepJob(state, workItemId) };
+      }
+
+      // AS-04. Heartbeat before each step so a long job keeps its lease instead of silently
+      // aging out while it is still doing real work.
+      if (lease?.leaseId) {
+        const renewed = await state.renewWorkItemLease(workItemId, {
+          owner: options.owner,
+          leaseId: lease.leaseId,
+          leaseMs: options.leaseMs || DEFAULT_LEASE_MS,
+          now: runClock(),
+        });
+        if (renewed.status === "renewed") lease = { ...lease, ...renewed.lease };
       }
 
       const step = options.steps[stepIndex];
@@ -458,6 +494,7 @@ export async function runSavedStepJob(state, options) {
         },
       });
 
+      const controller = new AbortController();
       try {
         const output = await step.run({
           stepInput,
@@ -466,7 +503,42 @@ export async function runSavedStepJob(state, options) {
           state,
           workItemId,
           attempt,
+          signal: controller.signal,
         });
+
+        // AS-07. A stop that arrived while this step was running aborts anything still in
+        // flight for it. The step's own output is kept when it completed and validated,
+        // because discarding real finished work on every pause would make stop expensive.
+        // The dangerous case is output that lands when this worker no longer owns the work,
+        // and that is the ownership check directly below.
+        const afterRun = await listEvents(state);
+        const stoppedDuringStep = hasActiveStopRequest(afterRun, workItemId);
+        if (stoppedDuringStep) controller.abort();
+
+        // AS-04. Ownership is rechecked before the durable write. A lease that expired while
+        // this step ran means another owner has the work, and this output must not land.
+        const ownership = await isOwnerWriteCurrent(state, workItemId, {
+          owner: options.owner,
+          leaseId: lease?.leaseId,
+          leaseGeneration: lease?.leaseGeneration,
+          now: runClock(),
+        });
+        if (!ownership.ok) {
+          controller.abort();
+          await quarantineRecord(state, {
+            workItemId,
+            reason: "write_after_lease_loss",
+            details: { stepName: step.name, leaseProblem: ownership.reason },
+            record: { stepName: step.name, stepIndex, attempt },
+          });
+          return {
+            status: "lease_lost",
+            reason: ownership.reason,
+            workItemId,
+            job: await projectSavedStepJob(state, workItemId),
+          };
+        }
+
         const outputHash = hashValue(output || {});
         const outputRef = await writeStepArtifact(state, workItemId, stepIndex, step.name, {
           schemaVersion: WORKBENCH_STATE_SCHEMA_VERSION,
@@ -509,6 +581,14 @@ export async function runSavedStepJob(state, options) {
           },
         });
         outputs[step.name] = output || {};
+
+        if (stoppedDuringStep) {
+          return {
+            status: "stopped",
+            workItemId,
+            job: await projectSavedStepJob(state, workItemId),
+          };
+        }
       } catch (error) {
         await appendEvent(state, {
           id: `evt-${randomUUID()}`,
@@ -528,20 +608,32 @@ export async function runSavedStepJob(state, options) {
     }
 
     const receipt = await writeTurnReceipt(state, workItemId, options.steps);
-    await appendEvent(state, {
-      id: `evt-${randomUUID()}`,
-      type: "work_item.completed",
-      at: nowIso(),
+    // AS-08. Completion goes through completeWorkItem so ownership is rechecked and any
+    // externally acting work has to show its verification receipt.
+    const completion = await completeWorkItem(state, {
       workItemId,
-      payload: {
+      owner: options.owner,
+      leaseId: lease?.leaseId,
+      leaseGeneration: lease?.leaseGeneration,
+      now: runClock(),
+      verification: options.verification || {
         receiptHash: receipt.receiptHash,
         receiptRef: receipt.receiptRef,
+        ...(options.verification || {}),
       },
     });
+    if (completion.status !== "completed") {
+      return {
+        status: "completion_refused",
+        reason: completion.reason || null,
+        workItemId,
+        job: await projectSavedStepJob(state, workItemId),
+      };
+    }
     completed = true;
     return { status: "completed", workItemId, job: await projectSavedStepJob(state, workItemId) };
   } finally {
-    if (!completed) await releaseLease(state, { ...options, workItemId }, claim.lease, nowIso());
+    if (!completed) await releaseLease(state, { ...options, workItemId }, lease, nowIso());
   }
 }
 
