@@ -1,270 +1,38 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-08-06T05:07:55.740Z",
+  "checkedAt": "2026-08-14T20:42:30.929Z",
   "source": {
-    "seedUpdatedAt": "2026-08-05T16:24:47.587Z",
+    "seedUpdatedAt": "2026-08-14T20:24:59.486Z",
     "brain": {
       "state": "available",
-      "meetingSummaryCount": 118,
-      "infographicPackageCount": 101,
+      "meetingSummaryCount": 131,
+      "infographicPackageCount": 140,
       "unreadablePackageRecords": 0
     },
     "displayProbe": {
       "state": "available",
-      "attempted": 89,
-      "displayed": 88,
+      "attempted": 109,
+      "displayed": 109,
       "unavailable": 0
     }
   },
   "scope": {
-    "meetingCount": 118,
-    "meetingIdsSha256": "612cc4c0ea500a95239a13fcc33bb881cf6efa2bcf5400f7a132546fc49a31a6"
+    "meetingCount": 123,
+    "meetingIdsSha256": "badaa3232625e2396268d815bcc72a57c70d5e079cdf75a48e148ffdf69258b4"
   },
   "totals": {
-    "audited": 118,
-    "complete": 88,
-    "needsAttention": 30,
+    "audited": 123,
+    "complete": 109,
+    "needsAttention": 14,
     "unavailable": 0
   },
   "categories": {
-    "missing-display-only": 4,
+    "missing-display-only": 8,
     "missing-saved-artifact-only": 0,
-    "missing-association-only": 1,
-    "fully-missing": 25
+    "missing-association-only": 0,
+    "fully-missing": 6
   },
   "findings": [
-    {
-      "meetingId": "2026-07-30-arctic-wolf-fabric-api-service-principal-signin",
-      "title": "Arctic Wolf alert - Fabric-PowerBI-API service principal sign-in investigation",
-      "day": "2026-07-30",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-07-28-mdm-domain-program-breakdown-review",
-      "title": "MDM Domain Program Breakdown Review (Nahrup / Patrick)",
-      "day": "2026-07-28",
-      "category": "missing-display-only",
-      "display": "missing",
-      "saved": "present",
-      "association": "present",
-      "evidence": "The saved file and meeting association exist, but the Workbench image path returned HTTP 500.",
-      "artifact": {
-        "kind": "png",
-        "file": "Nahrup - Patrick — MDM Domain Program Breakdown Review [2026-07-28].png",
-        "label": "Nahrup / Patrick  -  MDM Domain Program Breakdown Review [2026-07-28]"
-      }
-    },
-    {
-      "meetingId": "2026-07-10-mdm-strategic-planning-round-4",
-      "title": "MDM Project  -  Strategic Planning Round 4 (continuation)",
-      "day": "2026-07-10",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-07-09-weekly-fabric-check-in",
-      "title": "Bi-Weekly Fabric Check-in",
-      "day": "2026-07-09",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-07-08-fabric-weekly-stand-up",
-      "title": "Fabric Bi-Weekly Stand-Up",
-      "day": "2026-07-08",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-07-08-mdm-strategic-planning-round-4",
-      "title": "MDM Project  -  Strategic Planning Round 4",
-      "day": "2026-07-08",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-06-16-nahrup-1on1-with-patrick",
-      "title": "Nahrup 1-on-1 with Patrick",
-      "day": "2026-06-16",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-06-09-data-dev-team-weekly-standup",
-      "title": "Data/Dev Team Weekly Standup",
-      "day": "2026-06-09",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-06-05-fabric-weekly-stand-up",
-      "title": "Fabric Weekly Stand-Up",
-      "day": "2026-06-05",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-06-03-nahrup-1on1-with-patrick",
-      "title": "Nahrup 1-on-1 with Patrick",
-      "day": "2026-06-03",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-06-02-data-dev-team-weekly-standup",
-      "title": "Data/Dev Team Weekly Standup",
-      "day": "2026-06-02",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-05-26-data-dev-team-weekly-standup",
-      "title": "Data/Dev Team Weekly Standup",
-      "day": "2026-05-26",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-05-21-pcd-database",
-      "title": "PCD Database",
-      "day": "2026-05-21",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-05-20-fabric-deep-dive-working-session",
-      "title": "Fabric Deep-Dive Working Session",
-      "day": "2026-05-20",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-05-20-fabric-weekly-stand-up",
-      "title": "Fabric Weekly Stand-Up",
-      "day": "2026-05-20",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-05-19-plant-tour",
-      "title": "Plant Tour  -  Facility Tour and MES System Review",
-      "day": "2026-05-19",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-05-19-preface-fabric-meeting",
-      "title": "Preface Fabric Meeting  -  Data Architecture & Migration Discussion",
-      "day": "2026-05-19",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-05-11-nahrup-1-on-1-and-data-classification-policy-review",
-      "title": "Nahrup 1-on-1 + Data Classification Policy Review (back-to-back)",
-      "day": "2026-05-11",
-      "category": "fully-missing",
-      "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
-    },
-    {
-      "meetingId": "2026-05-07-weekly-fabric-checkin",
-      "title": "Weekly Fabric Check-in",
-      "day": "2026-05-07",
-      "category": "missing-display-only",
-      "display": "missing",
-      "saved": "present",
-      "association": "present",
-      "evidence": "The saved file and meeting association exist, but the meeting has no Workbench image link.",
-      "artifact": {
-        "kind": "png",
-        "file": "Weekly Fabric Check-in [2026-05-07].png",
-        "label": "Weekly Fabric Check-in - May 7, 2026"
-      }
-    },
-    {
-      "meetingId": "2026-05-06-fabric-weekly-standup",
-      "title": "Fabric Weekly Stand-Up",
-      "day": "2026-05-06",
-      "category": "missing-display-only",
-      "display": "missing",
-      "saved": "present",
-      "association": "present",
-      "evidence": "The saved file and meeting association exist, but the meeting has no Workbench image link.",
-      "artifact": {
-        "kind": "png",
-        "file": "Fabric Weekly Stand-Up [2026-05-06].png",
-        "label": "Fabric Weekly Stand-Up - May 6, 2026"
-      }
-    },
     {
       "meetingId": "2026-04-30-historian-data-extraction-cont",
       "title": "Historian Data Extraction (Continuation)",
@@ -277,36 +45,6 @@
       "artifact": null
     },
     {
-      "meetingId": "2026-04-28-biweekly-demand-management",
-      "title": "Bi-Weekly Demand Management Meeting",
-      "day": "2026-04-28",
-      "category": "missing-display-only",
-      "display": "missing",
-      "saved": "present",
-      "association": "present",
-      "evidence": "The saved file and meeting association exist, but the meeting has no Workbench image link.",
-      "artifact": {
-        "kind": "png",
-        "file": "Bi-Weekly Demand Management Meeting [2026-04-28].png",
-        "label": "Bi-Weekly Demand Management Meeting - April 28, 2026"
-      }
-    },
-    {
-      "meetingId": "2026-04-27-nahrup-1-on-1",
-      "title": "Nahrup - 1-on-1",
-      "day": "2026-04-27",
-      "category": "missing-association-only",
-      "display": "missing",
-      "saved": "present",
-      "association": "missing",
-      "evidence": "A matching saved infographic is linked to another prepared meeting record, not this one.",
-      "artifact": {
-        "kind": "png",
-        "file": "Nahrup 1-on-1 with Patrick [2026-04-27].png",
-        "label": "Nahrup 1-on-1 with Patrick - April 27, 2026"
-      }
-    },
-    {
       "meetingId": "2026-04-08-mdm-touch-base",
       "title": "Touch Base MDM  -  Meeting Discussions",
       "day": "2026-04-08",
@@ -316,6 +54,21 @@
       "association": "missing",
       "evidence": "No saved infographic or recorded association was found for this meeting.",
       "artifact": null
+    },
+    {
+      "meetingId": "2026-03-23-finalize-mdm-slide-deck",
+      "title": "Finalize MDM Slide Deck",
+      "day": "2026-03-23",
+      "category": "missing-display-only",
+      "display": "missing",
+      "saved": "present",
+      "association": "present",
+      "evidence": "The saved file and meeting association exist, but the meeting has no Workbench image link.",
+      "artifact": {
+        "kind": "png",
+        "file": "Finalize MDM Slide Deck [2026-03-23].png",
+        "label": "Finalize MDM Slide Deck - March 23, 2026"
+      }
     },
     {
       "meetingId": "2026-03-20-finalize-mdm-slide-deck",
@@ -351,15 +104,79 @@
       "artifact": null
     },
     {
-      "meetingId": "2025-12-12-mdm-initiative-kickoff-mike-spencer",
-      "title": "Master Data Management Initiative Kickoff Meeting",
-      "day": "2025-12-12",
-      "category": "fully-missing",
+      "meetingId": "2026-02-10-all-employee-town-hall",
+      "title": "All Employee Town Hall",
+      "day": "2026-02-10",
+      "category": "missing-display-only",
       "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
+      "saved": "present",
+      "association": "present",
+      "evidence": "The saved file and meeting association exist, but the meeting has no Workbench image link.",
+      "artifact": {
+        "kind": "png",
+        "file": "All Employee Town Hall [2026-02-10].png",
+        "label": "All Employee Town Hall"
+      }
+    },
+    {
+      "meetingId": "2026-01-29-in-person-demonstration-of-citrine-ai-software",
+      "title": "In-Person Demonstration of Citrine AI Software",
+      "day": "2026-01-29",
+      "category": "missing-display-only",
+      "display": "missing",
+      "saved": "present",
+      "association": "present",
+      "evidence": "The saved file and meeting association exist, but the meeting has no Workbench image link.",
+      "artifact": {
+        "kind": "png",
+        "file": "In-Person Demonstration of Citrine AI Software [2026-01-29].png",
+        "label": "In-Person Demonstration of Citrine AI Software"
+      }
+    },
+    {
+      "meetingId": "2026-01-21-mdm-on-site-initial-discussions-meeting",
+      "title": "MDM On-Site Initial Discussions Meeting - Part 1 & Part 2",
+      "day": "2026-01-21",
+      "category": "missing-display-only",
+      "display": "missing",
+      "saved": "present",
+      "association": "present",
+      "evidence": "The saved file and meeting association exist, but the meeting has no Workbench image link.",
+      "artifact": {
+        "kind": "png",
+        "file": "MDM On-Site Initial Discussions Meeting - Part 1 & Part 2 [2026-01-21] - creative.png",
+        "label": "MDM On-Site Initial Discussions Meeting - Part 1 & Part 2"
+      }
+    },
+    {
+      "meetingId": "2026-01-12-meeting-with-patrick-stiller",
+      "title": "Meeting with Patrick Stiller",
+      "day": "2026-01-12",
+      "category": "missing-display-only",
+      "display": "missing",
+      "saved": "present",
+      "association": "present",
+      "evidence": "The saved file and meeting association exist, but the meeting has no Workbench image link.",
+      "artifact": {
+        "kind": "png",
+        "file": "Meeting with Patrick Stiller [2026-01-12] - creative.png",
+        "label": "Meeting with Patrick Stiller"
+      }
+    },
+    {
+      "meetingId": "2025-12-22-sql-data-discovery-review",
+      "title": "SQL Data Discovery Review",
+      "day": "2025-12-22",
+      "category": "missing-display-only",
+      "display": "missing",
+      "saved": "present",
+      "association": "present",
+      "evidence": "The saved file and meeting association exist, but the meeting has no Workbench image link.",
+      "artifact": {
+        "kind": "png",
+        "file": "SQL Data Discovery Review [2025-12-22] - creative.png",
+        "label": "SQL Data Discovery Review"
+      }
     },
     {
       "meetingId": "2025-12-12-mdm-discussion-inline-facilitator",
@@ -373,15 +190,34 @@
       "artifact": null
     },
     {
-      "meetingId": "2025-10-10-ipcorp-mdm-transformation-interview-prep",
-      "title": "IPCorp Master Data Management Transformation",
-      "day": "2025-10-10",
-      "category": "fully-missing",
+      "meetingId": "2025-12-11-mdm-discussion",
+      "title": "MDM - Discussion",
+      "day": "2025-12-11",
+      "category": "missing-display-only",
       "display": "missing",
-      "saved": "missing",
-      "association": "missing",
-      "evidence": "No saved infographic or recorded association was found for this meeting.",
-      "artifact": null
+      "saved": "present",
+      "association": "present",
+      "evidence": "The saved file and meeting association exist, but the meeting has no Workbench image link.",
+      "artifact": {
+        "kind": "png",
+        "file": "MDM - Discussion [2025-12-11] - creative.png",
+        "label": "MDM - Discussion"
+      }
+    },
+    {
+      "meetingId": "2025-12-09-mdm-systems-lite-discussion",
+      "title": "MDM - Systems - Lite discussion",
+      "day": "2025-12-09",
+      "category": "missing-display-only",
+      "display": "missing",
+      "saved": "present",
+      "association": "present",
+      "evidence": "The saved file and meeting association exist, but the meeting has no Workbench image link.",
+      "artifact": {
+        "kind": "png",
+        "file": "MDM - Systems - Lite discussion [2025-12-09] - creative.png",
+        "label": "MDM - Systems - Lite discussion"
+      }
     }
   ],
   "unavailableMeetings": []
