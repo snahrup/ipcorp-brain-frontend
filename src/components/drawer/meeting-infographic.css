@@ -98,7 +98,11 @@
   background: rgba(255, 255, 255, 0.24);
 }
 
-/* Promised work out of the room. Small labelled rows, thumb-sized on a phone. */
+/* Follow-up work with truthful Jira and saved-run state. */
+.meeting-action-card {
+  padding: 16px;
+}
+
 .meeting-followup-list {
   list-style: none;
   margin: 8px 0 0;
@@ -108,10 +112,21 @@
   gap: 8px;
 }
 .meeting-followup {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid #dbe3ed;
+  border-radius: 10px;
+  background: #f9fbfd;
   line-height: 1.35;
+}
+.meeting-followup-head,
+.meeting-action-links {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 .meeting-followup-kind {
   flex: none;
@@ -139,4 +154,106 @@
 .meeting-followup-text {
   font-size: 13px;
   color: #24303f;
+}
+
+.meeting-action-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #edf2f7;
+  color: #415164;
+}
+
+.meeting-action-status-running,
+.meeting-action-status-completed {
+  background: #e9f5ed;
+  color: #22663a;
+}
+
+.meeting-action-status-waiting {
+  background: #fff4dd;
+  color: #765216;
+}
+
+.meeting-action-status-unavailable {
+  background: #fdeaea;
+  color: #872f2f;
+}
+
+.meeting-action-status-checking {
+  background: #eaf2fb;
+  color: #245d94;
+}
+
+.meeting-action-jira,
+.meeting-action-jira-missing,
+.meeting-action-board-reference {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.meeting-action-jira {
+  color: #0f5f9d;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.meeting-action-jira:focus-visible,
+.meeting-action-evidence summary:focus-visible {
+  outline: 2px solid #1b67a5;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.meeting-action-jira-missing {
+  color: #657284;
+}
+
+.meeting-action-board-reference {
+  color: #3d5d7f;
+}
+
+.meeting-action-detail {
+  font-size: 12px;
+  color: #59687a;
+}
+
+.meeting-action-evidence {
+  font-size: 12px;
+  color: #4e5d70;
+}
+
+.meeting-action-evidence summary {
+  width: fit-content;
+  cursor: pointer;
+  color: #315c88;
+  font-weight: 650;
+}
+
+.meeting-action-evidence ul {
+  margin: 7px 0 0;
+  padding-left: 18px;
+}
+
+@media (max-width: 520px) {
+  .meeting-action-card {
+    padding: 12px;
+  }
+
+  .meeting-followup {
+    padding: 11px;
+  }
+
+  .meeting-followup-head,
+  .meeting-action-links {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }

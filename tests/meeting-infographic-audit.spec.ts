@@ -7,7 +7,7 @@ test.describe("Meetings infographic audit", () => {
 
     const audit = page.getByTestId("meeting-infographic-audit");
     await expect(audit).toBeVisible();
-    await expect(audit).toContainText("30 meetings need infographic attention");
+    await expect(audit).toContainText("14 meetings need infographic attention");
     await audit.locator(":scope > summary").click();
 
     await expect(page.getByTestId("meeting-infographic-audit-findings")).toBeVisible();
@@ -25,12 +25,17 @@ test.describe("Meetings infographic audit", () => {
     await expect(categoryCounts.locator('[data-category="fully-missing"]')).toContainText(
       "Fully missing"
     );
+    await expect(audit.getByRole("button", { name: /^Open meeting:/ })).toHaveCount(14);
     await audit
       .locator('.wb-infographic-audit-group[data-category="fully-missing"] > summary')
       .click();
-    await expect(audit.getByRole("button", { name: /^Open meeting:/ })).toHaveCount(30);
 
-    await audit.getByRole("button", { name: "Open meeting: Nahrup - 1-on-1", exact: true }).click();
+    await audit
+      .getByRole("button", {
+        name: "Open meeting: Historian Data Extraction (Continuation)",
+        exact: true,
+      })
+      .click();
     await expect(page.getByText("See how this meeting connects", { exact: true })).toBeVisible();
   });
 

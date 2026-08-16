@@ -9,11 +9,12 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { packetById } from "../../data";
+import { MeetingActionList } from "../../features/meeting-actions/MeetingActionList";
+import { GATEWAY } from "../../lib/gateway";
 import { formatDate, getLinkedPacket } from "../../lib/utils";
 import type { MeetingEntry } from "../../types/brain";
 import { DrawerHeader, InfoBlock, StatusChip } from "../ui";
 import "./meeting-infographic.css";
-import { GATEWAY } from "../../lib/gateway";
 
 const INFOGRAPHIC_URL = `${GATEWAY}/meetings/infographic`;
 
@@ -118,31 +119,7 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
       {meeting.summary && <InfoBlock title="What happened" body={meeting.summary} />}
       {meeting.whyNow && <InfoBlock title="Why it mattered" body={meeting.whyNow} />}
 
-      {(meeting.followUps?.length ?? 0) > 0 && (
-        <div className="nested-card" data-testid="meeting-followups">
-          <span className="mono-kicker">Promised out of this meeting</span>
-          <ul className="meeting-followup-list">
-            {meeting.followUps?.map((item) => (
-              // Keyed by what the item says, not its position: the extractor
-              // reorders as a package gains commitments, and an index key would
-              // carry one row's state onto another.
-              <li className="meeting-followup" key={`${item.kind}-${item.text}`}>
-                <span className={`meeting-followup-kind meeting-followup-${item.kind}`}>
-                  {item.kind === "commitment" && "Owed"}
-                  {item.kind === "document-request" && "Doc requested"}
-                  {item.kind === "reminder" && "Reminder"}
-                  {item.kind === "jira-change" && "Jira change"}
-                </span>
-                <span className="meeting-followup-text">
-                  {item.text}
-                  {item.owner ? ` (for ${item.owner})` : ""}
-                  {item.when ? ` by ${item.when}` : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <MeetingActionList meeting={meeting} />
 
       {people.length > 0 && (
         <div className="meeting-detail-people">

@@ -9,7 +9,9 @@ import {
   LoaderCircle,
   Mail,
   RefreshCw,
+  RotateCcw,
   Sparkles,
+  Square,
   TicketCheck,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -63,6 +65,22 @@ type MeetingPackage = {
     metrics: Array<{ label: string; value: number }>;
     themes: string[];
     nextMoves: string[];
+    saved?: {
+      id: string;
+      file: string;
+      sha256: string;
+      width?: number;
+      height?: number;
+      provider?: string;
+    };
+    verified?: {
+      id: string;
+      file: string;
+      sha256: string;
+      width?: number;
+      height?: number;
+      provider?: string;
+    } | null;
   };
   files?: Record<string, string>;
   externalActions: {
@@ -84,8 +102,35 @@ type ApiEnvelope<T> = {
   ok: boolean;
   data?: T;
   package?: MeetingPackage;
+  job?: MeetingCloseoutJob;
+  accepted?: boolean;
   code?: string;
   error?: string;
+};
+
+type MeetingCloseoutStep = {
+  name: string;
+  index: number;
+  status: "pending" | "running" | "succeeded" | "skipped" | "failed";
+  attempts: number;
+};
+
+type MeetingCloseoutJob = {
+  workItemId: string;
+  status: "pending" | "running" | "failed" | "stop_requested" | "completed";
+  isActive?: boolean;
+  stopRequested: boolean;
+  meeting: Pick<Meeting, "id" | "title" | "start" | "end">;
+  steps: MeetingCloseoutStep[];
+  failure?: {
+    stepName: string;
+    code: string;
+    detail: string;
+  } | null;
+  result?: {
+    ok: boolean;
+    package: MeetingPackage;
+  } | null;
 };
 
 type MeetingCloseoutPanelProps = {
@@ -234,29 +279,22 @@ function ReviewSection({
 }
 
 function MeetingInfographic({ value }: { value: MeetingPackage }) {
+  const visual = value.infographic.verified || value.infographic.saved;
+  if (!visual?.id || !visual.file) return null;
+  const source = `${GATEWAY}/meetings/infographic?id=${encodeURIComponent(visual.id)}&file=${encodeURIComponent(visual.file)}`;
   return (
-    <section className="mc-infographic" data-testid="meeting-infographic">
-      <div className="mc-infographic-heading">
-        <span>Meeting snapshot</span>
-        <h3>{value.infographic.headline}</h3>
-        <p>{value.summary}</p>
-      </div>
-      <div className="mc-metrics">
-        {value.infographic.metrics.map((metric) => (
-          <div key={metric.label}>
-            <strong>{metric.value}</strong>
-            <span>{metric.label}</span>
-          </div>
-        ))}
-      </div>
-      {!!value.infographic.themes.length && (
-        <div className="mc-themes">
-          {value.infographic.themes.map((theme) => (
-            <span key={theme}>{theme}</span>
-          ))}
-        </div>
-      )}
-    </section>
+    <figure className="mc-infographic-artifact" data-testid="meeting-infographic">
+      <img
+        alt={`${value.meeting.title} meeting infographic`}
+        height={visual.height}
+        src={source}
+        width={visual.width}
+      />
+      <figcaption>
+        <strong>{value.infographic.headline || value.meeting.title}</strong>
+        <span>Verified {visual.provider === "notebooklm" ? "NotebookLM" : "Codex"} image</span>
+      </figcaption>
+    </figure>
   );
 }
 
@@ -356,6 +394,82 @@ function PackageReview({ value }: { value: MeetingPackage }) {
   );
 }
 
+const closeoutStepLabels: Record<string, string> = {
+  discover: "Find the meeting capture",
+  reconcile_sources: "Compare and clean captures",
+  synthesize: "Write the review package",
+  store: "Store the Brain package",
+  generate_visual: "Create the infographic",
+  associate: "Attach the infographic",
+  verify_display: "Check every saved piece",
+  finalize: "Finish and refresh the Workbench",
+};
+
+function jobStatusText(job: MeetingCloseoutJob) {
+  if (job.status === "completed") return "Meeting package complete";
+  if (job.status === "stop_requested") {
+    return job.isActive
+      ? "Stop requested. The current stage will finish before pausing"
+      : "Stopped after the last finished stage";
+  }
+  if (job.status === "failed") return job.failure?.detail || "A meeting stage needs attention.";
+  const running = job.steps.find((step) => step.status === "running");
+  if (running) return closeoutStepLabels[running.name] || running.name;
+  return "Waiting to start";
+}
+
+function MeetingJobProgress({
+  job,
+  onResume,
+  onStop,
+}: {
+  job: MeetingCloseoutJob;
+  onResume: () => void;
+  onStop: () => void;
+}) {
+  const canStop = job.status === "pending" || job.status === "running";
+  const canResume = !job.isActive && (job.status === "failed" || job.status === "stop_requested");
+  return (
+    <section className="mc-job" data-testid="meeting-closeout-job">
+      <header>
+        <div>
+          <span className="mc-eyebrow">Saved meeting job</span>
+          <h3>{job.meeting.title}</h3>
+          <p>{jobStatusText(job)}</p>
+        </div>
+        {canStop && (
+          <button className="mc-secondary-button" onClick={onStop} type="button">
+            <Square size={14} /> Stop after this stage
+          </button>
+        )}
+        {canResume && (
+          <button className="mc-process-button" onClick={onResume} type="button">
+            <RotateCcw size={14} />
+            {job.status === "failed" ? "Retry failed stage" : "Resume saved job"}
+          </button>
+        )}
+      </header>
+      <ol>
+        {job.steps.map((step) => (
+          <li className={`is-${step.status}`} key={step.name}>
+            <span className="mc-job-step-marker">
+              {step.status === "succeeded" || step.status === "skipped" ? (
+                <CheckCircle2 size={15} />
+              ) : step.status === "running" ? (
+                <LoaderCircle className="mc-spin" size={15} />
+              ) : (
+                step.index + 1
+              )}
+            </span>
+            <span>{closeoutStepLabels[step.name] || step.name}</span>
+            <small>{step.status === "skipped" ? "Checked saved result" : step.status}</small>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutPanelProps) {
   const preparedFallback = useMemo(
     () => normalizePreparedMeetings(preparedMeetings),
@@ -372,6 +486,7 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
   const [transcript, setTranscript] = useState("");
   const [contextNotes, setContextNotes] = useState("");
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [currentJob, setCurrentJob] = useState<MeetingCloseoutJob | null>(null);
   const [status, setStatus] = useState("Loading today's meetings…");
   const [loadError, setLoadError] = useState("");
   const [refreshing, setRefreshing] = useState(false);
@@ -405,6 +520,7 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
   );
 
   const pollTimerRef = useRef<number | null>(null);
+  const jobPollTimerRef = useRef<number | null>(null);
 
   const loadPackages = useCallback(async (signal?: AbortSignal) => {
     try {
@@ -415,6 +531,95 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
       if (!(error instanceof DOMException && error.name === "AbortError")) setPackages([]);
     }
   }, []);
+
+  const applyJob = useCallback((job: MeetingCloseoutJob) => {
+    setCurrentJob(job);
+    if (job.status === "completed" && job.result?.package) {
+      const savedPackage = job.result.package;
+      setSelectedPackage(savedPackage);
+      setPackages((current) => [
+        savedPackage,
+        ...current.filter((item) => item.id !== savedPackage.id),
+      ]);
+      setFallbackMeeting(null);
+      setTranscript("");
+      setContextNotes("");
+      setProcessingId(null);
+      setStatus("Meeting package saved and ready for review.");
+      return;
+    }
+    if (job.status === "failed") {
+      const originalMeeting = meetingsRef.current.find((item) => item.id === job.meeting.id);
+      if (job.failure?.code === "transcript_unavailable" && originalMeeting) {
+        setFallbackMeeting(originalMeeting);
+        setStatus("No Teams capture was found. Paste the Cluely transcript below.");
+      } else {
+        setStatus(job.failure?.detail || "A meeting stage needs attention.");
+      }
+      setProcessingId(null);
+      return;
+    }
+    if (job.status === "stop_requested") {
+      setStatus("Stop requested. The current stage will finish before the job pauses.");
+      setProcessingId(null);
+      return;
+    }
+    setProcessingId(job.meeting.id || null);
+    setStatus(jobStatusText(job));
+  }, []);
+
+  const pollMeetingJob = useCallback(
+    async (workItemId: string, signal?: AbortSignal) => {
+      try {
+        const response = await fetch(
+          `${GATEWAY}/meeting-closeout/jobs/${encodeURIComponent(workItemId)}`,
+          { signal }
+        );
+        const body = (await response.json()) as ApiEnvelope<unknown>;
+        if (!response.ok || !body.ok || !body.job) {
+          throw new Error(body.error || "The saved meeting job could not be read.");
+        }
+        applyJob(body.job);
+        if (
+          (["pending", "running"].includes(body.job.status) || body.job.isActive) &&
+          !signal?.aborted
+        ) {
+          jobPollTimerRef.current = window.setTimeout(
+            () => void pollMeetingJob(workItemId, signal),
+            1_000
+          );
+        }
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setProcessingId(null);
+        setStatus(
+          error instanceof Error ? error.message : "The saved meeting job could not be read."
+        );
+      }
+    },
+    [applyJob]
+  );
+
+  const loadJobs = useCallback(
+    async (signal?: AbortSignal) => {
+      try {
+        const response = await fetch(`${GATEWAY}/meeting-closeout/jobs`, { signal });
+        const body = (await response.json()) as ApiEnvelope<MeetingCloseoutJob[]>;
+        if (!response.ok || !body.ok || !Array.isArray(body.data)) return;
+        const latest = body.data[body.data.length - 1];
+        if (!latest) return;
+        applyJob(latest);
+        if (["pending", "running"].includes(latest.status) || latest.isActive) {
+          void pollMeetingJob(latest.workItemId, signal);
+        }
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          setCurrentJob(null);
+        }
+      }
+    },
+    [applyJob, pollMeetingJob]
+  );
 
   // The server runs the calendar read as one shared background job and caches
   // its answer, so this fetch returns immediately: either the cached result or
@@ -463,11 +668,13 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
     const controller = new AbortController();
     void refreshCalendar(true, controller.signal);
     void loadPackages(controller.signal);
+    void loadJobs(controller.signal);
     return () => {
       controller.abort();
       if (pollTimerRef.current !== null) window.clearTimeout(pollTimerRef.current);
+      if (jobPollTimerRef.current !== null) window.clearTimeout(jobPollTimerRef.current);
     };
-  }, [refreshCalendar, loadPackages]);
+  }, [refreshCalendar, loadJobs, loadPackages]);
 
   async function processMeeting(meeting: Meeting, pastedTranscript = "", notes = "") {
     setProcessingId(meeting.id);
@@ -488,24 +695,66 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
       if (body.code === "transcript_unavailable") {
         setFallbackMeeting(meeting);
         setStatus("No Teams capture was found. Paste the Cluely transcript below.");
+        setProcessingId(null);
         return;
       }
-      if (!response.ok || !body.ok || !body.package) {
+      if (!response.ok || !body.ok) {
         throw new Error(body.error || "The meeting could not be processed.");
       }
-      setSelectedPackage(body.package);
-      setPackages((current) => [
-        body.package as MeetingPackage,
-        ...current.filter((item) => item.id !== body.package?.id),
-      ]);
-      setFallbackMeeting(null);
-      setTranscript("");
-      setContextNotes("");
-      setStatus("Meeting package saved and ready for review.");
+      if (body.package) {
+        setSelectedPackage(body.package);
+        setPackages((current) => [
+          body.package as MeetingPackage,
+          ...current.filter((item) => item.id !== body.package?.id),
+        ]);
+        setFallbackMeeting(null);
+        setTranscript("");
+        setContextNotes("");
+        setProcessingId(null);
+        setStatus("Meeting package saved and ready for review.");
+        return;
+      }
+      if (!body.job) throw new Error("The meeting job was not created.");
+      applyJob(body.job);
+      void pollMeetingJob(body.job.workItemId);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "The meeting could not be processed.");
-    } finally {
       setProcessingId(null);
+    }
+  }
+
+  async function stopCurrentJob() {
+    if (!currentJob) return;
+    try {
+      const response = await fetch(
+        `${GATEWAY}/meeting-closeout/jobs/${encodeURIComponent(currentJob.workItemId)}/stop`,
+        { method: "POST" }
+      );
+      const body = (await response.json()) as ApiEnvelope<unknown>;
+      if (!response.ok || !body.ok || !body.job) {
+        throw new Error(body.error || "The meeting job could not be stopped.");
+      }
+      applyJob(body.job);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "The meeting job could not be stopped.");
+    }
+  }
+
+  async function resumeCurrentJob() {
+    if (!currentJob) return;
+    try {
+      const response = await fetch(
+        `${GATEWAY}/meeting-closeout/jobs/${encodeURIComponent(currentJob.workItemId)}/resume`,
+        { method: "POST" }
+      );
+      const body = (await response.json()) as ApiEnvelope<unknown>;
+      if (!response.ok || !body.ok || !body.job) {
+        throw new Error(body.error || "The meeting job could not be resumed.");
+      }
+      applyJob(body.job);
+      void pollMeetingJob(body.job.workItemId);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "The meeting job could not be resumed.");
     }
   }
 
@@ -708,6 +957,14 @@ export function MeetingCloseoutPanel({ preparedMeetings = [] }: MeetingCloseoutP
             </button>
           </div>
         </form>
+      )}
+
+      {currentJob && (
+        <MeetingJobProgress
+          job={currentJob}
+          onResume={() => void resumeCurrentJob()}
+          onStop={() => void stopCurrentJob()}
+        />
       )}
 
       {selectedPackage && <PackageReview value={selectedPackage} />}
