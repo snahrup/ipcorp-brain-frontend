@@ -27,6 +27,7 @@ export function WorkbenchHeader({
   const generatedDate = new Date(generatedAt);
   const snapshotAgeMs = Date.now() - generatedDate.getTime();
   const isStale = Number.isFinite(snapshotAgeMs) && snapshotAgeMs > 7 * 24 * 60 * 60 * 1000;
+  const isToday = label === "Today";
   const preparedLabel = Number.isNaN(generatedDate.getTime())
     ? "Prepared date unavailable"
     : `Prepared ${generatedDate.toLocaleDateString(undefined, {
@@ -110,15 +111,31 @@ export function WorkbenchHeader({
       </div>
 
       <div className="wb-header-status">
-        <span className={`wb-status ${isStale ? "wb-status-attention" : "wb-status-success"}`}>
-          {isStale ? "Stale snapshot" : "Prepared"}
+        <span
+          className={`wb-status ${!isToday && isStale ? "wb-status-attention" : "wb-status-success"}`}
+        >
+          {isToday ? "Current" : isStale ? "Stale snapshot" : "Prepared"}
         </span>
-        <small>{isStale ? `${preparedLabel} · refresh needed` : "Team-safe snapshot"}</small>
+        <small>
+          {isToday
+            ? "Jira, Agent Board and local status"
+            : isStale
+              ? `${preparedLabel} · refresh needed`
+              : "Team-safe snapshot"}
+        </small>
         <span
           className="wb-snapshot-refresh-hint"
           role="img"
-          aria-label="Snapshot refresh is handled by the publication process"
-          title="Snapshot refresh is handled by the publication process"
+          aria-label={
+            isToday
+              ? "Refresh Today is available inside the page"
+              : "Snapshot refresh is handled by the publication process"
+          }
+          title={
+            isToday
+              ? "Refresh Today is available inside the page"
+              : "Snapshot refresh is handled by the publication process"
+          }
         >
           <RefreshCw size={18} aria-hidden="true" />
         </span>

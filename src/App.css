@@ -5483,6 +5483,189 @@ small {
   gap: 20px;
 }
 
+.wb-today-current {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #d9e2eb;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(20, 52, 82, 0.055);
+}
+
+.wb-today-current-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.wb-today-current-head > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.wb-today-current-head h2 {
+  color: var(--navy-2);
+  font-size: clamp(18px, 1.8vw, 23px);
+  line-height: 1.16;
+}
+
+.wb-today-readtime {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  color: #395d7c;
+  background: #f3f7fb;
+  border: 1px solid #d7e1eb;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.wb-today-source-problems {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 12px;
+  color: #8b343c;
+  background: #fff3f4;
+  border: 1px solid #efc9cd;
+  border-radius: 10px;
+}
+
+.wb-today-source-problems > svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.wb-today-source-problems > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.wb-today-source-problems strong {
+  color: #7b2931;
+  font-size: 12px;
+}
+
+.wb-today-source-problems span {
+  color: #8b343c;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.wb-today-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wb-today-status-card {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 13px;
+  color: #415870;
+  background: #f9fbfd;
+  border: 1px solid #dce5ee;
+  border-radius: 11px;
+}
+
+.wb-today-status-card[data-tone="attention"] {
+  color: #7f541d;
+  background: #fff8ec;
+  border-color: #ebd3aa;
+}
+
+.wb-today-status-card > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #446084;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wb-today-status-card strong {
+  color: var(--navy-2);
+  font-family: var(--font-heading);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.wb-today-status-card p {
+  color: #5f7184;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.wb-today-cardline {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 8px;
+  align-items: center;
+  padding: 8px;
+  color: #36516d;
+  text-decoration: none;
+  background: #ffffff;
+  border: 1px solid #dfe7ef;
+  border-radius: 8px;
+}
+
+.wb-today-cardline strong,
+.wb-today-cardline span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wb-today-cardline strong {
+  color: var(--navy-2);
+  font-size: 12px;
+}
+
+.wb-today-cardline span {
+  grid-column: 1;
+  color: #6c7e90;
+  font-size: 11px;
+}
+
+a.wb-today-cardline:hover {
+  border-color: #b8c9d9;
+  background: #f6f9fc;
+}
+
+.wb-today-see-all {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 2px 0;
+  color: #245c91;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.wb-today-see-all:hover {
+  color: #113e68;
+}
+
 .wb-work-section {
   min-width: 0;
   overflow: hidden;
@@ -8121,6 +8304,19 @@ small {
   .wb-library-grid,
   .wb-data-grid,
   .wb-passport-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wb-today-current-head {
+    display: grid;
+  }
+
+  .wb-today-readtime {
+    justify-self: start;
+    white-space: normal;
+  }
+
+  .wb-today-status-grid {
     grid-template-columns: 1fr;
   }
 

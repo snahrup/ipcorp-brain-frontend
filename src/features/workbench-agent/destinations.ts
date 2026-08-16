@@ -13,7 +13,7 @@ export const WORKBENCH_DESTINATIONS: Record<
     sections: sections([
       {
         key: "today-view",
-        label: "Start with what needs attention.",
+        label: "Start with what is current.",
         hints: ["today", "needs attention", "start"],
       },
     ]),

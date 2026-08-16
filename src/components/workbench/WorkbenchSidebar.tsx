@@ -80,17 +80,18 @@ const secondaryItems: SidebarItem[] = [
 
 export function WorkbenchSidebar({
   activeView,
-  expanded,
+  collapseMode,
   onNavigate,
   onToggle,
   workshopNav,
 }: {
   activeView: ViewKey;
-  expanded: boolean;
+  collapseMode: "expanded" | "manual" | "responsive";
   onNavigate: (view: ViewKey) => void;
   onToggle: () => void;
   workshopNav?: WorkshopNav;
 }) {
+  const expanded = collapseMode === "expanded";
   const renderItem = (item: SidebarItem) => {
     const Icon = item.icon;
     const active =
@@ -208,6 +209,7 @@ export function WorkbenchSidebar({
     <aside
       className={`wb-sidebar ${expanded ? "is-expanded" : "is-collapsed"}`}
       data-active-view={activeView}
+      data-collapse-mode={collapseMode}
       aria-label="IP Corporation Workbench navigation"
     >
       <div className="wb-brand" data-testid="workbench-brand">
@@ -251,33 +253,35 @@ export function WorkbenchSidebar({
         {secondaryItems.map(renderItem)}
       </nav>
 
-      <div className="wb-sidebar-footer">
-        <div className="wb-team-safe-card">
-          <ShieldCheck size={20} aria-hidden="true" />
-          {expanded && (
-            <p>
-              Team-safe view
-              <small>Jira on demand · Prepared knowledge</small>
-            </p>
-          )}
-          <button
-            type="button"
-            className="wb-sidebar-toggle"
-            onClick={onToggle}
-            aria-label={expanded ? "Collapse navigation" : "Expand navigation"}
-          >
-            {expanded ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-          </button>
-        </div>
-
-        {expanded && (
-          <div className="wb-powered-by">
-            <small>Powered by</small>
-            <img src="/fabric-icons/fabric.png" alt="" aria-hidden="true" />
-            <strong>Microsoft Fabric</strong>
+      {collapseMode !== "responsive" && (
+        <div className="wb-sidebar-footer">
+          <div className="wb-team-safe-card">
+            <ShieldCheck size={20} aria-hidden="true" />
+            {expanded && (
+              <p>
+                Team-safe view
+                <small>Jira on demand · Prepared knowledge</small>
+              </p>
+            )}
+            <button
+              type="button"
+              className="wb-sidebar-toggle"
+              onClick={onToggle}
+              aria-label={expanded ? "Collapse navigation" : "Expand navigation"}
+            >
+              {expanded ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+            </button>
           </div>
-        )}
-      </div>
+
+          {expanded && (
+            <div className="wb-powered-by">
+              <small>Powered by</small>
+              <img src="/fabric-icons/fabric.png" alt="" aria-hidden="true" />
+              <strong>Microsoft Fabric</strong>
+            </div>
+          )}
+        </div>
+      )}
     </aside>
   );
 }

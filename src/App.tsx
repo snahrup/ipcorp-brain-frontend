@@ -257,11 +257,23 @@ const LazyWorkshops = lazy(() =>
   import("./features/workshops/WorkshopsView").then((module) => ({ default: module.WorkshopsView }))
 );
 
+const SIDEBAR_COLLAPSE_QUERY = "(max-width: 1199px)";
+const SIDEBAR_PREFERENCE_KEY = "ipcorp-workbench.sidebar-collapsed";
+
+function readSidebarCollapsePreference() {
+  try {
+    return window.localStorage.getItem(SIDEBAR_PREFERENCE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
 export default function App() {
   const [activeView, setActiveView] = useState<ViewKey>(() => {
     if (window.location.pathname === "/meetings/daily-prep") return "daily-prep";
     if (window.location.pathname === "/meetings/wrap-up") return "meeting-wrap-up";
     if (window.location.pathname === "/meetings") return "meetings";
+    if (window.location.pathname.startsWith("/work")) return "work";
     return "today";
   });
   const [detail, setDetail] = useState<Detail | null>(null);
@@ -270,13 +282,19 @@ export default function App() {
       if (window.location.pathname === "/meetings/daily-prep") setActiveView("daily-prep");
       else if (window.location.pathname === "/meetings/wrap-up") setActiveView("meeting-wrap-up");
       else if (window.location.pathname === "/meetings") setActiveView("meetings");
+      else if (window.location.pathname.startsWith("/work")) setActiveView("work");
       else setActiveView("today");
       setDetail(null);
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarCollapsedByUser, setSidebarCollapsedByUser] = useState(
+    readSidebarCollapsePreference
+  );
+  const [sidebarCollapsedForViewport, setSidebarCollapsedForViewport] = useState(
+    () => window.matchMedia(SIDEBAR_COLLAPSE_QUERY).matches
+  );
   // The workshop session lives above the view so the rail can show stage progress.
   const workshop = useWorkshopState();
   const [workshopSurface, setWorkshopSurface] = useState<WorkshopSurface>("prepare");
@@ -285,6 +303,26 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [approvalPreview, setApprovalPreview] = useState<ApprovalPreview | null>(null);
   const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(SIDEBAR_COLLAPSE_QUERY);
+    const syncViewportState = () => setSidebarCollapsedForViewport(mediaQuery.matches);
+
+    syncViewportState();
+    mediaQuery.addEventListener("change", syncViewportState);
+    return () => mediaQuery.removeEventListener("change", syncViewportState);
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        SIDEBAR_PREFERENCE_KEY,
+        sidebarCollapsedByUser ? "true" : "false"
+      );
+    } catch {
+      // Storage can be unavailable in locked-down browser sessions. The current choice still works.
+    }
+  }, [sidebarCollapsedByUser]);
 
   const searchIndex = useMemo(createSearchIndex, []);
   const searchResults = useMemo(
@@ -319,7 +357,9 @@ export default function App() {
           ? "/meetings/wrap-up"
           : view === "meetings"
             ? "/meetings"
-            : "/";
+            : view === "work"
+              ? "/work"
+              : "/";
     if (window.location.pathname !== nextPath) window.history.pushState({}, "", nextPath);
     setDetail(null);
   };
@@ -368,13 +408,20 @@ export default function App() {
   };
 
   const activeLabel = viewCopy[activeView].label;
+  const sidebarCollapseMode = sidebarCollapsedForViewport
+    ? "responsive"
+    : sidebarCollapsedByUser
+      ? "manual"
+      : "expanded";
   return (
     <ActivityRunDockProvider>
-      <div className={`wb-app ${sidebarOpen ? "nav-open" : "nav-collapsed"}`}>
+      <div
+        className={`wb-app ${sidebarCollapseMode === "expanded" ? "nav-open" : "nav-collapsed"}`}
+      >
         <WorkbenchSidebar
           activeView={activeView}
-          expanded={sidebarOpen}
-          onToggle={() => setSidebarOpen((value) => !value)}
+          collapseMode={sidebarCollapseMode}
+          onToggle={() => setSidebarCollapsedByUser((value) => !value)}
           onNavigate={navigate}
           workshopNav={{
             surface: workshopSurface,
@@ -420,7 +467,12 @@ export default function App() {
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             >
-              {activeView === "today" && <TodayView onOpenWork={() => navigate("work")} />}
+              {activeView === "today" && (
+                <TodayView
+                  onOpenWork={() => navigate("work")}
+                  onOpenAgentBoard={() => navigate("agent-board")}
+                />
+              )}
               {activeView === "agent-board" && <AgentBoardView />}
               {activeView === "work" && (
                 <WorkView

@@ -62,11 +62,13 @@ export type MeetingEntry = {
    * Jira changes recommended from the discussion. Read-only in the UI.
    */
   followUps?: Array<{
+    actionId: string;
     kind: "commitment" | "document-request" | "reminder" | "jira-change";
     text: string;
     owner?: string;
     when?: string;
     operation?: string;
+    jiraKey?: string;
   }>;
   packet?: string;
   source?: string;

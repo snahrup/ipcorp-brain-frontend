@@ -23,7 +23,7 @@ export const viewCopy: Record<
   today: {
     label: "Today",
     eyebrow: "Team workbench",
-    title: "Start with what needs attention.",
+    title: "Start with what is current.",
     summary: "Prepared work, open decisions, waiting items, and recent progress in one place.",
     action: "Review first up",
   },
