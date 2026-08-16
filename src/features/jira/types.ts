@@ -33,6 +33,7 @@ export type JiraIssue = {
   startDate: string | null;
   updatedAt: string;
   createdAt: string;
+  resolutionAt?: string | null;
   timeTracking: {
     originalEstimate: string | null;
     remainingEstimate: string | null;
@@ -90,6 +91,62 @@ export type JiraInitiative = {
   assignees: JiraPerson[];
   priorities: Array<{ id: string; name: string }>;
   fetchedAt: string;
+};
+
+export type JiraAnalyticsDuration = {
+  label: string;
+  category: string;
+  averageSeconds: number | null;
+  medianSeconds: number | null;
+  currentAverageSeconds: number | null;
+  totalSeconds: number;
+  visits: number;
+  closedVisits: number;
+  currentVisits: number;
+  issueCount: number;
+};
+
+export type JiraAnalyticsSnapshot = {
+  generatedAt: string;
+  jiraFetchedAt: string | null;
+  cache: { state: "fresh" | "cached"; savedAt: string };
+  coverage: {
+    totalIssues: number;
+    sourceTruncated: boolean;
+    historyLoaded: number;
+    historyFailed: number;
+    usableTimelines: number;
+    resolutionSamples: number;
+    backlogSamples: number;
+    openBacklogSamples: number;
+    estimatedIssues: number;
+    loggedIssues: number;
+  };
+  totals: {
+    openIssues: number;
+    doneIssues: number;
+    loggedSeconds: number;
+    estimatedSeconds: number;
+    loggedOnEstimatedIssuesSeconds: number;
+    unestimatedLoggedSeconds: number;
+    estimateUsagePercent: number | null;
+    averageResolutionSeconds: number | null;
+    medianResolutionSeconds: number | null;
+    averageBacklogSeconds: number | null;
+    medianBacklogSeconds: number | null;
+    averageOpenBacklogSeconds: number | null;
+  };
+  stageDurations: JiraAnalyticsDuration[];
+  statusDurations: JiraAnalyticsDuration[];
+  currentStatuses: Array<{
+    label: string;
+    category: string;
+    count: number;
+    estimatedSeconds: number;
+    loggedSeconds: number;
+  }>;
+  weeklyCompletions: Array<{ weekOf: string; completed: number }>;
+  notes: string[];
 };
 
 export type JiraIssueDetail = {

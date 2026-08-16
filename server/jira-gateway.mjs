@@ -12,6 +12,7 @@ import { writeProposalProse } from "./activity-reconciliation/voice-writer.mjs";
 import { buildAgentBoard } from "./agent-board.mjs";
 import { dispatch as dispatchAgent, getRun, listRuns } from "./agent-dispatch.mjs";
 import { getDailyMeetingPrep, readDailyMeetingPrepFile } from "./daily-meeting-prep.mjs";
+import { createJiraAnalyticsReader } from "./jira-analytics.mjs";
 import { assembleStandup } from "./loop/briefing.mjs";
 import { openLedger } from "./loop/ledger.mjs";
 import { loadPolicy } from "./loop/policy.mjs";
@@ -28,9 +29,15 @@ import {
   inspectStoredMeetingPackage,
   listStoredPackages,
   listTodaysMeetings,
-  processMeetingCloseout,
+  listVerifiedMeetingInfographics,
 } from "./meeting-closeout.mjs";
+import {
+  recoverMeetingCloseoutJobs,
+  startMeetingCloseoutJob,
+  waitForMeetingCloseoutJob,
+} from "./meeting-closeout-job.mjs";
 import { generateBreakdown, minutesToJiraEstimate } from "./subtask-breakdown.mjs";
+import { buildTodaySnapshot } from "./today-snapshot.mjs";
 import {
   generateWeeklyStatus,
   renderWeeklyStatusHtml,
@@ -54,7 +61,7 @@ const BRAIN_REPO_PATH =
   "C:\\Users\\snahrup\\OneDrive - IP-Corporation\\ipcorp-architecture-brain";
 const MEETING_INFOGRAPHICS_PATH =
   process.env.IPCORP_MEETING_INFOGRAPHICS_PATH ||
-  "C:\\Users\\snahrup\\OneDrive - IP-Corporation\\ipcorp-architecture-brain\\natively\\meeting-infographics";
+  join(BRAIN_REPO_PATH, "natively", "meeting-infographics");
 // The public tunnel proxies /api through the Vite dev server on :5217, but the
 // browser's Origin header still reads as the tunnel's own domain, not 127.0.0.1, so
 // that domain has to be allowed explicitly or every request from it is rejected here.
@@ -82,7 +89,9 @@ const M365_RECONCILE_TIMEOUT_MS = 15 * 60 * 1000;
 let m365EvidenceCache = null;
 let m365EvidenceInFlight = null;
 let workbenchAgentRouter = null;
+let activityReconciliationService = null;
 let activityReconciliationRouter = null;
+let jiraAnalyticsReader = null;
 // Durable scan memory for Refresh and Reconcile, owned entirely by this gateway.
 // It must live OUTSIDE the repo: Tailwind v4's automatic source scan watches every
 // non-gitignored file here, so a mid-scan ledger write inside the repo triggered a
@@ -103,9 +112,9 @@ const ACTIVITY_RECONCILIATION_STATE_PATH =
     "activity-reconciliation.json"
   );
 
-function getActivityReconciliationRouter() {
-  if (!activityReconciliationRouter) {
-    const service = createActivityReconciliationService({
+function getActivityReconciliationService() {
+  if (!activityReconciliationService) {
+    activityReconciliationService = createActivityReconciliationService({
       store: createActivityStore(ACTIVITY_RECONCILIATION_STATE_PATH),
       collectSources: (input) =>
         collectActivitySources(input, {
@@ -116,10 +125,27 @@ function getActivityReconciliationRouter() {
       processMeeting: processActivityMeeting,
       applyJiraProposal: applyActivityJiraProposal,
       runMdmCheck: runActivityMdmCheck,
-      deliverEmailDrafts: deliverActivityEmailDraft,
       writeVoice: writeActivityVoice,
     });
-    activityReconciliationRouter = createActivityReconciliationRouter(service);
+  }
+  return activityReconciliationService;
+}
+
+function getJiraAnalyticsReader() {
+  if (!jiraAnalyticsReader) {
+    jiraAnalyticsReader = createJiraAnalyticsReader({
+      readInitiative: readJiraAnalyticsInitiative,
+      readChangelog: getAllIssueChangelog,
+    });
+  }
+  return jiraAnalyticsReader;
+}
+
+function getActivityReconciliationRouter() {
+  if (!activityReconciliationRouter) {
+    activityReconciliationRouter = createActivityReconciliationRouter(
+      getActivityReconciliationService()
+    );
   }
   return activityReconciliationRouter;
 }
@@ -139,7 +165,7 @@ async function assembleAgentBoard({ cachedOnly = true } = {}) {
       return { ok: false, error: error instanceof Error ? error.message : String(error) };
     }
   };
-  const [calendar, packages, activityState, agentRuns] = await Promise.all([
+  const [calendar, packages, activityState, agentRuns, brainCompletions] = await Promise.all([
     gather(async () => {
       const data = await listTodaysMeetings({ cachedOnly });
       if (data.availability === "error") {
@@ -157,7 +183,8 @@ async function assembleAgentBoard({ cachedOnly = true } = {}) {
       );
       return { state: raw ? JSON.parse(raw) : { runs: [], applyReceipts: {} } };
     }),
-    gather(async () => ({ items: listRuns() })),
+    gather(async () => ({ items: await listRuns() })),
+    gather(async () => ({ items: await listVerifiedMeetingInfographics() })),
   ]);
   return buildAgentBoard({
     now: new Date(),
@@ -165,6 +192,7 @@ async function assembleAgentBoard({ cachedOnly = true } = {}) {
     packages,
     activityState,
     agentRuns,
+    brainCompletions,
     jiraBaseUrl: await jiraBrowseBaseUrl(),
   });
 }
@@ -205,6 +233,53 @@ function getLoopPolicy() {
   return loopPolicyPromise;
 }
 
+function easternDay(value = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(value instanceof Date ? value : new Date(value));
+  const part = (type) => parts.find((item) => item.type === type)?.value || "";
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
+
+async function assembleLoopStatus({ now = new Date() } = {}) {
+  const mode = process.env.LOOP_MODE === "shadow" ? "shadow" : "off";
+  const ledger = await getLoopLedger();
+  const runs = await ledger.runsWithVerification();
+  const shadows = runs.filter((run) => run.state === "shadow");
+  const latestPass = await ledger.latestPass();
+  const today = easternDay(now);
+  return {
+    mode,
+    policyVersion: (await getLoopPolicy()).version,
+    tokensByClass: await ledger.tokensByClass({
+      since: new Date(now.getTime() - 7 * 24 * 3_600_000).toISOString(),
+    }),
+    shadowRuns: shadows.length,
+    lastPass:
+      latestPass?.passAt ||
+      shadows.reduce((latest, run) => (run.startedAt > latest ? run.startedAt : latest), ""),
+    lastPassResult: latestPass
+      ? {
+          considered: latestPass.considered,
+          recorded: latestPass.recorded,
+        }
+      : null,
+    todayVerdicts: shadows
+      .filter((run) => easternDay(run.startedAt) === today)
+      .map((run) => ({
+        workItemId: run.workItemId,
+        title: run.title || run.workItemId,
+        classId: run.classId,
+        autonomyTier: run.autonomyTier || "ask",
+        modelTier: run.modelTier || "top",
+      })),
+    latestStandup: await ledger.latestBriefing("standup"),
+  };
+}
+
 async function readActivityFixture() {
   const fixturePath = process.env.ACTIVITY_RECONCILIATION_FIXTURE;
   if (!fixturePath) return null;
@@ -236,25 +311,6 @@ async function loadActivityJiraIssues() {
   const fixture = await readActivityFixture();
   if (fixture) return Array.isArray(fixture.jiraIssues) ? fixture.jiraIssues : [];
   return searchMdmIssues();
-}
-
-// Puts a prepared meeting follow-up into the real Outlook Drafts folder, so
-// review-approve-send happens in the mailbox. Same adapter as the weekly
-// status draft: it creates a draft and stops, with no path that sends mail.
-async function deliverActivityEmailDraft({ draft }) {
-  const fixture = await readActivityFixture();
-  if (fixture) return { draftId: `fixture-outlook-${draft.id}` };
-  const escaped = String(draft.body || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll("\n", "<br>\n");
-  const result = await createWeeklyStatusOutlookDraft({
-    to: [String(draft.to)],
-    subject: draft.subject,
-    html: `<div>${escaped}</div>`,
-  });
-  return { draftId: result?.draftId || result?.id || null };
 }
 
 // Chained after every activity run so one click covers both workflows. Reuses
@@ -657,7 +713,8 @@ async function sendMeetingInfographic(response, id, file, origin) {
   response.setHeader("Content-Type", "image/png");
   response.setHeader("Cache-Control", "private, max-age=300");
   response.setHeader("X-Content-Type-Options", "nosniff");
-  response.setHeader("Content-Disposition", `inline; filename="${match.replaceAll('"', "")}"`);
+  const responseName = match.replaceAll('"', "").replace(/[^\x20-\x7e]/g, "_");
+  response.setHeader("Content-Disposition", `inline; filename="${responseName}"`);
   response.writeHead(200);
   response.end(data);
 }
@@ -963,6 +1020,7 @@ export function mapIssue(raw) {
     startDate: fields.customfield_11915 || fields.customfield_12001 || null,
     updatedAt: fields.updated || "",
     createdAt: fields.created || "",
+    resolutionAt: fields.resolutiondate || null,
     timeTracking: {
       originalEstimate: fields.timetracking?.originalEstimate || null,
       remainingEstimate: fields.timetracking?.remainingEstimate || null,
@@ -1131,6 +1189,7 @@ const BOARD_FIELDS = [
   "timetracking",
   "created",
   "updated",
+  "resolutiondate",
   // The board query feeds the timeline, Gantt and dependency views, all of which need
   // the blocking relationships. Without this the dependency map renders empty.
   "issuelinks",
@@ -2796,31 +2855,49 @@ async function processActivityMeeting({ evidence }) {
       }
     );
   }
-  const result = await processMeetingCloseout({
+  const started = await startMeetingCloseoutJob({
     meeting: evidence.rawMeeting || evidence.meeting,
     transcript: evidence.transcript,
+    transcriptSource: "teams",
     contextNotes: "Collected by the user-started Workbench activity reconciliation run.",
   });
-  if (!result.ok) {
+  const job = await waitForMeetingCloseoutJob(started.job.workItemId);
+  const result = job?.result;
+  if (job?.status !== "completed" || !result?.ok) {
+    const currentStep =
+      job?.failure?.stepName ||
+      job?.steps?.find((step) => ["running", "failed", "pending"].includes(step.status))?.name ||
+      null;
     return {
       ok: false,
       id: evidence.meeting?.id || evidence.stableId,
-      detail: result.detail || result.error || "Meeting processing is incomplete.",
+      jobId: started.job.workItemId,
+      detail: job?.failure?.detail || "Meeting processing is incomplete.",
+      receipt: {
+        jobId: started.job.workItemId,
+        status: job?.status || "unknown",
+        currentStep,
+      },
     };
   }
-  const saved = result.package?.infographic?.saved;
-  const links = saved
+  const verifiedInfographic = (
+    await listVerifiedMeetingInfographics({ brainRoot: BRAIN_REPO_PATH })
+  ).find((item) => item.id === result.package.id);
+  const links = verifiedInfographic
     ? [
         {
           label: "Open meeting infographic",
-          href: `/api/meetings/infographic?id=${encodeURIComponent(saved.id)}&file=${encodeURIComponent(saved.file)}`,
+          href: `/api/meetings/infographic?id=${encodeURIComponent(verifiedInfographic.id)}&file=${encodeURIComponent(verifiedInfographic.file)}`,
         },
       ]
     : [];
   return {
     ok: true,
     id: result.package.id,
-    detail: "Meeting summary, actions, Brain files, and infographic are complete.",
+    detail: verifiedInfographic
+      ? "Meeting summary, actions, Brain files, and final infographic are complete."
+      : "Meeting summary, actions, and Brain files are complete. The final infographic is waiting for the scheduled Brain pass.",
+    finalInfographicComplete: Boolean(verifiedInfographic),
     reviewComplete: true,
     reviewItems: [
       ...(result.package.jiraProposals || []).map((proposal, index) => ({
@@ -2853,9 +2930,10 @@ async function processActivityMeeting({ evidence }) {
       })),
     ],
     receipt: {
+      jobId: started.job.workItemId,
       packageId: result.package.id,
       files: result.package.files,
-      infographic: saved || null,
+      infographic: verifiedInfographic || null,
       inspection: result.inspection,
     },
     links,
@@ -3067,6 +3145,94 @@ async function applyActivityJiraProposal({ proposal }) {
   };
 }
 
+async function readJiraInitiative() {
+  const [issues, statuses, assignees, priorities] = await Promise.all([
+    searchMdmIssues(),
+    getProjectStatuses(),
+    getAssignableUsers(),
+    getPriorities(),
+  ]);
+  return {
+    projectKey: INITIATIVE_KEY,
+    name: "MDM Team / Fabric Data Migration",
+    issues,
+    statuses,
+    assignees,
+    priorities,
+    fetchedAt: new Date().toISOString(),
+  };
+}
+
+async function readJiraAnalyticsInitiative() {
+  const [search, statuses] = await Promise.all([
+    searchJiraIssues({
+      fields: ["status", "parent", "timetracking", "created", "resolutiondate"],
+      limit: 1_000,
+    }),
+    getProjectStatuses(),
+  ]);
+  return {
+    issues: search.issues,
+    statuses,
+    fetchedAt: search.fetchedAt,
+    truncated: search.truncated,
+  };
+}
+
+async function captureTodaySource(load, capturedAt, describe = () => ({})) {
+  try {
+    const data = await load();
+    return {
+      ok: true,
+      observedAt: capturedAt,
+      data,
+      ...describe(data),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      status: "error",
+      observedAt: capturedAt,
+      error: error instanceof Error ? error.message : String(error),
+      data: null,
+    };
+  }
+}
+
+export async function assembleTodaySnapshot(options = {}) {
+  const now = options.now instanceof Date ? options.now : new Date(options.now || Date.now());
+  const capturedAt = now.toISOString();
+  const loadJira = options.loadJira || readJiraInitiative;
+  const loadAgentBoard = options.loadAgentBoard || assembleAgentBoard;
+  const loadReconciliation =
+    options.loadReconciliation || (() => getActivityReconciliationService().getRun());
+  const loadLoop = options.loadLoop || (() => assembleLoopStatus({ now }));
+
+  const [jira, agentBoard, reconciliation, loop] = await Promise.all([
+    captureTodaySource(loadJira, capturedAt, (data) => ({
+      observedAt: data?.fetchedAt || capturedAt,
+    })),
+    captureTodaySource(
+      () => loadAgentBoard({ cachedOnly: true }),
+      capturedAt,
+      (data) => {
+        const failed = (data?.sources || []).filter((source) => !source.ok);
+        return failed.length
+          ? {
+              status: "partial",
+              detail: failed.map((source) => `${source.label}: ${source.detail}`).join(" | "),
+              observedAt: data?.generatedAt || capturedAt,
+            }
+          : { observedAt: data?.generatedAt || capturedAt };
+      }
+    ),
+    captureTodaySource(loadReconciliation, capturedAt),
+    captureTodaySource(loadLoop, capturedAt),
+  ]);
+
+  return buildTodaySnapshot({ capturedAt, jira, agentBoard, reconciliation, loop });
+}
+
 async function route(request, response) {
   const origin = request.headers.origin;
   if (origin && !ALLOWED_ORIGINS.has(origin)) {
@@ -3110,6 +3276,10 @@ async function route(request, response) {
       }
     }
 
+    if (request.method === "GET" && url.pathname === "/api/today/snapshot") {
+      return sendJson(response, 200, { ok: true, data: await assembleTodaySnapshot() }, origin);
+    }
+
     if (request.method === "GET" && url.pathname === "/api/agent-board") {
       // This route defaulted to a LIVE Microsoft read, and the board view polls
       // it every sixty seconds. On 2026-08-13 that produced forty billed
@@ -3129,17 +3299,9 @@ async function route(request, response) {
     }
 
     if (request.method === "GET" && url.pathname === "/api/loop/status") {
-      const mode = process.env.LOOP_MODE === "shadow" ? "shadow" : "off";
-      const ledger = await getLoopLedger();
-      const body = {
-        mode,
-        policyVersion: (await getLoopPolicy()).version,
-        tokensByClass: await ledger.tokensByClass({
-          since: new Date(Date.now() - 7 * 24 * 3_600_000).toISOString(),
-        }),
-      };
+      const body = await assembleLoopStatus();
       if (url.searchParams.get("pass") === "1") {
-        if (mode !== "shadow") {
+        if (body.mode !== "shadow") {
           return sendJson(
             response,
             409,
@@ -3150,31 +3312,15 @@ async function route(request, response) {
         // A status poll never starts a Microsoft call. Same reason as the
         // board route above.
         const board = await assembleAgentBoard({ cachedOnly: true });
+        const ledger = await getLoopLedger();
         body.pass = await shadowPass({
           board,
           policy: await getLoopPolicy(),
           ledger,
           now: new Date(),
         });
+        Object.assign(body, await assembleLoopStatus());
       }
-      const runs = await ledger.runsWithVerification();
-      const shadows = runs.filter((run) => run.state === "shadow");
-      body.shadowRuns = shadows.length;
-      body.lastPass = shadows.reduce(
-        (latest, run) => (run.startedAt > latest ? run.startedAt : latest),
-        ""
-      );
-      const today = new Date().toISOString().slice(0, 10);
-      body.todayVerdicts = shadows
-        .filter((run) => String(run.startedAt).slice(0, 10) === today)
-        .map((run) => ({
-          workItemId: run.workItemId,
-          title: run.title || run.workItemId,
-          classId: run.classId,
-          autonomyTier: run.autonomyTier || "ask",
-          modelTier: run.modelTier || "top",
-        }));
-      body.latestStandup = await ledger.latestBriefing("standup");
       return sendJson(response, 200, { ok: true, data: body }, origin);
     }
 
@@ -3284,27 +3430,14 @@ async function route(request, response) {
     }
 
     if (request.method === "GET" && url.pathname === "/api/jira/initiative") {
-      const [issues, statuses, assignees, priorities] = await Promise.all([
-        searchMdmIssues(),
-        getProjectStatuses(),
-        getAssignableUsers(),
-        getPriorities(),
-      ]);
+      return sendJson(response, 200, { ok: true, data: await readJiraInitiative() }, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/api/jira/analytics") {
+      const refresh = url.searchParams.get("refresh") === "1";
       return sendJson(
         response,
         200,
-        {
-          ok: true,
-          data: {
-            projectKey: INITIATIVE_KEY,
-            name: "MDM Team / Fabric Data Migration",
-            issues,
-            statuses,
-            assignees,
-            priorities,
-            fetchedAt: new Date().toISOString(),
-          },
-        },
+        { ok: true, data: await getJiraAnalyticsReader()({ refresh }) },
         origin
       );
     }
@@ -3351,7 +3484,7 @@ async function route(request, response) {
       return sendJson(response, 200, { ok: true, data: getRun(key) }, origin);
     }
     if (request.method === "GET" && url.pathname === "/api/agents/runs") {
-      return sendJson(response, 200, { ok: true, data: listRuns() }, origin);
+      return sendJson(response, 200, { ok: true, data: await listRuns() }, origin);
     }
     if (request.method === "GET" && url.pathname === "/api/meeting-prep/daily") {
       const data = await getDailyMeetingPrep(url.searchParams.get("date") || "");
@@ -3532,6 +3665,17 @@ async function route(request, response) {
 // drive-letter casing and slash direction cannot produce a false mismatch.
 const isMainModule = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
 if (isMainModule) {
+  recoverMeetingCloseoutJobs()
+    .then((workItemIds) => {
+      if (workItemIds.length) {
+        console.log(`Resumed ${workItemIds.length} unfinished meeting closeout job(s).`);
+      }
+    })
+    .catch((error) => {
+      console.log(
+        `Meeting closeout recovery failed: ${error instanceof Error ? error.message : String(error)}`
+      );
+    });
   createServer(route).listen(PORT, HOST, () => {
     console.log(`IP Corp Workbench data gateway ready at http://${HOST}:${PORT}`);
     console.log(`Scope locked to Jira project ${INITIATIVE_KEY}.`);

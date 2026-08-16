@@ -1,5 +1,6 @@
 import {
   AlertCircle,
+  BarChart3,
   CalendarRange,
   CheckCircle2,
   Columns3,
@@ -21,6 +22,7 @@ import { jiraGateway } from "./api";
 import "./jira-views.css";
 import { IssueTimeMetrics } from "./IssueTimeMetrics";
 import { JiraActivityView } from "./JiraActivityView";
+import { JiraAnalyticsView } from "./JiraAnalyticsView";
 import { JiraDependencyMap } from "./JiraDependencyMap";
 import { JiraIssueModal } from "./JiraIssueModal";
 import { JiraTimeline } from "./JiraTimeline";
@@ -121,8 +123,9 @@ export function JiraWorkSurface() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"list" | "board" | "activity" | "timeline" | "gantt" | "deps">(
-    "list"
+  type JiraLayout = "list" | "board" | "activity" | "analytics" | "timeline" | "gantt" | "deps";
+  const [mode, setMode] = useState<JiraLayout>(() =>
+    window.location.pathname.startsWith("/work/analytics") ? "analytics" : "list"
   );
   const [query, setQuery] = useState("");
   const [showDone, setShowDone] = useState(false);
@@ -132,6 +135,16 @@ export function JiraWorkSurface() {
   const [selectedIssueKey, setSelectedIssueKey] = useState<string | null>(null);
   const [showReconciliation, setShowReconciliation] = useState(false);
   const activityDock = useActivityRunDock();
+
+  const selectMode = (nextMode: JiraLayout) => {
+    setMode(nextMode);
+    if (window.location.pathname.startsWith("/work")) {
+      const nextPath = nextMode === "analytics" ? "/work/analytics" : "/work";
+      if (window.location.pathname !== nextPath) {
+        window.history.replaceState({}, "", nextPath);
+      }
+    }
+  };
 
   const load = useCallback(async (refresh = false) => {
     if (refresh) setRefreshing(true);
@@ -272,6 +285,14 @@ export function JiraWorkSurface() {
     );
   };
 
+  if (mode === "analytics" && !initiative) {
+    return (
+      <div className="wb-jira-surface">
+        <JiraAnalyticsView />
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <section className="wb-jira-state" aria-live="polite">
@@ -319,13 +340,13 @@ export function JiraWorkSurface() {
       </div>
 
       <div className="wb-jira-toolbar">
-        <fieldset className="wb-segmented">
+        <fieldset className="wb-segmented wb-jira-layout-switcher">
           <legend className="wb-sr-only">Jira layout</legend>
           <button
             type="button"
             aria-pressed={mode === "list"}
             className={mode === "list" ? "is-active" : ""}
-            onClick={() => setMode("list")}
+            onClick={() => selectMode("list")}
           >
             <List size={17} /> List
           </button>
@@ -333,7 +354,7 @@ export function JiraWorkSurface() {
             type="button"
             aria-pressed={mode === "board"}
             className={mode === "board" ? "is-active" : ""}
-            onClick={() => setMode("board")}
+            onClick={() => selectMode("board")}
           >
             <Columns3 size={17} /> Board
           </button>
@@ -341,15 +362,23 @@ export function JiraWorkSurface() {
             type="button"
             aria-pressed={mode === "activity"}
             className={mode === "activity" ? "is-active" : ""}
-            onClick={() => setMode("activity")}
+            onClick={() => selectMode("activity")}
           >
             <History size={17} /> Activity
           </button>
           <button
             type="button"
+            aria-pressed={mode === "analytics"}
+            className={mode === "analytics" ? "is-active" : ""}
+            onClick={() => selectMode("analytics")}
+          >
+            <BarChart3 size={17} /> Analytics
+          </button>
+          <button
+            type="button"
             aria-pressed={mode === "timeline"}
             className={mode === "timeline" ? "is-active" : ""}
-            onClick={() => setMode("timeline")}
+            onClick={() => selectMode("timeline")}
           >
             <CalendarRange size={17} /> Timeline
           </button>
@@ -357,7 +386,7 @@ export function JiraWorkSurface() {
             type="button"
             aria-pressed={mode === "gantt"}
             className={mode === "gantt" ? "is-active" : ""}
-            onClick={() => setMode("gantt")}
+            onClick={() => selectMode("gantt")}
           >
             <GanttChartSquare size={17} /> Gantt
           </button>
@@ -365,30 +394,34 @@ export function JiraWorkSurface() {
             type="button"
             aria-pressed={mode === "deps"}
             className={mode === "deps" ? "is-active" : ""}
-            onClick={() => setMode("deps")}
+            onClick={() => selectMode("deps")}
           >
             <GitBranch size={17} /> Dependencies
           </button>
         </fieldset>
 
-        <label className="wb-jira-search">
-          <Search size={16} aria-hidden="true" />
-          <span className="wb-sr-only">Filter Jira issues</span>
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Filter MT issues"
-          />
-        </label>
+        {mode !== "analytics" ? (
+          <>
+            <label className="wb-jira-search">
+              <Search size={16} aria-hidden="true" />
+              <span className="wb-sr-only">Filter Jira issues</span>
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Filter MT issues"
+              />
+            </label>
 
-        <label className="wb-compact-check">
-          <input
-            type="checkbox"
-            checked={showDone}
-            onChange={(event) => setShowDone(event.target.checked)}
-          />
-          Show Done
-        </label>
+            <label className="wb-compact-check">
+              <input
+                type="checkbox"
+                checked={showDone}
+                onChange={(event) => setShowDone(event.target.checked)}
+              />
+              Show Done
+            </label>
+          </>
+        ) : null}
 
         {mode === "board" && (
           <label className="wb-compact-check">
@@ -402,52 +435,58 @@ export function JiraWorkSurface() {
           </label>
         )}
 
-        <div className="wb-jira-toolbar-actions">
-          <button
-            type="button"
-            className="wb-secondary-button"
-            onClick={() => void load(true)}
-            disabled={refreshing}
-          >
-            <RefreshCw className={refreshing ? "wb-spin" : ""} size={16} />
-            {refreshing ? "Refreshing…" : "Refresh"}
-          </button>
-          {/* Two distinct workflows that both start with "Reconcile" and read as
+        {mode !== "analytics" ? (
+          <div className="wb-jira-toolbar-actions">
+            <button
+              type="button"
+              className="wb-secondary-button"
+              onClick={() => void load(true)}
+              disabled={refreshing}
+            >
+              <RefreshCw className={refreshing ? "wb-spin" : ""} size={16} />
+              {refreshing ? "Refreshing…" : "Refresh"}
+            </button>
+            {/* Two distinct workflows that both start with "Reconcile" and read as
               twins at a glance. Labels are a frozen acceptance-tested contract
               (tests/activity-reconciliation.spec.ts, docs/specs/workbench-activity-
               reconciliation.md) — do not rename them to fix this. A caption plus a
               native tooltip disambiguates without touching the accessible name. */}
-          <div className="wb-toolbar-action">
-            <button
-              type="button"
-              className="wb-primary-button"
-              onClick={() => setShowReconciliation(true)}
-              title="Checks Jira MT issues against the Brain and Team Library, proposes corrections to apply. Does not read Outlook, Teams, or meetings."
-            >
-              <ShieldCheck size={16} /> Reconcile MDM
-            </button>
-            <span className="wb-toolbar-action-hint">Jira vs. Brain</span>
+            <div className="wb-toolbar-action">
+              <button
+                type="button"
+                className="wb-primary-button"
+                onClick={() => setShowReconciliation(true)}
+                title="Checks Jira MT issues against the Brain and Team Library, proposes corrections to apply. Does not read Outlook, Teams, or meetings."
+              >
+                <ShieldCheck size={16} /> Reconcile MDM
+              </button>
+              <span className="wb-toolbar-action-hint">Jira vs. Brain</span>
+            </div>
+            <div className="wb-toolbar-action">
+              <button
+                type="button"
+                className="wb-primary-button"
+                onClick={() => activityDock.openPicker()}
+                title="Reads Outlook, Teams, and ready meeting transcripts, captures them to the Brain, and proposes Jira updates from that evidence. Opens a picker so you choose which steps this run covers."
+              >
+                <ScanSearch size={16} /> Reconcile activity
+              </button>
+              <span className="wb-toolbar-action-hint">Outlook, Teams, meetings → Jira</span>
+            </div>
           </div>
-          <div className="wb-toolbar-action">
-            <button
-              type="button"
-              className="wb-primary-button"
-              onClick={() => activityDock.openPicker()}
-              title="Reads Outlook, Teams, and ready meeting transcripts, captures them to the Brain, and proposes Jira updates from that evidence. Opens a picker so you choose which steps this run covers."
-            >
-              <ScanSearch size={16} /> Reconcile activity
-            </button>
-            <span className="wb-toolbar-action-hint">Outlook, Teams, meetings → Jira</span>
-          </div>
+        ) : null}
+      </div>
+
+      {mode !== "analytics" ? (
+        <div className="wb-jira-count">
+          <strong>{visibleIssues.length}</strong>
+          <span>{showDone ? "matching MT issues" : "active MT issues"}</span>
         </div>
-      </div>
+      ) : null}
 
-      <div className="wb-jira-count">
-        <strong>{visibleIssues.length}</strong>
-        <span>{showDone ? "matching MT issues" : "active MT issues"}</span>
-      </div>
-
-      {visibleIssues.length === 0 ? (
+      {mode === "analytics" ? (
+        <JiraAnalyticsView />
+      ) : visibleIssues.length === 0 ? (
         <section className="wb-safe-empty">
           <Search size={24} />
           <div>

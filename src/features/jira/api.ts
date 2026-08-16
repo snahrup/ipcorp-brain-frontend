@@ -1,6 +1,7 @@
 import { GATEWAY } from "../../lib/gateway";
 import type { AgentRun } from "./AgentDispatchButton";
 import type {
+  JiraAnalyticsSnapshot,
   JiraAttachment,
   JiraConnection,
   JiraInitiative,
@@ -70,6 +71,8 @@ const requestAgentRuns = () => requestFrom<AgentRun[]>(AGENTS_API, "/runs");
 export const jiraGateway = {
   connection: () => request<JiraConnection>("/status"),
   initiative: () => request<JiraInitiative>("/initiative"),
+  analytics: (refresh = false) =>
+    request<JiraAnalyticsSnapshot>(`/analytics${refresh ? "?refresh=1" : ""}`),
   issue: (key: string) => request<JiraIssueDetail>(`/issues/${encodeURIComponent(key)}`),
   updateIssue: (
     key: string,
