@@ -76,9 +76,15 @@ test("a pass classifies every open item and acts on nothing", async (t) => {
 test("a second pass the same day adds nothing; a new day shadows again", async (t) => {
   const ledger = await freshLedger(t);
   await shadowPass({ board, policy, ledger, now: NOW });
-  const again = await shadowPass({ board, policy, ledger, now: NOW });
+  const laterSameDay = new Date(NOW.getTime() + 5 * 60_000);
+  const again = await shadowPass({ board, policy, ledger, now: laterSameDay });
   assert.equal(again.recorded, 0, "same item, same day: no duplicate shadow rows");
   assert.equal((await ledger.runsWithVerification()).length, 4);
+  assert.equal(
+    (await ledger.latestPass()).passAt,
+    laterSameDay.toISOString(),
+    "a successful no-change pass still advances the visible loop heartbeat"
+  );
 
   const tomorrow = new Date(NOW.getTime() + 24 * 3_600_000);
   const nextDay = await shadowPass({ board, policy, ledger, now: tomorrow });

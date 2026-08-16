@@ -149,10 +149,30 @@ export function buildAgentBoard(inputs) {
   const packagesOk = sourceStatus("packages", "Meeting packages", inputs.packages);
   const activityOk = sourceStatus("activity", "Reconciliation state", inputs.activityState);
   const agentRunsOk = sourceStatus("agent-runs", "Ticket agents", inputs.agentRuns);
+  const brainCompletionsOk = sourceStatus(
+    "brain-completions",
+    "Verified meeting infographics",
+    inputs.brainCompletions
+  );
 
   const packages = packagesOk ? inputs.packages.items || [] : [];
-  const packagesByTitle = new Map(
-    packages.map((item) => [normalizeTitle(item.meeting?.title), item])
+  const brainCompletions = brainCompletionsOk ? inputs.brainCompletions.items || [] : [];
+  const packagesByMeetingIdentity = new Map(
+    packages
+      .filter((item) => item.meeting?.id)
+      .map((item) => [
+        `${String(item.meeting.id)}|${localDayOf(item.meeting?.start || item.createdAt)}`,
+        item,
+      ])
+  );
+  const packagesByTitleAndDay = new Map(
+    packages.map((item) => [
+      `${normalizeTitle(item.meeting?.title)}|${localDayOf(item.meeting?.start || item.createdAt)}`,
+      item,
+    ])
+  );
+  const packageIdsDeliveredToday = new Set(
+    packages.filter((item) => localDayOf(item.createdAt) === today).map((item) => item.id)
   );
 
   // --- Meetings: watching until they end, waiting when ended with no package.
@@ -173,7 +193,10 @@ export function buildAgentBoard(inputs) {
     }
     for (const meeting of inputs.calendar.meetings || []) {
       if (isCalendarMarker(meeting.title)) continue;
-      const stored = packagesByTitle.get(normalizeTitle(meeting.title));
+      const meetingDay = localDayOf(meeting.start || meeting.end);
+      const stored =
+        packagesByMeetingIdentity.get(`${String(meeting.id)}|${meetingDay}`) ||
+        packagesByTitleAndDay.get(`${normalizeTitle(meeting.title)}|${meetingDay}`);
       if (stored) continue; // it shows in Delivered via the package itself
       const ended = Date.parse(meeting.end || "") < now.getTime();
       // A calendar event has no page to open, so the reference carries the
@@ -222,20 +245,25 @@ export function buildAgentBoard(inputs) {
   // --- Stored packages: delivered today, and their promises wait until old.
   for (const item of packages) {
     const createdDay = localDayOf(item.createdAt);
-    const saved = item.infographic?.saved;
-    // The rendered infographic is the one file the gateway can serve back, so
-    // it is the link when it exists. Without it the card opens its own detail.
+    const verified = item.infographic?.verified;
+    // There is no local placeholder. Only a Codex or NotebookLM artifact with
+    // source IDs, an artifact ID, a verified hash, and a readable PNG is linked.
     const packageReference =
-      saved?.id && saved?.file
+      verified?.id && verified?.file
         ? reference(
             "deliverable",
             item.id,
             "Open the meeting infographic",
-            `/api/meetings/infographic?id=${encodeURIComponent(saved.id)}&file=${encodeURIComponent(saved.file)}`
+            `/api/meetings/infographic?id=${encodeURIComponent(verified.id)}&file=${encodeURIComponent(verified.file)}`
           )
         : reference("deliverable", item.id, item.meeting?.title || item.id);
     if (createdDay === today) {
-      const infographic = saved?.file ? "infographic rendered" : "no infographic";
+      const warningCount = Number(verified?.warningCount || 0);
+      const infographic = verified?.file
+        ? warningCount
+          ? `infographic verified with ${warningCount} review note${warningCount === 1 ? "" : "s"}`
+          : "infographic verified"
+        : "final infographic still pending";
       delivered.push(
         card({
           id: `package-${item.id}`,
@@ -247,12 +275,14 @@ export function buildAgentBoard(inputs) {
             `Package: ${item.id}`,
             item.files?.summary && `Summary: ${item.files.summary}`,
             item.files?.transcript && `Transcript: ${item.files.transcript}`,
-            item.files?.infographicPng && `Infographic: ${item.files.infographicPng}`
+            verified?.path && `Infographic: ${verified.path}`,
+            verified?.artifactId && `Artifact: ${verified.artifactId}`,
+            verified?.sourceIds?.length && `Sources: ${verified.sourceIds.length}`
           ),
           reference: packageReference,
           at: item.createdAt,
           age: ageLabel(now, item.createdAt),
-          tone: "ok",
+          tone: verified?.file && warningCount === 0 ? "ok" : "amber",
           meta: [`${(item.commitments || []).length} commitments`],
         })
       );
@@ -290,6 +320,46 @@ export function buildAgentBoard(inputs) {
         );
       }
     }
+  }
+
+  // --- Verified scheduled meeting work that did not originate in Workbench.
+  // This is what makes a completed background pass visible on Today instead of
+  // leaving Steve to infer it from a Brain commit.
+  for (const completion of brainCompletions) {
+    if (
+      packageIdsDeliveredToday.has(completion.id) ||
+      localDayOf(completion.generatedAt) !== today
+    ) {
+      continue;
+    }
+    const warningCount = Number(completion.warningCount || 0);
+    delivered.push(
+      card({
+        id: `brain-infographic-${completion.id}`,
+        kind: "meeting-infographic",
+        title: completion.title || completion.id,
+        detail: warningCount
+          ? `Infographic generated with ${warningCount} recorded review note${warningCount === 1 ? "" : "s"}.`
+          : "Infographic generated and verified.",
+        why: "The scheduled Brain pass finished this meeting artifact today and recorded its proof.",
+        evidence: facts(
+          `Artifact: ${completion.artifactId}`,
+          `Sources: ${(completion.sourceIds || []).length}`,
+          completion.path && `Infographic: ${completion.path}`,
+          completion.sha256 && `SHA-256: ${completion.sha256}`
+        ),
+        reference: reference(
+          "deliverable",
+          completion.id,
+          "Open the meeting infographic",
+          `/api/meetings/infographic?id=${encodeURIComponent(completion.id)}&file=${encodeURIComponent(completion.file)}`
+        ),
+        at: completion.generatedAt,
+        age: ageLabel(now, completion.generatedAt),
+        tone: warningCount ? "amber" : "ok",
+        meta: [`${(completion.sourceIds || []).length} sources`],
+      })
+    );
   }
 
   // --- Reconciliation runs.
@@ -334,23 +404,33 @@ export function buildAgentBoard(inputs) {
         );
       } else if (localDayOf(run.finishedAt) === today) {
         const counts = run.counts || {};
+        const meetingFacts = (run.meetings || []).map(
+          (meeting) =>
+            `${meeting.title || meeting.id}: ${String(meeting.status || "unknown").replace(/_/g, " ")}`
+        );
         delivered.push(
           card({
             id: `activity-${run.id}`,
             kind: "activity-run",
             title: `Reconciliation ${String(run.status || "").replace(/_/g, " ")}`,
-            detail: `${counts.changed ?? 0} changed items, ${counts.jiraProposals ?? 0} recommended Jira changes, ${counts.emailDrafts ?? 0} drafts.`,
+            detail: `${(counts.new ?? 0) + (counts.changed ?? 0)} new or changed items, ${counts.meetingsProcessed ?? 0} meeting package${counts.meetingsProcessed === 1 ? "" : "s"} processed, ${counts.jiraProposals ?? 0} recommended Jira changes, ${counts.emailDrafts ?? 0} drafts, ${counts.failures ?? 0} failures.`,
             why: "The run finished today, so its output is on the board with the rest of today's work.",
             evidence: facts(
               `Run: ${run.id}`,
               run.startedAt && `Started: ${run.startedAt}`,
               run.finishedAt && `Finished: ${run.finishedAt}`,
-              `Status: ${String(run.status || "unknown").replace(/_/g, " ")}`
+              `Status: ${String(run.status || "unknown").replace(/_/g, " ")}`,
+              ...meetingFacts
             ),
             reference: reference("receipt", run.id, "Activity reconciliation run"),
             at: run.finishedAt,
             age: ageLabel(now, run.finishedAt),
-            tone: run.status === "failed" ? "red" : "ok",
+            tone:
+              run.status === "failed"
+                ? "red"
+                : run.status === "partial_success" || (counts.failures ?? 0) > 0
+                  ? "amber"
+                  : "ok",
           })
         );
       }
@@ -505,7 +585,7 @@ export function buildAgentBoard(inputs) {
             reference: agentReference,
             at: run.finishedAt,
             age: ageLabel(now, run.finishedAt),
-            tone: run.verdict === "blocked" ? "amber" : "ok",
+            tone: String(run.verdict || "").toUpperCase() === "BLOCKED" ? "amber" : "ok",
           })
         );
       }

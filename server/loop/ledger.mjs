@@ -22,6 +22,7 @@ function emptyState() {
     approvals: [],
     escalations: [],
     briefings: [],
+    passes: [],
   };
 }
 
@@ -127,6 +128,18 @@ export async function openLedger(path) {
     async latestBriefing(kind) {
       const rows = state.briefings.filter((row) => row.kind === kind);
       return rows.length ? rows[rows.length - 1] : null;
+    },
+
+    async appendPass(pass) {
+      if (!pass?.passAt) throw new Error("A loop pass needs passAt.");
+      const row = { id: `pass-${randomUUID()}`, ...pass };
+      state.passes.push(row);
+      await persist();
+      return row;
+    },
+
+    async latestPass() {
+      return state.passes.length ? state.passes[state.passes.length - 1] : null;
     },
 
     async reload() {

@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -20,7 +20,8 @@ import { join } from "node:path";
  * reverting, so a half-finished run is visible on the board itself.
  */
 
-const RUNS_DIR = join(process.cwd(), ".agent-runs");
+const LEGACY_RUNS_DIR = join(process.cwd(), ".agent-runs");
+const SUMMARY_SUFFIX = ".summary.json";
 const MAX_RUNTIME_MS = 45 * 60 * 1000;
 const MAX_OUTPUT = 400_000;
 
@@ -125,6 +126,126 @@ export function parseCodexEvent(event) {
 
 function nowIso() {
   return new Date().toISOString();
+}
+
+function localAppDataRoot() {
+  return process.env.LOCALAPPDATA || join(process.env.USERPROFILE || homedir(), "AppData", "Local");
+}
+
+export function agentRunsDir() {
+  return process.env.IPCORP_AGENT_RUNS_DIR || join(localAppDataRoot(), "IPCorpBrain", "agent-runs");
+}
+
+function legacyRunsDir() {
+  return process.env.IPCORP_AGENT_RUNS_LEGACY_DIR || LEGACY_RUNS_DIR;
+}
+
+function publicMessages(run) {
+  return (run.messages ?? [])
+    .filter((message) => message?.role === "agent" && String(message.text || "").trim())
+    .map((message) => ({
+      seq: Number.isFinite(message.seq) ? message.seq : 0,
+      role: "agent",
+      text: String(message.text).trim(),
+      at: String(message.at || ""),
+    }));
+}
+
+function publicRunSummary(run, { includeMessages = false } = {}) {
+  const issueKey = String(run?.issueKey || "")
+    .trim()
+    .toUpperCase();
+  if (!issueKey) return null;
+  const summary = {
+    issueKey,
+    agent: String(run.agent || ""),
+    agentLabel: String(run.agentLabel || run.agent || ""),
+    state: String(run.state || "finished"),
+    startedAt: run.startedAt ? String(run.startedAt) : null,
+    finishedAt: run.finishedAt ? String(run.finishedAt) : null,
+    verdict: run.verdict ? String(run.verdict).toUpperCase() : null,
+    note: run.note ? String(run.note) : null,
+    steps: Number.isFinite(run.steps) ? run.steps : 0,
+    lastAction: run.lastAction ? String(run.lastAction) : null,
+    lastEventAt: run.lastEventAt ? String(run.lastEventAt) : null,
+    exitCode: Number.isFinite(run.exitCode) ? run.exitCode : null,
+    error: run.error ? String(run.error) : null,
+    humanize: run.humanize ?? null,
+  };
+  if (includeMessages) summary.messages = publicMessages(run);
+  return summary;
+}
+
+function sortTime(run) {
+  const value = Date.parse(run?.finishedAt || run?.lastEventAt || run?.startedAt || "");
+  return Number.isFinite(value) ? value : 0;
+}
+
+function uniqueRunKey(run) {
+  return `${run.issueKey}|${run.finishedAt || run.startedAt || ""}`;
+}
+
+function dedupeRuns(items) {
+  const byKey = new Map();
+  for (const item of items) {
+    const summary = publicRunSummary(item);
+    if (!summary) continue;
+    byKey.set(uniqueRunKey(summary), summary);
+  }
+  return [...byKey.values()].sort((a, b) => sortTime(b) - sortTime(a));
+}
+
+function summaryFileName(summary) {
+  const time = sortTime(summary) || Date.now();
+  const key = String(summary.issueKey || "run").replace(/[^A-Z0-9-]/gi, "_");
+  return `${key}.${time}${SUMMARY_SUFFIX}`;
+}
+
+async function persistRunSummary(run) {
+  const summary = publicRunSummary(run);
+  if (!summary) return;
+  try {
+    await mkdir(agentRunsDir(), { recursive: true });
+    await writeFile(
+      join(agentRunsDir(), summaryFileName(summary)),
+      `${JSON.stringify(summary, null, 2)}\n`,
+      "utf8"
+    );
+  } catch {
+    // Losing this file must not change the run result.
+  }
+}
+
+async function readJsonFiles(directory, accept) {
+  const names = await readdir(directory).catch((error) => {
+    if (error?.code === "ENOENT") return [];
+    throw error;
+  });
+  const items = [];
+  for (const name of names) {
+    if (!accept(name)) continue;
+    try {
+      const parsed = JSON.parse(await readFile(join(directory, name), "utf8"));
+      const summary = publicRunSummary(parsed);
+      if (summary) items.push(summary);
+    } catch {
+      // One bad archive cannot hide the rest of the run history.
+    }
+  }
+  return items;
+}
+
+async function readSavedSummaries() {
+  const current = await readJsonFiles(agentRunsDir(), (name) => name.endsWith(SUMMARY_SUFFIX));
+  const legacy = await readJsonFiles(
+    legacyRunsDir(),
+    (name) =>
+      /\.json$/i.test(name) &&
+      !name.endsWith(SUMMARY_SUFFIX) &&
+      !name.startsWith("humanize.") &&
+      name !== "humanize-shapes.json"
+  );
+  return dedupeRuns([...legacy, ...current]);
 }
 
 function buildPrompt(issue, extraContext) {
@@ -290,7 +411,11 @@ function buildOutcomeComment(run, verdict, note) {
 // still posts; the stage can only improve the text, never lose it.
 // ---------------------------------------------------------------------------
 
-const SKILLS_DIR = join(homedir(), ".claude", "skills");
+const SKILL_DIRS = [
+  process.env.IPCORP_AGENT_SKILLS_DIR || "",
+  join(process.cwd(), ".agents", "skills"),
+  join(homedir(), ".claude", "skills"),
+].filter(Boolean);
 const COPY_SCANNER = join(
   homedir(),
   "CascadeProjects",
@@ -299,12 +424,23 @@ const COPY_SCANNER = join(
   "copy_scan.py"
 );
 const STRUCTURAL_SCANNER = join(
-  SKILLS_DIR,
+  SKILL_DIRS[0],
   "structural-humanizer",
   "scripts",
   "structural_scan.py"
 );
 const HUMANIZE_TIMEOUT_MS = 4 * 60 * 1000;
+
+async function readSkillFile(name) {
+  for (const root of SKILL_DIRS) {
+    try {
+      return await readFile(join(root, name, "SKILL.md"), "utf8");
+    } catch {
+      // Try the next configured skill root.
+    }
+  }
+  return null;
+}
 
 export function extractRewrite(output) {
   const match = /REWRITE:[ \t]*\r?\n([\s\S]*?)END REWRITE/m.exec(output);
@@ -397,11 +533,11 @@ export function structuralRecipe(rng = Math.random, avoid = { openings: [], move
  * across comments: the last few outputs ride along in the next prompt as a voice
  * reference, while the shape ledger keeps their skeletons from repeating.
  */
-const LEDGER_FILE = () => join(RUNS_DIR, "voice-ledger.jsonl");
+const LEDGER_FILE = () => join(agentRunsDir(), "voice-ledger.jsonl");
 
 async function appendLedger(entry) {
   try {
-    await mkdir(RUNS_DIR, { recursive: true });
+    await mkdir(agentRunsDir(), { recursive: true });
     const line = `${JSON.stringify(entry)}\n`;
     await writeFile(LEDGER_FILE(), line, { flag: "a" });
   } catch {
@@ -422,7 +558,7 @@ async function recentOutputs(count = 3) {
 }
 
 /** The last few rolled shapes, so the next roll cannot repeat them. */
-const SHAPES_FILE = () => join(RUNS_DIR, "humanize-shapes.json");
+const SHAPES_FILE = () => join(agentRunsDir(), "humanize-shapes.json");
 
 async function recentShapes() {
   try {
@@ -435,7 +571,7 @@ async function recentShapes() {
 async function rememberShape(recipe) {
   try {
     const shapes = [...(await recentShapes()), recipe].slice(-6);
-    await mkdir(RUNS_DIR, { recursive: true });
+    await mkdir(agentRunsDir(), { recursive: true });
     await writeFile(SHAPES_FILE(), JSON.stringify(shapes, null, 2), "utf8");
   } catch {
     // Losing the ledger costs variety, not correctness.
@@ -486,8 +622,8 @@ END REWRITE`;
 }
 
 async function defaultExecRewrite(prompt) {
-  await mkdir(RUNS_DIR, { recursive: true });
-  const file = join(RUNS_DIR, `humanize.${Date.now()}.prompt.md`);
+  await mkdir(agentRunsDir(), { recursive: true });
+  const file = join(agentRunsDir(), `humanize.${Date.now()}.prompt.md`);
   await writeFile(file, prompt, "utf8");
   return new Promise((resolve, reject) => {
     // Sonnet: this is a bounded rewrite with the full instructions in hand, where
@@ -529,8 +665,8 @@ export async function humanizeComment(text, execRewrite = defaultExecRewrite, me
   const stage = { applied: false, copyHits: null, structuralHits: null, reason: null, ms: 0 };
   try {
     const [pass1, pass2] = await Promise.all([
-      readFile(join(SKILLS_DIR, "humanizer", "SKILL.md"), "utf8").catch(() => null),
-      readFile(join(SKILLS_DIR, "structural-humanizer", "SKILL.md"), "utf8").catch(() => null),
+      readSkillFile("humanizer"),
+      readSkillFile("structural-humanizer"),
     ]);
     if (!pass1 || !pass2) {
       stage.reason = "humanizer skills are not installed globally";
@@ -626,11 +762,14 @@ export function classify(output) {
 }
 
 export function getRun(issueKey) {
-  return runs.get(issueKey) ?? null;
+  const run = runs.get(issueKey);
+  return run ? publicRunSummary(run, { includeMessages: true }) : null;
 }
 
-export function listRuns() {
-  return [...runs.values()].map(({ child, ...rest }) => rest);
+export async function listRuns() {
+  const saved = await readSavedSummaries();
+  const live = [...runs.values()].map((run) => publicRunSummary(run));
+  return dedupeRuns([...saved, ...live]);
 }
 
 /**
@@ -658,8 +797,8 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
   // happened yet on a ticket that was actively being worked.
   await deps.transition(issueKey, "In Progress");
 
-  await mkdir(RUNS_DIR, { recursive: true });
-  const promptFile = join(RUNS_DIR, `${issueKey}.prompt.md`);
+  await mkdir(agentRunsDir(), { recursive: true });
+  const promptFile = join(agentRunsDir(), `${issueKey}.prompt.md`);
   const prompt = buildPrompt(issue, context);
   await writeFile(promptFile, prompt, "utf8");
 
@@ -789,8 +928,9 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
     }
 
     try {
+      await persistRunSummary(run);
       await writeFile(
-        join(RUNS_DIR, `${issueKey}.${startedAt}.json`),
+        join(agentRunsDir(), `${issueKey}.${startedAt}.json`),
         JSON.stringify({ ...run, child: undefined }, null, 2),
         "utf8"
       );
@@ -799,15 +939,13 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
     }
   });
 
-  return { ...run, child: undefined };
+  return publicRunSummary(run, { includeMessages: true });
 }
 
 export async function loadArchivedRun(issueKey) {
-  if (!existsSync(RUNS_DIR)) return null;
-  try {
-    const raw = await readFile(join(RUNS_DIR, `${issueKey}.latest.json`), "utf8");
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
+  const key = String(issueKey || "")
+    .trim()
+    .toUpperCase();
+  if (!key) return null;
+  return (await readSavedSummaries()).find((run) => run.issueKey === key) ?? null;
 }

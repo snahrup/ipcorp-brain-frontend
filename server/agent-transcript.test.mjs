@@ -1,14 +1,17 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
+  agentRunsDir,
   classify,
   extractComment,
-  extractRewrite,
   fallbackComment,
   humanizeComment,
+  listRuns,
+  loadArchivedRun,
   parseClaudeActivity,
   parseClaudeEvent,
   parseCodexActivity,
@@ -19,6 +22,10 @@ import {
 } from "./agent-dispatch.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
+const runRoot = fs.mkdtempSync(path.join(tmpdir(), "ipcorp-agent-runs-"));
+const legacyRunRoot = path.join(runRoot, "legacy");
+process.env.IPCORP_AGENT_RUNS_DIR = path.join(runRoot, "current");
+process.env.IPCORP_AGENT_RUNS_LEGACY_DIR = legacyRunRoot;
 
 /** Replay a JSONL stream through a parser the way the child process handler does. */
 function replay(file, parse) {
@@ -83,6 +90,116 @@ test("every codex event spelling of an agent message is understood", () => {
     shapes.flatMap((event) => parseCodexEvent(event)).map((m) => m.text),
     ["one", "two", "three"]
   );
+});
+
+test("saved run summaries reload without prompt or stream fields", async () => {
+  fs.mkdirSync(agentRunsDir(), { recursive: true });
+  fs.writeFileSync(
+    path.join(agentRunsDir(), "MT-900.1786507200000.summary.json"),
+    JSON.stringify(
+      {
+        issueKey: "MT-900",
+        agent: "codex",
+        agentLabel: "Codex",
+        state: "finished",
+        startedAt: "2026-08-13T20:00:00.000Z",
+        finishedAt: "2026-08-13T20:20:00.000Z",
+        verdict: "DONE",
+        note: "Updated the package.",
+        steps: 7,
+        lastAction: "Shell",
+        lastEventAt: "2026-08-13T20:19:00.000Z",
+        exitCode: 0,
+        error: null,
+        output: "SECRET_STREAM_SHOULD_NOT_LEAK",
+        messages: [{ role: "sent", text: "SECRET_PROMPT_SHOULD_NOT_LEAK" }],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const runs = await listRuns();
+  const run = runs.find((entry) => entry.issueKey === "MT-900");
+  assert.ok(run, "saved summary is visible after memory is empty");
+  assert.equal(run.verdict, "DONE");
+  const serialized = JSON.stringify(run);
+  assert.ok(!serialized.includes("SECRET_STREAM_SHOULD_NOT_LEAK"));
+  assert.ok(!serialized.includes("SECRET_PROMPT_SHOULD_NOT_LEAK"));
+  assert.ok(!("output" in run));
+  assert.ok(!("messages" in run));
+});
+
+test("legacy run archives import as summaries and latest lookup works", async () => {
+  fs.mkdirSync(legacyRunRoot, { recursive: true });
+  fs.writeFileSync(
+    path.join(legacyRunRoot, "MT-901.1786507200000.json"),
+    JSON.stringify(
+      {
+        issueKey: "MT-901",
+        agent: "claude",
+        agentLabel: "Claude Code",
+        state: "finished",
+        startedAt: "2026-08-13T19:00:00.000Z",
+        finishedAt: "2026-08-13T19:30:00.000Z",
+        verdict: "review",
+        note: "Needs a human read.",
+        steps: 3,
+        lastAction: "Read",
+        lastEventAt: "2026-08-13T19:28:00.000Z",
+        exitCode: 0,
+        error: null,
+        output: "SECRET_LEGACY_STREAM",
+        messages: [{ role: "sent", text: "SECRET_LEGACY_PROMPT" }],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const run = await loadArchivedRun("mt-901");
+  assert.ok(run, "legacy archive is readable by issue key");
+  assert.equal(run.issueKey, "MT-901");
+  assert.equal(run.verdict, "REVIEW");
+  const serialized = JSON.stringify(run);
+  assert.ok(!serialized.includes("SECRET_LEGACY_STREAM"));
+  assert.ok(!serialized.includes("SECRET_LEGACY_PROMPT"));
+});
+
+test("saved and legacy summaries dedupe by issue and finish time", async () => {
+  fs.mkdirSync(agentRunsDir(), { recursive: true });
+  fs.mkdirSync(legacyRunRoot, { recursive: true });
+  const shared = {
+    issueKey: "MT-902",
+    agent: "codex",
+    agentLabel: "Codex",
+    state: "finished",
+    startedAt: "2026-08-13T18:00:00.000Z",
+    finishedAt: "2026-08-13T18:30:00.000Z",
+    verdict: "DONE",
+    note: "Current summary wins.",
+    steps: 1,
+    lastAction: "Edit",
+    lastEventAt: "2026-08-13T18:29:00.000Z",
+    exitCode: 0,
+    error: null,
+  };
+  fs.writeFileSync(
+    path.join(legacyRunRoot, "MT-902.1786501800000.json"),
+    JSON.stringify({ ...shared, note: "Legacy copy." }),
+    "utf8"
+  );
+  fs.writeFileSync(
+    path.join(agentRunsDir(), "MT-902.1786501800000.summary.json"),
+    JSON.stringify(shared),
+    "utf8"
+  );
+
+  const matches = (await listRuns()).filter((run) => run.issueKey === "MT-902");
+  assert.equal(matches.length, 1);
+  assert.equal(matches[0].note, "Current summary wins.");
 });
 
 test("codex reasoning and command events are not conversation", () => {
@@ -275,7 +392,7 @@ test("every rewrite lands in the voice ledger and feeds the next prompt", async 
   );
 
   const ledger = fs
-    .readFileSync(path.join(process.cwd(), ".agent-runs", "voice-ledger.jsonl"), "utf8")
+    .readFileSync(path.join(agentRunsDir(), "voice-ledger.jsonl"), "utf8")
     .trim()
     .split("\n")
     .map((line) => JSON.parse(line));

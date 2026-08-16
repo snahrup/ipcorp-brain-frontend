@@ -82,5 +82,12 @@ export async function shadowPass({ board, policy, ledger, now }) {
     }
   }
 
-  return { passAt: at.toISOString(), considered, recorded, verdicts };
+  const result = { passAt: at.toISOString(), considered, recorded, verdicts };
+  await ledger.appendPass({
+    passAt: result.passAt,
+    mode: "shadow",
+    considered,
+    recorded,
+  });
+  return result;
 }

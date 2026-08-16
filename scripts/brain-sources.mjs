@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -200,7 +201,52 @@ function indexInfographics(brain) {
   for (const folder of fs.readdirSync(root)) {
     const dir = path.join(root, folder);
     if (!fs.statSync(dir).isDirectory()) continue;
-    const png = fs.readdirSync(dir).find((f) => f.toLowerCase().endsWith(".png"));
+    const pngs = fs
+      .readdirSync(dir)
+      .filter((file) => file.toLowerCase().endsWith(".png"))
+      .sort((left, right) => left.localeCompare(right));
+    let status = null;
+    try {
+      status = JSON.parse(fs.readFileSync(path.join(dir, "status.json"), "utf8"));
+    } catch {
+      // An image without a readable receipt is not reviewable and must stay hidden.
+    }
+    const legacyLocalCard =
+      status?.sourceSpec === "docs/handoff/2026-07-30-chatgpt-infographic-spec.md" ||
+      (status?.status === "generated_review_pending" && Boolean(status?.sourceHtml));
+    const statusName = String(status?.status || status?.verification?.artifactStatus || "")
+      .trim()
+      .toLowerCase();
+    const reviewName = String(status?.visualQualityReview?.status || "")
+      .trim()
+      .toLowerCase();
+    const rejectedStatus = /blocked|pending|failed|error|rejected|placeholder/.test(statusName);
+    const rejectedReview = /pending|failed|error|rejected|blocked/.test(reviewName);
+    const explicitlyUnselected = ["output", "outputFile", "selectedOutput"].some(
+      (key) => Object.hasOwn(status || {}, key) && status[key] === null
+    );
+    const generatedArtifact = Boolean(
+      status?.artifactId || status?.notebookId || status?.provider === "codex"
+    );
+    if (
+      !status ||
+      legacyLocalCard ||
+      !generatedArtifact ||
+      rejectedStatus ||
+      rejectedReview ||
+      explicitlyUnselected
+    ) {
+      continue;
+    }
+    const candidates = [
+      status?.output?.file,
+      status?.outputFile,
+      status?.pngFile,
+      status?.infographicPath ? path.basename(status.infographicPath) : null,
+      status?.file,
+    ].filter((file) => typeof file === "string" && path.basename(file) === file);
+    const png =
+      candidates.find((file) => pngs.includes(file)) || (pngs.length === 1 ? pngs[0] : null);
     if (!png) continue;
     const day = (folder.match(/^(\d{4}-\d{2}-\d{2})/) || [])[1];
     if (!day) continue;
@@ -266,6 +312,35 @@ const PAIR_NOISE = new Set([
   "session",
   "call",
 ]);
+
+const DUPLICATE_MEETING_ALIASES = new Map([
+  [
+    "2026-08-04-purview-subscription-decision-and-owner-steward-confirmation",
+    "2026-08-04-purview-subscription-decision",
+  ],
+  ["2026-08-03-weekly-dev-data-stand-up", "2026-08-03-dev-data-standup"],
+  ["2026-05-07-weekly-fabric-check-in", "2026-05-07-weekly-fabric-checkin"],
+  ["2026-05-06-fabric-weekly-stand-up", "2026-05-06-fabric-weekly-standup"],
+  ["2026-04-28-bi-weekly-demand-management-meeting", "2026-04-28-biweekly-demand-management"],
+  ["2026-04-27-nahrup-1-on-1", "2026-04-27-nahrup-1on1-with-patrick"],
+]);
+
+function consolidateDuplicateMeetings(meetings) {
+  const byId = new Map(meetings.map((meeting) => [meeting.id, meeting]));
+  const removed = new Set();
+  for (const [aliasId, preferredId] of DUPLICATE_MEETING_ALIASES) {
+    const alias = byId.get(aliasId);
+    const preferred = byId.get(preferredId);
+    if (!alias || !preferred) continue;
+    preferred.infographic ||= alias.infographic;
+    preferred.attendees ||= alias.attendees;
+    preferred.duration ||= alias.duration;
+    preferred.summary ||= alias.summary;
+    preferred.followUps ||= alias.followUps;
+    removed.add(aliasId);
+  }
+  return meetings.filter((meeting) => !removed.has(meeting.id));
+}
 
 function pairTokens(slug) {
   return new Set(
@@ -350,9 +425,40 @@ export function extractFollowUps(md) {
   }
   for (const j of pkg.jiraProposals ?? []) {
     const text = strip(String(j.title ?? ""));
-    if (text) out.push({ kind: "jira-change", text, operation: j.operation || undefined });
+    const jiraKey = /^(?:MT|IPC)-\d+$/i.test(String(j.jiraKey ?? "").trim())
+      ? String(j.jiraKey).trim().toUpperCase()
+      : undefined;
+    if (text) {
+      out.push({
+        kind: "jira-change",
+        text,
+        operation: j.operation || undefined,
+        jiraKey,
+      });
+    }
   }
   return out.slice(0, 16);
+}
+
+function normalizedActionText(value) {
+  return strip(String(value ?? ""))
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+export function meetingActionId(meetingId, item) {
+  const identity = [
+    meetingId,
+    item?.kind,
+    normalizedActionText(item?.text),
+    normalizedActionText(item?.owner),
+    normalizedActionText(item?.when),
+    normalizedActionText(item?.operation),
+    String(item?.jiraKey ?? "").toUpperCase(),
+  ].join("\n");
+  const suffix = createHash("sha256").update(identity).digest("hex").slice(0, 16);
+  return `meeting-action-${meetingId}-${suffix}`;
 }
 
 /** One entry per file in core/meetings/summaries. */
@@ -380,6 +486,14 @@ export function buildMeetings(brain) {
       .replace(/\s*[—–-]\s*$/, "")
       .trim();
 
+    if (
+      /DID NOT OCCUR/i.test(title) ||
+      /^\*\*No meeting happened\.\*\*/im.test(md) ||
+      /^>\s*Note:\s*.*not a stakeholder meeting\b/im.test(md)
+    ) {
+      continue;
+    }
+
     const meta = (md.match(/^>\s*Source:\s*(.*)$/m) || [])[1] || "";
     // Two summary generations exist. The old pipeline wrote a `> Source:`
     // meta line; the Workbench closeout writes bold labels. Read both, or the
@@ -401,7 +515,11 @@ export function buildMeetings(brain) {
     // where the promised work lives: what Steve owes, to whom, and the Jira
     // changes recommended from the room. Decode the LAST marker (a re-run
     // appends a fresher one) and fail closed to an empty list.
-    const followUps = extractFollowUps(md);
+    const meetingId = `${m[1]}-${m[2]}`;
+    const followUps = extractFollowUps(md).map((item) => ({
+      ...item,
+      actionId: meetingActionId(meetingId, item),
+    }));
 
     const art = matchInfographic(
       infographics.filter((entry) => !claimed.has(entry.folder)),
@@ -411,7 +529,7 @@ export function buildMeetings(brain) {
     if (art) claimed.add(art.folder);
 
     out.push({
-      id: `${m[1]}-${m[2]}`,
+      id: meetingId,
       title,
       date: `${m[1]}T12:00:00.000Z`,
       day: m[1],
@@ -426,9 +544,10 @@ export function buildMeetings(brain) {
       feedsInsights: [],
     });
   }
-  pairLeftoversByDay(out, infographics, claimed);
-  out.sort((a, b) => (a.day < b.day ? 1 : -1));
-  return out.length ? out : null;
+  const meetings = consolidateDuplicateMeetings(out);
+  pairLeftoversByDay(meetings, infographics, claimed);
+  meetings.sort((a, b) => (a.day < b.day ? 1 : -1));
+  return meetings.length ? meetings : null;
 }
 
 /**

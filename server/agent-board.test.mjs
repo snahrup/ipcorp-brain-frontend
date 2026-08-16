@@ -26,6 +26,7 @@ const baseInputs = () => ({
   packages: { ok: true, items: [] },
   activityState: { ok: true, state: { runs: [], applyReceipts: {} } },
   agentRuns: { ok: true, items: [] },
+  brainCompletions: { ok: true, items: [] },
 });
 
 test("an ended meeting with no package waits on Steve and goes red as it ages", () => {
@@ -62,7 +63,17 @@ test("a meeting whose package is stored lands in delivered, not waiting", () => 
       meeting: { title: "Programs, Projects and Tasks", start: "2026-08-11T11:00:00-04:00" },
       createdAt: "2026-08-11T18:01:39.782Z",
       commitments: [],
-      infographic: { saved: { file: "x.png" } },
+      infographic: {
+        saved: { file: "preview.png" },
+        verified: {
+          id: "2026-08-11-programs-projects-and-tasks",
+          file: "Programs, Projects and Tasks [2026-08-11].png",
+          path: "natively/meeting-infographics/2026-08-11-programs-projects-and-tasks/Programs, Projects and Tasks [2026-08-11].png",
+          artifactId: "artifact-programs",
+          sourceIds: ["transcript", "summary"],
+          warningCount: 0,
+        },
+      },
     },
   ];
   const board = buildAgentBoard(inputs);
@@ -70,6 +81,36 @@ test("a meeting whose package is stored lands in delivered, not waiting", () => 
   const delivered = lane(board, "delivered").cards.find((c) => c.title.includes("Programs"));
   assert.ok(delivered, "stored package shows as delivered today");
   assert.match(delivered.detail, /infographic/i);
+});
+
+test("an older same-title package does not hide today's recurring meeting", () => {
+  const inputs = baseInputs();
+  inputs.calendar.meetings = [
+    {
+      id: "recurring-meeting-today",
+      title: "Weekly Dev/Data Stand-up",
+      start: "2026-08-11T15:00:00.000Z",
+      end: "2026-08-11T15:30:00.000Z",
+    },
+  ];
+  inputs.packages.items = [
+    {
+      id: "2026-08-04-weekly-dev-data-stand-up",
+      meeting: {
+        id: "recurring-meeting-last-week",
+        title: "Weekly Dev/Data Stand-up",
+        start: "2026-08-04T15:00:00.000Z",
+      },
+      createdAt: "2026-08-04T18:00:00.000Z",
+      commitments: [],
+    },
+  ];
+
+  const waiting = lane(buildAgentBoard(inputs), "waiting").cards.find(
+    (entry) => entry.kind === "meeting-capture"
+  );
+  assert.ok(waiting);
+  assert.equal(waiting.title, "Weekly Dev/Data Stand-up");
 });
 
 test("a running reconciliation shows as working and goes red when it sits silent", () => {
@@ -92,6 +133,41 @@ test("a running reconciliation shows as working and goes red when it sits silent
   assert.ok(card, "running run is visible");
   assert.equal(card.tone, "red", "45 minutes without progress is red");
   assert.match(card.detail, /Reading Teams messages/);
+});
+
+test("a partial reconciliation lists package outcomes and stays amber", () => {
+  const inputs = baseInputs();
+  inputs.activityState.state.runs = [
+    {
+      id: "run-meetings",
+      status: "partial_success",
+      startedAt: "2026-08-11T18:00:00.000Z",
+      finishedAt: "2026-08-11T19:00:00.000Z",
+      counts: {
+        new: 8,
+        changed: 2,
+        meetingsProcessed: 2,
+        jiraProposals: 0,
+        emailDrafts: 0,
+        failures: 2,
+      },
+      meetings: [
+        { id: "mdm", title: "MDM Projects", status: "repaired" },
+        { id: "etl", title: "ETL UPDATE", status: "partial" },
+      ],
+      jiraProposals: [],
+      emailDrafts: [],
+    },
+  ];
+  const delivered = lane(buildAgentBoard(inputs), "delivered").cards.find(
+    (entry) => entry.kind === "activity-run"
+  );
+  assert.ok(delivered);
+  assert.equal(delivered.tone, "amber");
+  assert.match(delivered.detail, /10 new or changed items/);
+  assert.match(delivered.detail, /2 meeting packages processed/);
+  assert.ok(delivered.evidence.some((line) => line === "MDM Projects: repaired"));
+  assert.ok(delivered.evidence.some((line) => line === "ETL UPDATE: partial"));
 });
 
 test("pending proposals wait on Steve; receipt-completed ones do not", () => {
@@ -254,7 +330,7 @@ test("an unreadable source has nothing to point at, so it carries no reference",
   assert.match(card.why, /empty lane/i, "the card says why it is here");
 });
 
-test("a stored package points at the infographic the gateway can serve", () => {
+test("a stored package points at the verified infographic, never an unverified file", () => {
   const inputs = baseInputs();
   inputs.packages.items = [
     {
@@ -262,7 +338,17 @@ test("a stored package points at the infographic the gateway can serve", () => {
       meeting: { title: "Halftime video working session" },
       createdAt: "2026-08-11T18:00:00.000Z",
       commitments: [{ text: "Send Patrick the cut list.", due: "Tomorrow" }],
-      infographic: { saved: { id: "2026-08-11-halftime-video", file: "2026-08-11-x.png" } },
+      infographic: {
+        saved: { id: "2026-08-11-halftime-video", file: "2026-08-11-preview.png" },
+        verified: {
+          id: "2026-08-11-halftime-video",
+          file: "Halftime video working session [2026-08-11].png",
+          path: "natively/meeting-infographics/2026-08-11-halftime-video/Halftime video working session [2026-08-11].png",
+          artifactId: "artifact-halftime",
+          sourceIds: ["transcript", "summary"],
+          warningCount: 0,
+        },
+      },
       files: { summary: "core/meetings/summaries/2026-08-11-halftime-video.md" },
     },
   ];
@@ -271,7 +357,7 @@ test("a stored package points at the infographic the gateway can serve", () => {
   assert.equal(stored.reference.type, "deliverable");
   assert.equal(
     stored.reference.href,
-    "/api/meetings/infographic?id=2026-08-11-halftime-video&file=2026-08-11-x.png"
+    "/api/meetings/infographic?id=2026-08-11-halftime-video&file=Halftime%20video%20working%20session%20%5B2026-08-11%5D.png"
   );
   assert.ok(
     stored.evidence.some((line) => line.includes("2026-08-11-halftime-video.md")),
@@ -284,6 +370,97 @@ test("a stored package points at the infographic the gateway can serve", () => {
   assert.equal(promise.reference.type, "meeting");
   assert.equal(promise.reference.id, "2026-08-11-halftime-video");
   assert.equal(promise.reference.href, null);
+});
+
+test("a package without a generated image says the final infographic is still pending", () => {
+  const inputs = baseInputs();
+  inputs.packages.items = [
+    {
+      id: "2026-08-11-preview-only",
+      meeting: { title: "Preview only" },
+      createdAt: "2026-08-11T18:00:00.000Z",
+      commitments: [],
+      infographic: {
+        saved: { id: "2026-08-11-preview-only", file: "2026-08-11-preview-only.png" },
+        verified: null,
+      },
+    },
+  ];
+  const stored = lane(buildAgentBoard(inputs), "delivered").cards.find(
+    (entry) => entry.kind === "meeting-package"
+  );
+  assert.ok(stored);
+  assert.match(stored.detail, /still pending/i);
+  assert.equal(stored.tone, "amber");
+  assert.equal(stored.reference.href, null);
+});
+
+test("a verified scheduled infographic appears as delivered with recorded review notes", () => {
+  const inputs = baseInputs();
+  inputs.packages.items = [
+    {
+      id: "2026-05-19-plant-tour",
+      meeting: { title: "Plant Tour" },
+      createdAt: "2026-08-10T18:00:00.000Z",
+      commitments: [],
+    },
+  ];
+  inputs.brainCompletions.items = [
+    {
+      id: "2026-05-19-plant-tour",
+      title: "Plant Tour",
+      generatedAt: "2026-08-11T19:50:00.000Z",
+      artifactId: "artifact-plant-tour",
+      sourceIds: ["transcript", "summary"],
+      file: "Plant Tour [2026-05-19].png",
+      path: "natively/meeting-infographics/2026-05-19-plant-tour/Plant Tour [2026-05-19].png",
+      sha256: "abc123",
+      warningCount: 3,
+    },
+  ];
+  const delivered = lane(buildAgentBoard(inputs), "delivered").cards.find(
+    (entry) => entry.kind === "meeting-infographic"
+  );
+  assert.ok(delivered);
+  assert.equal(delivered.title, "Plant Tour");
+  assert.equal(delivered.tone, "amber");
+  assert.match(delivered.detail, /3 recorded review notes/i);
+  assert.match(delivered.reference.href, /Plant%20Tour%20%5B2026-05-19%5D.png/);
+});
+
+test("a same-day package and its verified infographic appear only once", () => {
+  const inputs = baseInputs();
+  inputs.packages.items = [
+    {
+      id: "2026-08-11-current-meeting",
+      meeting: { title: "Current meeting" },
+      createdAt: "2026-08-11T18:00:00.000Z",
+      commitments: [],
+      infographic: {
+        verified: {
+          id: "2026-08-11-current-meeting",
+          file: "Current meeting [2026-08-11].png",
+          path: "natively/meeting-infographics/2026-08-11-current-meeting/Current meeting [2026-08-11].png",
+          artifactId: "artifact-current",
+          sourceIds: ["transcript", "summary"],
+          warningCount: 0,
+        },
+      },
+    },
+  ];
+  inputs.brainCompletions.items = [
+    {
+      ...inputs.packages.items[0].infographic.verified,
+      title: "Current meeting",
+      generatedAt: "2026-08-11T18:05:00.000Z",
+      sha256: "abc123",
+    },
+  ];
+  const delivered = lane(buildAgentBoard(inputs), "delivered").cards.filter(
+    (entry) => entry.title === "Current meeting"
+  );
+  assert.equal(delivered.length, 1);
+  assert.equal(delivered[0].kind, "meeting-package");
 });
 
 test("an applied receipt lands on the board and points at the issue it changed", () => {

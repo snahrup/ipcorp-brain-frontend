@@ -1,0 +1,4 @@
+interface:
+  display_name: "Phase Infographic"
+  short_description: "Turn a verified build phase into an information artwork"
+  default_prompt: "Use $phase-infographic to create the verified closeout artwork for this phase."
