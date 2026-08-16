@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { constants } from "node:fs";
-import { appendFile, mkdir, open, readFile, rm, stat, unlink } from "node:fs/promises";
+import { appendFile, cp, mkdir, open, readFile, rm, stat, unlink } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 
@@ -1043,6 +1043,50 @@ export async function recordTurnReceipt(state, input) {
     workItemId: input?.workItemId || null,
     payload: validation.receipt,
   });
+}
+
+/**
+ * Phase 1, item 1.7. The minimal backup and restore path: copy the event log and the saved
+ * snapshots, and be able to rebuild a working state root from that copy.
+ *
+ * Deliberately small. Journal compaction, off-machine schedules, and long soak exercises stay
+ * later, before unattended operation. This exists so a corrupt or lost state root is
+ * recoverable at all, which is a prerequisite for any live effect.
+ */
+export async function backupWorkbenchState(state, destination) {
+  if (!state?.paths?.events) throw new Error("backupWorkbenchState needs an opened state.");
+  const target = normalizePath(requiredString(destination, "backup destination"));
+  await mkdir(target, { recursive: true });
+
+  const events = await readLines(state.paths.events);
+  await appendJsonLine(join(target, "manifest.json"), {
+    schemaVersion: WORKBENCH_STATE_SCHEMA_VERSION,
+    takenAt: new Date().toISOString(),
+    sourceRoot: state.root,
+    eventCount: events.length,
+    eventsHash: hashValue(events),
+  });
+  await cp(state.paths.events, join(target, "events.ndjson"), { force: true });
+  await cp(state.paths.snapshots, join(target, "snapshots"), { recursive: true, force: true });
+  return { destination: target, eventCount: events.length };
+}
+
+export async function restoreWorkbenchState(backup, options = {}) {
+  const source = normalizePath(requiredString(backup, "backup directory"));
+  const resolved = resolveWorkbenchStateRoot(options);
+  await ensureStateRoot(resolved.paths);
+  await cp(join(source, "events.ndjson"), resolved.paths.events, { force: true });
+  await cp(join(source, "snapshots"), resolved.paths.snapshots, { recursive: true, force: true });
+
+  const restored = await readLines(resolved.paths.events);
+  const [manifest] = await readJsonLines(join(source, "manifest.json"));
+  const intact = hashValue(restored) === manifest?.eventsHash;
+  return {
+    root: resolved.root,
+    eventCount: restored.length,
+    intact,
+    reason: intact ? null : "the restored event log does not match the backup manifest",
+  };
 }
 
 export async function resetWorkbenchStateRootForTests(root) {

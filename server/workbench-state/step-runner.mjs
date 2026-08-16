@@ -278,7 +278,7 @@ async function readArtifact(state, ref) {
   return readJson(pathFromRef(state, ref));
 }
 
-async function validateSavedOutput(state, step, successEvent) {
+async function validateSavedOutput(state, step, successEvent, workItemId) {
   const ref = successEvent?.payload?.outputRefs?.[0];
   if (!ref) return { ok: false, output: null };
   let artifact;
@@ -286,6 +286,18 @@ async function validateSavedOutput(state, step, successEvent) {
     artifact = await readArtifact(state, ref);
   } catch (error) {
     if (error?.code === "ENOENT") return { ok: false, output: null };
+    // AS-09. A saved artifact that no longer parses is quarantined rather than served or
+    // thrown at the caller. The step then reruns, which is the honest recovery: the saved
+    // output cannot be trusted, so it is not used.
+    if (error instanceof SyntaxError && workItemId) {
+      await quarantineRecord(state, {
+        workItemId,
+        reason: "corrupt_saved_artifact",
+        details: { stepName: step?.name || null, ref: ref.path || null },
+        record: { ref },
+      });
+      return { ok: false, output: null, quarantined: true };
+    }
     throw error;
   }
   if (artifact.inputHash !== successEvent.payload.inputHash) return { ok: false, output: null };
@@ -455,7 +467,7 @@ export async function runSavedStepJob(state, options) {
       const stepInputHash = hashValue(stepInput || {});
       const priorSuccess = latestStepSuccess(events, workItemId, step.name);
       if (priorSuccess?.payload?.inputHash === stepInputHash) {
-        const validation = await validateSavedOutput(state, step, priorSuccess);
+        const validation = await validateSavedOutput(state, step, priorSuccess, workItemId);
         if (validation.ok) {
           outputs[step.name] = validation.output;
           const skipAttempt = stepAttempt(events, workItemId, step.name) || 1;

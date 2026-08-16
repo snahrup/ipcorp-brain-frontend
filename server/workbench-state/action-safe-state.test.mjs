@@ -3,10 +3,11 @@
 // Every check here must be able to fail. No live external effect is performed anywhere.
 
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { buildTodaySnapshot, TODAY_SNAPSHOT_PUBLIC_FIELDS } from "../today-snapshot.mjs";
 import {
   buildPublicModel,
   createActionRevision,
@@ -24,15 +25,17 @@ import {
 } from "./effect-lifecycle.mjs";
 import {
   appendEvent,
+  backupWorkbenchState,
   completeWorkItem,
   createWorkItem,
   isOwnerWriteCurrent,
   openWorkbenchState,
   projectWorkItems,
   quarantineRecord,
+  restoreWorkbenchState,
   stateSegmentFor,
 } from "./index.mjs";
-import { readSavedStepJobOutput, runSavedStepJob } from "./step-runner.mjs";
+import { projectSavedStepJob, readSavedStepJobOutput, runSavedStepJob } from "./step-runner.mjs";
 
 async function tempRoot() {
   return mkdtemp(join(tmpdir(), "action-safe-state-"));
@@ -510,4 +513,104 @@ test("AS-09b a secret scan finds credentials in saved state and page payloads", 
     nested: { header: "Authorization: Bearer abcdefghijklmnopqrstuvwxyz0123456789" },
   });
   assert.equal(bearer.ok, false);
+});
+
+// AS-09c The Today page model enforces its allowlist and blocks a source carrying secrets.
+test("AS-09c the served Today model refuses unapproved fields and withholds a leaking source", () => {
+  const clean = buildTodaySnapshot({
+    capturedAt: T0,
+    jira: { status: "ok", observedAt: T0, data: { open: 3 } },
+  });
+  assert.deepEqual(
+    Object.keys(clean).sort(),
+    [...TODAY_SNAPSHOT_PUBLIC_FIELDS].sort(),
+    "the payload must carry exactly the approved fields"
+  );
+  assert.deepEqual(clean.jira, { open: 3 });
+
+  const leaking = buildTodaySnapshot({
+    capturedAt: T0,
+    jira: {
+      status: "ok",
+      observedAt: T0,
+      data: { open: 3, auth: "Bearer abcdefghijklmnopqrstuvwxyz0123456789" },
+    },
+  });
+  assert.equal(leaking.jira, null, "a source that carries a secret must not be served");
+  assert.equal(leaking.sources.jira.status, "blocked");
+  assert.match(leaking.sources.jira.detail, /secret scan/i);
+  assert.ok(
+    !JSON.stringify(leaking).includes("abcdefghijklmnopqrstuvwxyz0123456789"),
+    "the secret itself must never appear in the payload"
+  );
+});
+
+// Failure exercise 7: a corrupt saved record is quarantined rather than served.
+test("AS-09d a saved artifact that no longer parses is quarantined and the step reruns", async () => {
+  await withState(async (state) => {
+    let runs = 0;
+    const steps = [
+      {
+        name: "only",
+        run: async () => {
+          runs += 1;
+          return { value: runs };
+        },
+        validate: async ({ output }) => Number.isFinite(output.value),
+      },
+    ];
+    const job = { workItemId: "corrupt-job", owner: "worker-a", input: { a: 1 }, steps, now: T0 };
+
+    assert.equal((await runSavedStepJob(state, job)).status, "completed");
+    assert.equal(runs, 1);
+
+    const projection = await projectSavedStepJob(state, "corrupt-job");
+    const ref = projection.steps[0].outputRefs[0];
+    const artifact = join(state.paths.snapshots, ...ref.path.split("/"));
+    await writeFile(artifact, "{ this is not json", "utf8");
+
+    const again = await runSavedStepJob(state, { ...job, resume: true });
+    assert.equal(again.status, "completed", "the job must recover instead of throwing");
+    assert.equal(runs, 2, "the step must rerun because its saved output cannot be trusted");
+
+    const item = (await projectWorkItems(state)).find((entry) => entry.id === "corrupt-job");
+    assert.ok(
+      item.quarantine?.some((entry) => entry.reason === "corrupt_saved_artifact"),
+      "the corrupt artifact must be recorded as quarantined"
+    );
+  });
+});
+
+// Phase 1 item 1.7: the minimal backup and restore check.
+test("AS-10 a state root can be backed up and restored, and a damaged backup is reported", async () => {
+  const source = await tempRoot();
+  const backup = await mkdtemp(join(tmpdir(), "action-safe-backup-"));
+  const target = await tempRoot();
+  try {
+    const state = await openWorkbenchState({ mode: "test", root: source });
+    await createWorkItem(state, { id: "wi-backup", title: "Backed up", createdAt: T0 });
+    await state.claimWorkItem("wi-backup", { owner: "worker-a", leaseMs: 60_000, now: T0 });
+
+    const taken = await backupWorkbenchState(state, backup);
+    assert.equal(taken.eventCount, 2);
+
+    const restored = await restoreWorkbenchState(backup, { mode: "test", root: target });
+    assert.equal(restored.intact, true);
+    assert.equal(restored.eventCount, 2);
+
+    const rebuilt = await openWorkbenchState({ mode: "test", root: target });
+    const items = await projectWorkItems(rebuilt);
+    assert.equal(items.length, 1);
+    assert.equal(items[0].title, "Backed up");
+    assert.equal(items[0].lease.owner, "worker-a");
+
+    await writeFile(join(backup, "events.ndjson"), "", "utf8");
+    const damaged = await restoreWorkbenchState(backup, { mode: "test", root: await tempRoot() });
+    assert.equal(damaged.intact, false, "a damaged backup must be reported, not trusted");
+    assert.match(damaged.reason, /does not match/i);
+  } finally {
+    await rm(source, { recursive: true, force: true });
+    await rm(backup, { recursive: true, force: true });
+    await rm(target, { recursive: true, force: true });
+  }
 });
