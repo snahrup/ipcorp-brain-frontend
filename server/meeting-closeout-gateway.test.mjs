@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -40,9 +40,65 @@ async function waitForHealth(url, child, stderr) {
   throw new Error(`Gateway did not become ready: ${stderr()}`);
 }
 
+async function waitForMeetingJob(baseUrl, workItemId, expectedStatus) {
+  for (let attempt = 0; attempt < 120; attempt += 1) {
+    const response = await fetch(
+      `${baseUrl}/api/meeting-closeout/jobs/${encodeURIComponent(workItemId)}`
+    );
+    const body = await response.json();
+    if (body.job?.status === expectedStatus) return body.job;
+    if (["completed", "failed", "stop_requested"].includes(body.job?.status)) {
+      throw new Error(
+        `Meeting job reached ${body.job.status}, expected ${expectedStatus}: ${JSON.stringify(body.job.failure)}`
+      );
+    }
+    await new Promise((resolveWait) => setTimeout(resolveWait, 50));
+  }
+  throw new Error(`Meeting job did not reach ${expectedStatus}.`);
+}
+
+// The synthesis package this fake model returns. Every evidence line is copied
+// verbatim from the transcript the test posts, so nothing is dropped by the
+// verbatim check and the assertions below read the real verification path.
+const FAKE_PACKAGE = {
+  summary:
+    "Steve and Patrick Stiller reviewed the Fabric delivery. Steve agreed to send the workbook. Patrick Stiller asked for the source mapping to land on MT-42.",
+  commitments: [
+    {
+      text: "Send the Fabric workbook to Patrick Stiller.",
+      evidence: "Steve: I will send the Fabric workbook to Patrick tomorrow.",
+      due: "tomorrow",
+    },
+  ],
+  jiraProposals: [
+    {
+      operation: "Update",
+      jiraKey: "MT-42",
+      title: "Add the source mapping to MT-42",
+      rationale: "Patrick Stiller assigned the mapping update in the meeting.",
+      evidence: "Patrick: Update MT-42 with the source mapping.",
+    },
+  ],
+  documentRequests: [
+    {
+      text: "The Fabric workbook",
+      owner: "Patrick Stiller",
+      evidence: "Steve: I will send the Fabric workbook to Patrick tomorrow.",
+    },
+  ],
+  reminderCandidates: [],
+  supportingMaterial: [],
+  emailDrafts: [],
+  themes: ["Fabric delivery", "Source mapping"],
+  notes: [],
+};
+
 test("gateway serves the complete pasted-transcript path against a temporary Brain", async () => {
   const root = await mkdtemp(join(tmpdir(), "meeting-closeout-gateway-"));
   const brainRoot = join(root, "brain");
+  const stateDir = join(root, "state");
+  const agentRunsRoot = join(root, "agent-runs");
+  const fakeModelPath = join(root, "fake-synthesis-model.mjs");
   const fixturePath = join(root, "fixture.json");
   const port = await openPort();
   const baseUrl = `http://127.0.0.1:${port}`;
@@ -99,6 +155,33 @@ test("gateway serves the complete pasted-transcript path against a temporary Bra
     "utf8"
   );
 
+  // Without this the gateway spawns the real `claude` binary on Opus, so a test
+  // run cost a live model call and wrote its prompt into Steve's own
+  // %LOCALAPPDATA%\IPCorpBrain\meeting-closeout folder.
+  await writeFile(
+    fakeModelPath,
+    `process.stdout.write("PACKAGE:\\n" + ${JSON.stringify(JSON.stringify(FAKE_PACKAGE))} + "\\nEND PACKAGE\\n");\n`,
+    "utf8"
+  );
+  await mkdir(agentRunsRoot, { recursive: true });
+  await writeFile(
+    join(agentRunsRoot, "MT-999.1786670000000.summary.json"),
+    JSON.stringify({
+      issueKey: "MT-999",
+      agent: "codex",
+      agentLabel: "Codex",
+      state: "finished",
+      startedAt: "2026-08-13T20:00:00.000Z",
+      finishedAt: "2026-08-13T20:10:00.000Z",
+      verdict: "DONE",
+      note: "Saved result.",
+      steps: 4,
+      lastAction: "Read",
+      exitCode: 0,
+    }),
+    "utf8"
+  );
+
   let stderr = "";
   const child = spawn(process.execPath, ["server/jira-gateway.mjs"], {
     cwd: appRoot,
@@ -107,6 +190,18 @@ test("gateway serves the complete pasted-transcript path against a temporary Bra
       IPCORP_JIRA_GATEWAY_PORT: String(port),
       MEETING_CLOSEOUT_FIXTURE: fixturePath,
       MEETING_CLOSEOUT_BRAIN_ROOT: brainRoot,
+      MEETING_CLOSEOUT_STATE_DIR: stateDir,
+      MEETING_CLOSEOUT_JOB_STATE_DIR: join(root, "workbench-state"),
+      MEETING_CLOSEOUT_SYNTHESIS_BIN: `"${process.execPath}" "${fakeModelPath}"`,
+      IPCORP_MEETING_INFOGRAPHICS_PATH: join(brainRoot, "natively", "meeting-infographics"),
+      MEETING_CLOSEOUT_CODEX_FIXTURE_IMAGE: resolve(
+        appRoot,
+        "public",
+        "brand",
+        "ip-corporation-official.png"
+      ),
+      IPCORP_AGENT_RUNS_DIR: agentRunsRoot,
+      IPCORP_AGENT_RUNS_LEGACY_DIR: join(root, "legacy-agent-runs"),
     },
     stdio: ["ignore", "ignore", "pipe"],
     windowsHide: true,
@@ -118,6 +213,13 @@ test("gateway serves the complete pasted-transcript path against a temporary Bra
 
   try {
     await waitForHealth(baseUrl, child, () => stderr);
+
+    const runsResponse = await fetch(`${baseUrl}/api/agents/runs`);
+    const runs = await runsResponse.json();
+    assert.equal(runsResponse.status, 200);
+    assert.ok(Array.isArray(runs.data));
+    assert.equal(runs.data[0].issueKey, "MT-999");
+    assert.equal(runs.data[0].verdict, "DONE");
 
     const todayResponse = await fetch(`${baseUrl}/api/meeting-closeout/today`);
     const today = await todayResponse.json();
@@ -132,8 +234,9 @@ test("gateway serves the complete pasted-transcript path against a temporary Bra
       body: JSON.stringify({ meeting }),
     });
     const unavailable = await unavailableResponse.json();
-    assert.equal(unavailableResponse.status, 200);
-    assert.equal(unavailable.code, "transcript_unavailable");
+    assert.equal(unavailableResponse.status, 202);
+    const unavailableJob = await waitForMeetingJob(baseUrl, unavailable.job.workItemId, "failed");
+    assert.equal(unavailableJob.failure.code, "transcript_unavailable");
 
     const transcript = [
       "Steve: I will send the Fabric workbook to Patrick tomorrow.",
@@ -149,11 +252,30 @@ test("gateway serves the complete pasted-transcript path against a temporary Bra
         contextNotes: "Patrick Stiller asked for the workbook link.",
       }),
     });
-    const packageBody = await packageResponse.json();
-    assert.equal(packageResponse.status, 200);
+    const packageStarted = await packageResponse.json();
+    assert.equal(packageResponse.status, 202);
+    assert.equal(packageStarted.ok, true);
+    const completedJob = await waitForMeetingJob(
+      baseUrl,
+      packageStarted.job.workItemId,
+      "completed"
+    );
+    const packageBody = completedJob.result;
     assert.equal(packageBody.ok, true);
     assert.equal(packageBody.package.externalActions.emailSent, false);
     assert.equal(packageBody.package.externalActions.jiraChanged, false);
+
+    // The package came from the model the test supplied, through the real
+    // verbatim verification, and the prompt landed in the test's own state
+    // folder instead of Steve's.
+    assert.match(packageBody.package.summary, /^Steve and Patrick Stiller reviewed/);
+    assert.equal(packageBody.package.commitments.length, 1);
+    assert.equal(packageBody.package.jiraProposals[0].jiraKey, "MT-42");
+    const prompts = (await readdir(stateDir)).filter((name) =>
+      name.startsWith("synthesis-prompt.")
+    );
+    assert.equal(prompts.length, 1);
+    assert.match(await readFile(join(stateDir, prompts[0]), "utf8"), /Update MT-42/);
 
     const packagesResponse = await fetch(`${baseUrl}/api/meeting-closeout/packages`);
     const packages = await packagesResponse.json();
@@ -161,11 +283,22 @@ test("gateway serves the complete pasted-transcript path against a temporary Bra
     assert.equal(packages.data.length, 1);
     assert.equal(packages.data[0].id, packageBody.package.id);
 
-    const infographic = await readFile(
-      join(brainRoot, packageBody.package.files.infographic),
-      "utf8"
+    const infographic = await readFile(join(brainRoot, packageBody.package.files.infographic));
+    assert.deepEqual(infographic.subarray(0, 8), Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+    assert.match(packageBody.package.files.infographic, /-codex\.png$/);
+    const imageResponse = await fetch(
+      `${baseUrl}/api/meetings/infographic?id=${encodeURIComponent(packageBody.package.infographic.saved.id)}&file=${encodeURIComponent(packageBody.package.infographic.saved.file)}`
     );
-    assert.match(infographic, /Fabric Delivery Review/);
+    assert.equal(imageResponse.status, 200);
+    assert.equal(imageResponse.headers.get("content-type"), "image/png");
+    assert.deepEqual(Buffer.from(await imageResponse.arrayBuffer()), infographic);
+    const infographicStatus = JSON.parse(
+      await readFile(join(brainRoot, packageBody.package.files.infographicStatus), "utf8")
+    );
+    assert.equal(infographicStatus.generator.provider, "codex");
+    assert.equal(infographicStatus.generator.imageModel, "gpt-image-2");
+    assert.equal(infographicStatus.attemptHistory.length, 1);
+    assert.equal(infographicStatus.attemptHistory[0].outcome, "generated");
   } finally {
     child.kill();
     await new Promise((resolveExit) => {

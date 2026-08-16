@@ -1,18 +1,41 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join, resolve } from "node:path";
 import test from "node:test";
 import {
+  generateMeetingCloseoutVisual,
   inspectStoredMeetingPackage,
   listStoredPackages,
   listTodaysMeetings,
-  persistMeetingPackage,
-  processMeetingCloseout,
+  listVerifiedMeetingInfographics,
+  persistMeetingPackage as persistMeetingPackageReal,
+  processMeetingCloseout as processMeetingCloseoutReal,
   resetTodayCalendarState,
   shouldRefreshSnapshot,
   synthesizeReviewPackage,
 } from "./meeting-closeout.mjs";
+
+const CODEX_IMAGE_FIXTURE = resolve("public", "brand", "ip-corporation-official.png");
+
+function withCodexFixture(options = {}) {
+  return {
+    ...options,
+    codexInfographicOptions: {
+      fixtureImagePath: CODEX_IMAGE_FIXTURE,
+      ...options.codexInfographicOptions,
+    },
+  };
+}
+
+function persistMeetingPackage(value, transcriptValue, source, options = {}) {
+  return persistMeetingPackageReal(value, transcriptValue, source, withCodexFixture(options));
+}
+
+function processMeetingCloseout(payload, options = {}) {
+  return processMeetingCloseoutReal(payload, withCodexFixture(options));
+}
 
 const meeting = {
   id: "meeting-closeout-test",
@@ -166,6 +189,10 @@ function modelOutput(overrides = {}) {
 
 const stubModel = async () => modelOutput();
 
+function markerFor(value) {
+  return `<!-- WORKBENCH_CLOSEOUT_JSON ${Buffer.from(JSON.stringify(value), "utf8").toString("base64")} -->`;
+}
+
 test("synthesis builds the package from model output with verified evidence", async () => {
   const value = await synthesizeReviewPackage(
     {
@@ -308,6 +335,279 @@ test("a conversational bridge reply is not a Teams capture", async () => {
   assert.equal(result.code, "transcript_unavailable");
 });
 
+test("a Copilot digest of the transcript never reaches synthesis", async (t) => {
+  const suppliedRoot = await mkdtemp(join(tmpdir(), "meeting-closeout-abridged-"));
+  const capturedRoot = await mkdtemp(join(tmpdir(), "meeting-closeout-abridged-captured-"));
+  t.after(async () => {
+    assert.ok(suppliedRoot.startsWith(tmpdir()));
+    assert.ok(capturedRoot.startsWith(tmpdir()));
+    await rm(suppliedRoot, { recursive: true, force: true });
+    await rm(capturedRoot, { recursive: true, force: true });
+  });
+  const digest = [
+    "[00:00:03] Robin Virginia: All right, Steve, do you want to start by going",
+    "through the spreadsheet? Take it away. [00:02:46] Steve Nahrup: The overview",
+    "is set up with pre-wave, like program pre-wave one... 1.1 is purview. So these",
+    "are both in progress. [00:39:47] Robin Virginia: It has some real traction to",
+    "it now. [00:40:34] Steve Nahrup: Yep, that's the objective... I'll send a",
+    "follow up. (excerpt; full transcript available at source)",
+  ].join(" ");
+  const refuse = async () => {
+    throw new Error("Synthesis must never run against an abridged transcript.");
+  };
+
+  const supplied = await processMeetingCloseout(
+    { meeting, transcript: digest },
+    { brainRoot: suppliedRoot, runModel: refuse }
+  );
+  assert.equal(supplied.ok, false);
+  assert.equal(supplied.code, "transcript_abridged");
+
+  const captured = await processMeetingCloseout(
+    { meeting },
+    {
+      brainRoot: capturedRoot,
+      runModel: refuse,
+      fixture: { transcripts: { [meeting.id]: { transcript: digest } } },
+    }
+  );
+  assert.equal(captured.ok, false);
+  assert.equal(captured.code, "transcript_abridged");
+});
+
+test("a whole transcript that discusses an excerpt is still processed", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "meeting-closeout-excerpt-word-"));
+  t.after(async () => {
+    assert.ok(root.startsWith(tmpdir()));
+    await rm(root, { recursive: true, force: true });
+  });
+  await prepareBrainRoot(root);
+
+  const result = await processMeetingCloseout(
+    {
+      meeting,
+      transcript: `Patrick: Read the excerpt from the full transcript out loud.\n${transcript}`,
+    },
+    { brainRoot: root, runModel: stubModel }
+  );
+
+  assert.equal(result.ok, true, "the words alone are not a disclosure of abridgement");
+});
+
+test("a transcript covering three minutes of a thirty minute meeting is not the meeting", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "meeting-closeout-partial-"));
+  t.after(async () => {
+    assert.ok(root.startsWith(tmpdir()));
+    await rm(root, { recursive: true, force: true });
+  });
+  await prepareBrainRoot(root);
+  const slice = [
+    "[00:20:29] Steve Nahrup: The Azure naming standard is written.",
+    "[00:21:33] Patrick Stiller: Did you come up with a location?",
+    "[00:22:43] Steve Nahrup: I can finish that today. I'll put those in Jira.",
+    "[00:23:24] Patrick Stiller: Mike is taking that before the ELT tomorrow.",
+  ].join("\n");
+
+  const result = await processMeetingCloseout(
+    { meeting, transcript: slice },
+    {
+      brainRoot: root,
+      runModel: async () => {
+        throw new Error("Synthesis must never run against three minutes of a meeting.");
+      },
+    }
+  );
+
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "transcript_partial");
+  assert.match(result.detail, /3 minutes of the 30 minute meeting/);
+});
+
+test("a short ad-hoc call is processed on its own length, not a stand-up's", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "meeting-closeout-adhoc-"));
+  t.after(async () => {
+    assert.ok(root.startsWith(tmpdir()));
+    await rm(root, { recursive: true, force: true });
+  });
+  await prepareBrainRoot(root);
+
+  const adhoc = {
+    ...meeting,
+    id: "meeting-adhoc",
+    end: "2026-08-04T14:05:00-04:00",
+  };
+  const result = await processMeetingCloseout(
+    {
+      meeting: adhoc,
+      transcript: `[00:00:12] ${transcript.split("\n").join("\n[00:02:40] ")}`,
+    },
+    { brainRoot: root, runModel: stubModel }
+  );
+
+  assert.equal(result.ok, true);
+});
+
+test("a Teams transcript handed in by reconciliation is filed as Teams", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "meeting-closeout-declared-source-"));
+  t.after(async () => {
+    assert.ok(root.startsWith(tmpdir()));
+    await rm(root, { recursive: true, force: true });
+  });
+  await prepareBrainRoot(root);
+
+  const result = await processMeetingCloseout(
+    { meeting, transcript, transcriptSource: "teams" },
+    { brainRoot: root, runModel: stubModel }
+  );
+
+  assert.equal(result.ok, true);
+  assert.match(result.package.source, /Teams/);
+  assert.match(result.package.files.transcript, /transcripts\/consolidated/);
+  await readFile(
+    join(
+      root,
+      "core",
+      "meetings",
+      "transcripts",
+      "teams-export",
+      "2026-08-04-fabric-delivery-review.md"
+    ),
+    "utf8"
+  );
+  await assert.rejects(
+    readFile(
+      join(
+        root,
+        "core",
+        "meetings",
+        "transcripts",
+        "cluely-export",
+        "2026-08-04-fabric-delivery-review.md"
+      )
+    ),
+    undefined,
+    "a Teams transcript is never filed as a Cluely capture"
+  );
+});
+
+test("different transcript sources are consolidated before synthesis", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "meeting-closeout-consolidate-"));
+  t.after(async () => {
+    assert.ok(root.startsWith(tmpdir()));
+    await rm(root, { recursive: true, force: true });
+  });
+  await prepareBrainRoot(root);
+  await mkdir(join(root, "core", "meetings", "transcripts", "teams-export"), {
+    recursive: true,
+  });
+  const teamsText = [
+    "Steve: I will send the Fabric workbook to Patrick tomorrow.",
+    "Patrick: Update MT-42 with the source mapping.",
+  ].join("\n");
+  const cluelyText = [
+    "[00:01:00] Steve: Email Mike with the recap.",
+    "[00:03:00] Mike: The support window starts Thursday.",
+  ].join("\n");
+  await writeFile(
+    join(
+      root,
+      "core",
+      "meetings",
+      "transcripts",
+      "teams-export",
+      "2026-08-04-fabric-delivery-review.md"
+    ),
+    `# Fabric Delivery Review - 2026-08-04\n\n${teamsText}\n`,
+    "utf8"
+  );
+
+  let consolidationCalls = 0;
+  let synthesisSawBothSources = false;
+  const runModel = async (prompt) => {
+    if (prompt.includes("CONSOLIDATED:")) {
+      consolidationCalls += 1;
+      assert.match(prompt, /teams-export\/2026-08-04-fabric-delivery-review\.md/);
+      assert.match(prompt, /cluely-export\/2026-08-04-fabric-delivery-review\.md/);
+      assert.match(prompt, /Teams transcript as the stronger source/);
+      assert.match(prompt, /source mapping/);
+      assert.match(prompt, /support window starts Thursday/);
+      return `CONSOLIDATED:
+Steve: I will send the Fabric workbook to Patrick tomorrow.
+Patrick: Update MT-42 with the source mapping.
+Steve: Email Mike with the recap.
+Mike: The support window starts Thursday.
+END CONSOLIDATED`;
+    }
+    synthesisSawBothSources =
+      prompt.includes("source mapping") && prompt.includes("support window starts Thursday");
+    return modelOutput();
+  };
+
+  const result = await processMeetingCloseout(
+    { meeting, transcript: cluelyText, transcriptSource: "cluely" },
+    { brainRoot: root, runModel }
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(consolidationCalls, 1);
+  assert.equal(synthesisSawBothSources, true);
+  assert.match(result.package.source, /Consolidated meeting context from 2 transcript sources/);
+  assert.match(result.package.files.transcript, /core\/meetings\/transcripts\/consolidated/);
+  assert.ok(result.package.files.transcriptSource1);
+  assert.ok(result.package.files.transcriptSource2);
+
+  const context = await readFile(join(root, result.package.files.transcript), "utf8");
+  assert.match(context, /Source receipts/);
+  assert.match(context, /sha256:/);
+  assert.match(context, /support window starts Thursday/);
+});
+
+test("different same-named captures are preserved and rerun safely", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "meeting-closeout-versioned-source-"));
+  t.after(async () => {
+    assert.ok(root.startsWith(tmpdir()));
+    await rm(root, { recursive: true, force: true });
+  });
+  await prepareBrainRoot(root);
+  const folder = join(root, "core", "meetings", "transcripts", "cluely-export");
+  await mkdir(folder, { recursive: true });
+  const storedText = [
+    "Steve: I will send the Fabric workbook to Patrick tomorrow.",
+    "Patrick: Update MT-42 with the source mapping.",
+  ].join("\n");
+  const incomingText = [
+    "Steve: Email Mike with the recap.",
+    "Mike: The support window starts Thursday.",
+  ].join("\n");
+  const basePath = join(folder, "2026-08-04-fabric-delivery-review.md");
+  await writeFile(basePath, `# Fabric Delivery Review - 2026-08-04\n\n${storedText}\n`, "utf8");
+
+  const runModel = async (prompt) =>
+    prompt.includes("CONSOLIDATED:")
+      ? `CONSOLIDATED:\n${storedText}\n${incomingText}\nEND CONSOLIDATED`
+      : modelOutput();
+  const options = { brainRoot: root, runModel };
+  const payload = { meeting, transcript: incomingText, transcriptSource: "cluely" };
+
+  const first = await processMeetingCloseout(payload, options);
+  const second = await processMeetingCloseout(payload, options);
+
+  assert.equal(first.ok, true);
+  assert.equal(second.ok, true);
+  const versions = (await readdir(folder)).filter((name) =>
+    name.startsWith("2026-08-04-fabric-delivery-review")
+  );
+  assert.equal(versions.length, 2);
+  assert.match(await readFile(basePath, "utf8"), /source mapping/);
+  const versionPath = join(
+    folder,
+    versions.find((name) => name !== basename(basePath))
+  );
+  assert.match(await readFile(versionPath, "utf8"), /support window starts Thursday/);
+  const context = await readFile(join(root, second.package.files.transcript), "utf8");
+  assert.equal(context.match(/sha256:/g)?.length, 2);
+});
+
 test("Teams capture carries recap and related material into the stored package", async (t) => {
   const root = await mkdtemp(join(tmpdir(), "meeting-closeout-teams-"));
   t.after(async () => {
@@ -360,11 +660,52 @@ test("pasted transcript writes an idempotent Brain package and lists it for Work
 
   const first = await persistMeetingPackage(value, transcript, "cluely", { brainRoot: root });
   const second = await persistMeetingPackage(value, transcript, "cluely", { brainRoot: root });
+  const outputFile = "Fabric Delivery Review [2026-08-04].png";
+  const infographicDir = join(root, "natively", "meeting-infographics", first.id);
+  const outputBytes = await readFile(join(root, first.files.infographicPng));
+  const outputHash = createHash("sha256").update(outputBytes).digest("hex");
+  await writeFile(join(infographicDir, outputFile), outputBytes);
+  await writeFile(
+    join(root, first.files.infographicStatus),
+    `${JSON.stringify(
+      {
+        status: "GENERATED",
+        meetingTitle: meeting.title,
+        generatedAt: "2026-08-04T19:00:00.000Z",
+        artifactId: "artifact-fabric-review",
+        generator: { provider: "codex", imageModel: "gpt-image-2" },
+        sourceIds: ["transcript-source", "summary-source"],
+        output: { file: outputFile, sha256: outputHash },
+        verification: "The PNG, both sources, and the artifact were read back.",
+      },
+      null,
+      2
+    )}\n`,
+    "utf8"
+  );
+  const verifiedStatusBefore = await readFile(join(root, first.files.infographicStatus), "utf8");
+  let replacementRenderCalls = 0;
+  const refreshed = await persistMeetingPackage(value, transcript, "cluely", {
+    brainRoot: root,
+    generateInfographic: async () => {
+      replacementRenderCalls += 1;
+      throw new Error("A verified infographic must not be rendered over.");
+    },
+  });
+  const verifiedStatusAfter = await readFile(join(root, first.files.infographicStatus), "utf8");
+  const completions = await listVerifiedMeetingInfographics({ brainRoot: root });
   const packages = await listStoredPackages({ brainRoot: root });
 
   assert.equal(first.id, second.id);
+  assert.equal(replacementRenderCalls, 0);
+  assert.equal(verifiedStatusAfter, verifiedStatusBefore);
+  assert.equal(basename(refreshed.files.infographicPng), outputFile);
+  assert.equal(completions.length, 1);
+  assert.equal(completions[0].artifactId, "artifact-fabric-review");
+  assert.equal(completions[0].file, outputFile);
   assert.equal(packages.length, 1);
   assert.equal(packages[0].meeting.title, meeting.title);
+  assert.equal(packages[0].infographic.verified.file, outputFile);
   assert.match(packages[0].source, /Cluely/);
   assert.equal(packages[0].externalActions.emailSent, false);
   assert.equal(packages[0].externalActions.jiraChanged, false);
@@ -383,6 +724,83 @@ test("pasted transcript writes an idempotent Brain package and lists it for Work
   assert.match(changelog, /Workbench meeting closeout/);
   const processedLog = await readFile(join(root, "_intake", "processed.log"), "utf8");
   assert.match(processedLog, /meeting-closeout/);
+});
+
+test("a failed Codex generation stays pending without an HTML or PNG placeholder", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "meeting-closeout-no-placeholder-"));
+  t.after(async () => {
+    assert.ok(root.startsWith(tmpdir()));
+    await rm(root, { recursive: true, force: true });
+  });
+  await prepareBrainRoot(root);
+
+  const result = await processMeetingCloseout(
+    { meeting, transcript },
+    {
+      brainRoot: root,
+      runModel: stubModel,
+      generateInfographic: async () => {
+        throw new Error("Image service unavailable for this test.");
+      },
+    }
+  );
+
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "meeting_package_incomplete");
+  assert.deepEqual(result.inspection.missing, ["infographicPng"]);
+  assert.equal(result.package.files.infographicPng, undefined);
+  assert.equal(result.package.files.infographicHtml, undefined);
+  const status = JSON.parse(
+    await readFile(join(root, result.package.files.infographicStatus), "utf8")
+  );
+  assert.equal(status.status, "pending_generation");
+  assert.equal(status.requestedProvider, "codex");
+  assert.equal(status.alternateProvider, "notebooklm");
+  assert.equal(status.attemptHistory.length, 1);
+  assert.equal(status.attemptHistory[0].outcome, "failed");
+  const visualFiles = await readdir(
+    join(root, "natively", "meeting-infographics", result.package.id)
+  );
+  assert.deepEqual(visualFiles, ["status.json"]);
+});
+
+test("visual generation and association can resume after the package is stored", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "meeting-closeout-staged-"));
+  t.after(async () => {
+    assert.ok(root.startsWith(tmpdir()));
+    await rm(root, { recursive: true, force: true });
+  });
+  await prepareBrainRoot(root);
+  const value = await synthesizeReviewPackage({ meeting, transcript }, stubModel);
+
+  const pending = await persistMeetingPackageReal(value, transcript, "cluely", {
+    brainRoot: root,
+    deferInfographic: true,
+  });
+  const pendingInspection = await inspectStoredMeetingPackage(pending, { brainRoot: root });
+  assert.equal(pendingInspection.complete, false);
+  assert.deepEqual(pendingInspection.missing, ["infographicPng"]);
+
+  const generated = await generateMeetingCloseoutVisual(
+    value,
+    { text: transcript },
+    withCodexFixture({ brainRoot: root, throwOnInfographicFailure: true })
+  );
+  assert.ok(generated.visual?.sha256);
+
+  const associated = await persistMeetingPackageReal(value, transcript, "cluely", {
+    brainRoot: root,
+    visual: generated.visual,
+  });
+  const inspection = await inspectStoredMeetingPackage(associated, { brainRoot: root });
+  assert.equal(inspection.complete, true);
+  assert.equal(inspection.associated, true);
+  assert.equal(inspection.visual.sha256, generated.visual.sha256);
+  const visualStatus = JSON.parse(
+    await readFile(join(root, associated.files.infographicStatus), "utf8")
+  );
+  assert.equal(visualStatus.attemptHistory.length, 1);
+  assert.equal(visualStatus.attemptHistory[0].outcome, "generated");
 });
 
 test("a summary-marker stop resumes and repairs every later meeting piece once", async (t) => {
@@ -423,6 +841,57 @@ test("a summary-marker stop resumes and repairs every later meeting piece once",
   assert.equal(processed.match(/workbench-meeting-closeout/g)?.length, 1);
   const changelog = await readFile(join(root, "CHANGELOG.md"), "utf8");
   assert.equal(changelog.match(/Workbench meeting closeout stored/g)?.length, 1);
+  const summary = await readFile(join(root, repaired.files.summary), "utf8");
+  assert.equal(summary.match(/WORKBENCH_CLOSEOUT_JSON/g)?.length, 1);
+});
+
+test("reprocessing replaces an independent summary's stacked Workbench markers", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "meeting-closeout-marker-replace-"));
+  t.after(async () => {
+    assert.ok(root.startsWith(tmpdir()));
+    await rm(root, { recursive: true, force: true });
+  });
+  await prepareBrainRoot(root);
+  const value = await synthesizeReviewPackage({ meeting, transcript }, stubModel);
+  const summaryPath = join(
+    root,
+    "core",
+    "meetings",
+    "summaries",
+    "2026-08-04-fabric-delivery-review.md"
+  );
+  await mkdir(join(root, "core", "meetings", "summaries"), { recursive: true });
+  await writeFile(
+    summaryPath,
+    [
+      "# Independent meeting note",
+      "",
+      "This paragraph was written before the Workbench closeout.",
+      "",
+      "## Workbench closeout review",
+      "",
+      "Old package one.",
+      markerFor({ ...value, id: "old-one" }),
+      "",
+      "Old package two.",
+      markerFor({ ...value, id: "old-two" }),
+      "",
+      "## Human notes",
+      "",
+      "This later section must remain.",
+      "",
+    ].join("\n"),
+    "utf8"
+  );
+
+  const stored = await persistMeetingPackage(value, transcript, "cluely", { brainRoot: root });
+  const summary = await readFile(join(root, stored.files.summary), "utf8");
+
+  assert.match(summary, /This paragraph was written before the Workbench closeout/);
+  assert.match(summary, /This later section must remain/);
+  assert.doesNotMatch(summary, /Old package one/);
+  assert.doesNotMatch(summary, /Old package two/);
+  assert.equal(summary.match(/WORKBENCH_CLOSEOUT_JSON/g)?.length, 1);
 });
 
 test("meeting persistence stops before writing when Brain instructions are missing", async (t) => {
@@ -646,6 +1115,9 @@ test("a raw Cluely capture is cleaned to Teams quality before anything reads it"
     "Them [0:40] No, where is it",
     "Them [0:41] located?",
     "Them [2:34] Hey, guys.",
+    "Me [11:02] The task breakdown is the third tab.",
+    "Them [19:48] That order works for the first domain.",
+    "Me [24:10] I will send it over after this.",
   ].join("\n");
   const cleaned = [
     "**Steve Nahrup** [0:27]",
@@ -656,6 +1128,15 @@ test("a raw Cluely capture is cleaned to Teams quality before anything reads it"
     "",
     "**Patrick Stiller** [2:34]",
     "Hey, guys.",
+    "",
+    "**Steve Nahrup** [11:02]",
+    "The task breakdown is the third tab.",
+    "",
+    "**Patrick Stiller** [19:48]",
+    "That order works for the first domain.",
+    "",
+    "**Steve Nahrup** [24:10]",
+    "I will send it over after this.",
   ].join("\n");
 
   let cleanupCalls = 0;

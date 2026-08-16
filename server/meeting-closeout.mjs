@@ -3,7 +3,8 @@ import { createHash } from "node:crypto";
 import { appendFile, mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve, sep } from "node:path";
 import { promisify } from "node:util";
-import { inspectPng, renderMeetingInfographic } from "./meeting-infographic-renderer.mjs";
+import { generateMeetingInfographicWithCodex } from "./codex-infographic-generator.mjs";
+import { inspectPng } from "./meeting-infographic-renderer.mjs";
 
 const execFileAsync = promisify(execFile);
 const DEFAULT_BRAIN_ROOT =
@@ -11,7 +12,6 @@ const DEFAULT_BRAIN_ROOT =
 const ADAPTER_PATH = resolve(process.cwd(), "server", "meeting-closeout-adapter.py");
 const MAX_BODY_BYTES = 2_000_000;
 const PACKAGE_MARKER = "WORKBENCH_CLOSEOUT_JSON";
-const activeProcessing = new Map();
 
 function asText(value) {
   return typeof value === "string" ? value.trim() : "";
@@ -416,7 +416,7 @@ function transcriptError(value) {
   );
 }
 
-const SPEAKER_TURN = /^[^\n:]{1,60}:\s*\S/m;
+const SPEAKER_TURN = /^(?:\*\*)?[^\n:]{1,60}(?:\*\*)?(?::\s*\S|\s+\[\d{1,2}:\d{2}\]\s*$)/m;
 
 /**
  * A Teams capture with no speaker turns and almost no text is not a transcript.
@@ -429,6 +429,33 @@ const SPEAKER_TURN = /^[^\n:]{1,60}:\s*\S/m;
 function capturedTranscriptUnusable(value) {
   const text = asText(value);
   return !SPEAKER_TURN.test(text) && text.length < 400;
+}
+
+const ABRIDGED_DISCLOSURE = [
+  /[([][^)\]\n]{0,160}\b(?:excerpt|excerpted|abridged|truncated|condensed|partial transcript)\b[^)\]\n]{0,160}[)\]]/i,
+  /\bfull transcript\b[^.\n]{0,80}\b(?:available at source|available on request|continues at)\b/i,
+];
+
+export function transcriptIsAbridged(value) {
+  const text = asText(value);
+  return ABRIDGED_DISCLOSURE.some((pattern) => pattern.test(text));
+}
+
+const TRANSCRIPT_TIMESTAMP = /\[(?:(\d{1,2}):)?(\d{1,2}):(\d{2})\]/g;
+const COVERAGE_FLOOR = 0.25;
+const COVERAGE_MIN_MEETING_SECONDS = 20 * 60;
+
+export function transcriptCoverage(transcript, meeting) {
+  const seconds = [...asText(transcript).matchAll(TRANSCRIPT_TIMESTAMP)].map(
+    ([, hours, minutes, secs]) => Number(hours || 0) * 3600 + Number(minutes) * 60 + Number(secs)
+  );
+  const start = Date.parse(meeting?.start || "");
+  const end = Date.parse(meeting?.end || "");
+  if (seconds.length < 2 || !Number.isFinite(start) || !Number.isFinite(end)) return null;
+  const meetingSeconds = (end - start) / 1000;
+  if (meetingSeconds < COVERAGE_MIN_MEETING_SECONDS) return null;
+  const covered = Math.max(...seconds) - Math.min(...seconds);
+  return { covered, meetingSeconds, ratio: covered / meetingSeconds };
 }
 
 function findText(value, keys, depth = 0) {
@@ -606,6 +633,326 @@ async function cleanupPastedTranscript(input, runModel = runSynthesisModel) {
 }
 
 // ---------------------------------------------------------------------------
+// Transcript reconciliation. A meeting can arrive with a Teams capture, a
+// Cluely paste, and older saved files for the same meeting. The closeout reads
+// every matching source, filters bad captures, keeps partial captures as
+// supporting input only when a full source exists, and stores one context file
+// that downstream synthesis reads.
+// ---------------------------------------------------------------------------
+
+const TRANSCRIPT_FOLDER_FALLBACKS = [
+  "teams-export",
+  "cluely-export",
+  "notion-export",
+  "email-export",
+  "elt-prep-feedback",
+];
+const CONSOLIDATED_TRANSCRIPT_FOLDER = "consolidated";
+
+function sourceFolderFor(value) {
+  return value === "cluely" ? "cluely-export" : "teams-export";
+}
+
+function transcriptBodyFromDocument(value) {
+  return asText(value)
+    .replace(/^# .+?\r?\n\r?\n/, "")
+    .trim();
+}
+
+function normalizedTranscriptKey(value) {
+  return transcriptBodyFromDocument(value).toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function transcriptHash(value) {
+  return createHash("sha256").update(transcriptBodyFromDocument(value)).digest("hex");
+}
+
+function transcriptMatchesMeeting(fileName, meeting, date, slug) {
+  const stem = basename(fileName).replace(/\.md$/i, "").toLowerCase();
+  const idSlug = safeSlug(meeting.id || "");
+  return (
+    stem === `${date}-${slug}` ||
+    stem.includes(`${date}-${slug}`) ||
+    (idSlug && stem.includes(idSlug)) ||
+    (stem.includes(date) && stem.includes(slug))
+  );
+}
+
+async function transcriptFolders(root) {
+  try {
+    const folders = await readdir(root, { withFileTypes: true });
+    const names = folders
+      .filter((item) => item.isDirectory())
+      .map((item) => item.name)
+      .filter((name) => name !== CONSOLIDATED_TRANSCRIPT_FOLDER);
+    return names.length ? names : TRANSCRIPT_FOLDER_FALLBACKS;
+  } catch {
+    return TRANSCRIPT_FOLDER_FALLBACKS;
+  }
+}
+
+async function walkMarkdownFiles(folder) {
+  let entries = [];
+  try {
+    entries = await readdir(folder, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  const files = [];
+  for (const entry of entries) {
+    const path = join(folder, entry.name);
+    if (entry.isDirectory()) files.push(...(await walkMarkdownFiles(path)));
+    else if (entry.isFile() && entry.name.toLowerCase().endsWith(".md")) files.push(path);
+  }
+  return files;
+}
+
+function classifyTranscript(text, meeting) {
+  if (transcriptError(text) || capturedTranscriptUnusable(text)) {
+    return { state: "unusable", code: "transcript_unavailable", detail: "Capture is not usable." };
+  }
+  if (transcriptIsAbridged(text)) {
+    return {
+      state: "partial",
+      code: "transcript_abridged",
+      detail: "Capture says it is an excerpt.",
+    };
+  }
+  const coverage = transcriptCoverage(text, meeting);
+  if (coverage && coverage.ratio < COVERAGE_FLOOR) {
+    return {
+      state: "partial",
+      code: "transcript_partial",
+      detail: `Capture covers ${Math.round(coverage.covered / 60)} minutes of the ${Math.round(coverage.meetingSeconds / 60)} minute meeting.`,
+    };
+  }
+  return { state: "full", code: "transcript_ready", detail: "Usable full capture." };
+}
+
+async function discoverStoredTranscriptSources(brainRoot, meeting, date, slug) {
+  const root = safePath(brainRoot, "core", "meetings", "transcripts");
+  const folders = await transcriptFolders(root);
+  const sources = [];
+  for (const folderName of folders) {
+    const folder = safePath(root, folderName);
+    for (const path of await walkMarkdownFiles(folder)) {
+      if (!transcriptMatchesMeeting(path, meeting, date, slug)) continue;
+      const document = await readFile(path, "utf8");
+      const body = transcriptBodyFromDocument(document);
+      const quality = classifyTranscript(body, meeting);
+      sources.push({
+        kind: folderName,
+        origin: "stored",
+        path,
+        relativePath: relativeToRoot(brainRoot, path),
+        text: body,
+        hash: transcriptHash(body),
+        quality,
+      });
+    }
+  }
+  return sources;
+}
+
+function incomingTranscriptSource({ brainRoot, meeting, date, slug, source, transcript }) {
+  if (!transcript) return null;
+  const folder = sourceFolderFor(source);
+  const text = transcriptBodyFromDocument(transcript);
+  const hash = transcriptHash(text);
+  const path = safePath(brainRoot, "core", "meetings", "transcripts", folder, `${date}-${slug}.md`);
+  return {
+    kind: folder,
+    origin: "incoming",
+    path,
+    relativePath: relativeToRoot(brainRoot, path),
+    text,
+    hash,
+    quality: classifyTranscript(text, meeting),
+  };
+}
+
+function selectTranscriptSources(sources) {
+  const usable = sources.filter((source) => source.quality.state !== "unusable");
+  const unique = uniqueBy(usable, (source) => normalizedTranscriptKey(source.text));
+  const full = unique.filter((source) => source.quality.state === "full");
+  const partial = unique.filter((source) => source.quality.state === "partial");
+  if (!full.length) {
+    const first = partial[0];
+    return {
+      ok: false,
+      code: first?.quality.code || "transcript_unavailable",
+      detail:
+        first?.quality.code === "transcript_abridged"
+          ? "Only excerpted captures were found. The meeting stays unprocessed until a full source is available."
+          : first?.quality.code === "transcript_partial"
+            ? `${first.quality.detail} The meeting stays unprocessed until a full source is available.`
+            : "No usable transcript source was found.",
+    };
+  }
+  return { ok: true, sources: [...full, ...partial] };
+}
+
+function buildTranscriptConsolidationPrompt({ meeting, sources }) {
+  const sourceBlocks = sources
+    .map(
+      (source, index) => `SOURCE ${index + 1}
+Path: ${source.relativePath}
+Quality: ${source.quality.state}
+SHA256: ${source.hash}
+
+${source.text}`
+    )
+    .join("\n\n---\n\n");
+  return `Build one meeting context transcript from the sources below.
+
+Meeting: ${meeting.title}
+Date: ${meeting.start.slice(0, 10)}
+
+Rules:
+- Preserve speaker names and attribution from the sources.
+- On overlapping speech, treat a Teams transcript as the stronger source for exact wording and speaker attribution; use Cluely to fill gaps or extend a partial Teams capture.
+- Merge complementary details and remove duplicated turns.
+- If sources disagree, keep the uncertainty visible in brackets.
+- If a partial source adds context, include only what it actually contains.
+- Do not invent words, decisions, dates, owners, or certainty.
+- Do not summarize away commitments or requested follow-up.
+
+${sourceBlocks}
+
+Output exactly:
+CONSOLIDATED:
+<the consolidated meeting context>
+END CONSOLIDATED`;
+}
+
+function parseConsolidatedTranscript(output) {
+  return (
+    /CONSOLIDATED:[ \t]*\r?\n([\s\S]*?)END CONSOLIDATED/m.exec(String(output || ""))?.[1]?.trim() ||
+    ""
+  );
+}
+
+async function consolidateTranscriptSources({ meeting, sources }, runModel = runSynthesisModel) {
+  if (sources.length === 1) return sources[0].text;
+  const consolidated = parseConsolidatedTranscript(
+    await runModel(buildTranscriptConsolidationPrompt({ meeting, sources }))
+  );
+  if (!consolidated || consolidated.length < 80) {
+    const error = new Error("Transcript consolidation did not return a usable context artifact.");
+    error.code = "transcript_consolidation_unavailable";
+    throw error;
+  }
+  return consolidated;
+}
+
+async function prepareTranscriptContext({ meeting, transcript, source }, options = {}) {
+  const brainRoot = resolve(
+    options.brainRoot || process.env.MEETING_CLOSEOUT_BRAIN_ROOT || DEFAULT_BRAIN_ROOT
+  );
+  const date = meeting.start.slice(0, 10) || localDate();
+  const slug = safeSlug(meeting.title);
+  const stored = await discoverStoredTranscriptSources(brainRoot, meeting, date, slug);
+  const incoming = incomingTranscriptSource({ brainRoot, meeting, date, slug, source, transcript });
+  const selected = selectTranscriptSources([...stored, ...(incoming ? [incoming] : [])]);
+  if (!selected.ok) {
+    const error = new Error(selected.detail);
+    error.code = selected.code;
+    throw error;
+  }
+  const reconciled = await consolidateTranscriptSources(
+    { meeting, sources: selected.sources },
+    options.runModel
+  );
+  const sourceLabel =
+    selected.sources.length === 1
+      ? selected.sources[0].kind === "cluely-export"
+        ? "Cluely transcript supplied in Workbench"
+        : "Teams meeting evidence"
+      : `Consolidated meeting context from ${selected.sources.length} transcript sources`;
+  return {
+    text: reconciled,
+    sources: selected.sources,
+    sourceLabel,
+  };
+}
+
+async function writeTranscriptSource(source, meeting, date) {
+  if (source.origin === "stored") return { ...source, created: false };
+  const document = `# ${meeting.title} - ${date}\n\n${source.text.trim()}\n`;
+  await mkdir(dirname(source.path), { recursive: true });
+  try {
+    await writeFile(source.path, document, { encoding: "utf8", flag: "wx" });
+    return { ...source, created: true };
+  } catch (error) {
+    if (error.code !== "EEXIST") throw error;
+    const existing = await readFile(source.path, "utf8");
+    if (transcriptBodyFromDocument(existing) === source.text.trim()) {
+      return { ...source, created: false };
+    }
+    const nextPath = source.path.replace(/\.md$/i, `-${source.hash.slice(0, 10)}.md`);
+    let created = true;
+    try {
+      await writeFile(nextPath, document, { encoding: "utf8", flag: "wx" });
+    } catch (nextError) {
+      if (nextError.code !== "EEXIST") throw nextError;
+      const existingVersion = await readFile(nextPath, "utf8");
+      if (existingVersion !== document) throw nextError;
+      created = false;
+    }
+    return {
+      ...source,
+      path: nextPath,
+      relativePath: source.relativePath.replace(/\.md$/i, `-${source.hash.slice(0, 10)}.md`),
+      created,
+    };
+  }
+}
+
+async function writeTranscriptContext({ brainRoot, meeting, date, slug, context }) {
+  const writtenSources = [];
+  for (const source of context.sources) {
+    writtenSources.push(await writeTranscriptSource(source, meeting, date));
+  }
+  const contextPath = safePath(
+    brainRoot,
+    "core",
+    "meetings",
+    "transcripts",
+    CONSOLIDATED_TRANSCRIPT_FOLDER,
+    `${date}-${slug}.md`
+  );
+  const sourceLines = writtenSources
+    .map(
+      (source) => `- \`${source.relativePath}\` | ${source.quality.state} | sha256:${source.hash}`
+    )
+    .join("\n");
+  const document = `# ${meeting.title} - ${date}
+
+## Source receipts
+
+${sourceLines || "- None."}
+
+## Consolidated meeting context
+
+${context.text.trim()}
+`;
+  await ensureGeneratedFile(contextPath, document);
+  const files = {
+    transcript: relativeToRoot(brainRoot, contextPath),
+  };
+  writtenSources.forEach((source, index) => {
+    files[`transcriptSource${index + 1}`] = source.relativePath;
+  });
+  return {
+    files,
+    sourceLabel: context.sourceLabel,
+    createdSourceFiles: writtenSources
+      .filter((source) => source.created)
+      .map((source) => source.relativePath),
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Snapshot refresh. The Meetings Overview reads a synced snapshot, not the
 // live Brain, and it sat frozen at 8/6 because nothing re-synced after new
 // packages landed. Every closeout that completes against the real Brain now
@@ -640,13 +987,26 @@ function triggerSnapshotSync() {
 
 const SYNTHESIS_TIMEOUT_MS = 10 * 60_000;
 
-function synthesisPromptFile() {
-  return join(
-    process.env.LOCALAPPDATA || join(process.env.USERPROFILE || ".", "AppData", "Local"),
-    "IPCorpBrain",
-    "meeting-closeout",
-    `synthesis-prompt.${process.pid}.${Date.now()}.md`
+// The prompt is written beside Steve's other Workbench state so a failed run
+// can be read back. A test must land somewhere else: the gateway test drove
+// this path for real, so every run wrote a fixture prompt into his live
+// %LOCALAPPDATA%\IPCorpBrain\meeting-closeout folder and spent an actual Opus
+// call. MEETING_CLOSEOUT_STATE_DIR redirects the file and
+// MEETING_CLOSEOUT_SYNTHESIS_BIN swaps the executable, the same way
+// MEETING_CLOSEOUT_PYTHON already swaps the adapter.
+function synthesisStateDir() {
+  return (
+    process.env.MEETING_CLOSEOUT_STATE_DIR ||
+    join(
+      process.env.LOCALAPPDATA || join(process.env.USERPROFILE || ".", "AppData", "Local"),
+      "IPCorpBrain",
+      "meeting-closeout"
+    )
   );
+}
+
+function synthesisPromptFile() {
+  return join(synthesisStateDir(), `synthesis-prompt.${process.pid}.${Date.now()}.md`);
 }
 
 export function buildSynthesisPrompt({
@@ -751,7 +1111,7 @@ function runSynthesisModel(prompt) {
       .then(() => {
         // Opus on purpose: Steve chose quality over speed for meeting review.
         const child = spawn(
-          "claude",
+          process.env.MEETING_CLOSEOUT_SYNTHESIS_BIN || "claude",
           ["-p", `@${file}`, "--model", "opus", "--output-format", "text"],
           { shell: true, windowsHide: true }
         );
@@ -965,10 +1325,13 @@ function packageMarker(value) {
   return `<!-- ${PACKAGE_MARKER} ${Buffer.from(JSON.stringify(value), "utf8").toString("base64")} -->`;
 }
 
+function packageMarkerExpression() {
+  return new RegExp(`<!-- ${PACKAGE_MARKER} ([A-Za-z0-9+/=]+) -->`, "g");
+}
+
 function parsePackageMarker(text) {
-  const expression = new RegExp(`<!-- ${PACKAGE_MARKER} ([A-Za-z0-9+/=]+) -->`, "g");
   let parsed = null;
-  for (const match of text.matchAll(expression)) {
+  for (const match of text.matchAll(packageMarkerExpression())) {
     try {
       parsed = JSON.parse(Buffer.from(match[1], "base64").toString("utf8"));
     } catch {
@@ -1054,39 +1417,6 @@ No email was sent and no Jira issue was changed.
 `;
 }
 
-function infographicHtml(value) {
-  const cards = value.infographic.metrics
-    .map(
-      (metric) =>
-        `<article><strong>${metric.value}</strong><span>${escapeHtml(metric.label)}</span></article>`
-    )
-    .join("");
-  const themes = value.infographic.themes.map((theme) => `<li>${escapeHtml(theme)}</li>`).join("");
-  const moves = value.infographic.nextMoves.map((move) => `<li>${escapeHtml(move)}</li>`).join("");
-  return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<title>${escapeHtml(value.meeting.title)} meeting infographic</title>
-<style>
-body{margin:0;background:#f3f6fa;color:#12233f;font:16px/1.5 Arial,sans-serif}
-main{max-width:1100px;margin:40px auto;padding:34px;background:white;border:1px solid #d9e2ef;border-radius:24px}
-header{border-left:8px solid #1769e0;padding-left:20px}h1{margin:0;font-size:40px}header p{color:#52647d}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:28px 0}.metrics article{background:#edf4ff;padding:22px;border-radius:16px}.metrics strong{display:block;font-size:38px;color:#0d5bc6}.metrics span{font-weight:700}
-.grid{display:grid;grid-template-columns:1fr 2fr;gap:20px}.panel{padding:22px;border:1px solid #d9e2ef;border-radius:16px}li{margin:10px 0}
-@media(max-width:700px){.metrics,.grid{grid-template-columns:1fr 1fr}h1{font-size:30px}}
-</style></head><body><main><header><h1>${escapeHtml(value.meeting.title)}</h1><p>Meeting closeout, ${escapeHtml(value.meeting.start.slice(0, 10))}</p></header>
-<section class="metrics">${cards}</section><section class="grid"><div class="panel"><h2>Themes</h2><ul>${themes || "<li>Review package</li>"}</ul></div>
-<div class="panel"><h2>Next moves</h2><ol>${moves || "<li>No commitment was identified.</li>"}</ol></div></section>
-</main></body></html>`;
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 async function atomicWriteNew(path, content) {
   await mkdir(dirname(path), { recursive: true });
   try {
@@ -1122,17 +1452,35 @@ async function appendOnce(path, marker, content) {
   return true;
 }
 
-async function appendMarkerToSummary(path, content, value) {
+function removeCloseoutSections(text) {
+  const matches = [...String(text || "").matchAll(packageMarkerExpression())];
+  if (!matches.length) return String(text || "").trimEnd();
+  const ranges = matches.map((match) => {
+    const markerEnd = match.index + match[0].length;
+    const headerStart = text.lastIndexOf("\n## Workbench closeout review", match.index);
+    return { start: headerStart >= 0 ? headerStart : 0, end: markerEnd };
+  });
+  const merged = [];
+  for (const range of ranges.sort((a, b) => a.start - b.start || a.end - b.end)) {
+    const previous = merged[merged.length - 1];
+    if (previous && range.start <= previous.end) previous.end = Math.max(previous.end, range.end);
+    else merged.push({ ...range });
+  }
+  let cleaned = String(text || "");
+  for (const range of merged.sort((a, b) => b.start - a.start)) {
+    cleaned = `${cleaned.slice(0, range.start)}${cleaned.slice(range.end)}`;
+  }
+  return cleaned.trimEnd();
+}
+
+async function appendMarkerToSummary(path, content, _value) {
   try {
     const existing = await readFile(path, "utf8");
     const stored = parsePackageMarker(existing);
-    if (stored) return stored;
-    await appendFile(
-      path,
-      `\n\n## Workbench closeout review\n\n${content}\n${packageMarker(value)}\n`,
-      "utf8"
-    );
-    return null;
+    const cleaned = removeCloseoutSections(existing);
+    const next = `${cleaned ? `${cleaned}\n\n` : ""}## Workbench closeout review\n\n${content.trim()}\n`;
+    await ensureGeneratedFile(path, next);
+    return stored;
   } catch (error) {
     if (error.code !== "ENOENT") throw error;
     await atomicWriteNew(path, content);
@@ -1222,6 +1570,179 @@ function relativeToRoot(root, path) {
   return path.slice(resolve(root).length + 1).replace(/\\/g, "/");
 }
 
+function closeoutInfographicPaths(brainRoot, value) {
+  const date = value.meeting.start.slice(0, 10) || localDate();
+  const slug = safeSlug(value.meeting.title);
+  const infographicId = value.id || `${date}-${slug}`;
+  return {
+    date,
+    slug,
+    infographicId,
+    outputPath: safePath(
+      brainRoot,
+      "natively",
+      "meeting-infographics",
+      infographicId,
+      `${date}-${slug}-codex.png`
+    ),
+    statusPath: safePath(
+      brainRoot,
+      "natively",
+      "meeting-infographics",
+      infographicId,
+      "status.json"
+    ),
+  };
+}
+
+async function readInfographicAttemptHistory(path) {
+  try {
+    const status = JSON.parse(await readFile(path, "utf8"));
+    return Array.isArray(status.attemptHistory) ? status.attemptHistory : [];
+  } catch {
+    return [];
+  }
+}
+
+async function writePendingInfographicStatus(
+  path,
+  value,
+  date,
+  detail,
+  { recordAttempt = false } = {}
+) {
+  const previousAttempts = await readInfographicAttemptHistory(path);
+  const requestedAt = new Date().toISOString();
+  const attemptHistory = recordAttempt
+    ? [
+        ...previousAttempts,
+        {
+          attempt: previousAttempts.length + 1,
+          provider: "codex",
+          attemptedAt: requestedAt,
+          outcome: "failed",
+          detail,
+        },
+      ]
+    : previousAttempts;
+  await ensureGeneratedFile(
+    path,
+    `${JSON.stringify(
+      {
+        meetingId: value.id,
+        calendarTitle: value.meeting.title,
+        meetingDate: date,
+        status: "pending_generation",
+        requestedProvider: "codex",
+        alternateProvider: "notebooklm",
+        requestedAt,
+        detail,
+        attemptHistory,
+        note: "No placeholder image was created. Codex remains preferred; NotebookLM remains available for this or other artifact types.",
+      },
+      null,
+      2
+    )}\n`
+  );
+}
+
+export async function generateMeetingCloseoutVisual(value, transcriptContext, options = {}) {
+  const brainRoot = resolve(
+    options.brainRoot || process.env.MEETING_CLOSEOUT_BRAIN_ROOT || DEFAULT_BRAIN_ROOT
+  );
+  const paths = closeoutInfographicPaths(brainRoot, value);
+  let visual = options.visual || null;
+  if (!visual) {
+    try {
+      visual = await readVerifiedMeetingInfographic(brainRoot, paths.infographicId);
+    } catch {
+      // Missing, incomplete, or malformed proof allows a fresh Codex attempt.
+    }
+  }
+
+  if (visual) return { visual, generationError: null, ...paths };
+
+  if (options.deferInfographic) {
+    const detail = "Visual generation is queued as a separate closeout step.";
+    await writePendingInfographicStatus(paths.statusPath, value, paths.date, detail);
+    return { visual: null, generationError: detail, ...paths };
+  }
+
+  try {
+    const generate = options.generateInfographic || generateMeetingInfographicWithCodex;
+    visual = await generate(
+      {
+        meetingId: paths.infographicId,
+        meeting: value.meeting,
+        summary: value.summary,
+        transcript: transcriptContext.text,
+        commitments: value.commitments,
+        themes: value.infographic.themes,
+        outputPath: paths.outputPath,
+      },
+      options.codexInfographicOptions
+    );
+    const previousAttempts = await readInfographicAttemptHistory(paths.statusPath);
+    const generatedAt = new Date().toISOString();
+    await ensureGeneratedFile(
+      paths.statusPath,
+      `${JSON.stringify(
+        {
+          meetingId: paths.infographicId,
+          calendarTitle: value.meeting.title,
+          meetingDate: paths.date,
+          status: "GENERATED",
+          generatedBy: "OpenAI Codex built-in image generation",
+          generatedAt,
+          verifiedAt: generatedAt,
+          generator: {
+            provider: visual.provider,
+            product: visual.product,
+            agentModel: visual.agentModel,
+            imageModel: visual.imageModel,
+            invocation: visual.invocation,
+            jobId: visual.jobId,
+            taskId: visual.taskId,
+          },
+          artifactId: visual.artifactId,
+          sourceIds: visual.sourceIds,
+          sourceHashes: visual.sourceHashes,
+          output: {
+            file: visual.file,
+            bytes: visual.bytes,
+            width: visual.width,
+            height: visual.height,
+            sha256: visual.sha256,
+          },
+          attemptHistory: [
+            ...previousAttempts,
+            {
+              attempt: previousAttempts.length + 1,
+              provider: visual.provider || "codex",
+              attemptedAt: generatedAt,
+              outcome: "generated",
+              jobId: visual.jobId,
+              taskId: visual.taskId,
+              outputHash: visual.sha256,
+            },
+          ],
+          verification: `Codex job ${visual.jobId} inspected the generated image before filing it. The Workbench then decoded the PNG, checked its dimensions, and matched SHA-256 ${visual.sha256}.`,
+        },
+        null,
+        2
+      )}\n`
+    );
+    return { visual, generationError: null, ...paths };
+  } catch (error) {
+    const generationError = error instanceof Error ? error.message : String(error);
+    await writePendingInfographicStatus(paths.statusPath, value, paths.date, generationError, {
+      recordAttempt: true,
+    });
+    if (options.throwOnInfographicFailure) throw error;
+    return { visual: null, generationError, ...paths };
+  }
+}
+
 export async function persistMeetingPackage(value, transcript, source, options = {}) {
   const brainRoot = resolve(
     options.brainRoot || process.env.MEETING_CLOSEOUT_BRAIN_ROOT || DEFAULT_BRAIN_ROOT
@@ -1229,15 +1750,16 @@ export async function persistMeetingPackage(value, transcript, source, options =
   await verifyBrainWriteInstructions(brainRoot);
   const date = value.meeting.start.slice(0, 10) || localDate();
   const slug = safeSlug(value.meeting.title);
-  const transcriptFolder = source === "cluely" ? "cluely-export" : "teams-export";
-  const transcriptPath = safePath(
+  const transcriptContext =
+    options.transcriptContext ||
+    (await prepareTranscriptContext({ meeting: value.meeting, transcript, source }, options));
+  const transcriptWrite = await writeTranscriptContext({
     brainRoot,
-    "core",
-    "meetings",
-    "transcripts",
-    transcriptFolder,
-    `${date}-${slug}.md`
-  );
+    meeting: value.meeting,
+    date,
+    slug,
+    context: transcriptContext,
+  });
   const summaryPath = safePath(brainRoot, "core", "meetings", "summaries", `${date}-${slug}.md`);
   const runReportPath = safePath(
     brainRoot,
@@ -1253,45 +1775,29 @@ export async function persistMeetingPackage(value, transcript, source, options =
     "meeting-closeouts",
     `${date}-${slug}-task-spec.md`
   );
-  const infographicHtmlPath = safePath(
-    brainRoot,
-    "core",
-    "deliverables",
-    "meeting-closeouts",
-    `${date}-${slug}-infographic.html`
-  );
-  const infographicId = value.id || `${date}-${slug}`;
-  const infographicFile = `${date}-${slug}.png`;
-  const infographicPngPath = safePath(
-    brainRoot,
-    "natively",
-    "meeting-infographics",
+  const {
     infographicId,
-    infographicFile
-  );
-  const infographicStatusPath = safePath(
-    brainRoot,
-    "natively",
-    "meeting-infographics",
-    infographicId,
-    "status.json"
-  );
+    statusPath: infographicStatusPath,
+    visual,
+    generationError,
+  } = await generateMeetingCloseoutVisual(value, transcriptContext, options);
+  const infographicPngPath = visual?.outputPath || null;
 
-  const transcriptDocument = `# ${value.meeting.title} - ${date}\n\n${transcript.trim()}\n`;
-  await atomicWriteNew(transcriptPath, transcriptDocument);
-  const sourceLabel =
-    source === "cluely" ? "Cluely transcript supplied in Workbench" : "Teams meeting evidence";
+  const sourceLabel = transcriptWrite.sourceLabel;
   const nextValue = {
     ...value,
     source: sourceLabel,
     files: {
-      transcript: relativeToRoot(brainRoot, transcriptPath),
+      ...transcriptWrite.files,
       summary: relativeToRoot(brainRoot, summaryPath),
       taskSpec: relativeToRoot(brainRoot, taskSpecPath),
       runReport: relativeToRoot(brainRoot, runReportPath),
-      infographic: relativeToRoot(brainRoot, infographicHtmlPath),
-      infographicHtml: relativeToRoot(brainRoot, infographicHtmlPath),
-      infographicPng: relativeToRoot(brainRoot, infographicPngPath),
+      ...(infographicPngPath
+        ? {
+            infographic: relativeToRoot(brainRoot, infographicPngPath),
+            infographicPng: relativeToRoot(brainRoot, infographicPngPath),
+          }
+        : {}),
       infographicStatus: relativeToRoot(brainRoot, infographicStatusPath),
     },
   };
@@ -1304,54 +1810,45 @@ export async function persistMeetingPackage(value, transcript, source, options =
   }
 
   await ensureGeneratedFile(taskSpecPath, taskSpecMarkdown(nextValue, nextValue.files.summary));
-  await ensureGeneratedFile(infographicHtmlPath, infographicHtml(nextValue));
   await ensureGeneratedFile(
     runReportPath,
-    `# Meeting closeout run report - ${date}\n\n- Meeting: ${value.meeting.title}\n- Transcript: \`${nextValue.files.transcript}\`\n- Summary: \`${nextValue.files.summary}\`\n- Task spec: \`${nextValue.files.taskSpec}\`\n- Infographic HTML: \`${nextValue.files.infographicHtml}\`\n- Infographic PNG: \`${nextValue.files.infographicPng}\`\n- Email sent: no\n- Jira changed: no\n`
+    `# Meeting closeout run report - ${date}\n\n- Meeting: ${value.meeting.title}\n- Transcript: \`${nextValue.files.transcript}\`\n- Source transcripts: ${
+      Object.entries(nextValue.files)
+        .filter(([key]) => key.startsWith("transcriptSource"))
+        .map(([, path]) => `\`${path}\``)
+        .join(", ") || "none"
+    }\n- Summary: \`${nextValue.files.summary}\`\n- Task spec: \`${nextValue.files.taskSpec}\`\n- Infographic provider: ${visual?.provider || "pending Codex, with NotebookLM retained as an alternative"}\n- Infographic PNG: ${nextValue.files.infographicPng ? `\`${nextValue.files.infographicPng}\`` : "not created"}\n- Infographic status: \`${nextValue.files.infographicStatus}\`\n- Email sent: no\n- Jira changed: no\n`
   );
-
-  const render = options.renderInfographic || renderMeetingInfographic;
-  const visual = await render({
-    htmlPath: infographicHtmlPath,
-    outputPath: infographicPngPath,
-    statusPath: infographicStatusPath,
-    meetingId: infographicId,
-    browserFactory: options.browserFactory,
-  });
-  // The template card is a preview, never the deliverable. Marking the status
-  // pending keeps the scheduled NotebookLM job treating this meeting's
-  // infographic phase as unfinished; the completed card used to squat the
-  // canonical path and the real job skipped the meeting forever.
-  try {
-    const status = JSON.parse(await readFile(infographicStatusPath, "utf8"));
-    if (status.status === "complete") {
-      status.status = "placeholder_pending_notebooklm";
-      status.note =
-        "Workbench template card only. The scheduled NotebookLM job owns the real infographic.";
-      await writeFile(infographicStatusPath, `${JSON.stringify(status, null, 2)}\n`, "utf8");
-    }
-  } catch {
-    // The render already failed loudly if the status file is unwritable.
-  }
   const finalValue = {
     ...nextValue,
     createdAt: existingPackage?.createdAt || nextValue.createdAt,
     infographic: {
       ...nextValue.infographic,
-      saved: {
-        id: infographicId,
-        file: infographicFile,
-        width: visual.width,
-        height: visual.height,
-        bytes: visual.bytes,
-        sha256: visual.sha256,
+      generation: {
+        preferredProvider: "codex",
+        alternateProvider: "notebooklm",
+        status: visual ? "verified" : "pending",
+        error: generationError,
       },
+      ...(visual
+        ? {
+            saved: {
+              id: infographicId,
+              file: visual.file,
+              provider: visual.provider || "notebooklm",
+              width: visual.width,
+              height: visual.height,
+              bytes: visual.bytes,
+              sha256: visual.sha256,
+            },
+          }
+        : {}),
     },
   };
-  const finalMarker = packageMarker(finalValue);
-  await appendOnce(summaryPath, finalMarker, `\n${finalMarker}\n`);
+  const finalSummary = summaryMarkdown(finalValue, finalValue.files.transcript, sourceLabel);
+  await appendMarkerToSummary(summaryPath, finalSummary, finalValue);
 
-  const digest = createHash("sha256").update(transcript.trim()).digest("hex");
+  const digest = createHash("sha256").update(transcriptContext.text.trim()).digest("hex");
   const processedPath = safePath(brainRoot, "_intake", "processed.log");
   const processedMarker = `workbench-meeting-closeout | ${finalValue.id} | sha256:${digest}`;
   await appendOnce(
@@ -1361,14 +1858,16 @@ export async function persistMeetingPackage(value, transcript, source, options =
   );
   const changelogPath = safePath(brainRoot, "CHANGELOG.md");
   const changelogMarker = `Workbench meeting closeout stored ${finalValue.id}`;
+  const closeoutFiles = Object.values(finalValue.files).filter(Boolean).join("; ");
   await appendOnce(
     changelogPath,
     changelogMarker,
-    `\n| ${date} | ${localTime()} ET | Workbench | ${finalValue.files.transcript}; ${finalValue.files.summary}; ${finalValue.files.taskSpec}; ${finalValue.files.runReport}; ${finalValue.files.infographicHtml}; ${finalValue.files.infographicPng}; ${finalValue.files.infographicStatus}; _intake/processed.log; CHANGELOG.md | ${changelogMarker}, review package, and saved infographic. Email and Jira remained review-only. No staged file was left unwritten. |\n`
+    `\n| ${date} | ${localTime()} ET | Workbench | ${closeoutFiles}; _intake/processed.log; CHANGELOG.md | ${changelogMarker}, review package, and ${visual ? "verified infographic" : "pending infographic status"}. Email and Jira remained review-only. No staged file was left unwritten. |\n`
   );
   const brainCommit = await commitCloseoutFiles({
     brainRoot,
     files: finalValue.files,
+    createdSourceFiles: transcriptWrite.createdSourceFiles,
     meetingId: finalValue.id,
     meetingTitle: finalValue.meeting.title,
   });
@@ -1389,9 +1888,18 @@ export async function persistMeetingPackage(value, transcript, source, options =
  * Staging is by explicit path, never `-A`: sweeping up a bystander
  * workflow's files would be the same defect pointed the other way.
  */
-export async function commitCloseoutFiles({ brainRoot, files, meetingId, meetingTitle }) {
+export async function commitCloseoutFiles({
+  brainRoot,
+  files,
+  createdSourceFiles = [],
+  meetingId,
+  meetingTitle,
+}) {
   const paths = [
-    ...Object.values(files || {}).filter(Boolean),
+    ...Object.entries(files || {})
+      .filter(([key, value]) => !key.startsWith("transcriptSource") && Boolean(value))
+      .map(([, value]) => value),
+    ...createdSourceFiles,
     "_intake/processed.log",
     "CHANGELOG.md",
   ];
@@ -1433,7 +1941,6 @@ export async function inspectStoredMeetingPackage(value, options = {}) {
     "summary",
     "taskSpec",
     "runReport",
-    "infographicHtml",
     "infographicPng",
     "infographicStatus",
   ];
@@ -1476,6 +1983,105 @@ export async function inspectStoredMeetingPackage(value, options = {}) {
   };
 }
 
+function isCompletedInfographicStatus(value) {
+  return ["complete", "completed", "generated"].includes(asText(value).toLowerCase());
+}
+
+function infographicProvider(status) {
+  const provider = asText(status?.generator?.provider).toLowerCase();
+  if (provider === "codex" || provider === "openai codex") return "codex";
+  if (status?.notebook?.id || provider === "notebooklm") return "notebooklm";
+  return null;
+}
+
+async function readVerifiedMeetingInfographic(brainRoot, directoryName) {
+  const infographicRoot = safePath(brainRoot, "natively", "meeting-infographics");
+  const statusPath = safePath(infographicRoot, directoryName, "status.json");
+  const status = JSON.parse(await readFile(statusPath, "utf8"));
+  if (!isCompletedInfographicStatus(status.status)) return null;
+  const provider = infographicProvider(status);
+  if (!provider) return null;
+
+  const artifactId = asText(status.artifactId || status.artifact_id);
+  const sourceIds = [
+    ...new Set(
+      (Array.isArray(status.sourceIds) ? status.sourceIds : status.sources || [])
+        .map((item) => asText(typeof item === "string" ? item : item?.id))
+        .filter(Boolean)
+    ),
+  ];
+  const outputFile = asText(status.output?.file || status.file);
+  const recordedHash = asText(status.output?.sha256 || status.sha256).toLowerCase();
+  const verification = asText(status.verification);
+  if (
+    !artifactId ||
+    sourceIds.length < 2 ||
+    !outputFile ||
+    basename(outputFile) !== outputFile ||
+    !recordedHash ||
+    !verification
+  ) {
+    return null;
+  }
+
+  const outputPath = safePath(infographicRoot, directoryName, outputFile);
+  const bytes = await readFile(outputPath);
+  const actualHash = createHash("sha256").update(bytes).digest("hex");
+  if (actualHash !== recordedHash) return null;
+  const image = inspectPng(bytes);
+
+  return {
+    id: directoryName,
+    title:
+      asText(status.calendarTitle || status.meetingTitle || status.artifactTitle) || directoryName,
+    generatedAt: asText(status.verifiedAt || status.generatedAt),
+    artifactId,
+    provider,
+    sourceIds,
+    file: outputFile,
+    path: relativeToRoot(brainRoot, outputPath),
+    outputPath,
+    statusPath: relativeToRoot(brainRoot, statusPath),
+    sha256: actualHash,
+    width: image.width,
+    height: image.height,
+    bytes: bytes.length,
+    warningCount: Array.isArray(status.knownRenderIssues) ? status.knownRenderIssues.length : 0,
+  };
+}
+
+/**
+ * Read only infographics that carry enough proof to be treated as finished.
+ * A PNG by itself may be the Workbench preview card, so it never qualifies.
+ */
+export async function listVerifiedMeetingInfographics(options = {}) {
+  const brainRoot = resolve(
+    options.brainRoot || process.env.MEETING_CLOSEOUT_BRAIN_ROOT || DEFAULT_BRAIN_ROOT
+  );
+  const infographicRoot = safePath(brainRoot, "natively", "meeting-infographics");
+  let directories = [];
+  try {
+    directories = await readdir(infographicRoot, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+
+  const completions = [];
+  for (const directory of directories) {
+    if (!directory.isDirectory()) continue;
+    try {
+      const verified = await readVerifiedMeetingInfographic(brainRoot, directory.name);
+      if (verified) {
+        const { outputPath: _outputPath, ...publicValue } = verified;
+        completions.push(publicValue);
+      }
+    } catch {
+      // One incomplete or malformed folder must not hide verified work in the others.
+    }
+  }
+  return completions.sort((a, b) => String(b.generatedAt).localeCompare(String(a.generatedAt)));
+}
+
 export async function listStoredPackages(options = {}) {
   const brainRoot = resolve(
     options.brainRoot || process.env.MEETING_CLOSEOUT_BRAIN_ROOT || DEFAULT_BRAIN_ROOT
@@ -1487,11 +2093,22 @@ export async function listStoredPackages(options = {}) {
   } catch {
     return [];
   }
+  const verified = new Map(
+    (await listVerifiedMeetingInfographics({ brainRoot })).map((item) => [item.id, item])
+  );
   const packages = [];
   for (const name of names.filter((item) => item.endsWith(".md") && !item.startsWith("_"))) {
     try {
       const stored = parsePackageMarker(await readFile(join(summaries, basename(name)), "utf8"));
-      if (stored) packages.push(stored);
+      if (stored) {
+        packages.push({
+          ...stored,
+          infographic: {
+            ...stored.infographic,
+            verified: verified.get(stored.id) || null,
+          },
+        });
+      }
     } catch {
       // A single unreadable historical summary must not hide the rest.
     }
@@ -1499,73 +2116,348 @@ export async function listStoredPackages(options = {}) {
   return packages.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
 }
 
-export async function processMeetingCloseout(payload, options = {}) {
-  const meeting = normalizeMeeting(payload.meeting || {});
-  if (!asText(meeting.title) || meeting.title === "Untitled meeting") {
-    const error = new Error("Select a meeting before processing.");
-    error.code = "invalid_meeting";
-    throw error;
-  }
-  const suppliedTranscript = asText(payload.transcript);
-  const source = suppliedTranscript ? "cluely" : "teams";
-  const evidence = suppliedTranscript ? null : await meetingEvidence(meeting, options);
-  let transcript = suppliedTranscript || asText(evidence?.transcript);
-  if (!transcript || transcriptError(transcript)) {
-    return {
-      ok: false,
-      code: "transcript_unavailable",
-      detail:
-        "No Teams capture is available for this meeting. Paste the Cluely transcript and add any context notes.",
-      meeting,
-    };
-  }
-  if (suppliedTranscript && transcriptNeedsCleanup(transcript)) {
+function closeoutStepError(code, message, details = {}) {
+  const error = new Error(message);
+  error.code = code;
+  Object.assign(error, details);
+  return error;
+}
+
+async function validateStoredCloseoutFoundation(value, options = {}) {
+  const brainRoot = resolve(
+    options.brainRoot || process.env.MEETING_CLOSEOUT_BRAIN_ROOT || DEFAULT_BRAIN_ROOT
+  );
+  for (const key of ["transcript", "summary", "taskSpec", "runReport", "infographicStatus"]) {
+    const relative = value?.files?.[key];
+    if (!relative) return false;
     try {
-      transcript = await cleanupPastedTranscript({ meeting, transcript }, options.runModel);
-    } catch (error) {
-      return {
-        ok: false,
-        code: "transcript_cleanup_unavailable",
-        detail: `The raw capture could not be cleaned to Teams quality: ${error instanceof Error ? error.message : String(error)} The meeting stays unprocessed and nothing raw was stored.`,
-        meeting,
-      };
+      await readFile(safePath(brainRoot, ...relative.split("/")));
+    } catch {
+      return false;
     }
   }
-  let value;
+  return true;
+}
+
+async function validateGeneratedCloseoutVisual(value, options = {}) {
+  if (!value?.infographicId || !value?.visual?.sha256) return false;
+  const brainRoot = resolve(
+    options.brainRoot || process.env.MEETING_CLOSEOUT_BRAIN_ROOT || DEFAULT_BRAIN_ROOT
+  );
   try {
-    value = await synthesizeReviewPackage(
-      {
-        meeting,
-        transcript,
-        contextNotes: payload.contextNotes,
-        recap: evidence?.recap || "",
-        relatedMaterial: evidence?.relatedMaterial || [],
-      },
-      options.runModel
-    );
-  } catch (error) {
-    // Fail closed. A meeting with no package is recoverable; a stored package
-    // full of pattern-matched junk poisons every downstream review.
+    const saved = await readVerifiedMeetingInfographic(brainRoot, value.infographicId);
+    return Boolean(saved?.sha256 && saved.sha256 === value.visual.sha256);
+  } catch {
+    return false;
+  }
+}
+
+async function inspectMeetingCloseoutDisplay(value, options = {}) {
+  const brainRoot = resolve(
+    options.brainRoot || process.env.MEETING_CLOSEOUT_BRAIN_ROOT || DEFAULT_BRAIN_ROOT
+  );
+  const displayRoot = resolve(
+    options.infographicsRoot ||
+      (options.brainRoot
+        ? join(brainRoot, "natively", "meeting-infographics")
+        : process.env.IPCORP_MEETING_INFOGRAPHICS_PATH ||
+          join(brainRoot, "natively", "meeting-infographics"))
+  );
+  const saved = value?.infographic?.saved;
+  if (!saved?.id || !saved.file || !saved.sha256) {
+    return { ready: false, reason: "missing visual association" };
+  }
+  try {
+    const bytes = await readFile(safePath(displayRoot, saved.id, saved.file));
+    const image = inspectPng(bytes);
+    const sha256 = createHash("sha256").update(bytes).digest("hex");
     return {
-      ok: false,
-      code: "synthesis_unavailable",
-      detail: `Meeting review synthesis failed: ${error instanceof Error ? error.message : String(error)} The meeting stays unprocessed; run it again when the model is reachable.`,
-      meeting,
+      ready: sha256 === saved.sha256,
+      sha256,
+      width: image.width,
+      height: image.height,
+      reason: sha256 === saved.sha256 ? null : "display image hash mismatch",
+    };
+  } catch (error) {
+    return {
+      ready: false,
+      reason: error instanceof Error ? error.message : String(error),
     };
   }
-  const stored = await persistMeetingPackage(value, transcript, source, options);
-  const inspection = await inspectStoredMeetingPackage(stored, options);
-  if (inspection.complete && shouldRefreshSnapshot(options)) triggerSnapshotSync();
-  return inspection.complete
-    ? { ok: true, package: stored, inspection }
-    : {
+}
+
+export function createMeetingCloseoutSteps(options = {}) {
+  return [
+    {
+      name: "discover",
+      getInput: ({ input }) => input,
+      run: async ({ stepInput: payload }) => {
+        const meeting = normalizeMeeting(payload.meeting || {});
+        if (!asText(meeting.title) || meeting.title === "Untitled meeting") {
+          throw closeoutStepError("invalid_meeting", "Select a meeting before processing.");
+        }
+        const suppliedTranscript = asText(payload.transcript);
+        const declaredSource = payload.transcriptSource;
+        const source =
+          declaredSource === "teams" || declaredSource === "cluely"
+            ? declaredSource
+            : suppliedTranscript
+              ? "cluely"
+              : "teams";
+        const evidence = suppliedTranscript ? null : await meetingEvidence(meeting, options);
+        const transcript = suppliedTranscript || asText(evidence?.transcript);
+        if (!transcript || transcriptError(transcript)) {
+          throw closeoutStepError(
+            "transcript_unavailable",
+            "No Teams capture is available for this meeting. Paste the Cluely transcript and add any context notes.",
+            { meeting }
+          );
+        }
+        return { meeting, suppliedTranscript, source, evidence, transcript };
+      },
+      validate: ({ output }) => Boolean(output?.meeting?.title && output?.transcript),
+    },
+    {
+      name: "reconcile_sources",
+      getInput: ({ outputs }) => outputs.discover,
+      run: async ({ stepInput: discovery }) => {
+        let transcript = discovery.transcript;
+        if (discovery.suppliedTranscript && transcriptNeedsCleanup(transcript)) {
+          try {
+            transcript = await cleanupPastedTranscript(
+              { meeting: discovery.meeting, transcript },
+              options.runModel
+            );
+          } catch (error) {
+            throw closeoutStepError(
+              "transcript_cleanup_unavailable",
+              `The raw capture could not be cleaned to Teams quality: ${error instanceof Error ? error.message : String(error)} The meeting stays unprocessed and nothing raw was stored.`,
+              { meeting: discovery.meeting }
+            );
+          }
+        }
+        try {
+          const transcriptContext = await prepareTranscriptContext(
+            { meeting: discovery.meeting, transcript, source: discovery.source },
+            options
+          );
+          return { ...discovery, transcript: transcriptContext.text, transcriptContext };
+        } catch (error) {
+          const detail =
+            error.code === "transcript_abridged"
+              ? "The transcript came back as an excerpt, not the whole conversation, so no line in it can be quoted as verbatim evidence. The meeting stays unprocessed. Fetch the full Teams transcript or paste the capture."
+              : error.code === "transcript_partial"
+                ? `${error.message} The meeting stays unprocessed. Fetch the full Teams transcript or paste the capture.`
+                : error.code === "transcript_consolidation_unavailable"
+                  ? `Transcript consolidation failed: ${error.message} The meeting stays unprocessed and no package was written.`
+                  : "No usable transcript source is available for this meeting. Paste the Cluely transcript and add any context notes.";
+          throw closeoutStepError(error.code || "transcript_unavailable", detail, {
+            meeting: discovery.meeting,
+          });
+        }
+      },
+      validate: ({ output }) => Boolean(output?.transcriptContext?.text && output?.transcript),
+    },
+    {
+      name: "synthesize",
+      getInput: ({ input, outputs }) => ({
+        reconciled: outputs.reconcile_sources,
+        contextNotes: input.contextNotes,
+      }),
+      run: async ({ stepInput }) => {
+        const { reconciled, contextNotes } = stepInput;
+        try {
+          return await synthesizeReviewPackage(
+            {
+              meeting: reconciled.meeting,
+              transcript: reconciled.transcript,
+              contextNotes,
+              recap: reconciled.evidence?.recap || "",
+              relatedMaterial: reconciled.evidence?.relatedMaterial || [],
+            },
+            options.runModel
+          );
+        } catch (error) {
+          throw closeoutStepError(
+            "synthesis_unavailable",
+            `Meeting review synthesis failed: ${error instanceof Error ? error.message : String(error)} The meeting stays unprocessed; run it again when the model is reachable.`,
+            { meeting: reconciled.meeting }
+          );
+        }
+      },
+      validate: ({ output }) => Boolean(output?.id && output?.summary),
+    },
+    {
+      name: "store",
+      getInput: ({ outputs }) => ({
+        synthesis: outputs.synthesize,
+        reconciled: outputs.reconcile_sources,
+      }),
+      run: ({ stepInput }) =>
+        persistMeetingPackage(
+          stepInput.synthesis,
+          stepInput.reconciled.transcript,
+          stepInput.reconciled.source,
+          {
+            ...options,
+            transcriptContext: stepInput.reconciled.transcriptContext,
+            deferInfographic: true,
+          }
+        ),
+      validate: ({ output }) => validateStoredCloseoutFoundation(output, options),
+    },
+    {
+      name: "generate_visual",
+      getInput: ({ outputs }) => ({
+        synthesis: outputs.synthesize,
+        transcriptContext: outputs.reconcile_sources.transcriptContext,
+        stored: outputs.store,
+      }),
+      run: async ({ stepInput }) => {
+        try {
+          return await generateMeetingCloseoutVisual(
+            stepInput.synthesis,
+            stepInput.transcriptContext,
+            {
+              ...options,
+              throwOnInfographicFailure: true,
+            }
+          );
+        } catch (error) {
+          error.partialPackage = stepInput.stored;
+          error.meeting = stepInput.synthesis.meeting;
+          throw error;
+        }
+      },
+      validate: ({ output }) => validateGeneratedCloseoutVisual(output, options),
+    },
+    {
+      name: "associate",
+      getInput: ({ outputs }) => ({
+        synthesis: outputs.synthesize,
+        reconciled: outputs.reconcile_sources,
+        stored: outputs.store,
+        visual: outputs.generate_visual.visual,
+      }),
+      run: ({ stepInput }) =>
+        persistMeetingPackage(
+          stepInput.synthesis,
+          stepInput.reconciled.transcript,
+          stepInput.reconciled.source,
+          {
+            ...options,
+            transcriptContext: stepInput.reconciled.transcriptContext,
+            visual: stepInput.visual,
+          }
+        ),
+      validate: async ({ output }) => {
+        const inspection = await inspectStoredMeetingPackage(output, options);
+        return Boolean(
+          inspection.complete &&
+            inspection.associated &&
+            inspection.visual?.sha256 === output?.infographic?.saved?.sha256
+        );
+      },
+    },
+    {
+      name: "verify_display",
+      getInput: ({ outputs }) => outputs.associate,
+      run: async ({ stepInput: associated }) => {
+        const inspection = await inspectStoredMeetingPackage(associated, options);
+        const display = await inspectMeetingCloseoutDisplay(associated, options);
+        if (!inspection.complete || !display.ready) {
+          const missing = [
+            ...inspection.missing,
+            ...(display.ready ? [] : ["Workbench image response"]),
+          ];
+          throw closeoutStepError(
+            "meeting_package_incomplete",
+            `Meeting processing is incomplete: ${missing.join(", ") || "saved association or history"}.`,
+            {
+              meeting: associated.meeting,
+              partialPackage: associated,
+              inspection: { ...inspection, display },
+            }
+          );
+        }
+        return { ...inspection, display };
+      },
+      validate: ({ output }) =>
+        Boolean(
+          output?.complete && output?.associated && output?.visual?.sha256 && output?.display?.ready
+        ),
+    },
+    {
+      name: "finalize",
+      getInput: ({ outputs }) => ({
+        package: outputs.associate,
+        inspection: outputs.verify_display,
+      }),
+      run: async ({ stepInput }) => {
+        if (shouldRefreshSnapshot(options)) triggerSnapshotSync();
+        return { ok: true, ...stepInput };
+      },
+      validate: ({ output }) => Boolean(output?.ok && output?.inspection?.complete),
+    },
+  ];
+}
+
+export async function runMeetingCloseoutStages(payload, options = {}) {
+  const outputs = {};
+  for (const step of createMeetingCloseoutSteps(options)) {
+    const stepInput = await step.getInput({ input: payload, outputs });
+    const output = await step.run({ stepInput, input: payload, outputs });
+    if ((await step.validate({ output })) !== true) {
+      throw closeoutStepError(
+        "meeting_closeout_step_invalid",
+        `Meeting closeout step ${step.name} did not produce a valid saved result.`
+      );
+    }
+    outputs[step.name] = output;
+  }
+  return outputs.finalize;
+}
+
+export async function processMeetingCloseout(payload, options = {}) {
+  try {
+    return await runMeetingCloseoutStages(payload, options);
+  } catch (error) {
+    if (error.code === "invalid_meeting") throw error;
+    if (error.partialPackage) {
+      const inspection =
+        error.inspection || (await inspectStoredMeetingPackage(error.partialPackage, options));
+      return {
         ok: false,
-        code: "meeting_package_incomplete",
-        detail: `Meeting processing is incomplete: ${inspection.missing.join(", ") || "saved association or history"}.`,
-        meeting,
-        package: stored,
+        code:
+          error.code === "meeting_package_incomplete" ? error.code : "meeting_package_incomplete",
+        detail:
+          error.code === "meeting_package_incomplete"
+            ? error.message
+            : `Meeting processing is incomplete: ${inspection.missing.join(", ") || "saved association or history"}.`,
+        meeting: error.meeting,
+        package: error.partialPackage,
         inspection,
       };
+    }
+    if (
+      [
+        "transcript_unavailable",
+        "transcript_cleanup_unavailable",
+        "transcript_abridged",
+        "transcript_partial",
+        "transcript_consolidation_unavailable",
+        "synthesis_unavailable",
+      ].includes(error.code)
+    ) {
+      return {
+        ok: false,
+        code: error.code,
+        detail: error.message,
+        meeting: error.meeting || normalizeMeeting(payload.meeting || {}),
+      };
+    }
+    throw error;
+  }
 }
 
 async function readJsonBody(request) {
@@ -1590,22 +2482,55 @@ export async function handleMeetingCloseoutRoute(request, url) {
   if (request.method === "GET" && url.pathname === "/api/meeting-closeout/packages") {
     return { status: 200, body: { ok: true, data: await listStoredPackages() } };
   }
+  if (request.method === "GET" && url.pathname === "/api/meeting-closeout/jobs") {
+    const { listMeetingCloseoutJobs } = await import("./meeting-closeout-job.mjs");
+    return { status: 200, body: { ok: true, data: await listMeetingCloseoutJobs() } };
+  }
+  const jobRoute = url.pathname.match(
+    /^\/api\/meeting-closeout\/jobs\/([^/]+)(?:\/(stop|resume))?$/
+  );
+  if (jobRoute) {
+    const workItemId = decodeURIComponent(jobRoute[1]);
+    const operation = jobRoute[2] || null;
+    const { getMeetingCloseoutJob, resumeMeetingCloseoutJob, stopMeetingCloseoutJob } =
+      await import("./meeting-closeout-job.mjs");
+    if (request.method === "GET" && !operation) {
+      const job = await getMeetingCloseoutJob(workItemId);
+      return job
+        ? { status: 200, body: { ok: true, job } }
+        : {
+            status: 404,
+            body: {
+              ok: false,
+              code: "meeting_job_not_found",
+              error: "Meeting job not found.",
+            },
+          };
+    }
+    if (request.method === "POST" && operation === "stop") {
+      const job = await stopMeetingCloseoutJob(workItemId);
+      return job
+        ? { status: 200, body: { ok: true, job } }
+        : {
+            status: 404,
+            body: {
+              ok: false,
+              code: "meeting_job_not_found",
+              error: "Meeting job not found.",
+            },
+          };
+    }
+    if (request.method === "POST" && operation === "resume") {
+      const resumed = await resumeMeetingCloseoutJob(workItemId);
+      return { status: 202, body: { ok: true, ...resumed } };
+    }
+  }
   if (request.method === "POST" && url.pathname === "/api/meeting-closeout/process") {
     try {
       const payload = await readJsonBody(request);
-      const key = asText(payload?.meeting?.id) || JSON.stringify(payload?.meeting || {});
-      let pending = activeProcessing.get(key);
-      if (!pending) {
-        pending = processMeetingCloseout(payload).finally(() => activeProcessing.delete(key));
-        activeProcessing.set(key, pending);
-      }
-      const result = await pending;
-      return {
-        status: result.ok || result.code === "transcript_unavailable" ? 200 : 409,
-        body: result.ok
-          ? result
-          : { ok: false, code: result.code, error: result.detail, data: result },
-      };
+      const { startMeetingCloseoutJob } = await import("./meeting-closeout-job.mjs");
+      const started = await startMeetingCloseoutJob(payload);
+      return { status: started.accepted ? 202 : 200, body: { ok: true, ...started } };
     } catch (error) {
       return {
         status: error.code === "body_too_large" ? 413 : 400,
