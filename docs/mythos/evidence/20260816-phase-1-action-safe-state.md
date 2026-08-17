@@ -121,11 +121,22 @@ Command: `node --test` over every `*.test.mjs` under `server/` and `scripts/`.
 | `tsc --noEmit` | clean |
 | `biome check` | 4 warnings, all pre-existing in files this work never touched |
 
-One load-sensitive flake exists, `the child runner enforces an overall timeout` in
-`server/mdm-reconciliation/run-weekly-synthesis-queue.test.mjs`. It was verified against clean
-`main` rather than assumed: on `main` it fails 1 of 360 on two of three full-suite runs and
-passes on the third. In isolation on this branch it passes 3 of 3. It is pre-existing and
-load-sensitive, and it is not caused by this work.
+Three load-sensitive checks exist, not one. Each passes in isolation and each has failed at
+least one full-suite run under parallel load, so a full run is red roughly one time in three
+on one of them:
+
+- `the child runner enforces an overall timeout` in
+  `server/mdm-reconciliation/run-weekly-synthesis-queue.test.mjs`. Verified against clean
+  `main` rather than assumed: it fails there on two of three full-suite runs and passes on the
+  third. Pre-existing, not caused by this work.
+- `the mounted activity routes complete a fixture run and reuse one apply receipt` in
+  `server/activity-reconciliation/activity-gateway.test.mjs`, seen red once by the independent
+  reviewer under load, green in isolation and on two subsequent full runs.
+- `gateway serves the complete pasted-transcript path against a temporary Brain` in
+  `server/meeting-closeout-gateway.test.mjs`, same pattern, same run.
+
+Saying "384 pass on a clean run" without this list would understate what the suite actually
+does, and this phase's whole point is evidence that can be trusted.
 
 ## Safety
 

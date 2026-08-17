@@ -1,18 +1,34 @@
 # Current Task
 
-Phase 0: preserve the checkout and rewrite every active plan around the reviewed build order.
+Phase 2: move activity reconciliation fully onto the shared saved-step engine.
 
-- Status: in progress, 2026-08-16
-- Authority: `docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md`
-- Why: three independent reviews on 2026-08-15 stopped the previous sequence. It created Jira
-  issues automatically before building the protections that make an external effect safe to
-  retry. Verdict was no go on the sequence, continue the project.
-- Done: checkout inventoried and committed as 11 recovery points on `main`, pushed
-  `34b6684..90e9c64`; the parked work recorded; the plan rewritten; Phase 1 checks frozen at
-  `docs/mythos/gates/20260816-action-safe-state.md`
-- Open: Steve confirms the revised order, then the automatic Phase 0 infographic
-- Next: Phase 1, Action-Safe State. First code phase. No live external effect in it.
-- Safety: Phase 0 changes documents and git only
+- Status: next up
+- Authority: `docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md`, Phase 2
+- Prerequisite: Phase 1 complete, independent review PASS WITH FINDINGS, 2026-08-16
+- Safety: no live Jira or communication effect; recommendation and review paths only
+- Also owed: resolve the unused `clock` in `activity-lifecycle.mjs` while in that file
+
+## Completed: Phase 1, Action-Safe State (2026-08-16)
+
+- Branch `phase-1/action-safe-state`, merged to `main`
+- Action identity with permanent lineage and evidence on revisions; lease generations with
+  heartbeats and pre-write ownership checks; guarded resume; the external-effect lifecycle
+  (prepared, claimed, attempting, confirmed, uncertain, reconcile, read back); completion
+  authority requiring a verification receipt; stop reaching a running step; public-field
+  allowlists, whole-payload secret scan, corrupt-artifact quarantine, backup and restore
+- 24 checks in `server/workbench-state/action-safe-state*.test.mjs`, each proven able to fail
+  by mutation; full suite 384 passing against a 360 baseline
+- Independent review ran twice: NEEDS CHANGES with four blocking findings, all fixed, then
+  PASS WITH FINDINGS with none blocking
+- Two AS amendments recorded in the acceptance file; Phase 4 preconditions recorded on the
+  risk register (the non-cooperative-step hole and the shape-only verification receipt)
+- Evidence: `docs/mythos/evidence/20260816-phase-1-action-safe-state.md`
+
+## Completed: Phase 0, preserve and rewrite (2026-08-16)
+
+- The 116 uncommitted paths became 11 recovery commits on `main`; the plan was rewritten
+  around the reviewed order; Phase 1 checks were frozen before implementation
+- Steve confirmed the revised 0 through 8 order before Phase 1 started
 
 ## Paused work
 

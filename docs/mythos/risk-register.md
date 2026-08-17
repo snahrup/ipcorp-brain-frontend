@@ -1,5 +1,20 @@
 # Risk Register
 
+## Preconditions for the first live external effect (Phase 4)
+
+Named here so they outlive the Phase 1 evidence file. Both were accepted by the independent
+review as fine for Phase 1 and wrong to carry into a live effect.
+
+- A step that ignores its abort signal still has post-cancellation output saved and selected
+  on resume, because a returned-and-validated output cannot be told apart from finished work
+  (`step-runner.mjs`, AS-07 amendment). The state engine cannot close this; the durable
+  provider worker must, by enforcing each provider's cancellation behavior instead of trusting
+  it. No provider may carry a live effect until its wrapper is proven to honor its signal.
+- The completion verification receipt is checked for shape only. Before Phase 4, completion of
+  externally acting work must cross-reference the effect lifecycle: the named effect must
+  exist, belong to the same action revision, and be in `read_back`. A fabricated receipt
+  currently passes; that is acceptable only while nothing externally acting exists.
+
 - The meeting job is now the first production consumer of the saved work-item engine.
   Activity reconciliation still uses its older run store for its other stages and is the
   next migration target.

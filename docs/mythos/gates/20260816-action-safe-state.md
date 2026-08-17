@@ -103,6 +103,18 @@ that finished normally.
 What is still guaranteed: the stop reaches the step while it is running, which AS-07 sentence
 one requires and which the original implementation never did.
 
+### 2026-08-16, AS-09 corrupt-record clause
+
+Frozen: "A corrupt saved record is quarantined rather than served."
+
+Narrowed to: a corrupt step artifact is quarantined and its step reruns. A corrupt line in
+`events.ndjson` itself fails the whole state root closed instead.
+
+Why: the event log is the source every projection is rebuilt from. Skipping a damaged line to
+keep reading would let a projection be silently wrong, and failing closed is the project's
+stated rule. The recovery path for a damaged log is the backup and restore added in this phase
+(AS-10), not a partial read.
+
 ## Stop conditions
 
 - The external-effect lifecycle cannot be implemented once and reused across Jira, Brain,
