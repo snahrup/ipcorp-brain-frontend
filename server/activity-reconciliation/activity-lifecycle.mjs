@@ -239,6 +239,9 @@ export function createActivityLifecycle(options = {}) {
   // it was handed, so the run stays reproducible from its own evidence.
   const isOwnerAlive =
     typeof options.isOwnerAlive === "function" ? options.isOwnerAlive : defaultOwnerAlive;
+  // The lease this instance holds, remembered from its own claim. Completion presents this
+  // rather than re-reading the current lease, which would compare a value to itself.
+  const claimedLeases = new Map();
 
   async function itemFor(runId) {
     return (await projectWorkItems(state)).find((item) => item.id === runId) || null;
@@ -331,6 +334,12 @@ export function createActivityLifecycle(options = {}) {
       now: at,
       eventId: claimId,
     });
+    if (result?.lease?.leaseId) {
+      claimedLeases.set(workItemId, {
+        leaseId: result.lease.leaseId,
+        leaseGeneration: result.lease.leaseGeneration ?? null,
+      });
+    }
     return { ...result, recoveredOwner };
   }
 
@@ -415,7 +424,12 @@ export function createActivityLifecycle(options = {}) {
     });
     // AS-08. Completion goes through completeWorkItem, which rechecks that this caller still
     // holds the current lease. Activity reconciliation performs no live external effect, so
-    // it needs no destination readback, but it can no longer complete work it has lost.
+    // it needs no destination readback, but it cannot complete work it has lost.
+    //
+    // This module presents ITS OWN identity, never whatever the state currently says. Reading
+    // the current lease and handing it straight back would compare the lease to itself and
+    // always match, which is a check in name only.
+    const held = claimedLeases.get(workItemId) || null;
     const current = (await projectWorkItems(state)).find((entry) => entry.id === workItemId);
     const completion = await completeWorkItem(state, {
       eventId: eventId("completed", run, {
@@ -425,9 +439,9 @@ export function createActivityLifecycle(options = {}) {
         finishedAt: at,
       }),
       workItemId,
-      owner: current?.lease?.owner,
-      leaseId: current?.lease?.leaseId,
-      leaseGeneration: current?.lease?.leaseGeneration,
+      owner,
+      leaseId: held?.leaseId ?? current?.lease?.leaseId ?? null,
+      leaseGeneration: held?.leaseGeneration ?? current?.lease?.leaseGeneration ?? null,
       now: at,
       verification: {
         runId: workItemId,

@@ -368,16 +368,35 @@ function leaseLooksAlive(item, at) {
  * original owner is gone even though the pid answers.
  */
 export async function defaultOwnerAlive(lease) {
-  if (lease?.ownerIdentity && lease.ownerIdentity !== PROCESS_IDENTITY) {
-    const [identityPid] = String(lease.ownerIdentity).split("-");
-    if (Number(identityPid) === process.pid) return false;
+  // The owner name is checked first when it encodes a pid, because naming a worker after its
+  // process is the deliberate convention this system uses for recovery, and one process can
+  // hold leases under several worker names. The recorded identity then refines it: the same
+  // pid with a different start identity is a number Windows handed to something else.
+  const named = String(lease?.owner || "").match(/(?:^|[-:])(\d+)$/);
+  if (named) {
+    const pid = Number(named[1]);
+    if (Number.isSafeInteger(pid) && pid > 0) {
+      if (pid === process.pid) {
+        return !lease?.ownerIdentity || lease.ownerIdentity === PROCESS_IDENTITY;
+      }
+      return probePid(pid);
+    }
   }
 
-  const match = String(lease?.owner || "").match(/(?:^|[-:])(\d+)$/);
-  if (!match) return null;
-  const pid = Number(match[1]);
-  if (!Number.isSafeInteger(pid) || pid <= 0) return null;
-  if (pid === process.pid) return true;
+  // An owner whose name carries no pid still has the identity the claim wrote, which is the
+  // only thing left to probe. Without this, such an owner could never be recovered.
+  if (lease?.ownerIdentity) {
+    if (lease.ownerIdentity === PROCESS_IDENTITY) return true;
+    const pid = Number(String(lease.ownerIdentity).split("-")[0]);
+    if (Number.isSafeInteger(pid) && pid > 0) {
+      if (pid === process.pid) return false;
+      return probePid(pid);
+    }
+  }
+  return null;
+}
+
+function probePid(pid) {
   try {
     process.kill(pid, 0);
     return true;

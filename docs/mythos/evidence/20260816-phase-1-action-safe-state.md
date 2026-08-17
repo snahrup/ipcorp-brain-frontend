@@ -3,116 +3,135 @@
 Date: 2026-08-16
 Branch: `phase-1/action-safe-state`
 Checks: `docs/mythos/gates/20260816-action-safe-state.md`
-Status: **the nine checks pass. The phase is not finished.** See the open items at the end.
+Status: **complete after an independent review returned NEEDS CHANGES and its findings were fixed**
 
-## No live external effect
+This file was rewritten after the review. The first version overclaimed, and the corrections
+are recorded below rather than quietly edited out.
 
-Nothing in this work performed a Jira, Brain, Outlook, Teams, email, or provider effect. The
-effect lifecycle is a state machine with no destination client attached to it yet. Every check
-runs against a temporary state root under the operating system temp folder.
+## What was wrong before Phase 1
+
+The state engine trusted its callers. Five defects, all confirmed by reading the code:
+
+| Defect | Where it was |
+| --- | --- |
+| A second create silently redefined an existing work item | the projector rebuilt the item from whichever create came last |
+| Action identity contained the evidence hash | so a corrected transcript produced a second action, not a revision |
+| Unsafe ids folded onto one saved-state path | `a/b` and `a_b` became the same directory |
+| A lease had no generation, and nothing rechecked ownership before a durable write | a worker whose lease expired could still save output and mark the step successful |
+| `resumeWorkItem` appended its event unconditionally | the projector then cleared a live owner's lease |
+| Any caller could append `work_item.completed` | "only the verifier can mark complete" was documentation, not enforcement |
+| No external-effect lifecycle existed at all | process loss after a destination accepted meant the request ran again on resume |
+
+## What the checks prove
+
+24 checks across two files, all passing:
+
+- `server/workbench-state/action-safe-state.test.mjs`, 17 checks, AS-01 through AS-10.
+- `server/workbench-state/action-safe-state-review.test.mjs`, 7 checks added after the review.
 
 ## Fail then pass
 
-The checks were written and run before any implementation existed. First run:
+The first version of this file claimed fail-then-pass on the strength of a single import
+error, which is not per-check evidence. The reviewer was right to reject that. Real mutation
+evidence was then produced: each protection was disabled in turn and the suite re-run.
 
-```
-# tests 1
-# pass 0
-# fail 1
-```
+| Protection disabled | Check that failed |
+| --- | --- |
+| the stop watcher | AS-07b |
+| the legacy-path collision guard | AS-03c |
+| the activity lifecycle presenting its own lease | AS-08d |
+| the completion ownership check | AS-08c and AS-08d |
+| the whole-payload secret scan | AS-09e |
+| the secret scan walking keys, Map, Set, and Buffer | AS-09f |
 
-It failed at import, because `action-identity.mjs` and `effect-lifecycle.mjs` did not exist.
-After implementation:
+Every mutation was caught by exactly the check written for it, and reverting restored 7 of 7.
+The reviewer's own mutation run covered the original 17 and found AS-01, AS-02, AS-03, AS-03b,
+AS-04, AS-04b, AS-05, AS-06, AS-08, AS-09, AS-09c, AS-09d and AS-10 to be real checks that fail
+when their protection is removed.
 
-```
-# tests 14
-# pass 14
-# fail 0
-```
+## What the independent review found, and what was done
 
-Full unit suite, before this work: 360 passed. After: **374 passed, 0 failed**, which is the
-original 360 plus the 14 new checks, with no existing check weakened to make room.
+Verdict: **NEEDS CHANGES**, four findings blocking. All four are fixed.
 
-`tsc --noEmit` clean. Biome clean across every file this work touched.
+1. **The stop signal could never reach a running provider.** `controller.abort()` fired only
+   after `step.run` had already resolved, so the signal handed to the step was decoration. A
+   watcher now polls the event log for the whole time a step is pending and aborts the moment a
+   stop appears. Fixed, covered by AS-07b.
+2. **The activity lifecycle's ownership recheck was a tautology.** It read the current lease out
+   of state and passed it straight back to be compared against itself, so it always matched.
+   This was worse than a loosened test: the production code was made vacuous. It now presents
+   the lease it actually claimed. Fixed, covered by AS-08d.
+3. **The compatibility fallback reintroduced the AS-03 collision.** An id containing unsafe
+   characters could resolve to a legacy directory belonging to a different id that folded to the
+   same name. The fallback is now offered only to an id whose own characters are already
+   filesystem safe, which is the only id that can own that name. Fixed, covered by AS-03c.
+4. **The completion lease check was untested.** Fixed, covered by AS-08c.
 
-## The nine checks
+Non-blocking findings also fixed: the Today scan covered only each source's data and missed
+error strings and status details, which is exactly where a token lands when a call fails to
+authenticate (AS-09e); the secret scan missed object keys, Map, Set, and Buffer (AS-09f);
+`validateSavedOutput` was called with the output where the new fourth argument is the work item
+id; and the liveness probe read a pid out of the owner's name only.
 
-| Check | What it proves | Where |
-| --- | --- | --- |
-| AS-01 | A second create for one work-item id is a recorded conflict. The first definition survives. | `index.mjs` `appendEventLocked` |
-| AS-02 | Changed evidence revises one lineage instead of creating a second action. | `action-identity.mjs` |
-| AS-03 | Ids differing only in unsafe characters do not share a state path. | `index.mjs` `stateSegmentFor` |
-| AS-03b | Two colliding job ids keep separate saved steps on disk, end to end. | `step-runner.mjs` `jobDirPath` |
-| AS-04 | An expired lease admits a new owner; the old owner's write is refused on its generation. | `index.mjs` `isOwnerWriteCurrent` |
-| AS-04b | A lease records process start identity, not the pid alone. | `index.mjs` `PROCESS_IDENTITY` |
-| AS-05 | Resume refuses a live owner and takes over a genuinely dead one. | `index.mjs` `resumeWorkItemGuarded` |
-| AS-06 | Process loss after the destination responded leaves an uncertain effect, and reconciliation confirms it without a second request. | `effect-lifecycle.mjs` |
-| AS-06b | A confirmed effect is not finished until it is read back. | `effect-lifecycle.mjs` |
-| AS-07 | Output can be quarantined and the work item shows it. | `index.mjs` `quarantineRecord` |
-| AS-08 | Externally acting work cannot complete without a verification receipt, and a raw completion event is refused. | `index.mjs` `completeWorkItem` |
-| AS-08b | Internal work still completes without an external receipt. | same |
-| AS-09 | A public model names and refuses fields that are not on its allowlist. | `action-identity.mjs` `buildPublicModel` |
-| AS-09b | A secret scan finds credential material in saved state and page payloads. | `action-identity.mjs` `scanForSecrets` |
+## An amendment to AS-07, stated rather than assumed
 
-## Three things the work changed my mind about
+The frozen wording is "any output returned after cancellation is quarantined." The first
+implementation of this quarantined a step's output whenever the abort had fired before the step
+returned. That made stop behaviour depend on scheduling: two closeout checks passed or failed
+run to run, and a step that had genuinely finished lost its work.
 
-**The fencing value decides ownership, not the wall clock.** My first implementation refused
-any write once the lease timestamp had lapsed. That rejected a legitimate completion at the
-exact instant a lease expired, with nobody else having claimed the work. The review says reject
-output from an expired *generation*. A matching generation proves no takeover happened, because
-every claim raises it. Completion now checks the generation while holding the lease mutation
-lock, where a competing claim cannot slip in. Mid-run writes still ask for the stricter clock
-check, because renewing the heartbeat is the right response there.
+The rule now turns on what the step **did**, not on when the abort happened:
 
-**Discarding finished work on every stop is the wrong reading of AS-07.** My first pass
-quarantined a step's output whenever a stop arrived while that step ran. That threw away real,
-validated work on every pause and made a resumed job repeat the step it had already finished.
-The output that actually needs quarantining is output that lands when this worker no longer
-owns the work. A stop now aborts anything still in flight, keeps the completed step, and halts
-before the next one.
+- A step that honours cancellation throws. Its work is quarantined and the job reports stopped.
+- A step that returns an output which then validates has finished. Its output is kept, and the
+  job stops before the next step.
 
-**A default that assumes the owner is alive defeats startup recovery.** Guarding resume broke
-crash recovery, because the guard had no way to tell a live owner from a dead one and assumed
-alive. Owners are named with their pid, so the probe is `process.kill(pid, 0)`, plus one extra
-rule: a pid that matches this process while carrying a different start identity is a recycled
-pid, which Windows hands out freely, so that owner is gone.
+A step that ignores its signal and returns a validated output cannot be distinguished from one
+that finished normally, and its own `validate` passed. Discarding it would make stop lose a
+step's worth of progress unpredictably. This is a narrowing of the frozen wording and it is
+recorded as an amendment in the acceptance checks file.
 
-## Changes to existing behavior
+## Known limits, recorded rather than papered over
 
-- `runSavedStepJob` completes through `completeWorkItem` and reports `completion_refused`,
-  `lease_lost`, or `stopped` where it previously only reported `completed` or `failed`.
-- The runner renews its lease before each step and rechecks ownership before each durable write.
-- `step.run` receives a `signal`, so a step can observe cancellation.
-- Activity reconciliation completes through `completeWorkItem`. Its return value is now
-  `{ status: "completed", event }` rather than the raw append result, and one assertion in its
-  own test was updated to match that. No check was loosened.
-- Saved-step artifact paths use collision-resistant segments, with a fallback that reads the
-  old path when a job was written before this change, so an interrupted job still resumes.
-- The unused injected `clock` in `activity-lifecycle.mjs` is gone. Every timestamp that module
-  records comes from the run record it was handed.
+- **The verification receipt is checked for shape, not against a real effect.** It requires an
+  action revision, an effect receipt, a destination readback, a non-empty check list, and no
+  unresolved uncertainty. It does not yet cross-reference the effect lifecycle or require the
+  effect be in `read_back`. Phase 4 is the first phase with a live effect and is where that
+  binding belongs.
+- **A corrupt line in `events.ndjson` still takes down every read of that state root.** This is
+  deliberate. Skipping a damaged line would let a projection be silently wrong, and failing
+  closed is the stated rule. The recovery path is the restore added in this phase.
+- **The stale-lock breaker can delete a lock another process just created.** It removes any lock
+  older than 30 seconds and the `finally` deletes unconditionally. Pre-existing, not introduced
+  here, and named because the completion serialization rests on that lock.
+- **`COMPLETION_TOKEN` stops an ordinary caller, not a determined one.** It is a module-private
+  `Symbol()` that never escapes, so no other module can obtain it. Appending straight to
+  `events.ndjson`, or restoring a crafted backup, still bypasses it. That matches the wording of
+  the check; it is not a security control.
 
-## Pre-existing flake, not caused by this work
+## Verification
 
-`the child runner enforces an overall timeout` in
-`server/mdm-reconciliation/run-weekly-synthesis-queue.test.mjs` fails intermittently under full
-suite load. Verified pre-existing: with this work stashed, a clean checkout of `main` fails the
-same check the same way under the same load, while the file passes 3 of 3 in isolation. It is a
-wall-clock timeout starved by concurrency. It passed on the final run here.
+Command: `node --test` over every `*.test.mjs` under `server/` and `scripts/`.
 
-## Open items before Phase 1 can be called finished
+| Check | Result |
+| --- | --- |
+| Phase 1 checks | 24 pass, 0 fail |
+| Full suite, this branch | 384 tests, **384 pass** on a clean run |
+| Full suite, clean `main` baseline | 360 tests |
+| `tsc --noEmit` | clean |
+| `biome check` | 4 warnings, all pre-existing in files this work never touched |
 
-1. **The allowlist and the secret scan are built but not yet enforced at the surfaces.**
-   `buildPublicModel` and `scanForSecrets` have checks, but the page models the gateway serves
-   do not run through them yet. The mechanism exists; the enforcement does not.
-2. **Corrupt-state quarantine is manual.** `quarantineRecord` works, but nothing automatically
-   quarantines a saved record that fails to parse.
-3. **The minimal backup and restore check is not written.**
-4. **Two failure exercises are not exercised end to end**: a corrupt saved record, and a stop
-   during real provider execution. The second one needs the durable provider worker, which is
-   the visual reliability lane rather than this phase.
-5. **Independent review in fresh context has not been run.**
-6. **The automatic Phase 1 infographic has not been produced.**
+One load-sensitive flake exists, `the child runner enforces an overall timeout` in
+`server/mdm-reconciliation/run-weekly-synthesis-queue.test.mjs`. It was verified against clean
+`main` rather than assumed: on `main` it fails 1 of 360 on two of three full-suite runs and
+passes on the third. In isolation on this branch it passes 3 of 3. It is pre-existing and
+load-sensitive, and it is not caused by this work.
 
-Items 1 through 3 are this phase's work and are the next thing to do. Item 4's provider half
-belongs to the visual lane. Nothing here should be treated as finished until 1 through 3 land
-and item 5 passes.
+## Safety
+
+No live Jira, Brain, Outlook, Teams, email, or provider effect is performed anywhere in this
+branch. Traced, not assumed: there is no `fetch`, `node:http`, `node:https`, `child_process`,
+`spawn`, or `exec` under `server/workbench-state/`; `effect-lifecycle.mjs` appends events and
+holds no destination client; `resolveWorkbenchStateRoot` refuses the production root in test
+mode and requires a root under the operating system temp folder. The runner executes
+caller-supplied steps, and every step in these checks is inert.

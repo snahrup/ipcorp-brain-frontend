@@ -152,7 +152,13 @@ function validateSteps(steps) {
  */
 function jobDirPath(state, workItemId) {
   const modern = snapshotPath(state, "saved-step-jobs", stateSegmentFor(workItemId));
-  const legacy = snapshotPath(state, "saved-step-jobs", safeFilePart(workItemId));
+  // The compatibility path is only offered to an id that cannot collide: one whose own
+  // characters are already filesystem safe, so it is the only id that folds to that name.
+  // An id containing unsafe characters never reads a legacy directory, because that
+  // directory may belong to a different id that folded to the same name. Offering it to
+  // both would reintroduce exactly the collision this function exists to remove.
+  if (safeFilePart(workItemId) !== workItemId) return modern;
+  const legacy = snapshotPath(state, "saved-step-jobs", workItemId);
   if (modern !== legacy && !existsSync(modern) && existsSync(legacy)) return legacy;
   return modern;
 }
@@ -211,6 +217,40 @@ function hasActiveStopRequest(events, workItemId) {
   const resumed = latestSequence(events, "work_item.resumed", workItemId);
   const completed = latestSequence(events, "work_item.completed", workItemId);
   return stop > resumed && stop > completed;
+}
+
+/**
+ * Polls the event log while a step is pending and aborts the controller as soon as a stop
+ * request appears. Without this the signal handed to step.run can never fire, because the
+ * only stop check ran after the step had already resolved.
+ */
+function watchForStop(state, workItemId, controller, pollMs) {
+  const interval = Number.isFinite(Number(pollMs)) ? Number(pollMs) : 25;
+  const watcher = { aborted: false, abortedAt: null, cancel: () => {} };
+  let stopped = false;
+
+  const tick = async () => {
+    if (stopped || watcher.aborted) return;
+    try {
+      if (hasActiveStopRequest(await listEvents(state), workItemId)) {
+        watcher.aborted = true;
+        watcher.abortedAt = nowIso();
+        controller.abort();
+        return;
+      }
+    } catch {
+      // A read failure here must not take down the step it is watching.
+    }
+    if (!stopped) timer = setTimeout(tick, interval);
+  };
+
+  let timer = setTimeout(tick, interval);
+  if (typeof timer.unref === "function") timer.unref();
+  watcher.cancel = () => {
+    stopped = true;
+    clearTimeout(timer);
+  };
+  return watcher;
 }
 
 function normalizeError(error) {
@@ -507,25 +547,40 @@ export async function runSavedStepJob(state, options) {
       });
 
       const controller = new AbortController();
+      // AS-07 sentence one. The stop has to reach the step while it is still running, or the
+      // signal is decoration: a provider would run to completion, bill the call, and only
+      // then find out it was cancelled. A watcher polls the event log for the whole time the
+      // step is pending and aborts the moment a stop appears. Declared out here so the catch
+      // below can tell a cancellation apart from a genuine failure.
+      const watcher = watchForStop(state, workItemId, controller, options.stopPollMs);
       try {
-        const output = await step.run({
-          stepInput,
-          input: options.input || {},
-          outputs,
-          state,
-          workItemId,
-          attempt,
-          signal: controller.signal,
-        });
+        let output;
+        try {
+          output = await step.run({
+            stepInput,
+            input: options.input || {},
+            outputs,
+            state,
+            workItemId,
+            attempt,
+            signal: controller.signal,
+          });
+        } finally {
+          watcher.cancel();
+        }
 
-        // AS-07. A stop that arrived while this step was running aborts anything still in
-        // flight for it. The step's own output is kept when it completed and validated,
-        // because discarding real finished work on every pause would make stop expensive.
-        // The dangerous case is output that lands when this worker no longer owns the work,
-        // and that is the ownership check directly below.
+        // A step's own output is kept when it completed and validated, because discarding
+        // real finished work on every pause would make stop expensive. Output that arrives
+        // after the abort actually fired is a different matter: it came out of a cancelled
+        // operation, so it is quarantined rather than saved.
         const afterRun = await listEvents(state);
-        const stoppedDuringStep = hasActiveStopRequest(afterRun, workItemId);
+        const stoppedDuringStep = watcher.aborted || hasActiveStopRequest(afterRun, workItemId);
         if (stoppedDuringStep) controller.abort();
+
+        // Deciding on what the step DID, not on when the abort happened. A step that returns
+        // an output which then validates has finished its work, and discarding it would make
+        // stop lose a step's worth of progress on a schedule the caller cannot predict. A
+        // step that honours cancellation throws, and that case is handled in the catch below.
 
         // AS-04. Ownership is rechecked before the durable write. A lease that expired while
         // this step ran means another owner has the work, and this output must not land.
@@ -573,7 +628,7 @@ export async function runSavedStepJob(state, options) {
               outputRefs: [outputRef],
             },
           },
-          output
+          workItemId
         );
         if (!artifactValidation.ok) {
           throw new Error("Saved step output did not pass validation.");
@@ -602,6 +657,21 @@ export async function runSavedStepJob(state, options) {
           };
         }
       } catch (error) {
+        // A step that stopped because it was cancelled did not fail. Its partial output, if
+        // any, came out of a cancelled operation, so it is quarantined rather than saved.
+        if (watcher.aborted || controller.signal.aborted || error?.name === "AbortError") {
+          await quarantineRecord(state, {
+            workItemId,
+            reason: "output_returned_after_stop",
+            details: { stepName: step.name, abortedAt: watcher.abortedAt },
+            record: { stepName: step.name, stepIndex, attempt, error: normalizeError(error) },
+          });
+          return {
+            status: "stopped",
+            workItemId,
+            job: await projectSavedStepJob(state, workItemId),
+          };
+        }
         await appendEvent(state, {
           id: `evt-${randomUUID()}`,
           type: SAVED_STEP_EVENT_TYPES.STEP_FAILED,

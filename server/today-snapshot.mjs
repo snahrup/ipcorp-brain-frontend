@@ -90,7 +90,44 @@ export function buildTodaySnapshot(input = {}) {
       ...data,
     },
   });
+
+  // Scanning each source's data was not enough. An error string and a status detail are
+  // exactly where a token lands when a call fails to authenticate, and neither was covered.
+  // The assembled payload is scanned as a whole, and anything still matching is redacted in
+  // place rather than served.
+  const finalScan = scanForSecrets(model);
+  if (!finalScan.ok) {
+    for (const finding of finalScan.findings) redactAtPath(model, finding.path);
+    model.notes = [
+      ...model.notes,
+      {
+        source: "snapshot",
+        status: "blocked",
+        message: `Redacted ${finalScan.findings.length} field(s) that matched the secret scan: ${finalScan.findings
+          .map((finding) => finding.path)
+          .join(", ")}.`,
+      },
+    ];
+  }
   return model;
+}
+
+/** Replaces the value at a scan finding's path with a marker. The value is never echoed. */
+function redactAtPath(root, path) {
+  const parts = String(path)
+    .replace(/^\$\.?/, "")
+    .split(/\.|\[(\d+)\]/)
+    .filter((part) => part !== undefined && part !== "");
+  if (!parts.length) return;
+  let node = root;
+  for (const part of parts.slice(0, -1)) {
+    if (node === null || typeof node !== "object") return;
+    node = node[/^\d+$/.test(part) ? Number(part) : part];
+  }
+  const last = parts.at(-1);
+  if (node && typeof node === "object") {
+    node[/^\d+$/.test(last) ? Number(last) : last] = "[redacted: secret scan]";
+  }
 }
 
 function normalizeSource(sourceId, input, capturedAt) {

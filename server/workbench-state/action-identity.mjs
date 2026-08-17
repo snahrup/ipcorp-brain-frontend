@@ -132,11 +132,23 @@ const SECRET_PATTERNS = Object.freeze([
 export function scanForSecrets(value, path = "$") {
   const findings = [];
 
+  const seen = new WeakSet();
+
   const walk = (node, at) => {
     if (typeof node === "string") {
       for (const { name, pattern } of SECRET_PATTERNS) {
         if (pattern.test(node)) findings.push({ path: at, pattern: name });
       }
+      return;
+    }
+    if (node === null || typeof node !== "object") return;
+    if (seen.has(node)) return;
+    seen.add(node);
+
+    // A Buffer survives structuredClone and serializes as its bytes, so credential material
+    // stored in one reaches the browser just as readably as a string would.
+    if (ArrayBuffer.isView(node) || node instanceof ArrayBuffer) {
+      walk(Buffer.from(node instanceof ArrayBuffer ? node : node.buffer).toString("utf8"), at);
       return;
     }
     if (Array.isArray(node)) {
@@ -145,8 +157,25 @@ export function scanForSecrets(value, path = "$") {
       });
       return;
     }
-    if (node && typeof node === "object") {
-      for (const [key, entry] of Object.entries(node)) walk(entry, `${at}.${key}`);
+    if (node instanceof Map) {
+      for (const [key, entry] of node.entries()) {
+        walk(String(key), `${at}.<key>`);
+        walk(entry, `${at}.${String(key)}`);
+      }
+      return;
+    }
+    if (node instanceof Set) {
+      let index = 0;
+      for (const entry of node.values()) {
+        walk(entry, `${at}[${index}]`);
+        index += 1;
+      }
+      return;
+    }
+    for (const [key, entry] of Object.entries(node)) {
+      // A key can hold the secret just as easily as a value.
+      walk(key, `${at}.<key>`);
+      walk(entry, `${at}.${key}`);
     }
   };
 
