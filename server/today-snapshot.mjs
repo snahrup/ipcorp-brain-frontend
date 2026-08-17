@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { buildPublicModel, scanForSecrets } from "./workbench-state/action-identity.mjs";
 
 export const TODAY_SNAPSHOT_VERSION = 1;
 export const TODAY_SNAPSHOT_SOURCE_IDS = ["jira", "agentBoard", "reconciliation", "loop"];
@@ -17,6 +18,17 @@ const DATA_KEYS = {
   loop: "loop",
 };
 
+/** The only fields this page model may hand the browser. Adding one is a deliberate act. */
+export const TODAY_SNAPSHOT_PUBLIC_FIELDS = Object.freeze([
+  "version",
+  "snapshotId",
+  "capturedAt",
+  "partial",
+  "notes",
+  "sources",
+  ...Object.values(DATA_KEYS),
+]);
+
 export function buildTodaySnapshot(input = {}) {
   const capturedAt = normalizeIso(input.capturedAt ?? new Date());
   const sources = {};
@@ -25,6 +37,23 @@ export function buildTodaySnapshot(input = {}) {
 
   for (const sourceId of TODAY_SNAPSHOT_SOURCE_IDS) {
     const source = normalizeSource(sourceId, input[sourceId], capturedAt);
+
+    // AS-09. Fail closed. A source whose data carries credential material is blocked and
+    // named rather than served. The field path is reported; the value never is.
+    const scan = source.data === null ? { ok: true, findings: [] } : scanForSecrets(source.data);
+    if (!scan.ok) {
+      const where = scan.findings.map((finding) => finding.path).join(", ");
+      const detail = `${SOURCE_LABELS[sourceId] ?? sourceId} was withheld because a secret scan matched at ${where}.`;
+      sources[sourceId] = {
+        ...source.observation,
+        status: "blocked",
+        detail,
+      };
+      data[DATA_KEYS[sourceId]] = null;
+      notes.push({ source: sourceId, status: "blocked", message: detail });
+      continue;
+    }
+
     sources[sourceId] = source.observation;
     data[DATA_KEYS[sourceId]] = source.data;
     if (source.note) notes.push(source.note);
@@ -46,15 +75,59 @@ export function buildTodaySnapshot(input = {}) {
     ),
   };
 
-  return {
-    version: TODAY_SNAPSHOT_VERSION,
-    snapshotId: buildSnapshotId(capturedAt, snapshotSeed),
-    capturedAt,
-    partial,
-    notes,
-    sources,
-    ...data,
-  };
+  // AS-09. The browser payload may only carry approved top-level fields. This used to spread
+  // whatever each source returned straight into the response, so a new field could reach the
+  // browser because nobody noticed it. An unapproved field is named and refused.
+  const { model } = buildPublicModel({
+    allow: TODAY_SNAPSHOT_PUBLIC_FIELDS,
+    record: {
+      version: TODAY_SNAPSHOT_VERSION,
+      snapshotId: buildSnapshotId(capturedAt, snapshotSeed),
+      capturedAt,
+      partial,
+      notes,
+      sources,
+      ...data,
+    },
+  });
+
+  // Scanning each source's data was not enough. An error string and a status detail are
+  // exactly where a token lands when a call fails to authenticate, and neither was covered.
+  // The assembled payload is scanned as a whole, and anything still matching is redacted in
+  // place rather than served.
+  const finalScan = scanForSecrets(model);
+  if (!finalScan.ok) {
+    for (const finding of finalScan.findings) redactAtPath(model, finding.path);
+    model.notes = [
+      ...model.notes,
+      {
+        source: "snapshot",
+        status: "blocked",
+        message: `Redacted ${finalScan.findings.length} field(s) that matched the secret scan: ${finalScan.findings
+          .map((finding) => finding.path)
+          .join(", ")}.`,
+      },
+    ];
+  }
+  return model;
+}
+
+/** Replaces the value at a scan finding's path with a marker. The value is never echoed. */
+function redactAtPath(root, path) {
+  const parts = String(path)
+    .replace(/^\$\.?/, "")
+    .split(/\.|\[(\d+)\]/)
+    .filter((part) => part !== undefined && part !== "");
+  if (!parts.length) return;
+  let node = root;
+  for (const part of parts.slice(0, -1)) {
+    if (node === null || typeof node !== "object") return;
+    node = node[/^\d+$/.test(part) ? Number(part) : part];
+  }
+  const last = parts.at(-1);
+  if (node && typeof node === "object") {
+    node[/^\d+$/.test(last) ? Number(last) : last] = "[redacted: secret scan]";
+  }
 }
 
 function normalizeSource(sourceId, input, capturedAt) {

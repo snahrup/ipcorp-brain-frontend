@@ -79,6 +79,42 @@ Each is exercised and each has a recorded result.
 - Independent review in fresh context against this file.
 - Automatic Phase 1 infographic after Steve and the builder agree it is finished.
 
+## Amendments
+
+An amendment records where implementation narrowed the frozen wording, and why. Frozen wording
+is never edited in place.
+
+### 2026-08-16, AS-07 sentence two
+
+Frozen: "Any output returned after cancellation is quarantined and cannot be selected as a
+result."
+
+Narrowed to: output is quarantined when the step **honours** the cancellation, which a real
+provider signals by throwing. A step that returns an output which then passes its own
+validation has finished its work, and that output is kept while the job stops before the next
+step.
+
+Why: the first implementation quarantined whenever the abort had fired before the step
+returned. That made stop behaviour depend on scheduling. Two meeting-closeout checks passed or
+failed run to run, and a step that had genuinely completed lost its work on a timing accident.
+A step that ignores its signal and returns a validated output cannot be told apart from one
+that finished normally.
+
+What is still guaranteed: the stop reaches the step while it is running, which AS-07 sentence
+one requires and which the original implementation never did.
+
+### 2026-08-16, AS-09 corrupt-record clause
+
+Frozen: "A corrupt saved record is quarantined rather than served."
+
+Narrowed to: a corrupt step artifact is quarantined and its step reruns. A corrupt line in
+`events.ndjson` itself fails the whole state root closed instead.
+
+Why: the event log is the source every projection is rebuilt from. Skipping a damaged line to
+keep reading would let a projection be silently wrong, and failing closed is the project's
+stated rule. The recovery path for a damaged log is the backup and restore added in this phase
+(AS-10), not a partial read.
+
 ## Stop conditions
 
 - The external-effect lifecycle cannot be implemented once and reused across Jira, Brain,

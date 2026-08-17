@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { constants } from "node:fs";
-import { appendFile, mkdir, open, readFile, rm, stat, unlink } from "node:fs/promises";
+import { appendFile, cp, mkdir, open, readFile, rm, stat, unlink } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 
@@ -24,7 +24,21 @@ export const WORK_ITEM_EVENT_TYPES = Object.freeze({
   RELEASED: "work_item.released",
   RESUMED: "work_item.resumed",
   COMPLETED: "work_item.completed",
+  QUARANTINED: "work_item.quarantined",
 });
+
+// A pid alone is not identity on Windows, which recycles them. A lease records this instead,
+// so a recycled pid cannot be mistaken for the original owner still being alive.
+const PROCESS_IDENTITY = `${process.pid}-${randomUUID()}`;
+
+export function processIdentity() {
+  return PROCESS_IDENTITY;
+}
+
+// Completion of externally acting work goes through completeWorkItem, which checks the
+// verification receipt. This token is module-private, so a caller outside this file cannot
+// append a completion event directly.
+const COMPLETION_TOKEN = Symbol("workbench-state-completion");
 
 function appDataRoot() {
   return process.env.LOCALAPPDATA || join(homedir(), "AppData", "Local");
@@ -144,8 +158,17 @@ function nowIso(value) {
   return value ? iso(value, "now") : new Date().toISOString();
 }
 
-function safeFilePart(value) {
-  return requiredString(value, "id").replace(/[^a-zA-Z0-9._-]/g, "_");
+/**
+ * A filesystem-safe segment that cannot collide. Replacing unsafe characters with an
+ * underscore alone folds "meeting/2026-08-14" and "meeting_2026-08-14" onto one path, so two
+ * different work items would share saved state. The short hash of the original id keeps them
+ * apart while the readable part stays readable.
+ */
+export function stateSegmentFor(value) {
+  const original = requiredString(value, "id");
+  const readable = original.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 96);
+  const digest = createHash("sha256").update(original).digest("hex").slice(0, 12);
+  return `${readable}.${digest}`;
 }
 
 async function readLines(path) {
@@ -230,7 +253,7 @@ async function withExclusiveFileLock(lockPath, operation, label) {
 
 function withLeaseMutationLock(paths, workItemId, operation) {
   return withExclusiveFileLock(
-    join(paths.leases, `${safeFilePart(workItemId)}.mutation.lock`),
+    join(paths.leases, `${stateSegmentFor(workItemId)}.mutation.lock`),
     operation,
     `Workbench lease ${workItemId}`
   );
@@ -322,17 +345,257 @@ export async function openWorkbenchState(options = {}) {
     },
 
     async resumeWorkItem(workItemId, options = {}) {
-      return appendEvent(this, {
-        id: options?.eventId || `evt-${randomUUID()}`,
-        type: WORK_ITEM_EVENT_TYPES.RESUMED,
-        at: nowIso(options.now),
-        workItemId,
-        payload: {
-          reason: options.reason || "resume requested",
-        },
-      });
+      return resumeWorkItemGuarded(this, workItemId, options);
+    },
+
+    async isOwnerWriteCurrent(workItemId, options = {}) {
+      return isOwnerWriteCurrent(this, workItemId, options);
     },
   };
+}
+
+function leaseLooksAlive(item, at) {
+  if (!item?.lease?.expiresAt) return false;
+  return Date.parse(item.lease.expiresAt) > Date.parse(at);
+}
+
+/**
+ * AS-05. Is the process that holds this lease genuinely still there?
+ *
+ * Returns true, false, or null when it cannot be determined. Owners are named with their pid
+ * as a suffix, which is what makes the probe possible. A pid that matches this process but
+ * carries a different start identity is a recycled pid, which Windows does freely, so the
+ * original owner is gone even though the pid answers.
+ */
+export async function defaultOwnerAlive(lease) {
+  // The owner name is checked first when it encodes a pid, because naming a worker after its
+  // process is the deliberate convention this system uses for recovery, and one process can
+  // hold leases under several worker names. The recorded identity then refines it: the same
+  // pid with a different start identity is a number Windows handed to something else.
+  const named = String(lease?.owner || "").match(/(?:^|[-:])(\d+)$/);
+  if (named) {
+    const pid = Number(named[1]);
+    if (Number.isSafeInteger(pid) && pid > 0) {
+      if (pid === process.pid) {
+        return !lease?.ownerIdentity || lease.ownerIdentity === PROCESS_IDENTITY;
+      }
+      return probePid(pid);
+    }
+  }
+
+  // An owner whose name carries no pid still has the identity the claim wrote, which is the
+  // only thing left to probe. Without this, such an owner could never be recovered.
+  if (lease?.ownerIdentity) {
+    if (lease.ownerIdentity === PROCESS_IDENTITY) return true;
+    const pid = Number(String(lease.ownerIdentity).split("-")[0]);
+    if (Number.isSafeInteger(pid) && pid > 0) {
+      if (pid === process.pid) return false;
+      return probePid(pid);
+    }
+  }
+  return null;
+}
+
+function probePid(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    if (error?.code === "ESRCH") return false;
+    return null;
+  }
+}
+
+/**
+ * AS-05. Resume used to append its event unconditionally, and the projector then cleared the
+ * lease. A slow worker could keep running while another process resumed and claimed the same
+ * work, and the original worker could still save output and mark the step successful.
+ *
+ * A live owner is now refused. Taking over requires either an expired lease or a caller that
+ * can show the owner is genuinely gone, together with a named recovery condition.
+ */
+export async function resumeWorkItemGuarded(state, workItemId, options = {}) {
+  requiredString(workItemId, "work item id");
+  const at = nowIso(options.now);
+
+  return withLeaseMutationLock(state.paths, workItemId, async () => {
+    const item = (await projectWorkItems(state)).find((entry) => entry.id === workItemId);
+    if (!item) return { status: "missing", lease: null };
+
+    if (item.lease) {
+      const expired = !leaseLooksAlive(item, at);
+      const probe =
+        typeof options.isOwnerAlive === "function"
+          ? await options.isOwnerAlive(item.lease)
+          : await defaultOwnerAlive(item.lease);
+      // A probe that cannot decide falls back to the clock. A probe that says the owner is
+      // gone allows takeover even while the lease still looks current, which is the whole
+      // point of startup recovery after a crash.
+      const ownerAlive = probe === null || probe === undefined ? !expired : Boolean(probe);
+
+      if (!expired && ownerAlive) {
+        return {
+          status: "refused",
+          reason: "a live owner holds this work item",
+          lease: item.lease,
+        };
+      }
+      if (ownerAlive && !options.recoveryCondition) {
+        return {
+          status: "refused",
+          reason: "taking over a living owner needs an approved recovery condition",
+          lease: item.lease,
+        };
+      }
+    }
+
+    const appended = await appendEvent(state, {
+      id: options?.eventId || `evt-${randomUUID()}`,
+      type: WORK_ITEM_EVENT_TYPES.RESUMED,
+      at,
+      workItemId,
+      payload: {
+        reason: options.reason || "resume requested",
+        recoveryCondition: options.recoveryCondition || "lease_expired",
+        replacedLeaseGeneration: item.lease?.leaseGeneration ?? null,
+      },
+    });
+    return { status: appended.status === "conflict" ? "conflict" : "resumed", event: appended };
+  });
+}
+
+/**
+ * AS-04. The single question every durable write must ask before it writes: am I still the
+ * owner? A stale generation is refused even when the lease id still matches, because the work
+ * has since been claimed by someone else.
+ */
+export async function isOwnerWriteCurrent(state, workItemId, options = {}) {
+  requiredString(workItemId, "work item id");
+  const at = nowIso(options.now);
+  const item = (await projectWorkItems(state)).find((entry) => entry.id === workItemId);
+  if (!item) return { ok: false, reason: "missing_work_item", lease: null };
+  if (!item.lease) return { ok: false, reason: "no_current_lease", lease: null };
+
+  const current = item.lease;
+  if (Number(options.leaseGeneration) !== Number(current.leaseGeneration)) {
+    return { ok: false, reason: "stale_lease_generation", lease: current };
+  }
+  if (options.leaseId && options.leaseId !== current.leaseId) {
+    return { ok: false, reason: "stale_lease_id", lease: current };
+  }
+  if (options.owner && options.owner !== current.owner) {
+    return { ok: false, reason: "not_owner", lease: current };
+  }
+  // The fencing value is what actually decides ownership: any takeover raises the generation,
+  // so a matching generation proves nobody else has claimed this work. The wall clock is a
+  // weaker signal, and a caller holding the current generation with a lapsed clock has still
+  // not lost the work to anyone. Mid-run writes ask for the stricter check, because renewing
+  // the heartbeat is the right response there. Completion checks generation under the lease
+  // mutation lock instead, where a concurrent claim cannot slip in.
+  if (options.requireUnexpired !== false && !leaseLooksAlive(item, at)) {
+    return { ok: false, reason: "lease_expired", lease: current };
+  }
+  return { ok: true, reason: null, lease: current };
+}
+
+/**
+ * AS-07. Output that came back after a stop, or a saved record that no longer parses, is set
+ * aside rather than served. The record is kept so a person can look at it.
+ */
+export async function quarantineRecord(state, input) {
+  const at = nowIso(input?.now);
+  const workItemId = requiredString(input?.workItemId, "work item id");
+  const appended = await appendEvent(state, {
+    id: input?.eventId || `evt-${randomUUID()}`,
+    type: WORK_ITEM_EVENT_TYPES.QUARANTINED,
+    at,
+    workItemId,
+    payload: {
+      reason: requiredString(input?.reason, "quarantine reason"),
+      recordHash: hashValue(input?.record ?? {}),
+      details: input?.details || null,
+    },
+  });
+  return { status: appended.status === "conflict" ? "conflict" : "quarantined", event: appended };
+}
+
+function verificationProblem(item, verification) {
+  if (!item.externallyActing) return null;
+  if (!verification) return "externally acting work needs a verification receipt";
+  if (!verification.actionRevisionId) return "the verification receipt needs the action revision";
+  if (!verification.effectReceiptId) return "the verification receipt needs the effect receipt";
+  if (!verification.destinationReadback) {
+    return "the verification receipt needs a destination readback";
+  }
+  if (!Array.isArray(verification.checks) || verification.checks.length === 0) {
+    return "the verification receipt needs the checks required for this work class";
+  }
+  if (verification.unresolvedUncertainty) {
+    return "completion is refused while an uncertain effect is unresolved";
+  }
+  return null;
+}
+
+/**
+ * AS-08. The only way to complete a work item. Externally acting work must show its receipt,
+ * and the caller must still hold the current lease.
+ */
+export async function completeWorkItem(state, input) {
+  const at = nowIso(input?.now);
+  const workItemId = requiredString(input?.workItemId, "work item id");
+  return withLeaseMutationLock(state.paths, workItemId, () =>
+    completeWorkItemLocked(state, workItemId, at, input)
+  );
+}
+
+async function completeWorkItemLocked(state, workItemId, at, input) {
+  const events = await listEvents(state);
+  const item = projectWorkItemsFromEvents(events).find((entry) => entry.id === workItemId);
+  if (!item) return { status: "rejected", reason: "unknown work item" };
+
+  // An exact replay of a completion that already happened is a no-op, not a second
+  // completion. Completing clears the lease, so without this a retried call would look like
+  // a caller with no lease trying to complete finished work.
+  if (item.status === "completed") {
+    const prior = events.find(
+      (event) => event.type === WORK_ITEM_EVENT_TYPES.COMPLETED && event.workItemId === workItemId
+    );
+    if (prior && (!input?.eventId || prior.id === input.eventId)) {
+      return { status: "duplicate", event: { status: "duplicate", event: prior } };
+    }
+    return { status: "rejected", reason: "this work item is already completed" };
+  }
+
+  const ownership = await isOwnerWriteCurrent(state, workItemId, {
+    owner: input?.owner,
+    leaseId: input?.leaseId,
+    leaseGeneration: input?.leaseGeneration,
+    now: at,
+    requireUnexpired: false,
+  });
+  if (!ownership.ok) {
+    return { status: "rejected", reason: `completion refused: ${ownership.reason}` };
+  }
+
+  const problem = verificationProblem(item, input?.verification);
+  if (problem) return { status: "rejected", reason: problem };
+
+  const event = {
+    id: input?.eventId || `evt-${randomUUID()}`,
+    type: WORK_ITEM_EVENT_TYPES.COMPLETED,
+    at,
+    workItemId,
+    payload: {
+      receiptHash: hashValue(input?.verification ?? { internal: true }),
+      verification: input?.verification || null,
+      completedBy: input?.owner || null,
+      leaseGeneration: ownership.lease.leaseGeneration,
+    },
+  };
+  event[COMPLETION_TOKEN] = true;
+  const appended = await appendEvent(state, event);
+  if (appended.status === "conflict") return { status: "conflict", conflict: appended.conflict };
+  return { status: "completed", event: appended };
 }
 
 export async function appendEvent(state, event) {
@@ -341,6 +604,16 @@ export async function appendEvent(state, event) {
   requiredString(event?.type, "event type");
   iso(event?.at, "event at");
 
+  // AS-08. Completion must carry a verification receipt, and that is checked in
+  // completeWorkItem. An ordinary caller appending the raw event is refused here rather than
+  // trusted to behave.
+  if (event.type === WORK_ITEM_EVENT_TYPES.COMPLETED && event[COMPLETION_TOKEN] !== true) {
+    return {
+      status: "rejected",
+      reason: "Completion must go through completeWorkItem so the verification receipt is checked.",
+    };
+  }
+
   return withEventWriterLock(state.paths, () => appendEventLocked(state, event));
 }
 
@@ -348,6 +621,33 @@ async function appendEventLocked(state, event) {
   const body = eventBody(event);
   const contentHash = hashValue(body);
   const events = await listEvents(state);
+
+  // AS-01. One work-item id has one definition. A second create with different content is a
+  // recorded conflict, never a silent replacement of the first.
+  if (event.type === WORK_ITEM_EVENT_TYPES.CREATED && event.workItemId) {
+    const priorCreate = events.find(
+      (row) => row.type === WORK_ITEM_EVENT_TYPES.CREATED && row.workItemId === event.workItemId
+    );
+    if (priorCreate && priorCreate.id !== event.id) {
+      if (priorCreate.contentHash === contentHash) {
+        return { status: "duplicate", event: priorCreate };
+      }
+      const conflict = {
+        schemaVersion: WORKBENCH_STATE_SCHEMA_VERSION,
+        id: `conflict-${randomUUID()}`,
+        eventId: event.id,
+        workItemId: event.workItemId,
+        recordedAt: new Date().toISOString(),
+        reason: "work_item_redefinition",
+        existingHash: priorCreate.contentHash,
+        attemptedHash: contentHash,
+        attemptedEvent: body,
+      };
+      await appendJsonLine(state.paths.conflicts, conflict);
+      return { status: "conflict", conflict };
+    }
+  }
+
   const existing = events.find((row) => row.id === event.id);
   if (existing) {
     if (existing.contentHash === contentHash) return { status: "duplicate", event: existing };
@@ -399,18 +699,23 @@ async function mutateWorkItemLease(state, workItemId, action, options = {}) {
         if (action === "claim") {
           const owner = requiredString(options.owner, "lease owner");
           const duration = positiveLeaseDuration(options.leaseMs);
+          const sameClaim =
+            existingEvent.type === WORK_ITEM_EVENT_TYPES.CLAIMED &&
+            existingEvent.workItemId === workItemId;
+          // A retry with the same event id must rebuild the same payload, including the lease
+          // generation and owner identity, or the idempotent replay reads as a conflict.
           retryEvent = {
             id: options.eventId,
             type: WORK_ITEM_EVENT_TYPES.CLAIMED,
             at,
             workItemId,
             payload: {
-              leaseId:
-                existingEvent.type === WORK_ITEM_EVENT_TYPES.CLAIMED &&
-                existingEvent.workItemId === workItemId
-                  ? existingEvent.payload.leaseId
-                  : "conflicting-lease-id",
+              leaseId: sameClaim ? existingEvent.payload.leaseId : "conflicting-lease-id",
+              leaseGeneration: sameClaim ? existingEvent.payload.leaseGeneration : 0,
               owner,
+              ownerIdentity: sameClaim
+                ? existingEvent.payload.ownerIdentity
+                : options.ownerIdentity || PROCESS_IDENTITY,
               claimedAt: at,
               expiresAt: new Date(Date.parse(at) + duration).toISOString(),
             },
@@ -476,11 +781,23 @@ async function mutateWorkItemLease(state, workItemId, action, options = {}) {
           existingEvent.workItemId === workItemId
             ? existingEvent.payload.leaseId
             : randomUUID();
+        // AS-04. Every claim raises the generation. A worker whose lease expired still holds
+        // its old generation, so its later writes are refused on sight.
+        const leaseGeneration =
+          events
+            .filter(
+              (event) =>
+                event.type === WORK_ITEM_EVENT_TYPES.CLAIMED && event.workItemId === workItemId
+            )
+            .reduce((max, event) => Math.max(max, Number(event.payload?.leaseGeneration || 0)), 0) +
+          1;
         const lease = {
           schemaVersion: WORKBENCH_STATE_SCHEMA_VERSION,
           leaseId,
+          leaseGeneration,
           workItemId,
           owner,
+          ownerIdentity: options.ownerIdentity || PROCESS_IDENTITY,
           claimedAt: at,
           renewedAt: at,
           expiresAt: new Date(Date.parse(at) + duration).toISOString(),
@@ -492,7 +809,9 @@ async function mutateWorkItemLease(state, workItemId, action, options = {}) {
           workItemId,
           payload: {
             leaseId: lease.leaseId,
+            leaseGeneration: lease.leaseGeneration,
             owner: lease.owner,
+            ownerIdentity: lease.ownerIdentity,
             claimedAt: lease.claimedAt,
             expiresAt: lease.expiresAt,
           },
@@ -575,6 +894,7 @@ export async function createWorkItem(state, input) {
       title: requiredString(input?.title, "work item title"),
       kind: input?.kind || "general",
       priority: input?.priority || "normal",
+      externallyActing: Boolean(input?.externallyActing),
       createdAt,
       sourceObservationIds: Array.isArray(input?.sourceObservationIds)
         ? input.sourceObservationIds
@@ -604,6 +924,7 @@ function projectWorkItemsFromEvents(events) {
         kind: event.payload.kind,
         priority: event.payload.priority,
         status: "pending",
+        externallyActing: Boolean(event.payload.externallyActing),
         createdAt: event.payload.createdAt || event.at,
         updatedAt: event.at,
         lease: null,
@@ -630,7 +951,9 @@ function projectWorkItemsFromEvents(events) {
       item.status = "claimed";
       item.lease = {
         leaseId: event.payload.leaseId,
+        leaseGeneration: Number(event.payload.leaseGeneration || 1),
         owner: event.payload.owner,
+        ownerIdentity: event.payload.ownerIdentity || null,
         claimedAt: event.payload.claimedAt || event.at,
         expiresAt: event.payload.expiresAt,
       };
@@ -656,9 +979,23 @@ function projectWorkItemsFromEvents(events) {
       item.resumeReason = event.payload.reason || null;
     }
 
+    if (event.type === WORK_ITEM_EVENT_TYPES.QUARANTINED) {
+      item.status = "quarantined_output";
+      item.quarantine = [
+        ...(item.quarantine || []),
+        {
+          at: event.at,
+          reason: event.payload.reason,
+          recordHash: event.payload.recordHash,
+          details: event.payload.details || null,
+        },
+      ];
+    }
+
     if (event.type === WORK_ITEM_EVENT_TYPES.COMPLETED) {
       item.status = "completed";
       item.completedAt = event.at;
+      item.verification = event.payload.verification || null;
       item.lease = null;
     }
   }
@@ -725,6 +1062,50 @@ export async function recordTurnReceipt(state, input) {
     workItemId: input?.workItemId || null,
     payload: validation.receipt,
   });
+}
+
+/**
+ * Phase 1, item 1.7. The minimal backup and restore path: copy the event log and the saved
+ * snapshots, and be able to rebuild a working state root from that copy.
+ *
+ * Deliberately small. Journal compaction, off-machine schedules, and long soak exercises stay
+ * later, before unattended operation. This exists so a corrupt or lost state root is
+ * recoverable at all, which is a prerequisite for any live effect.
+ */
+export async function backupWorkbenchState(state, destination) {
+  if (!state?.paths?.events) throw new Error("backupWorkbenchState needs an opened state.");
+  const target = normalizePath(requiredString(destination, "backup destination"));
+  await mkdir(target, { recursive: true });
+
+  const events = await readLines(state.paths.events);
+  await appendJsonLine(join(target, "manifest.json"), {
+    schemaVersion: WORKBENCH_STATE_SCHEMA_VERSION,
+    takenAt: new Date().toISOString(),
+    sourceRoot: state.root,
+    eventCount: events.length,
+    eventsHash: hashValue(events),
+  });
+  await cp(state.paths.events, join(target, "events.ndjson"), { force: true });
+  await cp(state.paths.snapshots, join(target, "snapshots"), { recursive: true, force: true });
+  return { destination: target, eventCount: events.length };
+}
+
+export async function restoreWorkbenchState(backup, options = {}) {
+  const source = normalizePath(requiredString(backup, "backup directory"));
+  const resolved = resolveWorkbenchStateRoot(options);
+  await ensureStateRoot(resolved.paths);
+  await cp(join(source, "events.ndjson"), resolved.paths.events, { force: true });
+  await cp(join(source, "snapshots"), resolved.paths.snapshots, { recursive: true, force: true });
+
+  const restored = await readLines(resolved.paths.events);
+  const [manifest] = await readJsonLines(join(source, "manifest.json"));
+  const intact = hashValue(restored) === manifest?.eventsHash;
+  return {
+    root: resolved.root,
+    eventCount: restored.length,
+    intact,
+    reason: intact ? null : "the restored event log does not match the backup manifest",
+  };
 }
 
 export async function resetWorkbenchStateRootForTests(root) {

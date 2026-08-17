@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import {
   appendEvent,
+  completeWorkItem,
   createWorkItem,
   listEvents,
   projectWorkItems,
@@ -234,9 +235,13 @@ export function createActivityLifecycle(options = {}) {
   assertOpenedState(state);
   const owner = requiredString(options.owner || `activity-reconciliation-${process.pid}`, "owner");
   const leaseMs = positiveLeaseMs(options.leaseMs || DEFAULT_LEASE_MS);
-  const clock = typeof options.clock === "function" ? options.clock : () => new Date();
+  // No clock here on purpose: every timestamp this module records comes from the run record
+  // it was handed, so the run stays reproducible from its own evidence.
   const isOwnerAlive =
     typeof options.isOwnerAlive === "function" ? options.isOwnerAlive : defaultOwnerAlive;
+  // The lease this instance holds, remembered from its own claim. Completion presents this
+  // rather than re-reading the current lease, which would compare a value to itself.
+  const claimedLeases = new Map();
 
   async function itemFor(runId) {
     return (await projectWorkItems(state)).find((item) => item.id === runId) || null;
@@ -329,6 +334,12 @@ export function createActivityLifecycle(options = {}) {
       now: at,
       eventId: claimId,
     });
+    if (result?.lease?.leaseId) {
+      claimedLeases.set(workItemId, {
+        leaseId: result.lease.leaseId,
+        leaseGeneration: result.lease.leaseGeneration ?? null,
+      });
+    }
     return { ...result, recoveredOwner };
   }
 
@@ -411,17 +422,28 @@ export function createActivityLifecycle(options = {}) {
       at,
       eventId: receiptEventId,
     });
-    const completion = await appendEvent(state, {
-      id: eventId("completed", run, {
+    // AS-08. Completion goes through completeWorkItem, which rechecks that this caller still
+    // holds the current lease. Activity reconciliation performs no live external effect, so
+    // it needs no destination readback, but it cannot complete work it has lost.
+    //
+    // This module presents ITS OWN identity, never whatever the state currently says. Reading
+    // the current lease and handing it straight back would compare the lease to itself and
+    // always match, which is a check in name only.
+    const held = claimedLeases.get(workItemId) || null;
+    const current = (await projectWorkItems(state)).find((entry) => entry.id === workItemId);
+    const completion = await completeWorkItem(state, {
+      eventId: eventId("completed", run, {
         receiptId,
         receiptEventId,
         status: run.status,
         finishedAt: at,
       }),
-      type: "work_item.completed",
-      at,
       workItemId,
-      payload: {
+      owner,
+      leaseId: held?.leaseId ?? current?.lease?.leaseId ?? null,
+      leaseGeneration: held?.leaseGeneration ?? current?.lease?.leaseGeneration ?? null,
+      now: at,
+      verification: {
         runId: workItemId,
         runStatus: run.status,
         finishedAt: at,
