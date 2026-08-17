@@ -146,3 +146,11 @@ branch. Traced, not assumed: there is no `fetch`, `node:http`, `node:https`, `ch
 holds no destination client; `resolveWorkbenchStateRoot` refuses the production root in test
 mode and requires a root under the operating system temp folder. The runner executes
 caller-supplied steps, and every step in these checks is inert.
+
+## Phase infographic
+
+The closeout artwork and its receipt:
+`docs/architecture/assets/phase-infographics/phase-1-action-safe-state/phase-1-action-safe-state-2026-08-16-v1.png`
+and `...-v1.receipt.json` beside it. Authored as a self-contained SVG and rendered to PNG
+through the repo's Playwright Chromium, because Codex usage was exhausted until 2026-08-20.
+The artwork is a communication artifact and is not proof of completion; the checks above are.

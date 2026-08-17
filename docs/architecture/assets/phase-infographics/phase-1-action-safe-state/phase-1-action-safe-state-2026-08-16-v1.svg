@@ -1,0 +1,161 @@
+<svg viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#8296A8"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#1B5E9E"/>
+    </marker>
+    <marker id="arrowAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#A86A00"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1600" height="900" fill="#FFFFFF"/>
+
+  <!-- Header -->
+  <text x="48" y="60" font-size="40" font-weight="700" fill="#0D2C4E">Phase 1: Action-Safe State</text>
+  <text x="48" y="92" font-size="21" fill="#5B6B7C">The state engine stops trusting its callers</text>
+  <rect x="1398" y="30" width="154" height="38" rx="19" fill="#1D6F42"/>
+  <text x="1475" y="55" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">COMPLETE</text>
+  <text x="1552" y="92" font-size="17" fill="#5B6B7C" text-anchor="end">August 16, 2026</text>
+  <line x1="48" y1="112" x2="1552" y2="112" stroke="#0D2C4E" stroke-width="2"/>
+
+  <!-- Act labels -->
+  <text x="48" y="152" font-size="18" font-weight="700" fill="#1B5E9E" letter-spacing="2">BEFORE</text>
+  <text x="470" y="152" font-size="18" font-weight="700" fill="#1B5E9E" letter-spacing="2">THE PHASE</text>
+  <text x="1170" y="152" font-size="18" font-weight="700" fill="#1B5E9E" letter-spacing="2">PROVEN</text>
+
+  <!-- Act arrows -->
+  <line x1="434" y1="470" x2="462" y2="470" stroke="#8296A8" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="1134" y1="470" x2="1162" y2="470" stroke="#8296A8" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- Act 1: BEFORE -->
+  <rect x="48" y="170" width="380" height="630" rx="10" fill="#F4F6F8" stroke="#D7DEE5"/>
+  <text x="72" y="212" font-size="21" font-weight="600" fill="#0D2C4E">The engine trusted its callers</text>
+  <text x="72" y="240" font-size="16" fill="#5B6B7C">Five real defects, confirmed in review</text>
+
+  <g font-size="17" fill="#33414E">
+    <text x="72" y="296" font-size="20" font-weight="700" fill="#B3261E">&#215;</text>
+    <text x="98" y="290">A second create could silently</text>
+    <text x="98" y="312">redefine a work item</text>
+
+    <text x="72" y="366" font-size="20" font-weight="700" fill="#B3261E">&#215;</text>
+    <text x="98" y="360">Changed evidence made a duplicate</text>
+    <text x="98" y="382">action instead of a revision</text>
+
+    <text x="72" y="436" font-size="20" font-weight="700" fill="#B3261E">&#215;</text>
+    <text x="98" y="430">Two different ids could collide</text>
+    <text x="98" y="452">on one saved state path</text>
+
+    <text x="72" y="506" font-size="20" font-weight="700" fill="#B3261E">&#215;</text>
+    <text x="98" y="500">A worker with an expired lease could</text>
+    <text x="98" y="522">still write and record success</text>
+
+    <text x="72" y="576" font-size="20" font-weight="700" fill="#B3261E">&#215;</text>
+    <text x="98" y="570">Any caller could mark</text>
+    <text x="98" y="592">work complete</text>
+  </g>
+
+  <text x="72" y="668" font-size="16" fill="#5B6B7C">Safe for internal work.</text>
+  <text x="72" y="690" font-size="16" fill="#5B6B7C">Not safe for an external effect that</text>
+  <text x="72" y="712" font-size="16" fill="#5B6B7C">bills, emails, or files a ticket when</text>
+  <text x="72" y="734" font-size="16" fill="#5B6B7C">it runs twice.</text>
+
+  <!-- Act 2: THE PHASE, five mechanisms -->
+  <!-- Mechanism 1 -->
+  <rect x="470" y="170" width="658" height="88" rx="8" fill="#FFFFFF" stroke="#D7DEE5"/>
+  <rect x="470" y="170" width="5" height="88" fill="#1B5E9E"/>
+  <text x="496" y="206" font-size="19" font-weight="600" fill="#0D2C4E">Action identity</text>
+  <text x="496" y="234" font-size="16" fill="#5B6B7C">One permanent lineage per follow-up. Evidence lives on revisions.</text>
+
+  <!-- Mechanism 2 -->
+  <rect x="470" y="270" width="658" height="88" rx="8" fill="#FFFFFF" stroke="#D7DEE5"/>
+  <rect x="470" y="270" width="5" height="88" fill="#1B5E9E"/>
+  <text x="496" y="306" font-size="19" font-weight="600" fill="#0D2C4E">Lease fencing</text>
+  <text x="496" y="334" font-size="16" fill="#5B6B7C">Every claim raises a generation. Ownership is rechecked before every durable write.</text>
+
+  <!-- Mechanism 3: effect lifecycle with flow -->
+  <rect x="470" y="370" width="658" height="212" rx="8" fill="#FFFFFF" stroke="#D7DEE5"/>
+  <rect x="470" y="370" width="5" height="212" fill="#1B5E9E"/>
+  <text x="496" y="404" font-size="19" font-weight="600" fill="#0D2C4E">One effect lifecycle for every destination</text>
+
+  <g font-size="16">
+    <rect x="496" y="422" width="108" height="36" rx="6" fill="#EAF1F8" stroke="#1B5E9E"/>
+    <text x="550" y="446" text-anchor="middle" fill="#0D2C4E">prepared</text>
+    <line x1="604" y1="440" x2="622" y2="440" stroke="#1B5E9E" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <rect x="624" y="422" width="108" height="36" rx="6" fill="#EAF1F8" stroke="#1B5E9E"/>
+    <text x="678" y="446" text-anchor="middle" fill="#0D2C4E">claimed</text>
+    <line x1="732" y1="440" x2="750" y2="440" stroke="#1B5E9E" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <rect x="752" y="422" width="112" height="36" rx="6" fill="#EAF1F8" stroke="#1B5E9E"/>
+    <text x="808" y="446" text-anchor="middle" fill="#0D2C4E">attempting</text>
+    <line x1="864" y1="440" x2="882" y2="440" stroke="#1B5E9E" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <rect x="884" y="422" width="112" height="36" rx="6" fill="#E8F2EC" stroke="#1D6F42"/>
+    <text x="940" y="446" text-anchor="middle" fill="#1D6F42">confirmed</text>
+    <line x1="996" y1="440" x2="1014" y2="440" stroke="#1B5E9E" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <rect x="1016" y="422" width="100" height="36" rx="6" fill="#E8F2EC" stroke="#1D6F42"/>
+    <text x="1066" y="446" text-anchor="middle" fill="#1D6F42">read back</text>
+
+    <!-- uncertain branch -->
+    <line x1="808" y1="458" x2="808" y2="484" stroke="#A86A00" stroke-width="2" marker-end="url(#arrowAmber)"/>
+    <rect x="752" y="486" width="112" height="36" rx="6" fill="#FBF3E4" stroke="#A86A00"/>
+    <text x="808" y="510" text-anchor="middle" fill="#A86A00">uncertain</text>
+    <line x1="864" y1="504" x2="882" y2="504" stroke="#A86A00" stroke-width="2" marker-end="url(#arrowAmber)"/>
+    <rect x="884" y="486" width="112" height="36" rx="6" fill="#FBF3E4" stroke="#A86A00"/>
+    <text x="940" y="510" text-anchor="middle" fill="#A86A00">reconcile</text>
+    <path d="M 940 486 L 940 462" stroke="#A86A00" stroke-width="2" marker-end="url(#arrowAmber)" fill="none"/>
+  </g>
+  <text x="496" y="560" font-size="16" font-weight="600" fill="#33414E">An uncertain result never becomes a second request.</text>
+
+  <!-- Mechanism 4 -->
+  <rect x="470" y="594" width="658" height="88" rx="8" fill="#FFFFFF" stroke="#D7DEE5"/>
+  <rect x="470" y="594" width="5" height="88" fill="#1B5E9E"/>
+  <text x="496" y="630" font-size="19" font-weight="600" fill="#0D2C4E">Completion authority</text>
+  <text x="496" y="658" font-size="16" fill="#5B6B7C">Externally acting work needs a verification receipt. Ordinary callers are refused.</text>
+
+  <!-- Mechanism 5 -->
+  <rect x="470" y="694" width="658" height="88" rx="8" fill="#FFFFFF" stroke="#D7DEE5"/>
+  <rect x="470" y="694" width="5" height="88" fill="#1B5E9E"/>
+  <text x="496" y="730" font-size="19" font-weight="600" fill="#0D2C4E">Stop that works</text>
+  <text x="496" y="758" font-size="16" fill="#5B6B7C">A watcher aborts a step while it is still running. Late output is quarantined.</text>
+
+  <!-- Act 3: PROVEN -->
+  <rect x="1170" y="170" width="382" height="180" rx="10" fill="#F4F6F8" stroke="#D7DEE5"/>
+  <text x="1194" y="232" font-size="46" font-weight="700" fill="#0D2C4E">24</text>
+  <text x="1260" y="232" font-size="19" fill="#33414E">acceptance checks</text>
+  <text x="1194" y="270" font-size="16" fill="#5B6B7C">Each proven able to fail by disabling</text>
+  <text x="1194" y="292" font-size="16" fill="#5B6B7C">the protection it covers, one at a time</text>
+  <text x="1194" y="326" font-size="16" fill="#5B6B7C">No live external effect in any of them</text>
+
+  <rect x="1170" y="366" width="382" height="150" rx="10" fill="#F4F6F8" stroke="#D7DEE5"/>
+  <text x="1194" y="428" font-size="46" font-weight="700" fill="#0D2C4E">384<tspan font-size="22" fill="#5B6B7C"> of 384</tspan></text>
+  <text x="1194" y="462" font-size="19" fill="#33414E">tests passing after the phase</text>
+  <text x="1194" y="490" font-size="16" fill="#5B6B7C">The baseline on main was 360</text>
+
+  <rect x="1170" y="532" width="382" height="268" rx="10" fill="#F4F6F8" stroke="#D7DEE5"/>
+  <text x="1194" y="572" font-size="19" font-weight="600" fill="#0D2C4E">Reviewed independently, twice</text>
+
+  <circle cx="1206" cy="614" r="7" fill="#A86A00"/>
+  <text x="1228" y="620" font-size="17" font-weight="600" fill="#33414E">Review 1: NEEDS CHANGES</text>
+  <text x="1228" y="646" font-size="16" fill="#5B6B7C">Four blocking findings, every</text>
+  <text x="1228" y="668" font-size="16" fill="#5B6B7C">protection mutation tested</text>
+
+  <line x1="1206" y1="628" x2="1206" y2="694" stroke="#C6CFD8" stroke-width="2"/>
+
+  <circle cx="1206" cy="710" r="7" fill="#1D6F42"/>
+  <text x="1228" y="716" font-size="17" font-weight="600" fill="#33414E">Review 2: PASS WITH FINDINGS</text>
+  <text x="1228" y="742" font-size="16" fill="#5B6B7C">All four fixed and re-verified</text>
+  <text x="1228" y="764" font-size="16" fill="#5B6B7C">by mutation. None blocking.</text>
+
+  <!-- Footer -->
+  <rect x="48" y="822" width="880" height="52" rx="8" fill="#E8F2EC" stroke="#1D6F42"/>
+  <path d="M 76 848 l 8 9 l 16 -18" stroke="#1D6F42" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="116" y="854" font-size="17" fill="#14512F">No live Jira, email, Teams, or Brain effect anywhere in this phase</text>
+
+  <rect x="960" y="822" width="592" height="52" rx="8" fill="#EAF1F8" stroke="#1B5E9E"/>
+  <text x="988" y="854" font-size="17" fill="#123F6B">Next: Phase 2, activity reconciliation on the saved-step engine</text>
+</svg>

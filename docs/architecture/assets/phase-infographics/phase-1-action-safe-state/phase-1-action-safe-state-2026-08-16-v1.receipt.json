@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "phaseId": "phase-1-action-safe-state",
+  "phaseTitle": "Phase 1: Action-Safe State",
+  "phaseState": "complete",
+  "generatedAt": "2026-08-17T03:20:00-04:00",
+  "output": {
+    "file": "phase-1-action-safe-state-2026-08-16-v1.png",
+    "bytes": 136720,
+    "sha256": "c65362ae2cd099919992b3bf060e997378d8ee288ccbf10017e52462c70a4591",
+    "width": 1600,
+    "height": 900,
+    "vectorSource": {
+      "file": "phase-1-action-safe-state-2026-08-16-v1.svg",
+      "bytes": 10440,
+      "sha256": "6b3a8d8e4180b5b124da1d80447ec08d9b120e1a9482c9afb20b661f5c8b308d"
+    }
+  },
+  "sources": [
+    {
+      "path": "docs/mythos/evidence/20260816-phase-1-action-safe-state.md",
+      "sha256": "f7650289f29b6e94719dc2d66724b996a145ef3a4463c5ead525270faae67dfd"
+    },
+    {
+      "path": "docs/mythos/gates/20260816-action-safe-state.md",
+      "sha256": "498b9719ef22751ecdcca6c93b82118b857433d9137b6c2103d1fd83679f56d5"
+    },
+    {
+      "path": "docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md",
+      "sha256": "50171b1a702dce78df699492c2a52896d305aac12a6db4920fcf2bd4e2ebe9e6"
+    },
+    {
+      "path": "docs/mythos/risk-register.md",
+      "sha256": "231933113f67965af3ec79b2432dbefcbe7e9ccca584265b0292ff7481eac8a3"
+    }
+  ],
+  "verification": {
+    "content": "approved",
+    "visual": "approved",
+    "knownIssues": [],
+    "generator": "hand-authored SVG rendered through Playwright Chromium; the Codex image path was unavailable because Codex usage is exhausted until 2026-08-20"
+  },
+  "supersedes": null
+}
