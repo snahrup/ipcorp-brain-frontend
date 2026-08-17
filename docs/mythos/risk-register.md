@@ -10,6 +10,10 @@ review as fine for Phase 1 and wrong to carry into a live effect.
   (`step-runner.mjs`, AS-07 amendment). The state engine cannot close this; the durable
   provider worker must, by enforcing each provider's cancellation behavior instead of trusting
   it. No provider may carry a live effect until its wrapper is proven to honor its signal.
+- A caller passing `resume: true` reaches the engine's resume before the lease check, so it
+  can clear another owner's pending stop request before finding out it does not hold the
+  lease. Engine behavior from Phase 1, surfaced by the Phase 2 review. Close it before any
+  provider carries a live effect.
 - The completion verification receipt is checked for shape only. Before Phase 4, completion of
   externally acting work must cross-reference the effect lifecycle: the named effect must
   exist, belong to the same action revision, and be in `read_back`. A fabricated receipt

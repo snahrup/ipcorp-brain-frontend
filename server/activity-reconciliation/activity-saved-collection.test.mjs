@@ -413,3 +413,46 @@ test("AJ-07b a kept result survives the stop and the next source never starts", 
     assert.equal(kept.items[0].stableId, "kept-1", "the validated result is kept");
   });
 });
+
+// Round-two blocking finding: a content-based salt repeated after the second identical
+// failure, so a persistent outage skipped forever. The salt is monotonic now.
+test("AJ-02c a source failing twice with the same error is still retried every run", async () => {
+  await withState(async (state) => {
+    const calls = new Map();
+    const base = {
+      state,
+      runId: "run-10",
+      owner: "activity-1",
+      windows: WINDOWS,
+      selectedSourceIds: ["outlook_received"],
+    };
+    const down = () => new Error("mailbox unreachable");
+
+    await runSavedActivityCollection({
+      ...base,
+      readSource: countingReader({ outlook_received: down() }, calls),
+    });
+    await runSavedActivityCollection({
+      ...base,
+      resume: true,
+      readSource: countingReader({ outlook_received: down() }, calls),
+    });
+    const third = await runSavedActivityCollection({
+      ...base,
+      resume: true,
+      readSource: countingReader(
+        { outlook_received: { state: "current", items: [{ stableId: "m-1", hash: "a" }] } },
+        calls
+      ),
+    });
+
+    assert.equal(
+      calls.get("outlook_received"),
+      3,
+      "an identically failing source must be read on every run, never skipped on its failure"
+    );
+    assert.equal(third.partial, false);
+    const output = await readSavedStepJobOutput(state, "run-10", "source:outlook_received");
+    assert.equal(output.state, "current", "the recovery lands after repeated identical failures");
+  });
+});

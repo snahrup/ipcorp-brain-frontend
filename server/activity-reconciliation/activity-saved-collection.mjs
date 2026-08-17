@@ -9,7 +9,11 @@
 // a failed-source artifact, because one unreachable stream must not erase the results of the
 // seven that answered. A failed RUN remains possible only through the engine itself.
 
-import { readSavedStepJobOutput, runSavedStepJob } from "../workbench-state/step-runner.mjs";
+import {
+  projectSavedStepJob,
+  readSavedStepJobOutput,
+  runSavedStepJob,
+} from "../workbench-state/step-runner.mjs";
 import { ACTIVITY_SOURCES } from "./activity-reconciliation.mjs";
 
 function requiredString(value, label) {
@@ -50,15 +54,29 @@ const UNHEALTHY_STATES = new Set(["failed", "timed_out", "malformed"]);
  */
 async function retrySaltsFor(state, runId, selected) {
   const salts = {};
+  let projection = null;
+  try {
+    projection = await projectSavedStepJob(state, runId);
+  } catch {
+    projection = null;
+  }
+  if (!projection) return salts;
   for (const source of selected) {
+    const stepName = sourceStepName(source.id);
+    const step = projection.steps?.find((entry) => entry.name === stepName);
+    if (!step) continue;
     let prior = null;
     try {
-      prior = await readSavedStepJobOutput(state, runId, sourceStepName(source.id));
+      prior = await readSavedStepJobOutput(state, runId, stepName);
     } catch {
       prior = null;
     }
     if (prior && UNHEALTHY_STATES.has(prior.state)) {
-      salts[source.id] = `retry-after-${prior.state}-${JSON.stringify(prior.detail || "")}`;
+      // The salt must be monotonic, never a function of the failure's content. A persistent
+      // outage returns the identical error every poll, so a content salt repeats after the
+      // second failure and the source is skipped on its own failure forever. The attempt
+      // count moves every time the step actually runs, so every new run retries.
+      salts[source.id] = `retry-${Number(step.attempts || 0)}`;
     }
   }
   return salts;
@@ -100,8 +118,9 @@ function failedResult(sourceId, error) {
  *   aborted, in which case the engine quarantines it as stopped work.
  * - resume, now, leaseMs, stopPollMs: passed through to the engine.
  *
- * Returns { status, workItemId, sources } where sources maps each selected source id to its
- * saved result. `status` is the engine's job status: completed, stopped, busy, failed.
+ * Returns { status, workItemId, partial, failedSources, sources }. `partial` reflects only
+ * saved unhealthy artifacts: a stopped run reports partial false, so callers must read
+ * `status`, not `partial`, to know a run is incomplete.
  */
 export async function runSavedActivityCollection(options) {
   const runId = requiredString(options?.runId, "runId");

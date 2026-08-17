@@ -50,7 +50,10 @@ Round one verdict: NEEDS CHANGES. The blocking findings, all fixed:
 
 1. **A failed source was cached and never retried.** The failed artifact validated on resume,
    so a transient mailbox outage became permanent for that run id. An unhealthy prior artifact
-   now salts the next step input, so the source reruns. Accepted consequence, stated: the
+   now salts the next step input, so the source reruns. Round two found the first salt was a
+function of the failure's content and repeated after the second identical failure; it is the
+step's attempt count now, which moves every run. AJ-02c proves two identical failures then a
+recovery, with the reader called on every run. Accepted consequence, stated: the
    first run after a recovery reads that source once more than strictly necessary. Covered by
    AJ-02b, which also proves a malformed artifact is retried rather than trusted.
 2. **The death test never killed anything.** The old AJ-02/03 completed its first run cleanly,
@@ -69,7 +72,7 @@ Round one verdict: NEEDS CHANGES. The blocking findings, all fixed:
 
 Known limits the review named, accepted and recorded: `resume: true` reaches the engine's
 resume before the lease check, so a caller can clear a pending stop it does not own (engine
-behavior from Phase 1, on the risk register's Phase 4 list now); a deselected then reselected
+behavior from Phase 1, now filed on the risk register's Phase 4 list); a deselected then reselected
 source with an unchanged window and position serves its saved artifact without a reread, which
 is the same semantics AJ-05 proves and is judged correct; and importing the reconciliation
 module for its source list drags in more than eight strings, deferred to the wiring increment.
@@ -86,5 +89,7 @@ Mutation evidence for the round-one fixes: disabling the retry salts failed AJ-0
 | `tsc --noEmit` | clean |
 | Live external effects | none anywhere; every reader in the checks is an inert function |
 
-The three load-sensitive checks named in the Phase 1 evidence remain load-sensitive and
-unrelated to this work.
+Four load-sensitive checks are now known: the three named in the Phase 1 evidence, plus
+`concurrent saveLedger calls to the same path never collide on the tmp file` in
+`server/mdm-reconciliation/scan-ledger.test.mjs`, seen red under parallel load by the round
+two review and green in isolation. All unrelated to this work.
