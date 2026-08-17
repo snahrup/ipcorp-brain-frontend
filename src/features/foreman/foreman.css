@@ -328,6 +328,35 @@
   min-width: 0;
 }
 
+.fb-changebody {
+  flex: 1;
+  min-width: 0;
+}
+
+.fb-narrline {
+  color: var(--fb-dim);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.fb-whynow {
+  margin: 4px 0 10px;
+}
+
+.fb-seclabel {
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  color: var(--fb-soft);
+  margin-bottom: 3px;
+}
+
+.fb-whynow p {
+  color: var(--fb-dim);
+  font-size: 14.5px;
+  max-width: 52ch;
+}
+
 .fb-itemmeta {
   display: flex;
   align-items: center;

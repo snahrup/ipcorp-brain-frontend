@@ -16,6 +16,7 @@ import {
   answerItem as answerForemanItem,
   buildBriefing as buildForemanBriefing,
 } from "./foreman/briefing.mjs";
+import { narrateRun as narrateForemanRun } from "./foreman/narration.mjs";
 import { createJiraAnalyticsReader } from "./jira-analytics.mjs";
 import { assembleStandup } from "./loop/briefing.mjs";
 import { openLedger } from "./loop/ledger.mjs";
@@ -3323,6 +3324,18 @@ async function route(request, response) {
             note: body?.note,
           }),
         },
+        origin
+      );
+    }
+
+    // Track FB-2: narration through the same headless drafting lane Weekly
+    // Status uses. Single-flight per day; a failure leaves the run un-narrated
+    // and the interface renders its mechanical copy. Still nothing external.
+    if (request.method === "POST" && url.pathname === "/api/foreman/narrate") {
+      return sendJson(
+        response,
+        200,
+        { ok: true, data: await narrateForemanRun({ today: foremanDayKey() }) },
         origin
       );
     }

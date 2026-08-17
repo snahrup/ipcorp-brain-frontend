@@ -66,12 +66,15 @@ function fixtureSnapshot() {
   };
 }
 
-function withTempStateDir(run) {
+// Await inside the try on purpose: an async test body must hold the state-dir
+// override until it resolves, or reads and writes leak into the real
+// %LOCALAPPDATA% foreman dir (the never-touch-the-real-ledger rule).
+async function withTempStateDir(run) {
   const dir = mkdtempSync(join(tmpdir(), "foreman-briefing-"));
   const previous = process.env.FOREMAN_STATE_DIR;
   process.env.FOREMAN_STATE_DIR = dir;
   try {
-    return run();
+    return await run();
   } finally {
     if (previous === undefined) delete process.env.FOREMAN_STATE_DIR;
     else process.env.FOREMAN_STATE_DIR = previous;

@@ -31,10 +31,20 @@ type BriefingItem = {
   answer?: BriefingAnswer;
 };
 
+type BriefingNarration = {
+  arrival: string;
+  orientation: string;
+  changes: Record<string, string>;
+  items: Record<string, { whyNow: string }>;
+  clear: string;
+};
+
 type BriefingRun = {
   runId: string;
   date: string;
   generatedAt: string | null;
+  narration?: BriefingNarration;
+  narrationStatus?: string;
   sources: Record<string, { status: string; observedAt: string | null; detail?: string | null }>;
   counts: { upFirst: number; waiting: number | null; open: number };
   closeOut: { answered: number; unanswered: number; verbs?: Record<string, number> };
@@ -86,6 +96,19 @@ async function postAnswer(body: {
   } | null;
   if (!response.ok || !payload?.ok || !payload.data) {
     throw new Error(payload?.error || `The answer write returned HTTP ${response.status}.`);
+  }
+  return payload.data;
+}
+
+async function postNarrate(): Promise<BriefingRun> {
+  const response = await fetch(`${GATEWAY}/foreman/narrate`, { method: "POST" });
+  const payload = (await response.json().catch(() => null)) as {
+    ok?: boolean;
+    data?: BriefingRun;
+    error?: string;
+  } | null;
+  if (!response.ok || !payload?.ok || !payload.data) {
+    throw new Error(payload?.error || `The narration returned HTTP ${response.status}.`);
   }
   return payload.data;
 }
@@ -200,6 +223,28 @@ export function ForemanBriefing() {
     return () => window.removeEventListener("keydown", onKey);
   }, [advance]);
 
+  // Narration fires once in the background after the briefing loads. Its
+  // failure is quiet on purpose: the mechanical copy IS the fail-closed state.
+  const [narrating, setNarrating] = useState(false);
+  const narrateFired = useRef(false);
+  useEffect(() => {
+    if (!run || narrateFired.current || run.narrationStatus) return;
+    narrateFired.current = true;
+    setNarrating(true);
+    postNarrate()
+      .then((updated) =>
+        setRun((prev) =>
+          prev && prev.receipts.length > updated.receipts.length
+            ? { ...prev, narration: updated.narration, narrationStatus: updated.narrationStatus }
+            : updated
+        )
+      )
+      .catch(() => {
+        // Quiet. Nothing canned ever stands in for the narration.
+      })
+      .finally(() => setNarrating(false));
+  }, [run]);
+
   const answer = useCallback(
     async (
       itemId: string,
@@ -210,7 +255,11 @@ export function ForemanBriefing() {
       setAnswering(true);
       try {
         const updated = await postAnswer({ itemId, verb, ...extra });
-        setRun(updated);
+        setRun((prev) => ({
+          ...updated,
+          narration: updated.narration ?? prev?.narration,
+          narrationStatus: updated.narrationStatus ?? prev?.narrationStatus,
+        }));
         setStage((current) => nextStage(current, updated.items.length));
       } catch (cause) {
         setError(cause instanceof Error ? cause.message : String(cause));
@@ -278,10 +327,16 @@ export function ForemanBriefing() {
           <section className="fb-stage" data-testid="fb-arrival">
             <span className="fb-kicker">THE FOREMAN BRIEFING</span>
             <h1>{greeting(now)}</h1>
-            <p className="fb-lede">
-              I read the current Workbench snapshot: Jira, the agent board, reconciliation, and the
-              loop.
-            </p>
+            {run.narration?.arrival ? (
+              <p className="fb-lede" data-testid="fb-narr-arrival">
+                {run.narration.arrival}
+              </p>
+            ) : (
+              <p className="fb-lede">
+                I read the current Workbench snapshot: Jira, the agent board, reconciliation, and
+                the loop.
+              </p>
+            )}
             <p className="fb-counts" data-testid="fb-counts">
               <b>{run.counts.upFirst} need you.</b>{" "}
               {run.counts.waiting !== null ? `${run.counts.waiting} waiting on you. ` : ""}
@@ -307,6 +362,11 @@ export function ForemanBriefing() {
             <p className="fb-footnote">
               ESC OPENS THE QUICK BRIEF · ARROWS NAVIGATE · NOTHING EXECUTES WITHOUT A BUTTON
             </p>
+            {narrating && (
+              <p className="fb-footnote" data-testid="fb-writing">
+                THE FOREMAN IS WRITING THE NARRATION
+              </p>
+            )}
           </section>
         )}
 
@@ -314,6 +374,11 @@ export function ForemanBriefing() {
           <section className="fb-stage" data-testid="fb-orientation">
             <span className="fb-kicker">WHERE WE ARE</span>
             <h1>The signals, resolved.</h1>
+            {run.narration?.orientation && (
+              <p className="fb-lede" data-testid="fb-narr-orientation">
+                {run.narration.orientation}
+              </p>
+            )}
             <ul className="fb-facts">
               {run.closeOut.answered + run.closeOut.unanswered > 0 && (
                 <li>
@@ -357,7 +422,12 @@ export function ForemanBriefing() {
               {run.changes.map((change) => (
                 <article className="fb-change" key={change.key}>
                   <span className="fb-key">{change.key}</span>
-                  <p>{change.summary}</p>
+                  <div className="fb-changebody">
+                    <p>{change.summary}</p>
+                    {run.narration?.changes?.[change.key] && (
+                      <p className="fb-narrline">{run.narration.changes[change.key]}</p>
+                    )}
+                  </div>
                   <span className="fb-chip">{change.status}</span>
                 </article>
               ))}
@@ -402,6 +472,12 @@ export function ForemanBriefing() {
                 <span className="fb-chip">{run.items[stage.index].priority}</span>
               )}
             </p>
+            {run.narration?.items?.[run.items[stage.index].id]?.whyNow && (
+              <div className="fb-whynow" data-testid="fb-whynow">
+                <div className="fb-seclabel">WHY NOW</div>
+                <p>{run.narration?.items?.[run.items[stage.index].id]?.whyNow}</p>
+              </div>
+            )}
             {run.items[stage.index].answer ? (
               <>
                 <p className="fb-answeredline" data-testid="fb-answered">
@@ -575,6 +651,11 @@ export function ForemanBriefing() {
           <section className="fb-stage" data-testid="fb-clear">
             <span className="fb-kicker">YOU'RE CLEAR</span>
             <h1>You're clear for now.</h1>
+            {run.narration?.clear && (
+              <p className="fb-lede" data-testid="fb-narr-clear">
+                {run.narration.clear}
+              </p>
+            )}
             <ul className="fb-facts">
               {answeredReceipts.map((receipt) => (
                 <li key={`${receipt.itemId}-${receipt.at}`}>

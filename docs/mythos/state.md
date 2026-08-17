@@ -14,15 +14,19 @@ Phase 2: move activity reconciliation fully onto the shared saved-step engine.
 - Authority: `docs/brainstorm/2026-08-17-foreman-briefing-spec.md`; roadmap section
   "Track FB" in `docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md`
 - Branch: `claude/dashboard-overload-brainstorm-7917fc` (worktree); Phase 2 files untouched
-- Status: FB-1 implemented and verified in the worktree. Rank, ledger, and briefing assembly
-  with red-first units (16 passing; stubs failed 8 of 10 and 6 of 6 first). Local-only
-  gateway lane: GET /api/foreman/briefing and POST /api/foreman/answer, answers and receipts
-  in the foreman state dir. Guided chapters with compositor-only motion behind the toggle.
-  Playwright checks 4-7 green in Chromium and Firefox; the resume check first caught a real
-  defect (mount-time save clobbered the resume point) and passed after the fix.
-- Owed before FB-1 closes: spec check 3 (narration fail-closed) arrives with FB-2's
-  narration; one live-gateway smoke against the real snapshot after merge (the running
-  Workbench serves the main checkout, not this worktree).
+- Status: FB-1 and FB-2 implemented and verified in the worktree, each as its own commit on
+  this branch. FB-1: rank, ledger, assembly, guided chapters, Playwright checks 4-7 (the
+  resume check caught a real clobbered-resume defect first). FB-2: narration through the
+  same headless drafting lane Weekly Status uses, an 8-test red-first suite covering both
+  faces of spec check 3, voice-rule rejection, unknown-key drops, single-flight per day,
+  and a race fix proven by a failing test first: a draft finishing after a mid-draft answer
+  no longer erases the answer. e2e is now 5 checks in both browsers, including narration
+  merge and the fail-closed mechanical render. Same hour, a test-isolation defect was found
+  and fixed: the temp-dir helper released its env override at the first await, leaking test
+  writes into the real %LOCALAPPDATA% foreman dir; the helper now awaits the async body,
+  the one polluted file was deleted, and a clean suite run leaves the real dir empty.
+- Owed: one live smoke of the real drafter and the real snapshot after merge; FB-3 (the
+  meeting countdown) is next in the track.
 - Safety: no external effect; replies land as drafts and comments through existing lanes
 
 ## Completed: Phase 1, Action-Safe State (2026-08-16)

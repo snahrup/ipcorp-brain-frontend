@@ -1,4 +1,4 @@
-// Foreman Briefing e2e: spec checks 4 through 7 from
+// Foreman Briefing e2e: spec checks 3 through 7 from
 // docs/brainstorm/2026-08-17-foreman-briefing-spec.md, run against a fixture
 // briefing so no gateway (and nothing external) is involved. Run with:
 //   npx playwright test --config playwright.foreman.config.ts
@@ -51,17 +51,49 @@ const FIXTURE_RUN = {
   parked: [{ id: "MT-8", returnAt: "2026-08-19", wakeOnActivity: true }],
   suppressed: [{ id: "MT-7", reason: "answered-unchanged" }],
   exclusions: [],
-  receipts: [],
+  receipts: [] as Array<{ at: string; itemId: string; verb: string; routedTo: string }>,
 };
 
-type Counters = { answers: number; otherPosts: number };
+const NARRATION = {
+  arrival: "Two need you and one is already late.",
+  orientation: "Yesterday closed clean and reconciliation is running stale.",
+  changes: { "MT-9": "The review landed this morning." },
+  items: {
+    "MT-1": { whyNow: "It was due yesterday and the workshop depends on it." },
+    "MT-2": { whyNow: "It cannot be planned without a ballpark." },
+  },
+  clear: "Answer the two and go build.",
+};
 
-async function openBriefing(page: Page, counters: Counters) {
+const NARRATED_RUN = { ...FIXTURE_RUN, narrationStatus: "ok", narration: NARRATION };
+
+type Counters = { answers: number; narrates: number; otherPosts: number };
+
+function freshCounters(): Counters {
+  return { answers: 0, narrates: 0, otherPosts: 0 };
+}
+
+async function openBriefing(
+  page: Page,
+  counters: Counters,
+  options: { failNarrate?: boolean } = {}
+) {
+  let narrated = false;
   await page.route("**/api/**", async (route) => {
     const request = route.request();
     const url = request.url();
     if (url.includes("/api/foreman/briefing") && request.method() === "GET") {
-      await route.fulfill({ json: { ok: true, data: FIXTURE_RUN } });
+      await route.fulfill({ json: { ok: true, data: narrated ? NARRATED_RUN : FIXTURE_RUN } });
+      return;
+    }
+    if (url.includes("/api/foreman/narrate") && request.method() === "POST") {
+      counters.narrates += 1;
+      if (options.failNarrate) {
+        await route.fulfill({ status: 500, json: { ok: false, error: "the draft failed" } });
+        return;
+      }
+      narrated = true;
+      await route.fulfill({ json: { ok: true, data: NARRATED_RUN } });
       return;
     }
     if (url.includes("/api/foreman/answer") && request.method() === "POST") {
@@ -71,9 +103,9 @@ async function openBriefing(page: Page, counters: Counters) {
         verb: string;
         ballpark?: string;
       };
-      const run = structuredClone(FIXTURE_RUN) as typeof FIXTURE_RUN & {
+      const base = narrated ? NARRATED_RUN : FIXTURE_RUN;
+      const run = structuredClone(base) as typeof NARRATED_RUN & {
         items: Array<(typeof FIXTURE_RUN)["items"][number] & { answer?: object }>;
-        receipts: Array<object>;
       };
       const item = run.items.find((entry) => entry.id === body.itemId);
       if (item) {
@@ -104,21 +136,39 @@ function dispatchWheel(page: Page) {
   });
 }
 
-test("check 4: arrival renders the fixture snapshot counts, not invented ones", async ({
+test("check 4: arrival renders the fixture counts, and narration merges in when it lands", async ({
   page,
 }) => {
-  const counters: Counters = { answers: 0, otherPosts: 0 };
+  const counters = freshCounters();
   await openBriefing(page, counters);
   const counts = page.getByTestId("fb-counts");
   await expect(counts).toContainText("3 need you.");
   await expect(counts).toContainText("2 waiting on you.");
   await expect(counts).toContainText("7 open in MT.");
+  await expect(page.getByTestId("fb-narr-arrival")).toContainText(
+    "Two need you and one is already late."
+  );
+  expect(counters.narrates).toBe(1);
+});
+
+test("check 3: narration failure renders the mechanical copy, never canned prose", async ({
+  page,
+}) => {
+  const counters = freshCounters();
+  await openBriefing(page, counters, { failNarrate: true });
+  await expect(page.getByTestId("fb-arrival")).toContainText(
+    "I read the current Workbench snapshot"
+  );
+  await expect(page.getByTestId("fb-narr-arrival")).toHaveCount(0);
+  await expect(page.getByText("Two need you and one is already late.")).toHaveCount(0);
+  expect(counters.narrates).toBe(1);
+  expect(counters.otherPosts).toBe(0);
 });
 
 test("check 5: wheel and arrows fire zero mutations; verbs fire exactly one each", async ({
   page,
 }) => {
-  const counters: Counters = { answers: 0, otherPosts: 0 };
+  const counters = freshCounters();
   await openBriefing(page, counters);
 
   // Navigate the whole journey with wheel and arrows only.
@@ -138,6 +188,7 @@ test("check 5: wheel and arrows fire zero mutations; verbs fire exactly one each
   await expect(page.getByTestId("fb-clear")).toBeVisible();
   expect(counters.answers).toBe(0);
   expect(counters.otherPosts).toBe(0);
+  expect(counters.narrates).toBe(1);
 
   // A verb is a real mutation: exactly one request per press.
   await page.keyboard.press("Escape");
@@ -150,12 +201,13 @@ test("check 5: wheel and arrows fire zero mutations; verbs fire exactly one each
   await expect(page.getByTestId("fb-item")).toContainText("Third thing without a date");
   expect(counters.answers).toBe(2);
   expect(counters.otherPosts).toBe(0);
+  expect(counters.narrates).toBe(1);
 });
 
 test("check 6: Esc reaches the quick brief, and a reload resumes the same item", async ({
   page,
 }) => {
-  const counters: Counters = { answers: 0, otherPosts: 0 };
+  const counters = freshCounters();
   await openBriefing(page, counters);
   await page.getByTestId("fb-begin").click();
   await page.getByTestId("fb-continue").click();
@@ -166,6 +218,10 @@ test("check 6: Esc reaches the quick brief, and a reload resumes the same item",
 
   await page.reload();
   await expect(page.getByTestId("fb-item")).toContainText("Ownership list needs a ballpark");
+  await expect(page.getByTestId("fb-whynow")).toContainText(
+    "It cannot be planned without a ballpark."
+  );
+  expect(counters.narrates).toBe(1);
 
   await page.keyboard.press("Escape");
   await expect(page.getByTestId("fb-quick-brief")).toBeVisible();
@@ -174,7 +230,7 @@ test("check 6: Esc reaches the quick brief, and a reload resumes the same item",
 });
 
 test("check 7: the quick brief is one interaction away from every stage", async ({ page }) => {
-  const counters: Counters = { answers: 0, otherPosts: 0 };
+  const counters = freshCounters();
   await openBriefing(page, counters);
 
   const stages = [
