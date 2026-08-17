@@ -9,7 +9,7 @@
 // a failed-source artifact, because one unreachable stream must not erase the results of the
 // seven that answered. A failed RUN remains possible only through the engine itself.
 
-import { runSavedStepJob } from "../workbench-state/step-runner.mjs";
+import { readSavedStepJobOutput, runSavedStepJob } from "../workbench-state/step-runner.mjs";
 import { ACTIVITY_SOURCES } from "./activity-reconciliation.mjs";
 
 function requiredString(value, label) {
@@ -29,11 +29,39 @@ function sourceStepName(sourceId) {
  * artifact is still the truth and the reader is not called; when either moves the step reruns.
  */
 function sourceStepInput(source, context) {
-  return {
+  const input = {
     sourceId: source.id,
     window: context.input.windows?.[source.id] ?? null,
     position: context.input.positions?.[source.id] ?? null,
   };
+  const salt = context.input.retrySalts?.[source.id];
+  if (salt) input.retryOf = salt;
+  return input;
+}
+
+const UNHEALTHY_STATES = new Set(["failed", "timed_out", "malformed"]);
+
+/**
+ * A failed, timed out, or malformed artifact must never satisfy a later run. The retry salt
+ * folds the unhealthy artifact's own content into the next step input, so the input hash
+ * moves and the reader runs again. One consequence, accepted and stated: the first run after
+ * a recovery reads that source once more than strictly necessary, because the recovered
+ * artifact was saved under the salted input while the next run computes an unsalted one.
+ */
+async function retrySaltsFor(state, runId, selected) {
+  const salts = {};
+  for (const source of selected) {
+    let prior = null;
+    try {
+      prior = await readSavedStepJobOutput(state, runId, sourceStepName(source.id));
+    } catch {
+      prior = null;
+    }
+    if (prior && UNHEALTHY_STATES.has(prior.state)) {
+      salts[source.id] = `retry-after-${prior.state}-${JSON.stringify(prior.detail || "")}`;
+    }
+  }
+  return salts;
 }
 
 function normalizeResult(sourceId, result) {
@@ -112,6 +140,7 @@ export async function runSavedActivityCollection(options) {
       output?.id === source.id && typeof output.state === "string" && Array.isArray(output.items),
   }));
 
+  const retrySalts = await retrySaltsFor(options.state, runId, selected);
   const job = await runSavedStepJob(options.state, {
     workItemId: runId,
     title: `Activity collection ${runId}`,
@@ -121,6 +150,7 @@ export async function runSavedActivityCollection(options) {
       runId,
       windows: options.windows || {},
       positions: options.positions || {},
+      retrySalts,
       selectedSourceIds: selected.map((source) => source.id),
     },
     steps,
@@ -130,17 +160,37 @@ export async function runSavedActivityCollection(options) {
     stopPollMs: options.stopPollMs,
   });
 
+  // Only the sources THIS run selected. The engine's projection accumulates every step the
+  // work item has ever run, and reporting a deselected stream as part of this run misleads
+  // whoever renders it.
+  const selectedNames = new Set(selected.map((source) => sourceStepName(source.id)));
   const sources = {};
+  const failedSources = [];
   for (const step of job.job?.steps || []) {
-    if (!step.name.startsWith("source:")) continue;
+    if (!selectedNames.has(step.name)) continue;
     const sourceId = step.name.slice("source:".length);
+    let saved = null;
+    try {
+      saved = await readSavedStepJobOutput(options.state, runId, step.name);
+    } catch {
+      saved = null;
+    }
+    if (saved && UNHEALTHY_STATES.has(saved.state)) failedSources.push(sourceId);
     sources[sourceId] = {
       status: step.status,
+      state: saved?.state ?? null,
       outputRefs: step.outputRefs || [],
       attempts: step.attempts,
     };
   }
-  return { status: job.status, workItemId: runId, lease: job.lease ?? null, sources };
+  return {
+    status: job.status,
+    workItemId: runId,
+    lease: job.lease ?? null,
+    partial: failedSources.length > 0,
+    failedSources,
+    sources,
+  };
 }
 
 export { sourceStepName };

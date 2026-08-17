@@ -3,7 +3,7 @@
 Date: 2026-08-17
 Branch: `phase-2/activity-on-saved-steps`
 Checks: `docs/mythos/gates/20260817-activity-on-saved-steps.md`
-Status: complete pending independent review
+Status: review round one returned NEEDS CHANGES; its findings are fixed and re-verification is pending
 
 ## What was built
 
@@ -44,12 +44,45 @@ protections this module itself owns were proven by mutation:
 
 Both restored to 7 of 7.
 
+## What the independent review found, and what was done
+
+Round one verdict: NEEDS CHANGES. The blocking findings, all fixed:
+
+1. **A failed source was cached and never retried.** The failed artifact validated on resume,
+   so a transient mailbox outage became permanent for that run id. An unhealthy prior artifact
+   now salts the next step input, so the source reruns. Accepted consequence, stated: the
+   first run after a recovery reads that source once more than strictly necessary. Covered by
+   AJ-02b, which also proves a malformed artifact is retried rather than trusted.
+2. **The death test never killed anything.** The old AJ-02/03 completed its first run cleanly,
+   which releases the lease; a killed process does not. AJ-03b now claims the run as a dead
+   worker and proves the honest semantics: busy while the abandoned lease is live, then the
+   same run id resumes after expiry, still one work item. The busy window is the engine's
+   duplicate-work protection and is reported, not hidden.
+3. **Partial was not reported.** The return now carries `partial` and `failedSources`, asserted
+   in AJ-04.
+4. **The sources map leaked unselected streams** from the engine's cumulative projection. It is
+   filtered to the run's selection now.
+5. **AJ-07's keep clause was untested.** AJ-07b runs two sources, ignores the stop in the first
+   reader, and proves the validated result is kept while the second source never starts.
+6. The dead test scaffolding and the misleading comment are gone, and the AJ-08 guard now
+   strips comments and refuses any clock reference, so destructuring cannot slip past it.
+
+Known limits the review named, accepted and recorded: `resume: true` reaches the engine's
+resume before the lease check, so a caller can clear a pending stop it does not own (engine
+behavior from Phase 1, on the risk register's Phase 4 list now); a deselected then reselected
+source with an unchanged window and position serves its saved artifact without a reread, which
+is the same semantics AJ-05 proves and is judged correct; and importing the reconciliation
+module for its source list drags in more than eight strings, deferred to the wiring increment.
+
+Mutation evidence for the round-one fixes: disabling the retry salts failed AJ-02b; forcing
+`partial: false` failed AJ-04 and AJ-02b. Restored to 10 of 10.
+
 ## Verification
 
 | Check | Result |
 | --- | --- |
-| Phase 2 checks | 7 pass, 0 fail |
-| Full suite | 391 tests, 391 pass (Phase 1 closed at 384) |
+| Phase 2 checks | 10 pass, 0 fail |
+| Full suite | 394 tests, 394 pass over server/ and scripts/ (Phase 1 closed at 384). Three src/ test files sit outside this scope, one pre-existing red, untouched by this branch. |
 | `tsc --noEmit` | clean |
 | Live external effects | none anywhere; every reader in the checks is an inert function |
 

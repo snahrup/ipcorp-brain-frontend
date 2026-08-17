@@ -7,7 +7,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { openWorkbenchState, projectWorkItems } from "../workbench-state/index.mjs";
+import { createWorkItem, openWorkbenchState, projectWorkItems } from "../workbench-state/index.mjs";
 import {
   readSavedStepJobOutput,
   requestSavedStepJobStop,
@@ -73,12 +73,9 @@ test("AJ-01 each selected source runs as its own saved step with its own artifac
 test("AJ-02/03 a resumed run keeps its id and does not read finished sources again", async () => {
   await withState(async (state) => {
     const calls = new Map();
-    const boom = new Error("network fell over mid-run");
 
-    // First pass: outlook succeeds, teams THROWS at the engine level by aborting the job:
-    // simulate process death by making the second reader reject with a non-source error the
-    // step turns into a failed artifact... instead, simulate death harder: run only the
-    // first source, as a killed process would leave exactly one finished step behind.
+    // A narrower first selection stands in for partial progress. The honest abandoned-lease
+    // death case is AJ-03b below.
     const first = await runSavedActivityCollection({
       state,
       runId: "run-2",
@@ -91,7 +88,6 @@ test("AJ-02/03 a resumed run keeps its id and does not read finished sources aga
       ),
     });
     assert.equal(first.status, "completed");
-    void boom;
 
     // Second pass: the same run id, now with both sources selected, as a restart would do.
     const resumed = await runSavedActivityCollection({
@@ -150,6 +146,8 @@ test("AJ-04 a failed source is isolated and the other sources keep their results
     });
 
     assert.equal(result.status, "completed", "the run itself completes");
+    assert.equal(result.partial, true, "the run must report partial when a source failed");
+    assert.deepEqual(result.failedSources, ["outlook_received"]);
     const failed = await readSavedStepJobOutput(state, "run-3", "source:outlook_received");
     assert.equal(failed.state, "failed");
     assert.match(failed.detail, /mailbox unreachable/);
@@ -280,8 +278,138 @@ test("AJ-07 a stop aborts an in-flight reader and the run reports stopped", asyn
 // This guard fails if someone reintroduces it without honoring it.
 test("AJ-08 the activity lifecycle takes no clock option", async () => {
   const source = await readFile(new URL("./activity-lifecycle.mjs", import.meta.url), "utf8");
+  const code = source
+    .split("\n")
+    .filter((line) => !line.trim().startsWith("//"))
+    .join("\n");
   assert.ok(
-    !source.includes("options.clock"),
+    !/clock/.test(code),
     "activity-lifecycle.mjs must not accept a clock option it does not honor"
   );
+});
+
+// Review finding 1. The honest death case: a worker died holding the lease. The engine
+// refuses a takeover while the lease is live, which is duplicate-work protection and is
+// reported as busy, then the same run id resumes cleanly once the lease expires.
+test("AJ-03b an abandoned lease reports busy while live and resumes the same run after expiry", async () => {
+  await withState(async (state) => {
+    const calls = new Map();
+    const T0 = "2026-08-17T12:00:00.000Z";
+    const plus = (ms) => new Date(Date.parse(T0) + ms).toISOString();
+
+    await createWorkItem(state, { id: "run-7", title: "Activity collection run-7", createdAt: T0 });
+    await state.claimWorkItem("run-7", { owner: "dead-worker", leaseMs: 2000, now: T0 });
+
+    const whileLive = await runSavedActivityCollection({
+      state,
+      runId: "run-7",
+      owner: "activity-2",
+      windows: WINDOWS,
+      selectedSourceIds: ["outlook_received"],
+      now: plus(500),
+      readSource: countingReader({ outlook_received: { state: "current", items: [] } }, calls),
+    });
+    assert.equal(whileLive.status, "busy", "a live abandoned lease refuses a second owner");
+    assert.equal(calls.get("outlook_received") || 0, 0, "no reader runs while refused");
+
+    const afterExpiry = await runSavedActivityCollection({
+      state,
+      runId: "run-7",
+      owner: "activity-2",
+      windows: WINDOWS,
+      selectedSourceIds: ["outlook_received"],
+      now: plus(5000),
+      readSource: countingReader(
+        { outlook_received: { state: "current", items: [{ stableId: "m-1", hash: "a" }] } },
+        calls
+      ),
+    });
+    assert.equal(afterExpiry.status, "completed");
+    assert.equal(afterExpiry.workItemId, "run-7", "the same run id resumes");
+    const items = await projectWorkItems(state);
+    assert.equal(items.filter((item) => item.id === "run-7").length, 1, "still one work item");
+  });
+});
+
+// Review finding 2 and 4. A failed or malformed artifact never satisfies a later run.
+test("AJ-02b a failed source is retried on the next run instead of skipping forever", async () => {
+  await withState(async (state) => {
+    const calls = new Map();
+    const base = {
+      state,
+      runId: "run-8",
+      owner: "activity-1",
+      windows: WINDOWS,
+      selectedSourceIds: ["outlook_received"],
+    };
+
+    const first = await runSavedActivityCollection({
+      ...base,
+      readSource: countingReader({ outlook_received: new Error("mailbox unreachable") }, calls),
+    });
+    assert.equal(first.partial, true);
+
+    const second = await runSavedActivityCollection({
+      ...base,
+      resume: true,
+      readSource: countingReader(
+        { outlook_received: { state: "current", items: [{ stableId: "m-1", hash: "a" }] } },
+        calls
+      ),
+    });
+    assert.equal(
+      calls.get("outlook_received"),
+      2,
+      "the recovered source must be read again, not skipped on its failure"
+    );
+    assert.equal(second.partial, false);
+    const output = await readSavedStepJobOutput(state, "run-8", "source:outlook_received");
+    assert.equal(output.state, "current", "the healthy result replaces the failed artifact");
+
+    const malformed = await runSavedActivityCollection({
+      ...base,
+      runId: "run-8m",
+      readSource: countingReader({ outlook_received: undefined }, calls),
+    });
+    void malformed;
+    await runSavedActivityCollection({
+      ...base,
+      runId: "run-8m",
+      resume: true,
+      readSource: countingReader({ outlook_received: { state: "empty", items: [] } }, calls),
+    });
+    const healed = await readSavedStepJobOutput(state, "run-8m", "source:outlook_received");
+    assert.equal(healed.state, "empty", "a malformed artifact is also retried, not trusted");
+  });
+});
+
+// Review: AJ-07's second clause with two sources. A reader that ignores the stop but returns
+// a validated result keeps it, and the run stops before the next source.
+test("AJ-07b a kept result survives the stop and the next source never starts", async () => {
+  await withState(async (state) => {
+    const calls = new Map();
+    const result = await runSavedActivityCollection({
+      state,
+      runId: "run-9",
+      owner: "activity-1",
+      windows: WINDOWS,
+      selectedSourceIds: TWO,
+      stopPollMs: 5,
+      readSource: async ({ sourceId }) => {
+        calls.set(sourceId, (calls.get(sourceId) || 0) + 1);
+        await requestSavedStepJobStop(state, { workItemId: "run-9", reason: "stop mid-run" });
+        return { state: "current", items: [{ stableId: "kept-1", hash: "k" }] };
+      },
+    });
+
+    assert.equal(result.status, "stopped");
+    assert.equal(calls.get("outlook_received"), 1);
+    assert.equal(
+      calls.get("teams_direct_messages") || 0,
+      0,
+      "the run must stop before the next source starts"
+    );
+    const kept = await readSavedStepJobOutput(state, "run-9", "source:outlook_received");
+    assert.equal(kept.items[0].stableId, "kept-1", "the validated result is kept");
+  });
 });
