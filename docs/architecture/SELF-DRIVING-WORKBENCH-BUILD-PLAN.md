@@ -451,6 +451,49 @@ recipient-level maturity, and foreman, retro, and cost reporting beyond what Pha
 
 ---
 
+# Track FB: Foreman Briefing (parallel, added 2026-08-17)
+
+**Authority:** `docs/brainstorm/2026-08-17-foreman-briefing-spec.md`, with the concept,
+research compendium, nine-frame storyboard, and Cluely element map beside it.
+**Branch:** `claude/dashboard-overload-brainstorm-7917fc`.
+
+This track runs parallel to Phases 2 through 8 because it needs none of the action-execution
+machinery: the briefing reads the Today snapshot and existing meeting lanes, and every write it
+produces is a draft or comment through the already-reviewed paths. It performs no autonomous
+external effect anywhere, so it cannot collide with the safety sequencing above. Where the
+briefing stores per-item memory, its ledger follows the Phase 1 identity model: a stable item
+id as the lineage, content hashes as revisions.
+
+## FB-1: Walkthrough shell and Quick Brief
+
+**Depends on:** the Today snapshot (built). Behind a `foreman-briefing` toggle; Today untouched.
+
+The chapter state machine, the ranking and anti-repetition ledger modules with red-first
+checks, the Quick Brief, then chapters and motion. Spec checks 1 through 7.
+
+## FB-2: Narrated generation
+
+**Depends on:** FB-1.
+
+The headless drafting lane writes the narration from assembled evidence; a generation failure
+renders the un-narrated Quick Brief, never canned prose. Voice rules absolute.
+
+## FB-3: Meeting countdown
+
+**Depends on:** FB-1.
+
+Toast scheduler set only from the human-warmed calendar cache (standing rule: no background
+Microsoft read), plus the per-meeting prep chapters. Spec checks 8 and 9.
+
+## FB-4: Set the Room
+
+**Depends on:** FB-3.
+
+The receipted desktop choreography per the element map, first run supervised; spec check 10;
+then a week of real mornings before any default-landing decision.
+
+---
+
 ## Standing rules that outrank this plan
 
 - No prose presented as Steve is generated from templates, keyword matching, or string

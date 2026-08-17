@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Foreman Briefing Storyboard</title>
+<style>
+  :root {
+    --navy: #0e2338;
+    --deep: #081627;
+    --deeper: #050e1a;
+    --action: #1b5e9e;
+    --action-light: #4c8ec7;
+    --soft: #9fb0c2;
+    --paper: #f7f8f9;
+    --ink: #16232f;
+    --line: #e1e4e8;
+    --frame-text: #e8eef5;
+    --frame-dim: #a9b8c8;
+    --ok: #58b98a;
+    --warn: #d99b3c;
+    --sans: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono: "Cascadia Code", Consolas, "SF Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    padding: 56px 24px 96px;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--action);
+  }
+  header.page h1 {
+    font-size: clamp(34px, 4vw, 52px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 10px 0 14px;
+    color: var(--navy);
+  }
+  header.page p { max-width: 74ch; color: #3d4b59; }
+  header.page .meta {
+    margin-top: 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #6b7885;
+  }
+
+  figure.board { margin: 72px 0 0; }
+  .board-head {
+    display: flex; align-items: baseline; gap: 14px; margin-bottom: 12px;
+  }
+  .board-head .num {
+    font-family: var(--mono); font-size: 12px; color: var(--action);
+    letter-spacing: 0.2em;
+  }
+  .board-head h2 { font-size: 22px; font-weight: 700; color: var(--navy); }
+
+  .frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: 10px;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 90% at 68% 30%, #12304e 0%, var(--navy) 42%, var(--deep) 76%, var(--deeper) 100%);
+    box-shadow: 0 24px 60px rgba(8, 22, 39, 0.28);
+    color: var(--frame-text);
+  }
+  .frame .gridlayer {
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+      repeating-linear-gradient(to right, rgba(159,176,194,0.055) 0 1px, transparent 1px 64px),
+      repeating-linear-gradient(to bottom, rgba(159,176,194,0.045) 0 1px, transparent 1px 64px);
+    mask-image: radial-gradient(120% 100% at 50% 40%, #000 30%, transparent 92%);
+  }
+  .frame .vignette {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(130% 110% at 50% 42%, transparent 55%, rgba(5,14,26,0.55) 100%);
+  }
+  .frame svg.scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  .tag {
+    position: absolute; top: 3.6%; left: 3.4%;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.24em;
+    color: var(--soft); opacity: 0.85;
+  }
+  .dots {
+    position: absolute; top: 4%; right: 3.6%;
+    display: flex; gap: 7px; align-items: center;
+  }
+  .dots i {
+    width: 7px; height: 7px; border-radius: 50%;
+    border: 1px solid rgba(159,176,194,0.55); display: block;
+  }
+  .dots i.on { background: var(--action-light); border-color: var(--action-light); }
+  .dots i.done { background: rgba(159,176,194,0.5); border-color: transparent; }
+
+  .copy { position: absolute; z-index: 3; }
+  .copy .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.26em;
+    text-transform: uppercase; color: var(--action-light); margin-bottom: 12px;
+  }
+  .copy h3 {
+    font-size: clamp(26px, 3.1vw, 42px); font-weight: 700;
+    letter-spacing: -0.01em; line-height: 1.12; margin-bottom: 16px;
+  }
+  .copy p.lines { color: var(--frame-dim); font-size: 15px; max-width: 46ch; }
+  .statline {
+    margin: 16px 0 4px; font-size: 15.5px; color: var(--frame-text);
+  }
+  .statline b { font-weight: 700; }
+  .cost { font-family: var(--mono); font-size: 12.5px; color: var(--soft); margin-top: 6px; }
+
+  .btnrow { display: flex; gap: 12px; align-items: center; margin-top: 26px; flex-wrap: wrap; }
+  .b-primary {
+    font: 600 13.5px var(--sans); letter-spacing: 0.02em;
+    background: var(--action); color: #fff; border: 0;
+    padding: 12px 26px; border-radius: 999px;
+  }
+  .b-ghost {
+    font: 500 13px var(--sans); color: #dbe6f1;
+    background: transparent; border: 1px solid rgba(159,176,194,0.45);
+    padding: 11px 20px; border-radius: 999px;
+  }
+  .b-quiet { font: 500 13px var(--sans); color: var(--soft); background: none; border: 0; text-decoration: underline; text-underline-offset: 4px; }
+
+  .law {
+    position: absolute; bottom: 3.8%; left: 0; right: 0; text-align: center;
+    font-family: var(--mono); font-size: 11px; color: rgba(159,176,194,0.66);
+    letter-spacing: 0.06em; z-index: 3;
+  }
+
+  .oklist { list-style: none; margin-top: 10px; }
+  .oklist li { padding: 5px 0; font-size: 15.5px; color: var(--frame-text); display: flex; gap: 10px; align-items: baseline; }
+  .oklist .tick { color: var(--ok); font-weight: 700; }
+  .oklist .warntick { color: var(--warn); font-weight: 700; }
+  .oklist .quiet { color: var(--frame-dim); }
+  .amber { color: var(--warn); }
+
+  .cardstack { position: absolute; right: 5%; top: 16%; width: 40%; display: flex; flex-direction: column; gap: 14px; z-index: 3; }
+  .change {
+    border: 1px solid rgba(159,176,194,0.28); border-radius: 10px;
+    padding: 18px 20px; background: rgba(8, 22, 39, 0.55); backdrop-filter: blur(2px);
+  }
+  .change.lead { border-color: rgba(76,142,199,0.7); box-shadow: 0 0 0 1px rgba(76,142,199,0.25), 0 18px 40px rgba(5,14,26,0.5); }
+  .change .eyebrow2 { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.22em; color: var(--action-light); }
+  .change h4 { font-size: 17px; font-weight: 650; margin: 8px 0 6px; }
+  .change p { font-size: 13.5px; color: var(--frame-dim); }
+  .evidence {
+    margin-top: 12px; font-family: var(--mono); font-size: 11.5px; color: var(--soft);
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  }
+  .evidence .pill {
+    border: 1px solid rgba(159,176,194,0.35); border-radius: 999px; padding: 3px 10px;
+  }
+  .change.dim { opacity: 0.55; transform: scale(0.985); }
+
+  .item {
+    position: absolute; left: 50%; top: 51%; transform: translate(-50%, -50%);
+    width: min(56%, 620px); z-index: 3;
+    border: 1px solid rgba(159,176,194,0.3); border-radius: 12px;
+    background: rgba(8, 22, 39, 0.72); backdrop-filter: blur(3px);
+    padding: 26px 30px 24px;
+    box-shadow: 0 30px 70px rgba(5,14,26,0.55);
+  }
+  .item .eyebrow2 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.26em; color: var(--action-light); }
+  .item h4 { font-size: 22px; font-weight: 700; margin: 10px 0 14px; line-height: 1.25; }
+  .item .sec { margin: 12px 0; }
+  .item .seclabel { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--soft); margin-bottom: 4px; }
+  .item .sec p { font-size: 14px; color: var(--frame-dim); }
+  .conf {
+    display: inline-flex; gap: 8px; align-items: center;
+    font-family: var(--mono); font-size: 11.5px; color: var(--action-light);
+    border: 1px solid rgba(76,142,199,0.5); border-radius: 999px; padding: 4px 12px;
+  }
+  .verbrow { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  .keys { margin-top: 12px; font-family: var(--mono); font-size: 10.5px; color: rgba(159,176,194,0.6); letter-spacing: 0.12em; }
+  .chip {
+    font-family: var(--mono); font-size: 12px; color: #dbe6f1;
+    border: 1px solid rgba(159,176,194,0.4); border-radius: 999px; padding: 7px 16px;
+  }
+  .chip.sel { background: var(--action); border-color: var(--action); color: #fff; }
+
+  .sched { position: absolute; left: 7%; top: 27%; width: 55%; z-index: 3; }
+  .schedrow { display: flex; align-items: center; gap: 18px; margin: 14px 0; }
+  .schedrow .time { font-family: var(--mono); font-size: 12.5px; color: var(--soft); width: 110px; flex: none; }
+  .schedrow .bar {
+    height: 44px; border-radius: 7px;
+    border: 1px solid rgba(76,142,199,0.65);
+    background: linear-gradient(180deg, rgba(27,94,158,0.34), rgba(27,94,158,0.16));
+    display: flex; align-items: center; padding: 0 16px;
+    font-size: 13.5px; color: var(--frame-text); white-space: nowrap;
+  }
+  .totals { margin-top: 20px; font-size: 14.5px; color: var(--frame-dim); }
+  .totals b { color: var(--frame-text); font-weight: 650; }
+  .ballpark { margin-top: 22px; }
+  .ballpark .q { font-size: 14.5px; margin-bottom: 10px; }
+  .chiprow { display: flex; gap: 9px; flex-wrap: wrap; }
+
+  .focuscard {
+    margin-top: 22px; border: 1px solid rgba(76,142,199,0.55); border-radius: 10px;
+    background: rgba(8,22,39,0.6); padding: 16px 18px; max-width: 430px;
+  }
+  .focuscard .ref { font-family: var(--mono); font-size: 11.5px; color: var(--action-light); letter-spacing: 0.14em; }
+  .focuscard h5 { font-size: 16px; font-weight: 650; margin: 6px 0 12px; }
+
+  figcaption {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+    padding: 18px 4px 0;
+  }
+  figcaption div h6 {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--action); margin-bottom: 6px;
+  }
+  figcaption div p { font-size: 13px; color: #4b5967; }
+
+  footer.laws { margin-top: 88px; border-top: 1px solid var(--line); padding-top: 34px; }
+  footer.laws h2 { font-size: 20px; color: var(--navy); margin-bottom: 14px; }
+  footer.laws ol { margin: 0 0 26px 20px; }
+  footer.laws li { font-size: 14px; color: #3d4b59; padding: 4px 0; max-width: 86ch; }
+  .machine {
+    font-family: var(--mono); font-size: 12.5px; color: var(--action);
+    background: #eef2f6; border: 1px solid var(--line); border-radius: 8px;
+    padding: 14px 18px; overflow-x: auto; white-space: nowrap;
+  }
+  .journey-head { margin-top: 100px; border-top: 2px solid var(--navy); padding-top: 26px; }
+  .journey-head h2 { font-size: clamp(26px, 3vw, 36px); color: var(--navy); font-weight: 700; margin: 8px 0 10px; }
+  .journey-head p { max-width: 76ch; color: #3d4b59; }
+
+  .toast {
+    position: absolute; right: 4%; bottom: 8%; width: 370px; z-index: 3;
+    background: var(--paper); color: var(--ink); border-radius: 10px;
+    box-shadow: 0 24px 60px rgba(5,14,26,0.6);
+    padding: 16px 18px 14px;
+  }
+  .toast .tk { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--action); }
+  .toast h4 { font-size: 16.5px; margin: 7px 0 3px; color: var(--navy); }
+  .toast p { font-size: 13px; color: #4b5967; }
+  .toast .btnrow { margin-top: 13px; gap: 8px; }
+  .toast .b-ghost { color: var(--navy); border-color: #c6cdd4; }
+
+  .rail { position: absolute; left: 6%; top: 21%; z-index: 3; }
+  .rail div { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.12em; color: rgba(159,176,194,0.5); padding: 10px 0; }
+  .rail div.on { color: var(--frame-text); }
+  .rail div.done { color: rgba(159,176,194,0.85); }
+  .rail div.done::after { content: " ✓"; color: var(--ok); }
+
+  .receipts { list-style: none; margin-top: 14px; }
+  .receipts li { display: flex; gap: 12px; align-items: baseline; padding: 6px 0; font-size: 14px; }
+  .receipts .t { font-family: var(--mono); font-size: 11.5px; color: var(--soft); flex: none; width: 76px; }
+  .receipts .ok { color: var(--ok); font-weight: 700; }
+  .receipts .wn { color: var(--warn); font-weight: 700; }
+  .receipts .what { color: var(--frame-text); }
+  .receipts .what .fn { font-family: var(--mono); font-size: 12px; color: var(--action-light); }
+  .runline { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; color: var(--soft); margin-top: 4px; }
+  .minirow { position: absolute; bottom: 4.5%; left: 6%; display: flex; gap: 8px; z-index: 2; }
+  .minirow i { display: block; width: 34px; height: 22px; border: 1px solid rgba(159,176,194,0.35); border-radius: 3px; opacity: 0.6; }
+
+  @media (max-width: 860px) {
+    figcaption { grid-template-columns: 1fr; }
+    .cardstack { position: static; width: auto; margin: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <div class="kicker">IP Corporation Workbench · Design Storyboard</div>
+    <h1>The Foreman Briefing</h1>
+    <p>
+      Six chapters replace the Today dashboard as the landing experience. Chapter transitions are
+      cinematic; controls inside a chapter are fast and plain. A recurring blueprint structure
+      assembles as the briefing proceeds: fragmented at arrival, ordered by the end, which is the
+      product's actual job made visible. Quick Brief and Current State stay one keystroke away at
+      every moment. Two journeys share this grammar: the morning briefing, and a per-meeting
+      countdown that begins from a toast thirty minutes before each meeting and ends with the
+      desk physically set.
+    </p>
+    <p class="meta">2026-08-17 · frames are 16:9 · all copy and counts are sample content, illustrative only</p>
+  </header>
+
+  <!-- ============================ FRAME 1 ============================ -->
+  <figure class="board">
+    <div class="board-head"><span class="num">FRAME 01</span><h2>Arrival</h2></div>
+    <div class="frame">
+      <div class="gridlayer"></div>
+      <svg class="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#9fb0c2" stroke-width="1.4">
+          <circle cx="1180" cy="380" r="300" opacity="0.10"/>
+          <rect x="1050" y="180" width="90" height="60" opacity="0.42" transform="rotate(8 1095 210)"/>
+          <rect x="1215" y="140" width="60" height="40" opacity="0.30" transform="rotate(-12 1245 160)"/>
+          <rect x="1180" y="300" width="110" height="70" opacity="0.52" transform="rotate(4 1235 335)"/>
+          <rect x="1345" y="250" width="50" height="50" opacity="0.26" transform="rotate(20 1370 275)"/>
+          <rect x="980" y="330" width="70" height="44" opacity="0.38" transform="rotate(-6 1015 352)"/>
+          <rect x="1300" y="420" width="90" height="58" opacity="0.45" transform="rotate(-14 1345 449)"/>
+          <rect x="1120" y="470" width="56" height="36" opacity="0.30" transform="rotate(10 1148 488)"/>
+          <rect x="1425" y="165" width="70" height="46" opacity="0.22" transform="rotate(-4 1460 188)"/>
+          <rect x="1455" y="360" width="44" height="30" opacity="0.28" transform="rotate(12 1477 375)"/>
+          <rect x="905" y="225" width="50" height="34" opacity="0.24" transform="rotate(16 930 242)"/>
+          <rect x="1240" y="560" width="74" height="48" opacity="0.36" transform="rotate(6 1277 584)"/>
+          <rect x="1050" y="600" width="44" height="30" opacity="0.22" transform="rotate(-10 1072 615)"/>
+          <path d="M1140 240 L1185 305" stroke-dasharray="2 7" opacity="0.28"/>
+          <path d="M1290 370 L1315 425" stroke-dasharray="2 7" opacity="0.28"/>
+          <path d="M1050 360 L1125 470" stroke-dasharray="2 7" opacity="0.22"/>
+          <path d="M1330 480 L1280 560" stroke-dasharray="2 7" opacity="0.22"/>
+        </g>
+      </svg>
+      <span class="tag">01 · ARRIVAL</span>
+      <div class="copy" style="left:6%; top:24%; max-width:44%;">
+        <div class="eyebrow">The Foreman Briefing</div>
+        <h3>Good morning, Steve.</h3>
+        <p class="lines">
+          I reviewed Jira, today's meetings, active agent work, recent communications,
+          and the decisions still open.
+        </p>
+        <p class="statline"><b>3 need you.</b> 11 continue without you. 1 meeting this morning.</p>
+        <p class="cost">ABOUT 4 MINUTES</p>
+        <div class="btnrow">
+          <button class="b-primary">BEGIN BRIEFING</button>
+          <button class="b-ghost">Quick Brief</button>
+          <button class="b-quiet">Current State</button>
+        </div>
+      </div>
+      <div class="law">SCROLL AND ARROWS NAVIGATE · NOTHING EXECUTES WITHOUT A BUTTON · ESC SKIPS</div>
+      <div class="vignette"></div>
+    </div>
+    <figcaption>
+      <div><h6>Motion</h6><p>The fragment field idles almost imperceptibly. Begin eases the camera forward, a compositor-only scale and fade. Reduced motion collapses this to a crossfade.</p></div>
+      <div><h6>Interaction</h6><p>One primary action. Quick Brief and Current State are present from the first frame and never disappear. Enter begins; Esc skips any transition.</p></div>
+      <div><h6>Data</h6><p>The three counts come from the live snapshot, fail-closed. A source that did not return is disclosed in chapter two, never invented here.</p></div>
+    </figcaption>
+  </figure>
+
+  <!-- ============================ FRAME 2 ============================ -->
+  <figure class="board">
+    <div class="board-head"><span class="num">FRAME 02</span><h2>Where we are</h2></div>
+    <div class="frame">
+      <div class="gridlayer"></div>
+      <svg class="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#9fb0c2" stroke-width="1.3">
+          <path d="M0 140 C 460 150, 800 300, 1035 388" opacity="0.34"/>
+          <path d="M0 255 C 430 265, 790 335, 1022 412" opacity="0.34"/>
+          <path d="M0 370 C 420 372, 760 400, 1012 440" opacity="0.34"/>
+          <path d="M0 490 C 430 488, 770 480, 1014 466" opacity="0.34"/>
+          <path d="M0 610 C 450 600, 790 540, 1022 494" opacity="0.30"/>
+          <path d="M0 730 C 480 715, 810 590, 1038 520" opacity="0.34"/>
+        </g>
+        <g fill="#4c8ec7">
+          <circle cx="330" cy="152" r="3.2" opacity="0.9"/><circle cx="620" cy="222" r="2.6" opacity="0.6"/><circle cx="880" cy="330" r="3" opacity="0.8"/>
+          <circle cx="380" cy="265" r="2.8" opacity="0.7"/><circle cx="700" cy="316" r="3" opacity="0.8"/>
+          <circle cx="420" cy="371" r="2.8" opacity="0.7"/><circle cx="760" cy="401" r="2.6" opacity="0.6"/>
+          <circle cx="360" cy="489" r="3" opacity="0.8"/><circle cx="820" cy="477" r="2.6" opacity="0.65"/>
+          <circle cx="470" cy="597" r="2.8" opacity="0.6"/><circle cx="840" cy="528" r="3" opacity="0.75"/>
+          <circle cx="400" cy="722" r="3" opacity="0.8"/><circle cx="740" cy="626" r="2.6" opacity="0.6"/>
+        </g>
+        <g fill="none">
+          <circle cx="1190" cy="452" r="172" stroke="#4c8ec7" stroke-width="1.6" stroke-dasharray="10 14" opacity="0.75"/>
+          <circle cx="1190" cy="452" r="118" stroke="#9fb0c2" stroke-width="1" opacity="0.28"/>
+          <circle cx="1190" cy="452" r="8" fill="#4c8ec7" opacity="0.9" stroke="none"/>
+        </g>
+        <g font-family="Consolas, monospace" font-size="15" fill="#9fb0c2" opacity="0.85">
+          <text x="34" y="128">JIRA</text>
+          <text x="34" y="243">MEETINGS</text>
+          <text x="34" y="358">OUTLOOK + TEAMS</text>
+          <text x="34" y="478">AGENT BOARD</text>
+          <text x="34" y="598">RECONCILIATION</text>
+          <text x="34" y="718">PRIORITIES</text>
+        </g>
+      </svg>
+      <span class="tag">02 · WHERE WE ARE</span>
+      <div class="dots"><i class="done"></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
+      <div class="copy" style="left:6%; bottom:9%; max-width:46%;">
+        <h3 style="font-size:clamp(22px,2.4vw,32px);">The signals resolve.</h3>
+        <ul class="oklist">
+          <li><span class="quiet">·</span> 8 items progressed since yesterday.</li>
+          <li><span class="tick">✓</span> 2 completed and verified.</li>
+          <li><span class="quiet">·</span> Fabric weekly check-in at 10:30.</li>
+          <li><span class="warntick">!</span> <span class="amber">Reconciliation returned incomplete information; last good run is 3 days old.</span></li>
+        </ul>
+        <p class="lines" style="margin-top:10px;">Nothing here needs you yet.</p>
+        <div class="btnrow"><button class="b-primary">CONTINUE</button></div>
+      </div>
+      <div class="vignette"></div>
+    </div>
+    <figcaption>
+      <div><h6>Motion</h6><p>Particles travel the six source streams and gather into the forming ring, roughly ten seconds, skippable. The streams are the sources actually read, not decoration.</p></div>
+      <div><h6>Interaction</h6><p>Read-only chapter. Continue advances; progress dots show position two of six.</p></div>
+      <div><h6>Data</h6><p>Replaces the six health cards and the source-warning strip with one statement. A failed source is the amber line, stated plainly, with its real age.</p></div>
+    </figcaption>
+  </figure>
+
+  <!-- ============================ FRAME 3 ============================ -->
+  <figure class="board">
+    <div class="board-head"><span class="num">FRAME 03</span><h2>What changed</h2></div>
+    <div class="frame">
+      <div class="gridlayer"></div>
+      <svg class="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="doorGlow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#4c8ec7" stop-opacity="0.5"/>
+            <stop offset="1" stop-color="#4c8ec7" stop-opacity="0.04"/>
+          </linearGradient>
+        </defs>
+        <g fill="none" stroke="#9fb0c2">
+          <rect x="300" y="170" width="240" height="530" stroke-width="1.6" opacity="0.6"/>
+          <rect x="330" y="200" width="180" height="470" fill="url(#doorGlow)" stroke="none"/>
+          <rect x="330" y="200" width="180" height="470" stroke-width="1" opacity="0.35"/>
+          <path d="M300 700 L60 860" opacity="0.2"/>
+          <path d="M540 700 L820 880" opacity="0.2"/>
+          <path d="M120 760 L740 760" opacity="0.12"/>
+          <path d="M200 820 L900 820" opacity="0.08"/>
+        </g>
+        <ellipse cx="420" cy="702" rx="150" ry="14" fill="#4c8ec7" opacity="0.14"/>
+      </svg>
+      <span class="tag">03 · WHAT CHANGED</span>
+      <div class="dots"><i class="done"></i><i class="done"></i><i class="on"></i><i></i><i></i><i></i></div>
+      <div class="copy" style="left:6%; top:16%; max-width:26%;">
+        <h3 style="font-size:clamp(22px,2.4vw,32px);">Three things are different.</h3>
+        <p class="lines">Only material changes since the last briefing. Anything unchanged stays out.</p>
+      </div>
+      <div class="cardstack">
+        <div class="change lead">
+          <div class="eyebrow2">CUSTOMER DOMAIN OWNERSHIP</div>
+          <h4>Patrick confirmed the Operations owner.</h4>
+          <p>Finance is still unresolved. Tomorrow's workshop depends on the final list.</p>
+          <div class="evidence">
+            <span class="pill">Meeting record</span><span class="pill">MT-142</span><span class="pill">Teams reply</span>
+          </div>
+          <div class="btnrow" style="margin-top:14px;">
+            <button class="b-ghost">OPEN CONTEXT</button>
+          </div>
+        </div>
+        <div class="change dim">
+          <div class="eyebrow2">MT-158</div>
+          <h4>Review returned with comments.</h4>
+        </div>
+        <div class="change dim">
+          <div class="eyebrow2">AGENT BOARD</div>
+          <h4>Export rebuild completed and verified.</h4>
+        </div>
+      </div>
+      <div class="copy" style="left:6%; bottom:9%;">
+        <div class="btnrow"><button class="b-primary">CONTINUE</button></div>
+      </div>
+      <div class="vignette"></div>
+    </div>
+    <figcaption>
+      <div><h6>Motion</h6><p>The doorway opens as the chapter arrives; each change card slides forward as it becomes the focus. In-chapter transitions stay in the 300 to 600ms range.</p></div>
+      <div><h6>Interaction</h6><p>Open Context deep-links into the ticket or meeting record. Hard cap of three changes; the cap is a rule, not a layout accident.</p></div>
+      <div><h6>Data</h6><p>Every change carries its evidence pills (meeting record, ticket, message). No evidence, no card; the drop is recorded, matching house rules.</p></div>
+    </figcaption>
+  </figure>
+
+  <!-- ============================ FRAME 4 ============================ -->
+  <figure class="board">
+    <div class="board-head"><span class="num">FRAME 04</span><h2>What needs you</h2></div>
+    <div class="frame">
+      <div class="gridlayer"></div>
+      <svg class="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#9fb0c2" stroke-width="1.3">
+          <path d="M0 310 C 380 330, 640 420, 800 452" opacity="0.4"/>
+          <path d="M1600 640 C 1220 610, 950 480, 800 452" opacity="0.4"/>
+        </g>
+        <circle cx="800" cy="452" r="26" fill="#4c8ec7" opacity="0.16"/>
+        <circle cx="800" cy="452" r="8" fill="#4c8ec7" opacity="0.95"/>
+        <circle cx="1210" cy="430" r="5" fill="#9fb0c2" opacity="0.4"/>
+        <circle cx="1420" cy="415" r="4" fill="#9fb0c2" opacity="0.25"/>
+      </svg>
+      <span class="tag">04 · WHAT NEEDS YOU</span>
+      <div class="dots"><i class="done"></i><i class="done"></i><i class="done"></i><i class="on"></i><i></i><i></i></div>
+      <div class="copy" style="right:3.6%; top:10.5%;">
+        <span style="font-family:var(--mono); font-size:12px; letter-spacing:0.2em; color:var(--soft);">1 OF 3</span>
+      </div>
+      <div class="item">
+        <div class="eyebrow2">DECISION</div>
+        <h4>Confirm the Customer domain owner assignments.</h4>
+        <div class="sec">
+          <div class="seclabel">Why now</div>
+          <p>The workshop is tomorrow, two Jira items depend on the answer, and Finance is the only unresolved assignment.</p>
+        </div>
+        <div class="sec">
+          <div class="seclabel">Recommended answer</div>
+          <p>Approve the current list and flag Finance for follow-up.</p>
+        </div>
+        <div class="sec">
+          <span class="conf">CONFIRMED BY TWO INDEPENDENT SOURCES</span>
+        </div>
+        <div class="verbrow">
+          <button class="b-primary">APPROVE</button>
+          <button class="b-ghost">CHANGE THE ANSWER</button>
+          <button class="b-ghost">MORE CONTEXT</button>
+          <button class="b-ghost">SNOOZE</button>
+          <button class="b-quiet">Not mine</button>
+        </div>
+        <div class="keys">A · C · M · S · N &nbsp;&nbsp;SNOOZE RETURNS ON A DATE OR NEW ACTIVITY, WHICHEVER COMES FIRST</div>
+      </div>
+      <div class="vignette"></div>
+    </div>
+    <figcaption>
+      <div><h6>Motion</h6><p>The converging paths carry the decision motif; two future nodes wait faintly to the right. On answer, the card recedes and the next arrives, 300 to 600ms, no ceremony.</p></div>
+      <div><h6>Interaction</h6><p>One item at a time, closed verb set, every item reaches a terminal state, fully keyboard-driven. Estimates use tappable chips (frame 5); free text routes as a Jira comment draft.</p></div>
+      <div><h6>Data</h6><p>Why-now, recommendation, and the confidence tag are assembled from Jira, meeting records, and messages. Answers save as drafts, comments, and receipts, never direct sends.</p></div>
+    </figcaption>
+  </figure>
+
+  <!-- ============================ FRAME 5 ============================ -->
+  <figure class="board">
+    <div class="board-head"><span class="num">FRAME 05</span><h2>Plan the day</h2></div>
+    <div class="frame">
+      <div class="gridlayer"></div>
+      <svg class="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#9fb0c2">
+          <path d="M1100 120 L1560 120" opacity="0.1"/>
+          <path d="M1060 240 L1580 240" opacity="0.12"/>
+          <path d="M1040 360 L1590 360" opacity="0.1"/>
+          <path d="M1180 80 L1180 860" opacity="0.08"/>
+          <path d="M1340 60 L1340 880" opacity="0.08"/>
+          <path d="M1480 100 L1480 840" opacity="0.06"/>
+          <rect x="1200" y="500" width="230" height="150" opacity="0.22" transform="skewY(-6)"/>
+          <rect x="1260" y="430" width="150" height="90" opacity="0.3" transform="skewY(-6)" stroke="#4c8ec7"/>
+        </g>
+      </svg>
+      <span class="tag">05 · PLAN THE DAY</span>
+      <div class="dots"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="on"></i><i></i></div>
+      <div class="copy" style="left:7%; top:11%; max-width:52%;">
+        <h3 style="font-size:clamp(22px,2.4vw,32px);">The Foreman proposes. You correct.</h3>
+      </div>
+      <div class="sched">
+        <div class="schedrow"><span class="time">9:00-10:15</span><div class="bar" style="width:62%;">Customer ownership review</div></div>
+        <div class="schedrow"><span class="time">10:30-11:00</span><div class="bar" style="width:28%;">Fabric weekly check-in</div></div>
+        <div class="schedrow"><span class="time">11:15-12:30</span><div class="bar" style="width:70%;">MT-142 architecture recommendation</div></div>
+        <div class="ballpark">
+          <p class="q">Ballpark for the MT-142 recommendation?</p>
+          <div class="chiprow">
+            <span class="chip">15m</span><span class="chip">30m</span><span class="chip">1h</span><span class="chip sel">Half day</span><span class="chip">Custom</span>
+          </div>
+        </div>
+        <p class="totals">Planned focused work <b>2h 30m</b> · Available <b>3h 10m</b> · <b>No overload detected.</b></p>
+        <div class="btnrow">
+          <button class="b-primary">ACCEPT THE PLAN</button>
+          <button class="b-ghost">MOVE SOMETHING</button>
+        </div>
+      </div>
+      <div class="vignette"></div>
+    </div>
+    <figcaption>
+      <div><h6>Motion</h6><p>The geometric field steadies into a measured grid; bars draw in left to right once, then hold still.</p></div>
+      <div><h6>Interaction</h6><p>Ballparks are forced-choice chips, never an empty box. If planned work exceeds available time, the overflow is shown and one-key deferral offered, in the flow itself.</p></div>
+      <div><h6>Data</h6><p>Calendar from Outlook, remaining-work math from the same derivation the issue cards already use. Nothing auto-schedules; accepted plans write receipts.</p></div>
+    </figcaption>
+  </figure>
+
+  <!-- ============================ FRAME 6 ============================ -->
+  <figure class="board">
+    <div class="board-head"><span class="num">FRAME 06</span><h2>You're clear</h2></div>
+    <div class="frame" style="background: radial-gradient(120% 95% at 60% 26%, #16385c 0%, #0e2338 48%, #081627 82%, #050e1a 100%);">
+      <div class="gridlayer"></div>
+      <svg class="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#9fb0c2" stroke-width="1.4">
+          <path d="M0 660 L1600 660" opacity="0.22"/>
+          <polygon points="1010,660 1010,430 1130,370 1250,430 1250,660" opacity="0.75"/>
+          <path d="M1130 370 L1130 660" opacity="0.4"/>
+          <path d="M1010 490 L1250 490" opacity="0.25"/>
+          <path d="M1010 575 L1250 575" opacity="0.25"/>
+          <polygon points="880,660 880,520 1010,520 1010,660" opacity="0.5"/>
+          <path d="M880 590 L1010 590" opacity="0.22"/>
+          <polygon points="1250,660 1250,500 1360,500 1360,660" opacity="0.5"/>
+          <path d="M1130 370 L1130 300" opacity="0.7" stroke="#4c8ec7"/>
+          <circle cx="1130" cy="292" r="5" stroke="#4c8ec7" opacity="0.9"/>
+          <path d="M1010 430 L1250 430" stroke="#4c8ec7" opacity="0.55"/>
+          <path d="M880 520 L1010 520" stroke="#4c8ec7" opacity="0.4"/>
+        </g>
+        <ellipse cx="1120" cy="668" rx="300" ry="16" fill="#4c8ec7" opacity="0.08"/>
+      </svg>
+      <span class="tag">06 · YOU'RE CLEAR</span>
+      <div class="dots"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="on"></i></div>
+      <div class="copy" style="left:6%; top:17%; max-width:42%;">
+        <h3>You're clear for now.</h3>
+        <ul class="oklist">
+          <li><span class="tick">✓</span> 1 decision confirmed</li>
+          <li><span class="tick">✓</span> 1 ballpark saved</li>
+          <li><span class="tick">✓</span> 1 follow-up staged for review</li>
+        </ul>
+        <p class="lines" style="margin-top:12px;">
+          11 items continue without you. I'll bring one back only if it changes
+          or reaches its return date.
+        </p>
+        <div class="focuscard">
+          <div class="ref">FIRST FOCUS · MT-142</div>
+          <h5>Customer ownership architecture recommendation</h5>
+          <button class="b-primary">START FOCUSED WORK</button>
+        </div>
+        <div class="btnrow" style="margin-top:16px;">
+          <button class="b-quiet">Open Current State</button>
+          <button class="b-quiet">Review Everything Else</button>
+        </div>
+      </div>
+      <div class="vignette"></div>
+    </div>
+    <figcaption>
+      <div><h6>Motion</h6><p>Movement stops. The blueprint structure stands assembled and still, the scene a shade lighter and more open than arrival. Stillness is the reward.</p></div>
+      <div><h6>Interaction</h6><p>The surface explicitly ends: one First Focus with a start button, and two quiet exits into the full map. No feed continues below the fold.</p></div>
+      <div><h6>Data</h6><p>Tallies are the receipts just written. Green appears here and only here, for verified completion, per the semantic color rules.</p></div>
+    </figcaption>
+  </figure>
+
+  <div class="journey-head">
+    <div class="kicker">Journey Two · Per Meeting</div>
+    <h2>The Meeting Countdown</h2>
+    <p>
+      Thirty minutes before each real meeting, a toast offers the countdown. Clicking it opens a
+      short guided prep for that specific meeting: the room, last time, open threads, today's
+      goal, materials. The final chapter hands the desk to the automation lane: Cluely set to IP
+      Corp meeting mode with the prep file uploaded and told to use it, a new session started,
+      everything else minimized, prep documents open in the background, every step receipted.
+    </p>
+  </div>
+
+  <!-- ============================ FRAME 7 ============================ -->
+  <figure class="board">
+    <div class="board-head"><span class="num">FRAME 07</span><h2>T-minus thirty</h2></div>
+    <div class="frame">
+      <div class="gridlayer"></div>
+      <svg class="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#9fb0c2">
+          <path d="M0 700 L1600 700" opacity="0.16"/>
+          <circle cx="540" cy="440" r="300" stroke-width="1.5" stroke-dasharray="4 14" opacity="0.35"/>
+          <circle cx="540" cy="440" r="228" stroke-width="1" opacity="0.14"/>
+          <path d="M540 140 L540 172" opacity="0.4"/>
+          <path d="M840 440 L808 440" opacity="0.4"/>
+          <path d="M540 740 L540 708" opacity="0.4"/>
+          <path d="M240 440 L272 440" opacity="0.4"/>
+        </g>
+        <circle cx="752" cy="228" r="7" fill="#4c8ec7" opacity="0.95"/>
+        <circle cx="752" cy="228" r="20" fill="none" stroke="#4c8ec7" opacity="0.35"/>
+        <g font-family="Consolas, monospace" font-size="15" fill="#9fb0c2" opacity="0.85">
+          <text x="784" y="216">T-30</text>
+        </g>
+        <g font-family="Consolas, monospace" font-size="13" fill="#9fb0c2" opacity="0.4">
+          <text x="500" y="452">2:00 PM</text>
+        </g>
+      </svg>
+      <span class="tag">07 · T-MINUS THIRTY</span>
+      <div class="copy" style="left:6%; top:18%; max-width:32%;">
+        <h3 style="font-size:clamp(22px,2.4vw,32px);">The desk taps you once.</h3>
+        <p class="lines">
+          Nothing opens uninvited. One toast, thirty minutes out, and only for real
+          meetings; calendar markers never ring.
+        </p>
+      </div>
+      <div class="toast">
+        <div class="tk">WORKBENCH · MEETING COUNTDOWN</div>
+        <h4>Patrick Stiller · Weekly 1:1</h4>
+        <p>2:00 PM · starts in 30 minutes · prep is ready</p>
+        <div class="btnrow">
+          <button class="b-primary">OPEN PREP</button>
+          <button class="b-ghost">LATER</button>
+        </div>
+      </div>
+      <div class="vignette"></div>
+    </div>
+    <figcaption>
+      <div><h6>Motion</h6><p>The toast slides in from the right edge and waits. The rest of the desktop does not change; the countdown arc exists only inside the walkthrough, not on screen.</p></div>
+      <div><h6>Interaction</h6><p>Open Prep deep-links into this meeting's walkthrough. Later re-raises at T-15. Dismissals are recorded. The toast itself never starts automation.</p></div>
+      <div><h6>Data</h6><p>Timers are set from the calendar cache a human visit already warmed; background jobs never start a Microsoft read. A meeting added after the last visit gets its toast once the next visit refreshes the cache.</p></div>
+    </figcaption>
+  </figure>
+
+  <!-- ============================ FRAME 8 ============================ -->
+  <figure class="board">
+    <div class="board-head"><span class="num">FRAME 08</span><h2>The prep walkthrough</h2></div>
+    <div class="frame">
+      <div class="gridlayer"></div>
+      <svg class="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#9fb0c2" stroke-width="1.3">
+          <path d="M520 470 C 760 430, 940 420, 1140 436" opacity="0.4"/>
+          <path d="M520 500 C 780 540, 960 530, 1140 470" opacity="0.3" stroke-dasharray="6 10"/>
+        </g>
+        <circle cx="500" cy="485" r="8" fill="#4c8ec7" opacity="0.9"/>
+        <circle cx="1156" cy="450" r="8" fill="none" stroke="#4c8ec7" stroke-width="1.6" opacity="0.8"/>
+      </svg>
+      <span class="tag">08 · THE PREP WALKTHROUGH</span>
+      <div class="copy" style="right:3.6%; top:10.5%;">
+        <span style="font-family:var(--mono); font-size:12px; letter-spacing:0.2em; color:var(--soft);">3 OF 5</span>
+      </div>
+      <div class="rail">
+        <div class="done">01 THE ROOM</div>
+        <div class="done">02 LAST TIME</div>
+        <div class="on">03 OPEN THREADS</div>
+        <div>04 TODAY'S GOAL</div>
+        <div>05 MATERIALS</div>
+      </div>
+      <div class="item" style="left:56%; width:min(48%,560px);">
+        <div class="eyebrow2">OPEN THREADS</div>
+        <h4>Two threads are live with Patrick.</h4>
+        <div class="sec">
+          <div class="seclabel">You owe him</div>
+          <p>The Customer ownership list, promised 8/11.</p>
+          <div class="evidence" style="margin-top:8px;"><span class="pill">Meeting record</span><span class="pill">MT-142</span></div>
+        </div>
+        <div class="sec">
+          <div class="seclabel">He owes you</div>
+          <p>The Finance nominee.</p>
+          <div class="evidence" style="margin-top:8px;"><span class="pill">Teams · 8/14</span></div>
+        </div>
+        <div class="verbrow">
+          <button class="b-primary">CONTINUE</button>
+          <button class="b-ghost">OPEN FULL PACKET</button>
+        </div>
+        <div class="keys">ARROWS NAVIGATE · O OPENS THE PACKET · RESUMABLE</div>
+      </div>
+      <div class="vignette"></div>
+    </div>
+    <figcaption>
+      <div><h6>Motion</h6><p>The chapter rail advances top to bottom; cards swap in 300 to 600ms. The two thread lines connect you to the other node, one solid, one still dashed.</p></div>
+      <div><h6>Interaction</h6><p>Same verb grammar as the briefing, three to five minutes, fully resumable. Materials open in the background as you continue, never stealing focus.</p></div>
+      <div><h6>Data</h6><p>Chapters read the prep package, the last meeting summary, and open commitments from the brain; every thread carries its evidence pill. A missing prep file is said out loud and generated before Set the Room is offered.</p></div>
+    </figcaption>
+  </figure>
+
+  <!-- ============================ FRAME 9 ============================ -->
+  <figure class="board">
+    <div class="board-head"><span class="num">FRAME 09</span><h2>Set the room</h2></div>
+    <div class="frame" style="background: radial-gradient(120% 95% at 62% 28%, #14324f 0%, #0e2338 50%, #081627 82%, #050e1a 100%);">
+      <div class="gridlayer"></div>
+      <svg class="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="stageGlow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#4c8ec7" stop-opacity="0.4"/>
+            <stop offset="1" stop-color="#4c8ec7" stop-opacity="0.03"/>
+          </linearGradient>
+        </defs>
+        <g fill="none" stroke="#9fb0c2">
+          <path d="M0 680 L1600 680" opacity="0.2"/>
+          <rect x="960" y="400" width="330" height="280" stroke-width="1.5" opacity="0.6"/>
+          <rect x="985" y="425" width="280" height="255" fill="url(#stageGlow)" stroke="none"/>
+          <path d="M960 400 L1290 400" stroke="#4c8ec7" opacity="0.55"/>
+          <circle cx="1318" cy="372" r="10" stroke="#4c8ec7" stroke-width="1.6" opacity="0.9"/>
+          <circle cx="1318" cy="372" r="3" fill="#4c8ec7" stroke="none" opacity="0.9"/>
+        </g>
+      </svg>
+      <span class="tag">09 · SET THE ROOM</span>
+      <div class="copy" style="left:6%; top:14%; max-width:52%;">
+        <h3 style="font-size:clamp(24px,2.8vw,38px);">The room is set.</h3>
+        <div class="runline">RUN STARTED FROM YOUR CLICK · 1:31 PM</div>
+        <ul class="receipts">
+          <li><span class="t">1:31:02</span><span class="ok">✓</span><span class="what">Cluely restored and target confirmed by title and tree</span></li>
+          <li><span class="t">1:31:05</span><span class="ok">✓</span><span class="what">IP Corp meeting mode selected</span></li>
+          <li><span class="t">1:31:11</span><span class="ok">✓</span><span class="what">Prep file uploaded · <span class="fn">2026-08-18-patrick-stiller-1-1-prep.md</span></span></li>
+          <li><span class="t">1:31:15</span><span class="ok">✓</span><span class="what">New meeting session started</span></li>
+          <li><span class="t">1:31:18</span><span class="ok">✓</span><span class="what">Widget told to use the uploaded file for this meeting</span></li>
+          <li><span class="t">1:31:21</span><span class="ok">✓</span><span class="what">6 windows minimized · prep documents open in the background</span></li>
+          <li><span class="t">1:31:21</span><span class="wn">!</span><span class="what amber">Second monitor not detected · layout applied to the primary display</span></li>
+        </ul>
+        <div class="btnrow">
+          <button class="b-primary">OPEN CLUELY</button>
+          <button class="b-ghost">REVIEW RECEIPTS</button>
+        </div>
+      </div>
+      <div class="minirow"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="vignette"></div>
+    </div>
+    <figcaption>
+      <div><h6>Motion</h6><p>Receipts tick in as steps complete. When the run ends, everything is still: the lit stage holds Cluely, the minimized row waits along the bottom edge.</p></div>
+      <div><h6>Interaction</h6><p>The run starts only from the Prepare My Desktop click on the previous chapter, never from the toast alone, and refuses to run during a screen share.</p></div>
+      <div><h6>Data</h6><p>Each step verifies the window and control before acting (restored, right title, expected element) via the background-safe automation driver, then writes a receipt to the local ledger. The amber line is what could not be verified, reported instead of retried blind.</p></div>
+    </figcaption>
+  </figure>
+
+  <footer class="laws">
+    <h2>Laws of the experience</h2>
+    <ol>
+      <li>Scroll, wheel, arrows, and gestures navigate. They never approve, dismiss, snooze, or execute. Actions require explicit controls and save receipts.</li>
+      <li>Every count and claim comes from the live snapshot, fail-closed. A failed source renders as the amber disclosure line, never an invented number.</li>
+      <li>Guided plays on the first visit of the day and resumes where you stopped. Quick Brief and Current State stay visible always; Esc skips any transition.</li>
+      <li>Cinematic between chapters, 300 to 600ms inside them. A three-item briefing costs 2 to 4 minutes and is fully keyboard-completable.</li>
+      <li>Item cap of 3 to 5 with the remainder visibly parked; snoozes return on a date or new activity, whichever comes first.</li>
+      <li>v1 is layered CSS, SVG, and canvas with compositor-only animation. No WebGL requirement; prefers-reduced-motion collapses transitions to fades.</li>
+      <li>Replies route into Jira and email as drafts and comments, never sends.</li>
+    </ol>
+    <h2>Laws of the countdown</h2>
+    <ol>
+      <li>Countdown timers come from calendar data a human visit already warmed. Background jobs never start a Microsoft read; a meeting added after the last visit rings only after the next visit refreshes the cache, and the limit is stated, not hidden.</li>
+      <li>Desktop choreography runs only from an explicit click, never from the toast alone, and refuses to run while a screen share is active.</li>
+      <li>Every automation step verifies the window and control it is about to touch (restored, correct title, expected element) before acting, and writes a receipt. An unverifiable step stops the run and is reported unverified, not retried blind.</li>
+      <li>Set the Room is offered only when the per-meeting prep file exists. A missing file is said out loud and generated first; never an empty upload.</li>
+    </ol>
+    <h2>State machines</h2>
+    <div class="machine">briefing:&nbsp;&nbsp;arrival → orientation → changes → item-1 → item-2 → item-3 → day-plan → clear&nbsp;&nbsp;&nbsp;(any state → quick-brief | current-state; every transition skippable)<br/>countdown:&nbsp;toast → room → last-time → open-threads → goal → materials → set-room → set&nbsp;&nbsp;&nbsp;(any state → full-packet | skip; the set-room run starts only from an explicit click)</div>
+  </footer>
+
+</div>
+</body>
+</html>

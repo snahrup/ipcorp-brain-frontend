@@ -8,6 +8,23 @@ Phase 2: move activity reconciliation fully onto the shared saved-step engine.
 - Safety: no live Jira or communication effect; recommendation and review paths only
 - Also owed: resolve the unused `clock` in `activity-lifecycle.mjs` while in that file
 
+## Parallel track in progress: Track FB, Foreman Briefing (2026-08-17)
+
+- The landing walkthrough program: morning briefing plus per-meeting countdown
+- Authority: `docs/brainstorm/2026-08-17-foreman-briefing-spec.md`; roadmap section
+  "Track FB" in `docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md`
+- Branch: `claude/dashboard-overload-brainstorm-7917fc` (worktree); Phase 2 files untouched
+- Status: FB-1 implemented and verified in the worktree. Rank, ledger, and briefing assembly
+  with red-first units (16 passing; stubs failed 8 of 10 and 6 of 6 first). Local-only
+  gateway lane: GET /api/foreman/briefing and POST /api/foreman/answer, answers and receipts
+  in the foreman state dir. Guided chapters with compositor-only motion behind the toggle.
+  Playwright checks 4-7 green in Chromium and Firefox; the resume check first caught a real
+  defect (mount-time save clobbered the resume point) and passed after the fix.
+- Owed before FB-1 closes: spec check 3 (narration fail-closed) arrives with FB-2's
+  narration; one live-gateway smoke against the real snapshot after merge (the running
+  Workbench serves the main checkout, not this worktree).
+- Safety: no external effect; replies land as drafts and comments through existing lanes
+
 ## Completed: Phase 1, Action-Safe State (2026-08-16)
 
 - Branch `phase-1/action-safe-state`, merged to `main`

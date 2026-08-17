@@ -12,6 +12,10 @@ import { writeProposalProse } from "./activity-reconciliation/voice-writer.mjs";
 import { buildAgentBoard } from "./agent-board.mjs";
 import { dispatch as dispatchAgent, getRun, listRuns } from "./agent-dispatch.mjs";
 import { getDailyMeetingPrep, readDailyMeetingPrepFile } from "./daily-meeting-prep.mjs";
+import {
+  answerItem as answerForemanItem,
+  buildBriefing as buildForemanBriefing,
+} from "./foreman/briefing.mjs";
 import { createJiraAnalyticsReader } from "./jira-analytics.mjs";
 import { assembleStandup } from "./loop/briefing.mjs";
 import { openLedger } from "./loop/ledger.mjs";
@@ -3199,6 +3203,15 @@ async function captureTodaySource(load, capturedAt, describe = () => ({})) {
   }
 }
 
+// A bare "YYYY-MM-DD" parsed with new Date() is UTC midnight and reads as the
+// previous local day, so the briefing's day key is built from local fields.
+function foremanDayKey() {
+  const now = new Date();
+  const month = `${now.getMonth() + 1}`.padStart(2, "0");
+  const date = `${now.getDate()}`.padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${date}`;
+}
+
 export async function assembleTodaySnapshot(options = {}) {
   const now = options.now instanceof Date ? options.now : new Date(options.now || Date.now());
   const capturedAt = now.toISOString();
@@ -3278,6 +3291,40 @@ async function route(request, response) {
 
     if (request.method === "GET" && url.pathname === "/api/today/snapshot") {
       return sendJson(response, 200, { ok: true, data: await assembleTodaySnapshot() }, origin);
+    }
+
+    // Track FB-1, local-only lane: the briefing assembles from the same Today
+    // snapshot, persists the day's run in the foreman state dir, and answers
+    // write receipts there. Nothing in these two routes touches Jira, email,
+    // or Microsoft anything.
+    if (request.method === "GET" && url.pathname === "/api/foreman/briefing") {
+      const snapshot = await assembleTodaySnapshot();
+      return sendJson(
+        response,
+        200,
+        { ok: true, data: buildForemanBriefing({ snapshot, today: foremanDayKey() }) },
+        origin
+      );
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/foreman/answer") {
+      const body = await readJsonBody(request);
+      return sendJson(
+        response,
+        200,
+        {
+          ok: true,
+          data: answerForemanItem({
+            today: foremanDayKey(),
+            itemId: body?.itemId,
+            verb: body?.verb,
+            ballpark: body?.ballpark,
+            snooze: body?.snooze,
+            note: body?.note,
+          }),
+        },
+        origin
+      );
     }
 
     if (request.method === "GET" && url.pathname === "/api/agent-board") {
