@@ -145,22 +145,38 @@ function validateNarration(parsed, run) {
   return { narration: clean, drops };
 }
 
+// The invocation is its own function so a test can prove its shape without
+// spending a model call.
+//
+// Two things here are load-bearing, both learned from a live failure on
+// 2026-08-17. The prompt goes in on STDIN, never as an "@file" argument: the
+// argument form did not resolve on Windows, so the model received no prompt
+// at all and replied to the session's startup context instead ("I don't have
+// an explicit task from you yet"), which parsed as no JSON and failed the
+// narration. And the working directory is the state dir, well outside any
+// repository, so a project's own instructions and hooks cannot lean on a
+// drafting run that is supposed to see only the evidence it was handed.
+export function draftInvocation() {
+  return {
+    command: "claude",
+    // Daily internal narration is drafting work, so the flat-rate drafting
+    // model carries it; judgment stays with the reader.
+    args: ["-p", "--model", "sonnet", "--output-format", "text"],
+    options: { cwd: foremanStateDir(), windowsHide: true, stdio: ["pipe", "pipe", "pipe"] },
+  };
+}
+
 async function defaultDraft(prompt) {
   const dir = join(foremanStateDir(), "prompts");
   mkdirSync(dir, { recursive: true });
-  const file = join(dir, `narration.${Date.now()}.md`);
-  writeFileSync(file, prompt, "utf8");
+  writeFileSync(join(dir, `narration.${Date.now()}.md`), prompt, "utf8");
+  const { command, args, options } = draftInvocation();
   return new Promise((resolve, reject) => {
-    // Daily internal narration is drafting work, so the flat-rate drafting
-    // model carries it; judgment stays with the reader.
-    const child = spawn(
-      "claude",
-      ["-p", `@${file}`, "--model", "sonnet", "--output-format", "text"],
-      {
-        shell: true,
-        windowsHide: true,
-      }
-    );
+    const child = spawn(command, args, options);
+    child.stdin.on("error", () => {
+      // A drafter that died before reading stdin is reported by 'close'.
+    });
+    child.stdin.end(prompt, "utf8");
     let out = "";
     let err = "";
     const timer = setTimeout(() => {

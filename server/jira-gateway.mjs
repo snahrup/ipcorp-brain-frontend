@@ -76,11 +76,20 @@ const MEETING_INFOGRAPHICS_PATH =
 // The public tunnel proxies /api through the Vite dev server on :5217, but the
 // browser's Origin header still reads as the tunnel's own domain, not 127.0.0.1, so
 // that domain has to be allowed explicitly or every request from it is rejected here.
+// 5218 is the side-by-side preview pair (vite.foreman.config.ts plus this
+// gateway on 8818) used to look at an unmerged branch without disturbing the
+// everyday 5217/8817 stack. Both are loopback origins on this machine.
 const ALLOWED_ORIGINS = new Set([
   "http://127.0.0.1:5217",
   "http://localhost:5217",
+  "http://127.0.0.1:5218",
+  "http://localhost:5218",
   "https://ip-corp-brain.nahrup.ngrok.app",
 ]);
+// Where a countdown toast sends the browser. The preview pair overrides it so
+// a toast raised by the preview gateway opens the preview app, not the
+// everyday one.
+const WORKBENCH_APP_ORIGIN = process.env.WORKBENCH_APP_ORIGIN || "http://127.0.0.1:5217";
 const ISSUE_KEY_RE = /^MT-\d+$/;
 const MAX_BODY_BYTES = 256 * 1024;
 const MAX_LIBRARY_PREVIEW_BYTES = 512 * 1024;
@@ -3232,7 +3241,7 @@ function raiseForemanToast(entry) {
   raiseForemanToastNative({
     title: entry.title,
     line,
-    url: `http://127.0.0.1:5217/briefing/meeting/${encodeURIComponent(entry.meetingId)}?briefing=1`,
+    url: `${WORKBENCH_APP_ORIGIN}/briefing/meeting/${encodeURIComponent(entry.meetingId)}?briefing=1`,
   });
 }
 

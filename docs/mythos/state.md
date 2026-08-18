@@ -39,9 +39,25 @@ Phase 2: move activity reconciliation fully onto the shared saved-step engine.
   "..". Under the test override that walks OUT of the sandbox into a shared directory
   (%TEMP%\countdown leaked exactly that way and poisoned three tests). The foreman state
   root is now ONE overridable directory with runs/, prompts/, and countdown/ beneath it.
-- Owed: one live smoke of the real drafter, the real snapshot, and a real toast after merge;
-  FB-3b (the per-meeting prep chapters at /briefing/meeting/<id>, which today lands on the
-  briefing itself) is next in the track.
+- LIVE SMOKE DONE (2026-08-17 evening), and it earned its keep. The branch now runs side by
+  side on 5218 plus its own gateway on 8818 (`npm run dev:foreman` and `dev:foreman:gateway`,
+  both in .claude/launch.json), leaving the everyday 5217/8817 stack and the checkout another
+  session is using completely alone. Against real Jira the briefing read 5 need you, 10
+  waiting, 103 open, ranked five real items with 91 parked and 7 excluded for next-actor,
+  and narration came back in Steve's voice naming real MT keys and dates. Three defects only
+  the live stack could show: the gateway's write-origin allowlist knew only 5217, so every
+  POST from the preview was refused; the countdown toast deep link hard-coded 5217 and now
+  reads WORKBENCH_APP_ORIGIN; and the narration drafter passed its prompt as an "@file"
+  argument that does not resolve on Windows, so the model received no prompt and answered
+  this machine's session-startup hooks instead. The page did exactly what it promised while
+  that was broken: mechanical copy, nothing canned, which is spec check 3 proving itself in
+  production. Drafting now goes in on stdin with the working directory set to the state dir,
+  outside any repository, so no project instructions or hooks can reach a drafting run, and
+  a test asserts that invocation shape.
+- Owed: a real toast observed at T-30 (the scheduler and raiser are proven by unit checks
+  and the arm route returns 200 live, but nobody has watched one appear yet); FB-3b (the
+  per-meeting prep chapters at /briefing/meeting/<id>, which today lands on the briefing
+  itself) is next in the track.
 - Safety: no external effect; replies land as drafts and comments through existing lanes
 
 ## Completed: Phase 1, Action-Safe State (2026-08-16)

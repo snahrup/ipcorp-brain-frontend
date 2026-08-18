@@ -8,6 +8,11 @@
  */
 const LOCAL = new Set(["127.0.0.1", "localhost", "::1"]);
 
-export const GATEWAY = LOCAL.has(globalThis.location?.hostname ?? "127.0.0.1")
-  ? "http://127.0.0.1:8817/api"
-  : "/api";
+// A build may pin the gateway explicitly (vite.foreman.config.ts sets "/api"
+// so a side-by-side preview reaches its own gateway through that dev server's
+// proxy instead of the everyday one on 8817). Unset, nothing changes.
+const PINNED = import.meta.env?.VITE_GATEWAY_URL as string | undefined;
+
+export const GATEWAY =
+  PINNED ||
+  (LOCAL.has(globalThis.location?.hostname ?? "127.0.0.1") ? "http://127.0.0.1:8817/api" : "/api");

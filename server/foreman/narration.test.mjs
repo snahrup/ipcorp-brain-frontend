@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { buildBriefing } from "./briefing.mjs";
 import { loadRun } from "./ledger.mjs";
-import { buildNarrationPrompt, narrateRun } from "./narration.mjs";
+import { buildNarrationPrompt, draftInvocation, narrateRun } from "./narration.mjs";
 
 const TODAY = "2026-08-18";
 
@@ -85,6 +85,24 @@ test("the prompt carries the evidence, the no-dash rule, and the banned words", 
     assert.ok(/em dash/i.test(prompt), "the dash rule is stated");
     assert.ok(prompt.includes("gate"), "the banned-word list is stated");
     assert.ok(/JSON/i.test(prompt), "the output shape is demanded");
+  }));
+
+test("the drafter takes its prompt on stdin and runs outside any repository", () =>
+  withTempStateDir(() => {
+    const invocation = draftInvocation();
+    assert.equal(invocation.command, "claude");
+    assert.ok(
+      !invocation.args.some((arg) => String(arg).includes("@")),
+      "no @file argument: it did not resolve on Windows, and the model answered the session context instead of the prompt"
+    );
+    assert.equal(invocation.args[0], "-p");
+    assert.equal(invocation.options.stdio[0], "pipe", "the prompt arrives on stdin");
+    assert.equal(
+      invocation.options.cwd,
+      process.env.FOREMAN_STATE_DIR,
+      "drafting runs in the state dir, so no project instructions or hooks reach it"
+    );
+    assert.notEqual(invocation.options.shell, true, "no shell interpolation around the prompt");
   }));
 
 test("a valid draft attaches narration, persists it, and marks the run ok", () =>
