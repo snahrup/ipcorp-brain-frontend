@@ -18,6 +18,21 @@ none merged:
 - `b1364fd` FB-2 narration, fail closed
 - `4987f11` FB-1 walkthrough, ranking, ledger, chapters
 
+**Since that was written (2026-08-18).** One-click autonomous runs work: the dispatch engine
+existed and had never been given a button, so the briefing item chapter now has Run it with
+Claude or Codex, with live step counts and the verdict. Three defects were fixed first, all the
+same root cause in different clothes: the prompt was passed as an "@file" argument that does not
+resolve from a backslash Windows path, and where it did resolve a model refused it as injected
+data. It travels on stdin now. That also explains the two Codex runs that hung 45 minutes and
+posted BLOCKED; their logs literally read "Reading additional input from stdin". The agent
+prompt became a real work packet (ticket discussion, prior worklogs and attachments, restate
+the acceptance criteria, read the knowledge base and its house rules before writing, ask rather
+than invent, platform practice as a silent sanity check rather than citation theater), and
+deliverables now attach to the ticket as real files before the comment posts. Jira comments are
+shaped for an ADHD reader and may never carry a local path. Nothing was purged from existing
+tickets: six historical runs were audited and none had posted a false claim, the two failures
+said plainly that they had not finished. Branch is pushed to origin.
+
 **Read these first.** `docs/brainstorm/2026-08-17-foreman-briefing-spec.md` decides behavior and
 holds the ten acceptance checks. The "Track FB" section of
 `docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md` decides order. `docs/mythos/state.md`
