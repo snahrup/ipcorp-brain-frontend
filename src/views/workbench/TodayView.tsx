@@ -28,6 +28,7 @@ import {
   referenceOf,
   resolveHref,
 } from "./agent-board-model";
+import { isBacklog, pickFirstUp } from "./firstUp";
 
 const DAY_MS = 86_400_000;
 const CACHE_REFRESH_MS = 60_000;
@@ -285,7 +286,9 @@ export function TodayView({
     for (const issue of open) {
       const due = day(issue.dueDate);
       const tone = statusTone(issue.status.name, issue.status.category);
-      if (tone === "blocked" || tone === "waiting") held.push(issue);
+      // Backlog is not today's work, whatever date it carries.
+      if (isBacklog(issue)) held.push(issue);
+      else if (tone === "blocked" || tone === "waiting") held.push(issue);
       else if (due !== null && due < todayUtc) overdue.push(issue);
       else if (due !== null && due <= todayUtc + 7 * DAY_MS) soon.push(issue);
       else if (tone === "active" || tone === "review") active.push(issue);
@@ -302,7 +305,11 @@ export function TodayView({
     };
   }, [initiative, todayUtc]);
 
-  const firstUp = groups.overdue[0] ?? groups.soon[0] ?? groups.active[0] ?? groups.later[0];
+  // First up is the one thing to sit down and do, so it is chosen by the
+  // tested rule rather than "oldest due date wins". That rule put the same
+  // In Review ticket at the top for eleven mornings while backlog items filled
+  // the rows under it.
+  const firstUp = useMemo(() => pickFirstUp(groups.open, todayUtc), [groups.open, todayUtc]);
   const delivered = findLane(board, "delivered");
   const working = findLane(board, "working");
   const waiting = findLane(board, "waiting");
