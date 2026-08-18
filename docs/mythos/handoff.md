@@ -1,6 +1,45 @@
 # Handoff
 
-## Current: Phase 0 preserve and rewrite (2026-08-16)
+## Current: Track FB, the Foreman Briefing (2026-08-17)
+
+Everything needed to continue is on disk. This is account-independent: a session signed in
+as a different Claude account on this machine picks it up the same way.
+
+**Where the work is.** Branch `claude/dashboard-overload-brainstorm-7917fc`, in the worktree at
+`.claude/worktrees/dashboard-overload-brainstorm-7917fc`. Four commits, newest first:
+`e4cf45b` the side-by-side preview plus three live fixes, `88a807a` FB-3a countdown,
+`b1364fd` FB-2 narration, `4987f11` FB-1 walkthrough. Nothing is pushed and nothing is merged.
+
+**Read these three, in order.** The spec `docs/brainstorm/2026-08-17-foreman-briefing-spec.md`
+decides behavior and holds the ten acceptance checks. The roadmap section "Track FB" in
+`docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md` decides order. The state record
+`docs/mythos/state.md` says what is proven and what is owed. The concept, the research
+compendium, the nine-frame storyboard, and the Cluely element map sit beside the spec in
+`docs/brainstorm/`.
+
+**What is done.** FB-1 the guided walkthrough (rank, anti-repetition ledger, assembly, chapters,
+answers as receipts). FB-2 narration through the headless drafting lane, fail closed to
+mechanical copy. FB-3a the countdown scheduler, the Windows toast raiser, the arm and outcome
+routes, and a startup re-arm that reads only the cache. 33 unit checks and 10 browser checks
+green; every new behavior was proven red first.
+
+**How to see it.** `npm run dev:foreman:gateway` and `npm run dev:foreman` from the worktree,
+then `http://127.0.0.1:5218/briefing?briefing=1`. That pair is deliberate: the everyday
+Workbench holds 5217 and 8817, and the main checkout is usually on another session's branch.
+Both are also entries in `.claude/launch.json`.
+
+**What is next.** FB-3b, the per-meeting prep chapters at `/briefing/meeting/<id>`, which today
+lands on the briefing itself so a toast click never dead-ends. Then FB-4, Set the Room, whose
+whole choreography and the Cluely element map are already written down. Still owed: a real
+toast watched at T-30, and the merge, which wants care in `server/jira-gateway.mjs` because
+another session has been working the Phase 2 activity lane in the same file.
+
+**Full conversation, if it is ever wanted.**
+`C:\Users\snahrup\.nexus\materialized-transcripts\claude\9c0a383e-9a8c-4c26-ac1f-d06f8a533287\messages.json`
+(user and assistant turns only, tool noise stripped). The `/rebooted` skill reads it
+automatically. Prefer the documents above; the transcript is the archive, not the plan.
+
+## Previous: Phase 0 preserve and rewrite (2026-08-16)
 
 The build sequence was stopped on 2026-08-15 by three independent reviews. Verdict: no go on
 the sequence, continue the project. The previous plan created Jira issues automatically before
