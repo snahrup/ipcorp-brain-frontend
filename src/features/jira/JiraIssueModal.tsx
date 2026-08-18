@@ -560,11 +560,11 @@ export function JiraIssueModal({
                   <span>Watchers</span>
                   <div className="wb-watchers-row">
                     <span className="wb-watchers-list">
-                      {detail.watchers === null
+                      {!detail.watchers
                         ? "Jira did not return the watcher list."
-                        : (detail.watchers?.watchers ?? []).length === 0
+                        : detail.watchers.watchers.length === 0
                           ? "Nobody is watching this."
-                          : (detail.watchers?.watchers ?? [])
+                          : detail.watchers.watchers
                               .map((watcher) => watcher.displayName)
                               .join(", ")}
                     </span>

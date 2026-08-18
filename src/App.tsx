@@ -63,6 +63,7 @@ import {
 } from "./data";
 import { workbenchSnapshot } from "./data/workbench";
 import { ActivityRunDockProvider } from "./features/activity-reconciliation/ActivityRunDock";
+import { TicketModalHost } from "./features/jira/TicketModalHost";
 import { WorkbenchAgent } from "./features/workbench-agent";
 import type { WorkshopSurface } from "./features/workshops/types";
 import { useWorkshopState } from "./features/workshops/useWorkshopState";
@@ -537,6 +538,9 @@ export default function App() {
           <WorkbenchAgent activeView={activeView} onNavigate={navigate} />
         </ErrorBoundary>
 
+        {/* Ticket references anywhere in the app open here instead of
+            throwing a browser window at Jira. */}
+        <TicketModalHost />
         <DetailDrawer detail={detail} onClose={() => setDetail(null)} />
         <ApprovalDock preview={approvalPreview} onClose={() => setApprovalPreview(null)} />
         <AdminSettings isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />

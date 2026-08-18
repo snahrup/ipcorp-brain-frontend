@@ -2,6 +2,7 @@ import { ArrowUpRight, LoaderCircle } from "lucide-react";
 import { useMemo } from "react";
 import { formatDate } from "../../lib/utils";
 import { formatSeconds } from "./IssueTimeMetrics";
+import { interceptTicketClick } from "./openTicket";
 import type { JiraIssue } from "./types";
 
 const ACTIVITY_TIME = new Intl.DateTimeFormat(undefined, {
@@ -90,10 +91,9 @@ export function JiraActivityView({
               </button>
               <a
                 href={`https://ip-corporation.atlassian.net/browse/${issue.key}`}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`Open ${issue.key} in Jira`}
-                title="Open in Jira"
+                onClick={(event) => interceptTicketClick(event, event.currentTarget.href)}
+                aria-label={`Open ${issue.key}`}
+                title="Open the ticket. Ctrl-click for Jira itself."
               >
                 <ArrowUpRight size={13} />
               </a>

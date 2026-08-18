@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useBodyScrollLock } from "../../lib/useBodyScrollLock";
 import { jiraGateway } from "./api";
+import { interceptTicketClick } from "./openTicket";
 import type { ReconciliationPreview } from "./types";
 
 const sourceLabels: Record<string, string> = {
@@ -565,10 +566,12 @@ export function MdmReconciliationModal({ onClose }: { onClose: () => void }) {
                               {proposal.issueKey !== "NEW" ? (
                                 <a
                                   href={`https://ip-corporation.atlassian.net/browse/${proposal.issueKey}`}
-                                  target="_blank"
-                                  rel="noreferrer"
+                                  onClick={(event) =>
+                                    interceptTicketClick(event, event.currentTarget.href)
+                                  }
+                                  title="Open the ticket. Ctrl-click for Jira itself."
                                 >
-                                  Open in Jira
+                                  Open {proposal.issueKey}
                                 </a>
                               ) : null}
                               {proposal.uncertainty && canResolve ? (

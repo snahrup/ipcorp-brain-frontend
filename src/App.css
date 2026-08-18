@@ -8479,3 +8479,21 @@ a.wb-today-cardline:hover {
 .wb-watchers-note-bad {
   color: var(--danger, #b3261e);
 }
+
+/* Shown while the ticket modal loads what it needs. A click has to acknowledge
+   itself immediately, or it reads as a dead link. */
+.wb-ticket-host-pending {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--line, #e1e4e8);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgb(14 35 56 / 18%);
+  font-size: 13.5px;
+}

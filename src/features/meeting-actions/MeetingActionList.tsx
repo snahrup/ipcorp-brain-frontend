@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { GATEWAY } from "../../lib/gateway";
 import type { MeetingEntry } from "../../types/brain";
 import type { Board } from "../../views/workbench/agent-board-model";
+import { interceptTicketClick } from "../jira/openTicket";
 import {
   type BoardReadState,
   type MeetingFollowUp,
@@ -107,8 +108,8 @@ export function MeetingActionList({ meeting }: { meeting: MeetingEntry }) {
                 <a
                   className="meeting-action-jira"
                   href={view.jira.href}
-                  target="_blank"
-                  rel="noreferrer"
+                  onClick={(event) => interceptTicketClick(event, event.currentTarget.href)}
+                  title="Open the ticket. Ctrl-click for Jira itself."
                 >
                   {view.jira.key}
                   <ExternalLink size={12} aria-hidden="true" />

@@ -3778,7 +3778,12 @@ async function route(request, response) {
     if (issueMatch && request.method === "GET") {
       const issue = await getIssue(issueMatch[1]);
       const transitions = await getTransitions(issueMatch[1]);
-      return sendJson(response, 200, { ok: true, data: { issue, transitions } }, origin);
+      // Watchers ride along so the modal can show who is on the ticket. A
+      // refused read stays null rather than becoming an empty list, because
+      // "nobody is watching" and "Jira would not say" are different facts and
+      // the first one is a lie when it is really the second.
+      const watchers = await getIssueWatchers(issueMatch[1]).catch(() => null);
+      return sendJson(response, 200, { ok: true, data: { issue, transitions, watchers } }, origin);
     }
     if (issueMatch && request.method === "PUT") {
       const result = await updateIssue(issueMatch[1], await readJsonBody(request));
