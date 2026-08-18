@@ -112,3 +112,17 @@ TIME: 3h`;
 test("no attachment block means no attachments, never a guess", () => {
   assert.deepEqual(extractAttachments("COMMENT:\nnothing\nEND COMMENT\nRESULT: DONE ok"), []);
 });
+
+test("a client-facing deliverable is a real document, not a markdown file", () => {
+  const prompt = flat();
+  assert.match(prompt, /PDF or Word/i, "prose deliverables are documents");
+  assert.match(prompt, /python-docx and python-pptx are installed/i, "the tools are named");
+  assert.match(prompt, /raw \.md handed to them reads as unfinished/i);
+  assert.match(prompt, /brain's own format/i, "markdown stays right for the knowledge base");
+});
+
+test("polished is not the same as over-decorated", () => {
+  const prompt = flat();
+  assert.match(prompt, /No stock imagery/i);
+  assert.match(prompt, /never this took someone a week/i, "it must not look over-engineered");
+});
