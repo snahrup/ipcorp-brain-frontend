@@ -24,6 +24,7 @@ import {
 import { narrateRun as narrateForemanRun } from "./foreman/narration.mjs";
 import { raiseToast as raiseForemanToastNative } from "./foreman/toast.mjs";
 import { createJiraAnalyticsReader } from "./jira-analytics.mjs";
+import { addWatchers, NOTIFY_GROUP, resolveWatcherAccounts } from "./jira-watchers.mjs";
 import { assembleStandup } from "./loop/briefing.mjs";
 import { openLedger } from "./loop/ledger.mjs";
 import { loadPolicy } from "./loop/policy.mjs";
@@ -1455,6 +1456,38 @@ async function getAllIssueChangelog(key) {
     startAt += page.length;
   }
   return histories;
+}
+
+async function searchJiraUsers(query, requestFn = jiraRequest) {
+  const data = await requestFn(
+    `/rest/api/3/user/search?query=${encodeURIComponent(query)}&maxResults=50`
+  );
+  return (Array.isArray(data) ? data : []).map((user) => ({
+    accountId: user.accountId,
+    displayName: user.displayName || "",
+    active: user.active !== false,
+  }));
+}
+
+/**
+ * Adds the notify group to an issue. Deliberate and manual: these two are
+ * emailed on every update once they watch, so this runs when Steve decides it
+ * runs, never automatically.
+ */
+export async function addNotifyGroupWatchers(key, requestFn = jiraRequest) {
+  const people = await resolveWatcherAccounts(NOTIFY_GROUP, {
+    search: (query) => searchJiraUsers(query, requestFn),
+  });
+  const current = await getIssueWatchers(key, requestFn).catch(() => ({ watchers: [] }));
+  const result = await addWatchers(key, people, {
+    post: (issueKey, accountId) =>
+      requestFn(`/rest/api/3/issue/${encodeURIComponent(issueKey)}/watchers`, {
+        method: "POST",
+        body: JSON.stringify(accountId),
+      }),
+    existing: current?.watchers ?? [],
+  });
+  return { ...result, watchers: (await getIssueWatchers(key, requestFn)).watchers };
 }
 
 export async function getIssueWatchers(key, requestFn = jiraRequest) {
@@ -3729,6 +3762,16 @@ async function route(request, response) {
       }
       const result = await createSubtasks(key, await readJsonBody(request));
       return sendJson(response, 200, { ok: true, data: result }, origin);
+    }
+
+    const watcherMatch = url.pathname.match(/^\/api\/jira\/issues\/(MT-\d+)\/watchers$/);
+    if (watcherMatch && request.method === "POST") {
+      return sendJson(
+        response,
+        200,
+        { ok: true, data: await addNotifyGroupWatchers(watcherMatch[1]) },
+        origin
+      );
     }
 
     const issueMatch = url.pathname.match(/^\/api\/jira\/issues\/(MT-\d+)$/);

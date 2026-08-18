@@ -9,6 +9,7 @@ import type {
   ReconciliationPreview,
   SubtaskApplyResult,
   SubtaskBreakdown,
+  WatcherAddResult,
 } from "./types";
 
 const JIRA_API = `${GATEWAY}/jira`;
@@ -74,6 +75,12 @@ export const jiraGateway = {
   analytics: (refresh = false) =>
     request<JiraAnalyticsSnapshot>(`/analytics${refresh ? "?refresh=1" : ""}`),
   issue: (key: string) => request<JiraIssueDetail>(`/issues/${encodeURIComponent(key)}`),
+  // Deliberate and manual: these two are emailed on every update once they
+  // watch, so this only ever runs when Steve presses the button.
+  addNotifyWatchers: (key: string) =>
+    request<WatcherAddResult>(`/issues/${encodeURIComponent(key)}/watchers`, {
+      method: "POST",
+    }),
   updateIssue: (
     key: string,
     input: {

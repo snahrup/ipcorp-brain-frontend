@@ -88,6 +88,54 @@ export function JiraIssueModal({
   const [conflict, setConflict] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [editingDescription, setEditingDescription] = useState(false);
+  // Adding the notify group is deliberate: both of them are emailed on every
+  // update once they watch, so this only happens on a press, and what it did
+  // is reported per person rather than as a silent success.
+  const [watcherBusy, setWatcherBusy] = useState(false);
+  const [watcherNotice, setWatcherNotice] = useState<string | null>(null);
+  const [watcherError, setWatcherError] = useState<string | null>(null);
+  const notifyGroup = useCallback(async () => {
+    if (!detail || watcherBusy) return;
+    setWatcherBusy(true);
+    setWatcherError(null);
+    setWatcherNotice(null);
+    try {
+      const result = await jiraGateway.addNotifyWatchers(detail.issue.key);
+      setDetail((current) =>
+        current
+          ? {
+              ...current,
+              watchers: {
+                ...(current.watchers ?? { total: 0, isWatching: false }),
+                watchers: result.watchers,
+                total: result.watchers.length,
+              },
+            }
+          : current
+      );
+      const parts: string[] = [];
+      if (result.added.length) parts.push(`Now watching: ${result.added.join(" and ")}.`);
+      if (result.alreadyWatching.length)
+        parts.push(`Already watching: ${result.alreadyWatching.join(" and ")}.`);
+      setWatcherNotice(parts.join(" ") || "Nothing to change.");
+      // A partial failure is never folded into the success line: the whole
+      // point of this button is knowing they were actually told.
+      if (result.failed.length) {
+        setWatcherError(
+          result.failed.map((entry) => `${entry.name} was not added: ${entry.error}`).join(" ")
+        );
+      }
+    } catch (cause) {
+      setWatcherError(
+        cause instanceof JiraGatewayError || cause instanceof Error
+          ? cause.message
+          : "The watcher update failed."
+      );
+    } finally {
+      setWatcherBusy(false);
+    }
+  }, [detail, watcherBusy]);
+
   const dialogRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -507,6 +555,41 @@ export function JiraIssueModal({
                     onChange={(event) => setDraft({ ...draft, dueDate: event.target.value })}
                   />
                 </label>
+
+                <div className="wb-field wb-field-wide wb-watchers">
+                  <span>Watchers</span>
+                  <div className="wb-watchers-row">
+                    <span className="wb-watchers-list">
+                      {detail.watchers === null
+                        ? "Jira did not return the watcher list."
+                        : (detail.watchers?.watchers ?? []).length === 0
+                          ? "Nobody is watching this."
+                          : (detail.watchers?.watchers ?? [])
+                              .map((watcher) => watcher.displayName)
+                              .join(", ")}
+                    </span>
+                    <button
+                      type="button"
+                      className="wb-button-secondary"
+                      onClick={() => void notifyGroup()}
+                      disabled={watcherBusy}
+                      title="Adds Patrick Stiller and Dominique Mathers. Both are emailed on every update once they watch."
+                    >
+                      {watcherBusy ? (
+                        <LoaderCircle className="wb-spin" size={14} aria-hidden="true" />
+                      ) : (
+                        <Eye size={14} aria-hidden="true" />
+                      )}
+                      Notify Patrick and Dominique
+                    </button>
+                  </div>
+                  {watcherNotice && <p className="wb-watchers-note">{watcherNotice}</p>}
+                  {watcherError && (
+                    <p className="wb-watchers-note wb-watchers-note-bad" role="alert">
+                      {watcherError}
+                    </p>
+                  )}
+                </div>
 
                 <label className="wb-field wb-field-wide">
                   <span>Labels</span>

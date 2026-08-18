@@ -149,9 +149,25 @@ export type JiraAnalyticsSnapshot = {
   notes: string[];
 };
 
+export type JiraWatcher = {
+  accountId: string | null;
+  displayName: string;
+  active: boolean;
+};
+
 export type JiraIssueDetail = {
   issue: JiraIssue;
   transitions: JiraTransition[];
+  /** Absent when Jira refused the watcher read; that is shown, never guessed. */
+  watchers?: { total: number; isWatching: boolean; watchers: JiraWatcher[] } | null;
+};
+
+/** What adding the notify group actually did, reported per person. */
+export type WatcherAddResult = {
+  added: string[];
+  alreadyWatching: string[];
+  failed: Array<{ name: string; error: string }>;
+  watchers: JiraWatcher[];
 };
 
 export type SubtaskProposal = {

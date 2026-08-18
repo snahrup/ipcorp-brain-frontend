@@ -8453,3 +8453,29 @@ a.wb-today-cardline:hover {
     transform: none;
   }
 }
+
+/* Watchers on the issue modal. The notify group is a deliberate press, so the
+   control sits with the list it changes and reports per person underneath. */
+.wb-watchers-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.wb-watchers-list {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  color: var(--ink-soft, #4b5967);
+}
+
+.wb-watchers-note {
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--ink-soft, #4b5967);
+}
+
+.wb-watchers-note-bad {
+  color: var(--danger, #b3261e);
+}
