@@ -146,7 +146,7 @@ function validateNarration(parsed, run) {
 }
 
 async function defaultDraft(prompt) {
-  const dir = join(foremanStateDir(), "..", "prompts");
+  const dir = join(foremanStateDir(), "prompts");
   mkdirSync(dir, { recursive: true });
   const file = join(dir, `narration.${Date.now()}.md`);
   writeFileSync(file, prompt, "utf8");

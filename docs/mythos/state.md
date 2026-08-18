@@ -25,8 +25,23 @@ Phase 2: move activity reconciliation fully onto the shared saved-step engine.
   and fixed: the temp-dir helper released its env override at the first await, leaking test
   writes into the real %LOCALAPPDATA% foreman dir; the helper now awaits the async body,
   the one polluted file was deleted, and a clean suite run leaves the real dir empty.
-- Owed: one live smoke of the real drafter and the real snapshot after merge; FB-3 (the
-  meeting countdown) is next in the track.
+- FB-3a implemented and verified (2026-08-17 evening, after the reboot): the countdown
+  scheduler (calendar markers never ring, T-30 with immediate raise inside the window, T-15
+  re-raise once on Later, outcomes persisted, injectable timers with idempotent re-arm), the
+  Windows toast raiser (WinRT via PowerShell, protocol deep link, injection-safe argument
+  array), and the gateway lane: POST /api/foreman/countdown/arm (a human-visit signal, so the
+  normal single-flight cached calendar path), POST /api/foreman/countdown/outcome, and a
+  startup re-arm that reads the cache ONLY, so a gateway restart never starts a Microsoft
+  read (check 8 by construction; the live-smoke asserts it against the broker ledger).
+  32 units green, red-first throughout; e2e 10/10 in both browsers with arming asserted to
+  fire once per page open and never from navigation.
+- Lesson recorded twice now, so it is a rule: never reach a sibling of the state root with
+  "..". Under the test override that walks OUT of the sandbox into a shared directory
+  (%TEMP%\countdown leaked exactly that way and poisoned three tests). The foreman state
+  root is now ONE overridable directory with runs/, prompts/, and countdown/ beneath it.
+- Owed: one live smoke of the real drafter, the real snapshot, and a real toast after merge;
+  FB-3b (the per-meeting prep chapters at /briefing/meeting/<id>, which today lands on the
+  briefing itself) is next in the track.
 - Safety: no external effect; replies land as drafts and comments through existing lanes
 
 ## Completed: Phase 1, Action-Safe State (2026-08-16)

@@ -13,7 +13,7 @@
     "dev:workbench": "powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/start-workbench.ps1",
     "mdm:inventory": "node server/mdm-reconciliation/build-evidence-ledger.mjs",
     "test:mdm-policy": "node --test server/mdm-reconciliation/policy.test.mjs",
-    "test:foreman": "node --test server/foreman/rank.test.mjs server/foreman/ledger.test.mjs server/foreman/briefing.test.mjs",
+    "test:foreman": "node --test server/foreman/rank.test.mjs server/foreman/ledger.test.mjs server/foreman/briefing.test.mjs server/foreman/narration.test.mjs",
     "test:foreman:e2e": "playwright test --config playwright.foreman.config.ts",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 5217",

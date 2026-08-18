@@ -67,10 +67,10 @@ const NARRATION = {
 
 const NARRATED_RUN = { ...FIXTURE_RUN, narrationStatus: "ok", narration: NARRATION };
 
-type Counters = { answers: number; narrates: number; otherPosts: number };
+type Counters = { answers: number; narrates: number; arms: number; otherPosts: number };
 
 function freshCounters(): Counters {
-  return { answers: 0, narrates: 0, otherPosts: 0 };
+  return { answers: 0, narrates: 0, arms: 0, otherPosts: 0 };
 }
 
 async function openBriefing(
@@ -84,6 +84,13 @@ async function openBriefing(
     const url = request.url();
     if (url.includes("/api/foreman/briefing") && request.method() === "GET") {
       await route.fulfill({ json: { ok: true, data: narrated ? NARRATED_RUN : FIXTURE_RUN } });
+      return;
+    }
+    if (url.includes("/api/foreman/countdown/arm") && request.method() === "POST") {
+      counters.arms += 1;
+      await route.fulfill({
+        json: { ok: true, data: { scheduled: 0, skipped: 0, availability: "stale" } },
+      });
       return;
     }
     if (url.includes("/api/foreman/narrate") && request.method() === "POST") {
@@ -202,6 +209,7 @@ test("check 5: wheel and arrows fire zero mutations; verbs fire exactly one each
   expect(counters.answers).toBe(2);
   expect(counters.otherPosts).toBe(0);
   expect(counters.narrates).toBe(1);
+  expect(counters.arms, "arming fires on the page open only, never from navigation").toBe(1);
 });
 
 test("check 6: Esc reaches the quick brief, and a reload resumes the same item", async ({

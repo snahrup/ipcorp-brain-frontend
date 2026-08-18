@@ -223,6 +223,17 @@ export function ForemanBriefing() {
     return () => window.removeEventListener("keydown", onKey);
   }, [advance]);
 
+  // Arming the countdown is the human-visit signal for the calendar. It fires
+  // once per page open; failure is quiet because the next visit re-arms.
+  const armFired = useRef(false);
+  useEffect(() => {
+    if (!run || armFired.current) return;
+    armFired.current = true;
+    void fetch(`${GATEWAY}/foreman/countdown/arm`, { method: "POST" }).catch(() => {
+      // Quiet: toasts simply stay un-armed until the next visit.
+    });
+  }, [run]);
+
   // Narration fires once in the background after the briefing loads. Its
   // failure is quiet on purpose: the mechanical copy IS the fail-closed state.
   const [narrating, setNarrating] = useState(false);

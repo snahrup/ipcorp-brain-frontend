@@ -9,7 +9,10 @@ import "./App.css";
 
 // Track FB-1: /briefing renders the Foreman Briefing instead of the shell,
 // only while the toggle is on. With the toggle off nothing anywhere changes.
-const briefingRoute = window.location.pathname === "/briefing" && foremanBriefingEnabled();
+// The prefix also catches /briefing/meeting/<id> from countdown toasts; the
+// per-meeting chapters land in FB-3b, and until then a toast click opens the
+// briefing itself rather than a dead route.
+const briefingRoute = window.location.pathname.startsWith("/briefing") && foremanBriefingEnabled();
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

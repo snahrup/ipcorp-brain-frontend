@@ -7,6 +7,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
+// The ROOT of all foreman state. Everything the track persists (runs,
+// narration prompts, countdown schedules) lives under this one directory, so
+// the FOREMAN_STATE_DIR override isolates all of it at once. Never reach a
+// sibling with "..": under a test override that walks OUT of the sandbox
+// into a shared directory, which is exactly how one leak already happened.
 export function foremanStateDir() {
   const override = process.env.FOREMAN_STATE_DIR;
   if (override) return override;
@@ -14,18 +19,18 @@ export function foremanStateDir() {
   if (!base) {
     throw new Error("LOCALAPPDATA is not set and FOREMAN_STATE_DIR is not overridden");
   }
-  return join(base, "IPCorpBrain", "foreman", "runs");
+  return join(base, "IPCorpBrain", "foreman");
 }
 
 function runPath(date) {
-  return join(foremanStateDir(), `${date}.json`);
+  return join(foremanStateDir(), "runs", `${date}.json`);
 }
 
 export function saveRun(run) {
   if (!run?.date) {
     throw new Error("saveRun requires a run with a date");
   }
-  mkdirSync(foremanStateDir(), { recursive: true });
+  mkdirSync(join(foremanStateDir(), "runs"), { recursive: true });
   writeFileSync(runPath(run.date), `${JSON.stringify(run, null, 2)}\n`, "utf8");
 }
 

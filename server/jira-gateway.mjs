@@ -16,7 +16,13 @@ import {
   answerItem as answerForemanItem,
   buildBriefing as buildForemanBriefing,
 } from "./foreman/briefing.mjs";
+import {
+  armCountdown as armForemanCountdown,
+  recordLaterAndReRaise as foremanLaterReRaise,
+  recordOutcome as recordForemanOutcome,
+} from "./foreman/countdown.mjs";
 import { narrateRun as narrateForemanRun } from "./foreman/narration.mjs";
+import { raiseToast as raiseForemanToastNative } from "./foreman/toast.mjs";
 import { createJiraAnalyticsReader } from "./jira-analytics.mjs";
 import { assembleStandup } from "./loop/briefing.mjs";
 import { openLedger } from "./loop/ledger.mjs";
@@ -3213,6 +3219,40 @@ function foremanDayKey() {
   return `${now.getFullYear()}-${month}-${date}`;
 }
 
+// Track FB-3: the countdown toast. Clicking it deep-links into the
+// per-meeting briefing route; the toggle query keeps the route live.
+function raiseForemanToast(entry) {
+  const startTime = new Date(entry.start);
+  const when = Number.isFinite(startTime.getTime())
+    ? startTime.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
+    : "";
+  const line = `${when ? `${when} · ` : ""}${
+    entry.kind === "t15" ? "starts in about 15 minutes" : "starts in about 30 minutes"
+  } · prep is ready`;
+  raiseForemanToastNative({
+    title: entry.title,
+    line,
+    url: `http://127.0.0.1:5217/briefing/meeting/${encodeURIComponent(entry.meetingId)}?briefing=1`,
+  });
+}
+
+// Startup re-arm: a gateway restart re-arms today's toasts from the cached
+// calendar ONLY. Background code never initiates a Microsoft read; the next
+// human visit to the briefing re-arms with a normal (cache-or-read) call.
+export async function reArmForemanCountdownFromCache() {
+  try {
+    const calendar = await listTodaysMeetings({ cachedOnly: true });
+    return armForemanCountdown({
+      date: foremanDayKey(),
+      meetings: calendar.meetings ?? [],
+      now: new Date(),
+      raise: raiseForemanToast,
+    });
+  } catch {
+    return { scheduled: 0, skipped: 0 };
+  }
+}
+
 export async function assembleTodaySnapshot(options = {}) {
   const now = options.now instanceof Date ? options.now : new Date(options.now || Date.now());
   const capturedAt = now.toISOString();
@@ -3338,6 +3378,49 @@ async function route(request, response) {
         { ok: true, data: await narrateForemanRun({ today: foremanDayKey() }) },
         origin
       );
+    }
+
+    // Track FB-3: arming is a human-visit signal, so the normal calendar path
+    // (single-flight, ten-minute cache, may start one read) is correct here.
+    if (request.method === "POST" && url.pathname === "/api/foreman/countdown/arm") {
+      const calendar = await listTodaysMeetings({});
+      const armed = armForemanCountdown({
+        date: foremanDayKey(),
+        meetings: calendar.meetings ?? [],
+        now: new Date(),
+        raise: raiseForemanToast,
+      });
+      return sendJson(
+        response,
+        200,
+        { ok: true, data: { ...armed, availability: calendar.availability } },
+        origin
+      );
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/foreman/countdown/outcome") {
+      const body = await readJsonBody(request);
+      const action = body?.action;
+      const meetingId = body?.meetingId;
+      if (!meetingId || !["opened", "dismissed", "later"].includes(action)) {
+        return sendJson(
+          response,
+          400,
+          { ok: false, error: "meetingId and a known action are required" },
+          origin
+        );
+      }
+      if (action === "later") {
+        const result = foremanLaterReRaise({
+          date: foremanDayKey(),
+          meetingId,
+          now: new Date(),
+          raise: raiseForemanToast,
+        });
+        return sendJson(response, 200, { ok: true, data: result }, origin);
+      }
+      recordForemanOutcome(foremanDayKey(), meetingId, action);
+      return sendJson(response, 200, { ok: true, data: { recorded: action } }, origin);
     }
 
     if (request.method === "GET" && url.pathname === "/api/agent-board") {
@@ -3737,6 +3820,9 @@ if (isMainModule) {
       );
     });
   createServer(route).listen(PORT, HOST, () => {
+    // Re-arm today's countdown toasts from the cached calendar only; a
+    // restart never starts a Microsoft read.
+    void reArmForemanCountdownFromCache();
     console.log(`IP Corp Workbench data gateway ready at http://${HOST}:${PORT}`);
     console.log(`Scope locked to Jira project ${INITIATIVE_KEY}.`);
     console.log("Team Library access is read-only.");
