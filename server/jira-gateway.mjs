@@ -85,6 +85,8 @@ const ALLOWED_ORIGINS = new Set([
   "http://127.0.0.1:5218",
   "http://localhost:5218",
   "https://ip-corp-brain.nahrup.ngrok.app",
+  // The tunnel that fronts the 5218 preview pair, so a phone can reach it.
+  "https://datahub.nahrup.ngrok.app",
 ]);
 // Where a countdown toast sends the browser. The preview pair overrides it so
 // a toast raised by the preview gateway opens the preview app, not the

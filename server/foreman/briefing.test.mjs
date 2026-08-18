@@ -24,14 +24,19 @@ function fixtureSnapshot() {
     jira: {
       fetchedAt: "2026-08-18T12:00:00Z",
       issues: [
+        // Field names below are the real ones from /api/today/snapshot. The
+        // originals here were invented (a top-level originalEstimateSeconds
+        // and an "updated" field, neither of which exists), which is exactly
+        // why this suite stayed green while the briefing showed nonsense.
         {
           key: "MT-1",
           summary: "Overdue architecture recommendation",
           dueDate: "2026-08-17",
           status: { name: "In Progress", category: "indeterminate" },
           priority: { name: "Priority 2" },
-          originalEstimateSeconds: 3600,
-          updated: "2026-08-18T09:00:00Z",
+          timeTracking: { originalEstimateSeconds: 3600, timeSpentSeconds: null },
+          updatedAt: "2026-08-18T09:00:00Z",
+          lastActivityAt: "2026-08-18T09:00:00Z",
         },
         {
           key: "MT-2",
@@ -39,8 +44,9 @@ function fixtureSnapshot() {
           dueDate: "2026-08-19",
           status: { name: "To Do", category: "new" },
           priority: { name: "Priority 3" },
-          originalEstimateSeconds: null,
-          updated: "2026-08-16T09:00:00Z",
+          timeTracking: { originalEstimateSeconds: null, timeSpentSeconds: null },
+          updatedAt: "2026-08-16T09:00:00Z",
+          lastActivityAt: "2026-08-16T09:00:00Z",
         },
         {
           key: "MT-3",
@@ -48,8 +54,9 @@ function fixtureSnapshot() {
           dueDate: null,
           status: { name: "Done", category: "done" },
           priority: { name: "Priority 3" },
-          originalEstimateSeconds: 3600,
-          updated: "2026-08-18T08:00:00Z",
+          timeTracking: { originalEstimateSeconds: 3600, timeSpentSeconds: null },
+          updatedAt: "2026-08-18T08:00:00Z",
+          lastActivityAt: "2026-08-18T08:00:00Z",
         },
         {
           key: "MT-4",
@@ -57,8 +64,9 @@ function fixtureSnapshot() {
           dueDate: "2026-08-18",
           status: { name: "Blocked", category: "indeterminate" },
           priority: { name: "Priority 2" },
-          originalEstimateSeconds: 3600,
-          updated: "2026-08-17T09:00:00Z",
+          timeTracking: { originalEstimateSeconds: 3600, timeSpentSeconds: null },
+          updatedAt: "2026-08-17T09:00:00Z",
+          lastActivityAt: "2026-08-17T09:00:00Z",
         },
       ],
     },

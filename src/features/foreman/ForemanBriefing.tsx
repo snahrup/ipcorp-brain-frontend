@@ -28,6 +28,9 @@ type BriefingItem = {
   dueDate: string | null;
   priority?: string | null;
   sourceRefs: string[];
+  status?: string | null;
+  shownCount?: number;
+  daysSinceActivity?: number | null;
   answer?: BriefingAnswer;
 };
 
@@ -145,7 +148,10 @@ function tomorrowOf(date: string) {
 
 const KIND_LABEL: Record<string, string> = {
   "start-work": "START WORK",
+  continue: "PICK IT BACK UP",
   estimate: "GIVE A BALLPARK",
+  "chase-review": "WAITING ON A REVIEW",
+  disposition: "THIS HAS BEEN SITTING",
 };
 
 const BALLPARKS = ["15m", "30m", "1h", "Half day"];
@@ -505,6 +511,101 @@ export function ForemanBriefing() {
                     data-testid="fb-continue"
                   >
                     CONTINUE
+                  </button>
+                </div>
+              </>
+            ) : run.items[stage.index].kind === "disposition" ? (
+              <>
+                <p className="fb-lede">
+                  This has been first in line {run.items[stage.index].shownCount} mornings running
+                  and has not moved
+                  {run.items[stage.index].daysSinceActivity !== null
+                    ? `, with nothing logged against it in ${run.items[stage.index].daysSinceActivity} days`
+                    : ""}
+                  . It is not a priority. Say what it actually is.
+                </p>
+                <div className="fb-btnrow">
+                  <button
+                    className="fb-primary"
+                    type="button"
+                    disabled={answering}
+                    data-testid="fb-verb-backlog"
+                    onClick={() => void answer(run.items[stage.index].id, "backlog")}
+                  >
+                    MOVE IT TO THE BACKLOG
+                  </button>
+                  <button
+                    className="fb-ghost"
+                    type="button"
+                    disabled={answering}
+                    data-testid="fb-verb-done"
+                    onClick={() => void answer(run.items[stage.index].id, "done")}
+                  >
+                    IT IS ALREADY DONE
+                  </button>
+                  <button
+                    className="fb-ghost"
+                    type="button"
+                    disabled={answering}
+                    data-testid="fb-verb-commit"
+                    onClick={() => void answer(run.items[stage.index].id, "approve")}
+                  >
+                    NO, IT MATTERS: KEEP IT UP TOP
+                  </button>
+                  <button
+                    className="fb-ghost"
+                    type="button"
+                    disabled={answering}
+                    data-testid="fb-not-mine"
+                    onClick={() => void answer(run.items[stage.index].id, "not-mine")}
+                  >
+                    NOT MINE
+                  </button>
+                </div>
+                <p className="fb-footnote">
+                  ANSWERS SAVE TO THE LOCAL RUN LEDGER · JIRA ROUTING ARRIVES WITH FB-2
+                </p>
+              </>
+            ) : run.items[stage.index].kind === "chase-review" ? (
+              <>
+                <p className="fb-lede">
+                  The work is done and a reviewer holds it
+                  {run.items[stage.index].daysSinceActivity !== null
+                    ? `, untouched for ${run.items[stage.index].daysSinceActivity} days`
+                    : ""}
+                  . Nothing here needs building.
+                </p>
+                <div className="fb-btnrow">
+                  <button
+                    className="fb-primary"
+                    type="button"
+                    disabled={answering}
+                    data-testid="fb-verb-chase"
+                    onClick={() => void answer(run.items[stage.index].id, "approve")}
+                  >
+                    NUDGE THE REVIEWER
+                  </button>
+                  <button
+                    className="fb-ghost"
+                    type="button"
+                    disabled={answering}
+                    data-testid="fb-snooze"
+                    onClick={() =>
+                      void answer(run.items[stage.index].id, "snooze", {
+                        snooze: { returnAt: tomorrowOf(run.date) },
+                      })
+                    }
+                  >
+                    LEAVE IT ANOTHER DAY
+                  </button>
+                  <button
+                    className="fb-ghost"
+                    type="button"
+                    disabled={answering}
+                    data-testid="fb-not-mine"
+                    onClick={() => void answer(run.items[stage.index].id, "not-mine")}
+                  >
+                    NOT MINE
                   </button>
                 </div>
               </>

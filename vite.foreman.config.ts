@@ -19,6 +19,9 @@ export default defineConfig({
     port: 5218,
     strictPort: true,
     host: "127.0.0.1",
+    // The existing ngrok tunnel for this port, so the branch can be looked at
+    // from a phone. Vite rejects an unlisted Host header outright.
+    allowedHosts: ["datahub.nahrup.ngrok.app"],
     watch: {
       ignored: [
         "**/*.md",
