@@ -1,43 +1,73 @@
 # Handoff
 
-## Current: Track FB, the Foreman Briefing (2026-08-17)
+## Current: Track FB, the Foreman Briefing (2026-08-17, 8:30 PM ET)
 
-Everything needed to continue is on disk. This is account-independent: a session signed in
-as a different Claude account on this machine picks it up the same way.
+Written by `/handoff`. Everything below was checked against disk at that time, not recalled.
+Account-independent: a session signed in as the other Max account on this machine picks it up
+the same way. Start with `/pickup`.
 
-**Where the work is.** Branch `claude/dashboard-overload-brainstorm-7917fc`, in the worktree at
-`.claude/worktrees/dashboard-overload-brainstorm-7917fc`. Four commits, newest first:
-`e4cf45b` the side-by-side preview plus three live fixes, `88a807a` FB-3a countdown,
-`b1364fd` FB-2 narration, `4987f11` FB-1 walkthrough. Nothing is pushed and nothing is merged.
+**Where the work is.** Branch `claude/dashboard-overload-brainstorm-7917fc`, checked out in the
+worktree at `.claude/worktrees/dashboard-overload-brainstorm-7917fc`, NOT in the main checkout.
+The main checkout is on `phase-2/activity-on-saved-steps`, which belongs to another session, so
+do not switch or merge there. Working tree clean. Five commits, newest first, none pushed and
+none merged:
 
-**Read these three, in order.** The spec `docs/brainstorm/2026-08-17-foreman-briefing-spec.md`
-decides behavior and holds the ten acceptance checks. The roadmap section "Track FB" in
-`docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md` decides order. The state record
-`docs/mythos/state.md` says what is proven and what is owed. The concept, the research
-compendium, the nine-frame storyboard, and the Cluely element map sit beside the spec in
-`docs/brainstorm/`.
+- `697f7f6` the first handoff entry
+- `e4cf45b` the side-by-side preview plus three live fixes
+- `88a807a` FB-3a countdown scheduler, toast raiser, arm and outcome routes
+- `b1364fd` FB-2 narration, fail closed
+- `4987f11` FB-1 walkthrough, ranking, ledger, chapters
 
-**What is done.** FB-1 the guided walkthrough (rank, anti-repetition ledger, assembly, chapters,
-answers as receipts). FB-2 narration through the headless drafting lane, fail closed to
-mechanical copy. FB-3a the countdown scheduler, the Windows toast raiser, the arm and outcome
-routes, and a startup re-arm that reads only the cache. 33 unit checks and 10 browser checks
-green; every new behavior was proven red first.
+**Read these first.** `docs/brainstorm/2026-08-17-foreman-briefing-spec.md` decides behavior and
+holds the ten acceptance checks. The "Track FB" section of
+`docs/architecture/SELF-DRIVING-WORKBENCH-BUILD-PLAN.md` decides order. `docs/mythos/state.md`
+is the authority on proven versus owed. The concept, the research compendium, the nine-frame
+storyboard, and the Cluely element map sit beside the spec in `docs/brainstorm/`.
 
-**How to see it.** `npm run dev:foreman:gateway` and `npm run dev:foreman` from the worktree,
-then `http://127.0.0.1:5218/briefing?briefing=1`. That pair is deliberate: the everyday
-Workbench holds 5217 and 8817, and the main checkout is usually on another session's branch.
-Both are also entries in `.claude/launch.json`.
+**What is done, with the evidence.** FB-1 the guided walkthrough: ranking with the next-actor
+rule and a cap of five, the anti-repetition ledger, briefing assembly, the chapters, and answers
+that write receipts. FB-2 narration through the same headless drafting lane Weekly Status uses,
+failing closed to mechanical copy with nothing canned. FB-3a the countdown: scheduler, Windows
+toast raiser, arm and outcome routes, and a startup re-arm that reads only the cache so a
+restart never starts a Microsoft read. Re-verified at handoff time: 33 unit checks pass (25 in
+`npm run test:foreman`, 8 in the countdown and toast suites), `npx tsc --noEmit` clean. The 10
+browser checks in both Chromium and Firefox passed at commit `e4cf45b`; the two commits since
+are documentation only. Every new behavior was proven red first.
 
-**What is next.** FB-3b, the per-meeting prep chapters at `/briefing/meeting/<id>`, which today
-lands on the briefing itself so a toast click never dead-ends. Then FB-4, Set the Room, whose
-whole choreography and the Cluely element map are already written down. Still owed: a real
-toast watched at T-30, and the merge, which wants care in `server/jira-gateway.mjs` because
-another session has been working the Phase 2 activity lane in the same file.
+**How to run and see it.** From the worktree, two servers, both also in `.claude/launch.json`:
 
-**Full conversation, if it is ever wanted.**
-`C:\Users\snahrup\.nexus\materialized-transcripts\claude\9c0a383e-9a8c-4c26-ac1f-d06f8a533287\messages.json`
-(user and assistant turns only, tool noise stripped). The `/rebooted` skill reads it
-automatically. Prefer the documents above; the transcript is the archive, not the plan.
+    npm run dev:foreman:gateway     # this branch's gateway on 8818
+    npm run dev:foreman             # this branch's Vite on 5218
+
+Then `http://127.0.0.1:5218/briefing?briefing=1`. The odd ports are deliberate: the everyday
+Workbench holds 5217 and 8817 and is serving a different branch. Both were listening when this
+was written, but they belong to that session and are gone now, so start them again.
+
+**What is next.** FB-3b, the per-meeting prep chapters at `/briefing/meeting/<id>`. Today that
+route falls through to the briefing itself, so a toast click does not dead-end, but the five
+prep chapters (the room, last time, open threads, today's goal, materials) are not built. After
+that, FB-4 Set the Room, whose choreography and Cluely element map are already written down.
+
+**What is owed.** Nobody has watched a real toast appear at T-30; the scheduler and raiser are
+covered by unit checks and the arm route returned 200 against the live calendar, but the moment
+itself is unproven. The merge wants care in `server/jira-gateway.mjs`, where another session has
+been working the Phase 2 activity lane. Roughly 40 commits landed on `origin/main` from another
+session while this track was being built.
+
+**Do not redo.** Do not touch the main checkout or its branch. Do not re-fire a Microsoft 365
+action: an indeterminate result very likely succeeded. Narration is single-flight per day, so
+today's run is already narrated and calling narrate again correctly returns the same result;
+forcing a fresh draft means deleting that day's file under
+`%LOCALAPPDATA%\IPCorpBrain\foreman\runs\`, which also discards any answers recorded in it.
+
+**Open question for Steve.** Do you want a real toast armed against a near-future meeting so the
+T-30 moment gets proven, and do you want this branch merged before FB-3b starts or after?
+
+**The transcript, as archive rather than plan.** `node ~/.claude/skills/pickup/find-transcripts.mjs`
+lists it; today's session is `claude:9c0a383e-9a8c-4c26-ac1f-d06f8a533287` at
+`C:\Users\snahrup\.nexus\materialized-transcripts\claude\9c0a383e-9a8c-4c26-ac1f-d06f8a533287\messages.json`.
+Its manifest title reads "Scheduled Jobs Viewer", which is wrong and left over from something
+else, so match on the id. Read the tail only; the file runs past 200 KB.
 
 ## Previous: Phase 0 preserve and rewrite (2026-08-16)
 
