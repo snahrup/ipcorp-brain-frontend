@@ -672,6 +672,15 @@ small {
   white-space: nowrap;
 }
 
+/* The time line is its own full-width row. Auto-placed it landed in the first
+   column next to the issue key, and because that column is sized to its widest
+   item, "Started, 18h 30m logged, no estimate" set the width for the whole
+   column: 207px where the key needs about 40. Every title in the list was
+   pushed right by the difference. */
+.wb-jira-list-summary > div {
+  grid-column: 1 / -1;
+}
+
 .wb-jira-list-summary small {
   grid-column: 2;
   overflow: hidden;
