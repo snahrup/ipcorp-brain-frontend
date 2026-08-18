@@ -103,6 +103,40 @@ async function postAnswer(body: {
   return payload.data;
 }
 
+type AgentRun = {
+  issueKey: string;
+  agentLabel: string;
+  state: string;
+  steps: number;
+  lastAction: string | null;
+  verdict: string | null;
+  note: string | null;
+  error: string | null;
+};
+
+async function dispatchAgent(issueKey: string, agent: string, context: string): Promise<AgentRun> {
+  const response = await fetch(`${GATEWAY}/agents/dispatch`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ issueKey, agent, context }),
+  });
+  const payload = (await response.json().catch(() => null)) as {
+    ok?: boolean;
+    data?: AgentRun;
+    error?: string;
+  } | null;
+  if (!response.ok || !payload?.ok || !payload.data) {
+    throw new Error(payload?.error || `Dispatch returned HTTP ${response.status}.`);
+  }
+  return payload.data;
+}
+
+async function readAgentRun(issueKey: string): Promise<AgentRun | null> {
+  const response = await fetch(`${GATEWAY}/agents/run?issueKey=${encodeURIComponent(issueKey)}`);
+  const payload = (await response.json().catch(() => null)) as { data?: AgentRun | null } | null;
+  return payload?.data ?? null;
+}
+
 async function postNarrate(): Promise<BriefingRun> {
   const response = await fetch(`${GATEWAY}/foreman/narrate`, { method: "POST" });
   const payload = (await response.json().catch(() => null)) as {
@@ -261,6 +295,44 @@ export function ForemanBriefing() {
       })
       .finally(() => setNarrating(false));
   }, [run]);
+
+  // One click hands the ticket to an agent. This has real external effect: the
+  // issue moves to In Progress immediately, and a comment and worklog land when
+  // the run finishes, so the button says so and nothing starts on a keystroke.
+  const [agentRuns, setAgentRuns] = useState<Record<string, AgentRun>>({});
+  const [dispatching, setDispatching] = useState<string | null>(null);
+
+  const runIt = useCallback(
+    async (item: BriefingItem, agent: string) => {
+      if (dispatching) return;
+      setDispatching(item.id);
+      try {
+        // The why-now line is the context the agent gets: it is already written
+        // from this ticket's own evidence.
+        const context = run?.narration?.items?.[item.id]?.whyNow ?? "";
+        const started = await dispatchAgent(item.id, agent, context);
+        setAgentRuns((prev) => ({ ...prev, [item.id]: started }));
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : String(cause));
+      } finally {
+        setDispatching(null);
+      }
+    },
+    [dispatching, run]
+  );
+
+  // While anything is running, follow it. Polling stops the moment nothing is.
+  useEffect(() => {
+    const live = Object.values(agentRuns).filter((entry) => entry.state === "running");
+    if (live.length === 0) return;
+    const timer = window.setInterval(async () => {
+      for (const entry of live) {
+        const fresh = await readAgentRun(entry.issueKey).catch(() => null);
+        if (fresh) setAgentRuns((prev) => ({ ...prev, [fresh.issueKey]: fresh }));
+      }
+    }, 3000);
+    return () => window.clearInterval(timer);
+  }, [agentRuns]);
 
   const answer = useCallback(
     async (
@@ -718,12 +790,56 @@ export function ForemanBriefing() {
                 </p>
               </>
             )}
-            <div className="fb-btnrow fb-openrow">
-              <a className="fb-open" href="/work">
-                Open in Work
-                <ArrowRight size={13} aria-hidden="true" />
-              </a>
-            </div>
+            {(() => {
+              const item = run.items[stage.index];
+              const agentRun = agentRuns[item.id];
+              if (agentRun) {
+                return (
+                  <div className="fb-agentrun" data-testid="fb-agent-run">
+                    <div className="fb-seclabel">
+                      {agentRun.agentLabel} · {agentRun.state}
+                    </div>
+                    <p>
+                      {agentRun.state === "running"
+                        ? `${agentRun.steps} steps${agentRun.lastAction ? `, last: ${agentRun.lastAction}` : ""}`
+                        : agentRun.verdict
+                          ? `${agentRun.verdict}${agentRun.note ? `: ${agentRun.note}` : ""}`
+                          : agentRun.error || "finished"}
+                    </p>
+                  </div>
+                );
+              }
+              return (
+                <div className="fb-runrow">
+                  <button
+                    className="fb-primary"
+                    type="button"
+                    disabled={dispatching !== null}
+                    data-testid="fb-run-claude"
+                    onClick={() => void runIt(item, "claude")}
+                  >
+                    {dispatching === item.id ? "STARTING…" : "RUN IT WITH CLAUDE"}
+                  </button>
+                  <button
+                    className="fb-ghost"
+                    type="button"
+                    disabled={dispatching !== null}
+                    data-testid="fb-run-codex"
+                    onClick={() => void runIt(item, "codex")}
+                  >
+                    RUN IT WITH CODEX
+                  </button>
+                  <a className="fb-open" href="/work">
+                    Open in Work
+                    <ArrowRight size={13} aria-hidden="true" />
+                  </a>
+                </div>
+              );
+            })()}
+            <p className="fb-footnote">
+              RUNNING IT MOVES THE TICKET TO IN PROGRESS NOW, AND WRITES A COMMENT AND WORKLOG WHEN
+              IT FINISHES
+            </p>
           </section>
         )}
 

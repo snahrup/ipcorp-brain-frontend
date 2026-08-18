@@ -33,13 +33,20 @@ const runs = new Map();
 // happens to be configured with. Ambient config drifts: ~/.codex/config.toml was found
 // pointing model_provider at a local Ollama endpoint serving zero models, which would
 // have failed every Codex run and written a false "Blocked" onto a real issue.
+// The prompt arrives on STDIN, never as an "@file" argument. Two independent
+// failures on 2026-08-17/18 forced this: the run directory is a backslash
+// Windows path that the CLI does not resolve, so the model answered the
+// session's startup context instead of the ticket; and where the path did
+// resolve, a current model treated instructions sitting in file data as an
+// injection attempt and refused them outright. Both end the same way, with a
+// run writing status, a comment and a worklog onto a live issue having done
+// nothing that was asked. On stdin the prompt is the turn itself.
 const AGENTS = {
   claude: {
     label: "Claude Code",
     command: "claude",
-    args: (promptFile) => [
+    args: () => [
       "-p",
-      `@${promptFile}`,
       "--model",
       "opus",
       "--permission-mode",
@@ -50,13 +57,16 @@ const AGENTS = {
       "stream-json",
       "--verbose",
     ],
+    stdio: ["pipe", "pipe", "pipe"],
     parse: parseClaudeEvent,
     activity: parseClaudeActivity,
   },
   codex: {
     label: "Codex",
     command: "codex",
-    args: (promptFile) => [
+    // codex exec reads its instructions from stdin when no prompt argument is
+    // given, which is documented in its own help.
+    args: () => [
       "exec",
       "--full-auto",
       "--model",
@@ -66,12 +76,15 @@ const AGENTS = {
       "-c",
       "model_reasoning_effort=high",
       "--json",
-      `@${promptFile}`,
     ],
+    stdio: ["pipe", "pipe", "pipe"],
     parse: parseCodexEvent,
     activity: parseCodexActivity,
   },
 };
+
+/** Exposed so a test can assert the invocation shape without spending a run. */
+export const AGENT_INVOCATIONS = AGENTS;
 
 /** Claude stream-json: assistant turns carry text and tool_use side by side. */
 export function parseClaudeEvent(event) {
@@ -255,6 +268,23 @@ function buildPrompt(issue, extraContext) {
   const links = (issue.links ?? [])
     .map((l) => `  - ${l.type} ${l.direction === "outward" ? "->" : "<-"} ${l.key} ${l.summary}`)
     .join("\n");
+  // A ticket's decisions usually live in its comments, not its description.
+  // Dropping them was how an agent could redo settled work or contradict a
+  // call Patrick already made on the same issue.
+  const comments = (issue.comments ?? [])
+    .map((c) => `  - ${c.author ?? "unknown"} on ${c.created ?? "unknown date"}: ${c.body ?? ""}`)
+    .join("\n");
+  const worklogs = (issue.worklogs ?? [])
+    .map(
+      (w) =>
+        `  - ${w.author ?? "unknown"} logged ${w.timeSpent ?? "?"} on ${w.started ?? "?"}${
+          w.comment ? `: ${w.comment}` : ""
+        }`
+    )
+    .join("\n");
+  const attached = (issue.attachments ?? [])
+    .map((a) => `  - ${a.filename ?? a.name ?? "unnamed"}`)
+    .join("\n");
 
   return `You are completing a real work item for Steve Nahrup on the IP Corporation
 Fabric and MDM engagement. Work in the architecture brain at
@@ -275,12 +305,53 @@ DESCRIPTION
 ${issue.description || "(no description)"}
 ${subtasks ? `\nSUBTASKS\n${subtasks}` : ""}
 ${links ? `\nRELATED\n${links}` : ""}
+${comments ? `\nDISCUSSION ALREADY ON THIS TICKET, treat every decision in it as settled\n${comments}` : ""}
+${worklogs ? `\nWORK ALREADY LOGGED, so you know how far along this is\n${worklogs}` : ""}
+${attached ? `\nALREADY ATTACHED TO THE TICKET, read before producing anything that overlaps\n${attached}` : ""}
 ${extraContext ? `\nEXTRA CONTEXT FROM STEVE\n${extraContext}` : ""}
+
+BEFORE YOU WRITE ANYTHING
+This is a live client engagement, not a sandbox. Gather the same context Steve would
+have in his head before starting:
+
+1. Restate the acceptance criteria in your own words from the description, the subtasks
+   and the discussion above. If the issue never states them, say so explicitly rather
+   than inventing a definition of finished that happens to match what you produced.
+2. Search the architecture brain for what already exists on this subject: prior meeting
+   records, decisions, existing documents in the same domain, and anything the RELATED
+   issues produced. Read what you find before writing a line. Contradicting a decision
+   already recorded there is worse than delivering nothing.
+3. Read the brain's own house rules before writing into it: AGENTS.md, the ingestion
+   playbook, and the current CHANGELOG and its MANIFEST. A brain write that does not
+   append its CHANGELOG row in the same change breaks the protocol.
+
+STAYING ON THE RAILS
+Fabric, Power BI, Purview and general BI architecture have real, established practice.
+Use it as a check on yourself: before you recommend a pattern, satisfy yourself that it
+is a thing practitioners actually do with that product, not something that merely sounds
+right. Inventing a best practice that does not exist is the failure to avoid here.
+
+This is a sanity check, not a citation exercise. Do not write like you are quoting a
+documentation site, do not cite Learn articles or link dumps, and do not pad the comment
+with references to prove you checked. Steve writes from his own understanding of the
+platform. The validation is silent; only the recommendation is visible.
 
 WHAT TO DO
 Complete the work this issue describes. Read before you write. If the issue calls for a
 document, produce the document. If it calls for a decision, gather the evidence and write
 the decision record. Do not stop at a plan.
+
+WHEN YOU DO NOT HAVE WHAT YOU NEED
+Do not invent, guess, or fabricate a plausible answer. A missing number, an unnamed owner
+or an undecided scope is a question for Steve, not a blank to fill. Return RESULT: BLOCKED
+with the exact question and who can answer it. A missing answer is a valid outcome. An
+invented one is a false record on a client engagement, and it will be read as fact.
+
+DELIVERABLES GO ON THE TICKET
+Any file you produce or materially change gets attached to ${issue.key}, because a path
+in a comment is unreachable for anyone reading the board. List every one of them by
+absolute path in the ATTACH block below. Files that only exist on disk do not count as
+delivered.
 
 AS YOU WORK
 Whatever you say between tool calls is shown to Steve live while this runs, so it has to
@@ -301,6 +372,9 @@ Everything you write is in Steve's voice and may be read by his manager and CIO.
 
 FINISH BY PRINTING EXACTLY THIS, AND NOTHING AFTER IT
 
+ATTACH:
+<one absolute file path per line for every deliverable, or leave the block empty>
+END ATTACH
 COMMENT:
 <the Jira comment, posted to ${issue.key} under Steve's name, verbatim and unedited>
 END COMMENT
@@ -321,8 +395,30 @@ paragraphs.
 - No narration of your own process. Never "What the run reported", "Now the next step",
   "I will now", or any running commentary. The reader wants the outcome and the
   reasoning, not a log.
-- Name file paths plainly in a sentence.
+- NEVER put a local or relative file path in a Jira comment. A path like
+  docs/whatever.md or C:Users... is unreachable for every person reading the
+  board, and it goes stale the moment the file moves. There are exactly two
+  ways to reference a file:
+  1. It lives in the architecture brain, so reference it by its SharePoint web
+     URL, which is what lets a reader open the current version. If you do not
+     have that URL, attach the file instead rather than writing a path.
+  2. It is a one-off deliverable produced for this ticket, so it is attached to
+     the ticket itself as a real file and referred to by name.
 - Do not repeat the RESULT sentence inside the comment.
+- Shape it for a reader with ADHD, because Steve is the first person who reads
+  it back. The opening line is the outcome or the thing someone has to do next,
+  never a wind-up and never context first. Anything that took more than one step
+  is a numbered list, one bounded action per line. Numbers are specific: real
+  file counts, real hours, real ticket keys, never "several" or "a bit". If
+  something is still open, the last line names it as a single next action with
+  whoever owns it. Anything not on the page is forgotten, so restate what
+  changed rather than referring back to earlier comments.
+- Short. If a paragraph runs past four sentences it is two paragraphs, or it is
+  a numbered list, or half of it was not worth writing.
+- State which acceptance criteria are met and how each was verified. Name what
+  you could NOT verify just as plainly. "Verified" means you checked the result,
+  not that you produced something and it looked right. Never report an item as
+  met on the strength of having written about it.
 - Before printing the block, run it through the humanizer skill and then the
   structural-humanizer skill (both installed globally). At minimum, strip these tells
   yourself: "isn't just X, it's Y", rule-of-three lists used as emphasis, negative
@@ -366,6 +462,23 @@ function scrubForJira(text) {
       .replace(/[^\S\n]{2,}/g, " ")
       .trim()
   );
+}
+
+/** Exposed so the prompt itself can be asserted without spending a run. */
+export const buildAgentPrompt = buildPrompt;
+
+/**
+ * The absolute paths a run says it produced. An empty or absent block means no
+ * attachments, never a guess: attaching a file nobody asked for is as wrong as
+ * losing one, and the ticket is client-visible.
+ */
+export function extractAttachments(prose) {
+  const match = /^[ \t]*ATTACH:[ \t]*\r?\n([\s\S]*?)^[ \t]*END ATTACH[ \t]*$/m.exec(prose ?? "");
+  if (!match) return [];
+  return match[1]
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("<"));
 }
 
 export function extractComment(prose) {
@@ -825,12 +938,19 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
   };
   runs.set(issueKey, run);
 
-  const child = spawn(config.command, config.args(promptFile), {
+  // The prompt file is still written, because it is the record of exactly what
+  // was asked, but the agent is handed the prompt on stdin rather than a path.
+  const child = spawn(config.command, config.args(), {
     cwd: cwd || process.cwd(),
     shell: true,
     windowsHide: true,
+    stdio: config.stdio ?? ["pipe", "pipe", "pipe"],
   });
   run.child = child;
+  child.stdin?.on("error", () => {
+    // A process that died before reading is reported by its close handler.
+  });
+  child.stdin?.end(prompt, "utf8");
 
   // Both CLIs emit one JSON object per line, but a chunk can split a line anywhere, so
   // the remainder is carried until its newline arrives.
@@ -903,6 +1023,28 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
     run.state = "finished";
     run.verdict = verdict;
     run.note = note;
+
+    // Deliverables go up BEFORE the comment, so the comment never refers to a
+    // file that is not on the ticket yet. A file that cannot be attached is
+    // reported as such rather than quietly dropped, because a comment claiming
+    // a deliverable that is not there is worse than no comment.
+    run.attachments = [];
+    for (const path of extractAttachments(agentProse(run) || run.output)) {
+      if (!deps.attach) {
+        run.attachments.push({ path, ok: false, error: "attachments are not wired" });
+        continue;
+      }
+      try {
+        await deps.attach(issueKey, path);
+        run.attachments.push({ path, ok: true });
+      } catch (cause) {
+        run.attachments.push({
+          path,
+          ok: false,
+          error: cause instanceof Error ? cause.message : String(cause),
+        });
+      }
+    }
 
     try {
       // The humanize stage always runs; if the pass fails the scrubbed original posts.

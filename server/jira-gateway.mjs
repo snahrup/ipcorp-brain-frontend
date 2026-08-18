@@ -3629,6 +3629,10 @@ async function route(request, response) {
           transition: transitionIssueTo,
           comment: addIssueComment,
           logWork: logIssueWork,
+          // Deliverables become real file objects on the ticket. Without this a
+          // run could only describe what it made, and a path in a comment is
+          // unreachable for anyone reading the board.
+          attach: addIssueAttachment,
         },
       });
       return sendJson(response, 202, { ok: true, data: run }, origin);

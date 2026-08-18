@@ -6,9 +6,12 @@
 // session is working in. `VITE_GATEWAY_URL: "/api"` makes the browser call
 // this dev server's proxy instead of the hard-coded 8817, so the preview
 // reaches THIS branch's gateway on 8818.
+import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+
+const here = fileURLToPath(new URL(".", import.meta.url));
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -27,7 +30,13 @@ export default defineConfig({
         "**/*.md",
         "**/.agent-runs/**",
         "**/.frontend-verify/**",
-        "**/.claude/**",
+        // THIS worktree's own .claude directory, resolved absolutely. The
+        // inherited "**/.claude/**" pattern is fatal here: the worktree itself
+        // lives under .claude/worktrees/, so that glob matched every source
+        // file in the project and the watcher ignored the entire app. Edits
+        // only appeared after a full server restart, which reads like a
+        // caching mystery and is really one greedy glob.
+        `${here}.claude/**`,
         "**/data/meeting-infographic-audit.json",
         "**/server/**",
       ],

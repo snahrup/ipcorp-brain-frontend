@@ -403,6 +403,31 @@
   margin-top: 18px;
 }
 
+.fb-runrow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(159, 176, 194, 0.2);
+}
+
+.fb-agentrun {
+  margin-top: 22px;
+  padding: 14px 16px;
+  border: 1px solid rgba(76, 142, 199, 0.5);
+  border-radius: 10px;
+  background: rgba(8, 22, 39, 0.6);
+  max-width: 520px;
+}
+
+.fb-agentrun p {
+  font-size: 14px;
+  color: var(--fb-dim);
+  margin-top: 4px;
+}
+
 .fb-focuscard {
   margin-top: 24px;
   border: 1px solid rgba(76, 142, 199, 0.55);
