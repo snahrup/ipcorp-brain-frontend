@@ -536,6 +536,9 @@
   justify-self: start;
   justify-content: center;
   /* Character count of the longest status in the list, set on the container.
-     The dot and its gap plus the pill padding come to about 2.6ch. */
-  min-width: calc(var(--status-chip-ch, 12) * 1ch + 2.6ch);
+     The dot, its gap and the pill padding come to about 2.6ch, and ch is the
+     width of a zero, which under-measures capital-heavy labels like "In
+     Progress", so a character of slack keeps the longest chip inside the
+     minimum rather than growing past it. */
+  min-width: calc(var(--status-chip-ch, 12) * 1ch + 3.6ch);
 }
