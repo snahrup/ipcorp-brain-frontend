@@ -117,10 +117,26 @@ test("every template task reaches every domain", () => {
   for (const domain of plan.domains) assert.equal(domain.tasks.length, TEMPLATE_TASKS.length);
 });
 
-test("the assumptions reproduce the Customer window already on the board", () => {
-  const result = check();
+test("the base efforts reproduce the Customer window at the calibrated capacity", () => {
+  // This is what proves the per-task effort figures are sane. Run the template at the
+  // capacity the board's own dates imply and it lands on the board's own window.
+  const result = check({ hoursPerWeek: DEFAULTS.calibratedHoursPerWeek });
   assert.equal(result.agrees, true, `drift was ${result.driftWeeks} weeks`);
   assert.ok(Math.abs(result.driftWeeks) <= 2);
+});
+
+test("at the capacity in use, the gap against the board is reported and not hidden", () => {
+  // Steve set 43 hours a week, which finishes Customer about five weeks earlier than the
+  // 2026-12-19 on the board. That disagreement is a finding for a reader to resolve, so
+  // check() has to keep surfacing it. If someone later tunes the efforts or the capacity
+  // until this passes silently, the plan has stopped being checked against anything.
+  const result = check();
+  assert.equal(result.agrees, false);
+  assert.ok(
+    result.driftWeeks < -3,
+    `expected the plan to run early, drift was ${result.driftWeeks}`
+  );
+  assert.ok(result.modelledDue < result.actualDue);
 });
 
 test("check disagrees when the weekly capacity is wrong, rather than always passing", () => {
