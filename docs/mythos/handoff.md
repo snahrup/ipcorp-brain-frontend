@@ -1,6 +1,137 @@
 # Handoff
 
-## Current: Workbook crosswalk on the Work screen (2026-08-18, evening ET)
+## Current: Run readouts, the Autonomy screen, and what actually drives the MDM dates (2026-08-19, small hours ET)
+
+Written by `/handoff`. Everything below was checked against disk, not recalled. Start with
+`/pickup`. The entry below this one covers the first half of the same session and is still
+accurate; this one carries everything after it.
+
+**Where the work is.** Repo `C:\Users\snahrup\CascadeProjects\ipcorp-brain-frontend`, branch
+`main`, in the MAIN checkout, not a worktree. Working tree clean. `main` is **30 commits ahead
+of `origin/main` and nothing is pushed**, and most of that is not from this session.
+
+Another session was committing to `main` in this same directory through the afternoon. Read
+`git log` before trusting any sha here.
+
+Sixteen commits from this session, newest first:
+
+- `98a8ca1` the Agent Board opens tickets in place, including the card itself
+- `cc008f3` readout written at run completion; ticket keys open the ticket
+- `1135ac7` the run readout pipeline
+- `a7cc4ce` the Autonomy screen, from the applied handoff package
+- `871f3cf` `3127f05` measuring the waiting
+- `bbcff28` the sensitivity sweep
+- `204d247` the latency model
+- `9b85965` `7ff3fc5` the estimate calibration loop
+- `e57bbf3` the safe apply step for the domain plan
+- `5fa7b25` `1d5fc61` `e0913e7` the four-domain schedule model
+- `67647a4` `83d696c` the workbook crosswalk (covered by the entry below)
+
+**Read these first.** `docs/specs/workbench-autonomy-monitor.md` decides the Autonomy screen's
+behaviour. The header comments in `server/agent-readout.mjs`, `server/workbook/domain-plan.mjs`
+and `server/workbook/latency-log.mjs` carry the reasoning for the parts that look unusual.
+`docs/mythos/state.md` is the authority on proven versus owed.
+
+**The finding that matters most, because it changes what to build next.** Steve said every
+template step will eventually be handed to an agent. That breaks effort as a planning unit. A
+sensitivity sweep over the domain plan settled it: doubling every effort figure moves the
+program end 12%, doubling every agent duration moves it **0%**, and doubling the latency
+figures moves it **77%**. One number, ten days to get six calendars aligned for a kickoff,
+moves the end by 56 days on its own. Capacity has stopped being a lever: 60 hours a week and
+100 hours a week finish on exactly the same day, and that is a test.
+
+So the schedule is a claim about how fast people respond. Do not spend effort refining effort.
+
+**What is done, and verified.**
+
+- The **Autonomy screen** at `/autonomy`, from the applied package. Run list, review modal,
+  four gateway endpoints. Exercised against real data: 17 runs, 11 needing review, durations
+  matching the raw records to the second. Ask-a-question and request-changes both work.
+- The **run readout**: `server/agent-readout.mjs` plus `GET /api/agents/runs/readout`. Compiled
+  automatically as the last thing a dispatch does, then cached, so it is ready when it is
+  wanted. Its sections follow how the run ended. Every claim carries a verbatim quote and
+  anything unquotable is dropped and the drop reported. Proven on two real runs: the blocked one
+  named the exact credential error with nothing dropped, the finished one explained why the
+  document missed its date and correctly dropped one true-but-unquotable claim.
+- **Ticket references open in place** everywhere now, including the Agent Board card itself,
+  which is the whole tappable surface on a phone. Only `/browse/KEY` addresses are caught, so
+  meeting and gateway links are untouched and a modified click still reaches Jira.
+- The **workbook crosswalk** and the **four-domain schedule model**, covered below and in
+  `state.md`.
+- The **estimate calibration loop** and the **latency log**, both built to refuse rather than
+  invent. Both currently silent, which is the correct state: there is no measured basis on this
+  board for anything yet.
+
+Checks at handoff: `npm run test:runs` 27 pass, `npm run test:workbook` 86 pass, `npx tsc
+--noEmit` clean, tree clean.
+
+**How to run and see it.**
+
+```
+npm run dev:jira
+npm run dev
+```
+
+The frontend autostarts on 5217 and this repo requires `strictPort` there, so use the running
+one rather than starting a second. The gateway on 8817 was restarted from this session and will
+die with it; the ecosystem healer starts it again from its own scheduled task within five
+minutes, or `npm run dev:jira` brings it straight back.
+
+```
+curl -s "http://127.0.0.1:8817/api/agents/runs"
+curl -s "http://127.0.0.1:8817/api/jira/breakdown-crosswalk"
+npm run test:runs && npm run test:workbook
+```
+
+State written outside the repo, on purpose, so Tailwind's source scan does not reload every open
+tab: readouts in `%LOCALAPPDATA%\IPCorpBrain\run-readouts`, latency in
+`%LOCALAPPDATA%\IPCorpBrain\latency-observations.json` (not created yet).
+
+**What is next.**
+
+1. Render the readout inside the run review modal. It is produced, cached and reachable by URL,
+   but the modal was built before it existed, so right now nothing shows it.
+2. The interactive planner Steve asked for: a global hours-per-week control, per-week or
+   per-month capacity overrides, and a parallelism control. The parallelism one is not optional:
+   30 serial tasks cannot take fewer than 30 working days, so without it the slider stops
+   responding at the top end and looks broken when it is telling the truth.
+3. `tests/autonomy.spec.ts`, covering gateway down, empty, list and needs-you, using the stub
+   approach in `tests/agent-board.spec.ts`.
+
+**What is owed.**
+
+- No Playwright coverage for any of tonight's work. Node tests only.
+- The readout's richest fields stay empty on every existing run. Plan step outcomes and
+  attachments were added to the record tonight, so only runs dispatched from now on carry them.
+- The 90 numbers in the domain plan are judgment, not measurement, and the sensitivity sweep
+  says nine of them govern the answer. There is no measured basis available to fix that: the
+  worklogs are written to match their estimates (51% land within 2%), and the status history has
+  a median of 0.0 days against a 13-day average, which is bulk transitions rather than workflow.
+- In the run list, a ticket key opens the ticket by click delegation, which is a mouse
+  affordance and not a keyboard one, because the row is itself a button. The keyboard path is
+  the run modal's header link. Revisit if that row is restructured.
+- `main` is 30 ahead of `origin` and unpushed, mostly another session's work. Do not push
+  without checking with Steve.
+- Two CSS descending-specificity warnings in `agent-runs.css`, from the package as delivered.
+
+**Do not redo.** Nothing tonight wrote to Jira, sent mail, or ran a Microsoft 365 action; every
+Jira call was a read. **The 94-item domain plan was deliberately NOT written to Jira** after
+Steve decided the dates stay local so the interactive model and the self-correcting loop can
+work; the apply step exists, defaults to a dry run, and is safe to re-run. Two dry runs against
+real data caught bugs that would have created 124 issues and duplicated the whole Customer
+domain, so trust the dry run. `exceljs` was installed and removed during evaluation and the
+lockfile restored, so do not look for it. `npm run lint:fix` rewrites line endings across ~45
+files it does not otherwise change; run biome on specific paths instead.
+
+**Open question for Steve.** The missing "apply the governance security template before build"
+task still has no MT issue. He said it should be a replicated template step across all domains,
+which is right and matches how `M10.1` already works, but only Customer has a domain parent
+today. Create it for Customer alone, or wait until each later domain gets its parent?
+
+**The transcript** is the archive, not the plan:
+`C:\Users\snahrup\.nexus\materialized-transcripts\claude\5fb909af-850b-4970-bc7e-bc20b2c0dff4\messages.json`
+
+## Previous: Workbook crosswalk on the Work screen (2026-08-18, evening ET)
 
 Written by `/handoff`. Everything below was checked against disk, not recalled. Start with
 `/pickup`.

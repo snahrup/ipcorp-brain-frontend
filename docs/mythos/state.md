@@ -8,6 +8,45 @@ Phase 2: move activity reconciliation fully onto the shared saved-step engine.
 - Safety: no live Jira or communication effect; recommendation and review paths only
 - Also owed: resolve the unused `clock` in `activity-lifecycle.mjs` while in that file
 
+## Parallel track in progress: Autonomy screen and run readouts (2026-08-19)
+
+- Every agent run on one screen, and a compiled readout per run written for someone about to
+  be asked about it in a meeting. Asked for by Steve on 2026-08-18.
+- Authority: `docs/specs/workbench-autonomy-monitor.md` for the screen; the header comment in
+  `server/agent-readout.mjs` for the readout's rules.
+- Branch: `main`, main checkout, commits `a7cc4ce` through `98a8ca1`.
+- PROVEN: the screen against real data (17 runs, 11 needing review, durations matching the raw
+  records to the second, ask and request-changes both working); the readout on two real runs,
+  where the blocked one named the exact credential error with nothing dropped and the finished
+  one dropped one true-but-unquotable claim; ticket references opening in place from the run
+  list, the run modal and the Agent Board card, with no new tab created. 27 node tests,
+  typecheck clean.
+- Readouts are compiled at run completion and cached, so the wait is paid when nobody is
+  waiting. A readout that cannot be supported by its own record is withheld with its reason,
+  never templated.
+- OWED: nothing renders the readout yet, since the review modal predates it. No Playwright
+  coverage. Plan step outcomes and attachments only exist on runs dispatched after 2026-08-19,
+  so the readout stays thin on everything older. A ticket key in the run list is reachable by
+  mouse but not keyboard, because the row is itself a button.
+
+## Parallel track: what actually drives the MDM domain schedule (2026-08-19)
+
+- The four-domain plan is now a claim about human response time, not about effort.
+- A sensitivity sweep decided it: doubling every effort figure moves the program end 12%,
+  doubling every agent duration moves it 0%, doubling the latency figures moves it 77%. Ten
+  days to align six calendars for a kickoff moves the end 56 days by itself. 60 hours a week
+  and 100 hours a week finish on the same day, and that is a test.
+- PROVEN: the model, the sweep, the safe apply step and both learning loops, 86 tests. Two dry
+  runs against the real board caught bugs that would have created 124 issues and duplicated the
+  entire Customer domain.
+- NOT DONE ON PURPOSE: none of the 94 planned items were written to Jira. Steve decided the
+  dates stay local so the interactive model and the self-correcting loop can work.
+- OWED, and it is the honest headline: there is no measured basis for any number in the plan.
+  The worklogs are written to match their estimates, 51% landing within 2%. The status history
+  has a median of 0.0 days against a 13-day average, which is bulk transitions rather than
+  workflow. Both learning loops are built and both correctly refuse to learn from it. The nine
+  latency figures that govern the answer are the ones to measure first.
+
 ## Parallel track in progress: Workbook crosswalk on the Work screen (2026-08-18)
 
 - The Work screen gets a view that proves the Jira board matches the MDM breakdown workbook,
