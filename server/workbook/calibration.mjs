@@ -182,10 +182,20 @@ export function applyCorrections({ templateTasks, learning }) {
   return templateTasks.map((template) => {
     const correction = learning.corrections[template.task];
     const ratio = correction?.ratio ?? learning.overallRatio ?? 1;
+    // The planner's template carries reviewHours; older callers pass hours. Whichever
+    // one this template actually uses is the one that gets corrected, and it is written
+    // back under the same name. Multiplying a field that is not there yields NaN, which
+    // a caller silently discards, leaving a loop that reports learning and changes
+    // nothing.
+    const field = typeof template.reviewHours === "number" ? "reviewHours" : "hours";
+    const current = template[field];
+    if (typeof current !== "number") {
+      return { ...template, basis: "estimated", ratio: 1, samples: 0 };
+    }
     return {
       ...template,
-      hours: Math.round(template.hours * ratio * 2) / 2,
-      originalHours: template.hours,
+      [field]: Math.round(current * ratio * 2) / 2,
+      originalHours: current,
       ratio,
       samples: correction?.samples ?? 0,
       basis: correction ? "measured" : "measured across the template",

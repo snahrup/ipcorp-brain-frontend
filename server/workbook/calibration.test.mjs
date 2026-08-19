@@ -170,3 +170,51 @@ test("the verdict survives JSON, since it is shown in the browser", () => {
   assert.equal(revived.signal.trustworthy, true);
   assert.ok(revived.overallRatio > 0);
 });
+
+test("corrections apply to the field the template actually uses", () => {
+  // applyCorrections multiplied template.hours, but the planner's template carries
+  // reviewHours. The result was NaN, silently discarded by the caller, so the whole
+  // learning loop adjusted nothing while reporting that it had.
+  const planner = [
+    {
+      group: "Build",
+      reviewHours: 10,
+      agentMinutes: 60,
+      latencyDays: 0,
+      task: "Stand up bronze and silver",
+    },
+  ];
+  const learning = learnFromActuals({
+    templateTasks: planner,
+    issues: [
+      issue({ key: "MT-1", task: "Stand up bronze and silver", estimate: 10, spent: 15 }),
+      issue({
+        key: "MT-2",
+        task: "Stand up bronze and silver",
+        estimate: 10,
+        spent: 16,
+        prefix: "M2.1 ",
+      }),
+      issue({
+        key: "MT-3",
+        task: "Stand up bronze and silver",
+        estimate: 10,
+        spent: 14,
+        prefix: "M3.1 ",
+      }),
+      issue({
+        key: "MT-4",
+        task: "Stand up bronze and silver",
+        estimate: 10,
+        spent: 17,
+        prefix: "M4.1 ",
+      }),
+    ],
+    matchSummary: summaryKey,
+  });
+  assert.equal(learning.applied, true);
+  const [adjusted] = applyCorrections({ templateTasks: planner, learning });
+  assert.ok(Number.isFinite(adjusted.reviewHours), `reviewHours became ${adjusted.reviewHours}`);
+  assert.ok(adjusted.reviewHours > 10, "a step that consistently overran must be raised");
+  assert.equal(adjusted.originalHours, 10);
+});
