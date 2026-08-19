@@ -3,8 +3,10 @@ import test from "node:test";
 import {
   applyDomainPlan,
   diffPlanAgainstBoard,
+  EFFORT_LADDER,
   hoursToJiraEstimate,
   summaryKey,
+  toEffortLadder,
 } from "./apply-domain-plan.mjs";
 
 const PLAN = {
@@ -175,7 +177,8 @@ test("dates and the estimate go on in a second call, not the create", async () =
   const taskUpdate = updates.at(-1).body.fields;
   assert.equal(taskUpdate.customfield_11915, "2027-01-07");
   assert.equal(taskUpdate.duedate, "2027-01-07");
-  assert.equal(taskUpdate.timetracking.originalEstimate, "5h 30m");
+  // 5.5h rounds onto the company ladder before it is written.
+  assert.equal(taskUpdate.timetracking.originalEstimate, "4h");
 });
 
 test("subtasks hang off the domain ticket the run just created", async () => {
@@ -285,7 +288,8 @@ test("withDates false puts the estimate on and leaves both dates off", async () 
   }
   const withEstimate = updates.filter((call) => call.body.fields.timetracking);
   assert.equal(withEstimate.length, 2, "both tasks carry an estimate");
-  assert.equal(withEstimate[0].body.fields.timetracking.originalEstimate, "12h 30m");
+  // 12.5h rounds to the top rung, 1d.
+  assert.equal(withEstimate[0].body.fields.timetracking.originalEstimate, "8h");
 });
 
 test("a domain parent with no dates and no estimate makes no follow-up call at all", async () => {
@@ -303,4 +307,32 @@ test("a domain parent with no dates and no estimate makes no follow-up call at a
   // Three creates, but only the two tasks have an estimate to set.
   assert.equal(jira.calls.filter((call) => call.method === "POST").length, 3);
   assert.equal(jira.calls.filter((call) => call.method === "PUT").length, 2);
+});
+
+test("effort rounds to the increments this company actually logs", () => {
+  // The /jira rule's own example: a 30 minute baseline normalizes to 1h 45m and is
+  // logged as 2h.
+  assert.equal(toEffortLadder(1.75), 2);
+  // The four off-ladder values that reached the board on the first run.
+  assert.equal(toEffortLadder(3.5), 4);
+  assert.equal(toEffortLadder(5.5), 4);
+  assert.equal(toEffortLadder(7), 8);
+  assert.equal(toEffortLadder(9), 8);
+  // Values already on a rung stay put.
+  for (const rung of EFFORT_LADDER) assert.equal(toEffortLadder(rung), rung);
+  // Nothing to round is nothing, not a guess.
+  assert.equal(toEffortLadder(0), null);
+  assert.equal(toEffortLadder(undefined), null);
+});
+
+test("a tie rounds down, so the plan is never inflated by rounding", () => {
+  assert.equal(toEffortLadder(1.5), 1);
+  assert.equal(toEffortLadder(3), 2);
+  assert.equal(toEffortLadder(6), 4);
+});
+
+test("every ladder value renders as an estimate Jira accepts", () => {
+  assert.equal(hoursToJiraEstimate(toEffortLadder(3.5)), "4h");
+  assert.equal(hoursToJiraEstimate(toEffortLadder(0.4)), "30m");
+  assert.equal(hoursToJiraEstimate(toEffortLadder(9)), "8h");
 });

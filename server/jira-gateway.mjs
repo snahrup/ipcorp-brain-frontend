@@ -68,7 +68,11 @@ import {
   weeklyStatusSubject,
 } from "./weekly-status/build-weekly-status.mjs";
 import { createWorkbenchAgentRouter } from "./workbench-agent/index.mjs";
-import { applyDomainPlan } from "./workbook/apply-domain-plan.mjs";
+import {
+  applyDomainPlan,
+  hoursToJiraEstimate,
+  toEffortLadder,
+} from "./workbook/apply-domain-plan.mjs";
 import { crosswalkBreakdown, parseBreakdown } from "./workbook/breakdown.mjs";
 import { planProgram } from "./workbook/domain-plan.mjs";
 import { readWorkbook, WorkbookReadError } from "./workbook/xlsx-reader.mjs";
@@ -92,7 +96,7 @@ const BRAIN_REPO_PATH =
   "C:\\Users\\snahrup\\OneDrive - IP-Corporation\\ipcorp-architecture-brain";
 const MEETING_INFOGRAPHICS_PATH =
   process.env.IPCORP_MEETING_INFOGRAPHICS_PATH ||
-  join(BRAIN_REPO_PATH, "natively", "meeting-infographics");
+  join(BRAIN_REPO_PATH, "core", "meetings", "infographics");
 // The public tunnel proxies /api through the Vite dev server on :5217, but the
 // browser's Origin header still reads as the tunnel's own domain, not 127.0.0.1, so
 // that domain has to be allowed explicitly or every request from it is rejected here.
@@ -3278,6 +3282,47 @@ async function writeRunReadout(summary) {
   await getReadout(id, summary, { refresh: true });
 }
 
+/**
+ * Round existing estimates onto the company ladder.
+ *
+ * The first run wrote the planner's half hours straight through, so 55 of 91 issues
+ * carry values like 3.5h and 5.5h that this board does not use. Only issues whose
+ * estimate is off the ladder are touched, so a second run is a no-op.
+ */
+async function normalizeEstimates({ parentKeys, commit }) {
+  const initiative = await readJiraInitiative();
+  const targets = initiative.issues.filter(
+    (issue) => parentKeys.includes(issue.parentKey) || parentKeys.includes(issue.key)
+  );
+  const changes = [];
+  for (const issue of targets) {
+    const current = (issue.timeTracking?.originalEstimateSeconds ?? 0) / 3600;
+    if (!current) continue;
+    const rounded = toEffortLadder(current);
+    if (!rounded || rounded === current) continue;
+    changes.push({ key: issue.key, from: current, to: rounded });
+  }
+  if (!commit) return { committed: false, changes, applied: 0, errors: [] };
+
+  const errors = [];
+  let applied = 0;
+  for (const change of changes) {
+    const estimate = hoursToJiraEstimate(change.to);
+    try {
+      await jiraRequest(`/rest/api/3/issue/${change.key}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          fields: { timetracking: { originalEstimate: estimate, remainingEstimate: estimate } },
+        }),
+      });
+      applied += 1;
+    } catch (error) {
+      errors.push(`${change.key}: ${error.message}`);
+    }
+  }
+  return { committed: true, changes, applied, errors };
+}
+
 async function readBreakdownCrosswalk() {
   const initiative = await readJiraInitiative();
   const base = {
@@ -3727,6 +3772,15 @@ async function route(request, response) {
 
     if (request.method === "GET" && url.pathname === "/api/jira/initiative") {
       return sendJson(response, 200, { ok: true, data: await readJiraInitiative() }, origin);
+    }
+    if (request.method === "POST" && url.pathname === "/api/jira/domain-plan/normalize-estimates") {
+      const body = await readJsonBody(request);
+      const parentKeys =
+        Array.isArray(body.parentKeys) && body.parentKeys.length
+          ? body.parentKeys.map(String)
+          : ["MT-420", "MT-477", "MT-508", "MT-539"];
+      const result = await normalizeEstimates({ parentKeys, commit: body.commit === true });
+      return sendJson(response, 200, { ok: true, data: result }, origin);
     }
     if (request.method === "POST" && url.pathname === "/api/jira/domain-plan/apply") {
       const body = await readJsonBody(request);

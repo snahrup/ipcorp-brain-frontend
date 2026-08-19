@@ -13,6 +13,33 @@
 
 const SUBTASK_BATCH_ABORT = 3;
 
+/**
+ * The increments this company logs against a ticket.
+ *
+ * The /jira rule is: take the baseline, multiply by the 3.5x normalization, then round
+ * to the nearest 30min, 1h, 2h, 4h or 1d. Its own worked example is a 30 minute baseline
+ * becoming 1h 45m and being logged as 2h. Rounding to the nearest half hour instead
+ * produces figures like 3.5h and 5.5h, which are not values this board carries, and 55
+ * of the first 91 issues created here were written that way.
+ */
+export const EFFORT_LADDER = [0.5, 1, 2, 4, 8];
+
+/** Nearest rung. Ties go to the smaller value rather than inflating the plan. */
+export function toEffortLadder(hours) {
+  const value = Number(hours);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  let best = EFFORT_LADDER[0];
+  let bestGap = Math.abs(value - best);
+  for (const rung of EFFORT_LADDER) {
+    const gap = Math.abs(value - rung);
+    if (gap < bestGap) {
+      best = rung;
+      bestGap = gap;
+    }
+  }
+  return best;
+}
+
 /** Jira wants "12h" or "90m"; hours come out of the planner as halves. */
 export function hoursToJiraEstimate(hours) {
   const minutes = Math.round(Number(hours) * 60);
@@ -222,7 +249,8 @@ export async function applyDomainPlan({
             labels: ["mdm", "backlog-from-workbook", `wave-${domain.waveNumber}`],
           },
           dates: withDates ? { startDate: task.startDate, dueDate: task.dueDate } : null,
-          estimateHours: task.effortHours,
+          // Rounded to the company ladder, not left on the planner's half hours.
+          estimateHours: toEffortLadder(task.effortHours),
         });
         created.push({
           key: result.key,
