@@ -19,6 +19,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useActivityRunDock } from "../activity-reconciliation/ActivityRunDock";
 import { jiraGateway } from "./api";
+import { statusTone } from "./jiraStatus";
 import "./jira-views.css";
 import { IssueTimeMetrics } from "./IssueTimeMetrics";
 import { JiraActivityView } from "./JiraActivityView";
@@ -542,7 +543,12 @@ export function JiraWorkSurface() {
                   {issue.labels.length > 0 && <small>{issue.labels.slice(0, 3).join(" · ")}</small>}
                   <IssueTimeMetrics tracking={issue.timeTracking} />
                 </span>
-                <span className="wb-status wb-status-neutral">{issue.status.name}</span>
+                <span
+                  className="wb-status-chip"
+                  data-tone={statusTone(issue.status.name, issue.status.category)}
+                >
+                  {issue.status.name}
+                </span>
                 <span>{issue.assignee?.displayName || "Unassigned"}</span>
                 <span>{issue.priority.name}</span>
                 <time>{relativeTime(issue.updatedAt)}</time>

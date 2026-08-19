@@ -604,10 +604,10 @@ small {
 .wb-jira-list-head,
 .wb-jira-list-row {
   display: grid;
-  grid-template-columns: minmax(300px, 1.8fr) minmax(130px, 0.65fr) minmax(150px, 0.8fr) minmax(
-      110px,
-      0.55fr
-    ) 80px;
+  /* Status is max-content so the column is exactly as wide as the longest
+     status name in the table, and every chip stretches to fill it. That gives
+     one chip width for the whole list instead of a chip per cell width. */
+  grid-template-columns: minmax(300px, 1.8fr) max-content minmax(150px, 0.8fr) minmax(110px, 0.55fr) 80px;
   gap: 14px;
   align-items: center;
   padding: 11px 14px;

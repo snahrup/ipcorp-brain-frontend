@@ -529,3 +529,10 @@
 .wb-jira-activity-key .wb-jira-agent-badge {
   order: -1;
 }
+
+/* In the work list every chip is the same width, set by the longest status
+   name, with the label centred. Elsewhere the chip stays sized to its text. */
+.wb-jira-list-row > .wb-status-chip {
+  justify-self: stretch;
+  justify-content: center;
+}
