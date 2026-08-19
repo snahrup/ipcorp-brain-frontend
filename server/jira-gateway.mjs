@@ -18,6 +18,7 @@ import {
   getRunDetail,
   listQuestions,
   parseRunId,
+  runIdOf,
   withRunId,
 } from "./agent-runs.mjs";
 import { getDailyMeetingPrep, readDailyMeetingPrepFile } from "./daily-meeting-prep.mjs";
@@ -3245,6 +3246,19 @@ async function readJiraInitiative() {
  * a file-access problem into a false all-clear. A OneDrive file that has not downloaded
  * yet is the common case and says so by name.
  */
+/**
+ * Write a finished run's readout, as the last thing a dispatch does.
+ *
+ * Wired here rather than inside the dispatcher so that module keeps knowing
+ * nothing about readouts. Failures are swallowed by the caller on purpose: a
+ * readout is a convenience layered on the run, never a condition of it.
+ */
+async function writeRunReadout(summary) {
+  const id = runIdOf(summary);
+  if (!id) return;
+  await getReadout(id, summary, { refresh: true });
+}
+
 async function readBreakdownCrosswalk() {
   const initiative = await readJiraInitiative();
   const base = {
@@ -3745,6 +3759,7 @@ async function route(request, response) {
           // run could only describe what it made, and a path in a comment is
           // unreachable for anyone reading the board.
           attach: addIssueAttachment,
+          readout: writeRunReadout,
         },
       });
       return sendJson(response, 202, { ok: true, data: run }, origin);
@@ -3834,6 +3849,7 @@ async function route(request, response) {
           comment: addIssueComment,
           logWork: logIssueWork,
           attach: addIssueAttachment,
+          readout: writeRunReadout,
         },
       });
       return sendJson(response, 202, { ok: true, data: withRunId(run) }, origin);

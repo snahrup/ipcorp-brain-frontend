@@ -21,6 +21,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useBodyScrollLock } from "../../lib/useBodyScrollLock";
 import { describeAction } from "../jira/AgentActivity";
+import { interceptTicketClick } from "../jira/openTicket";
 import { agentRunsGateway } from "./api";
 import { runDuration, runPresentation, startedLabel } from "./format";
 import type { AgentRunSummary, PlanStep, RunDetail, RunQuestion } from "./types";
@@ -274,13 +275,22 @@ export function RunReviewModal({
             )}
           </div>
           <div className="wb-modal-header-actions">
+            {/* Opens the ticket overlay in place. It stays a real anchor so the
+                href is visible on hover and a modified click still reaches Jira,
+                which is someone deliberately asking for the browser. */}
             <a
               href={`https://ip-corporation.atlassian.net/browse/${header?.issueKey ?? ""}`}
               target="_blank"
               rel="noreferrer"
               className="wb-secondary-button"
+              onClick={(event) => {
+                interceptTicketClick(
+                  event,
+                  `https://ip-corporation.atlassian.net/browse/${header?.issueKey ?? ""}`
+                );
+              }}
             >
-              Open in Jira <ArrowUpRight size={15} />
+              Open {header?.issueKey ?? "ticket"} <ArrowUpRight size={15} />
             </a>
             <button
               type="button"

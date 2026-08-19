@@ -923,3 +923,17 @@
     max-width: 100%;
   }
 }
+
+/* The ticket key inside a run row opens the ticket rather than the run. It
+   reads as its own target because it behaves as one. */
+.wb-runs-key[data-ticket-key] {
+  cursor: pointer;
+  text-decoration-color: transparent;
+  text-decoration-line: underline;
+  text-underline-offset: 2px;
+  transition: text-decoration-color 120ms ease;
+}
+
+.wb-runs-key[data-ticket-key]:hover {
+  text-decoration-color: currentColor;
+}

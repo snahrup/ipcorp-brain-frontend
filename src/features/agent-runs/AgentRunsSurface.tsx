@@ -11,6 +11,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { describeAction } from "../jira/AgentActivity";
 import "./agent-runs.css";
+import { openTicket } from "../jira/openTicket";
 import { agentRunsGateway } from "./api";
 import { deliveredLabel, needsYou, runDuration, runPresentation, startedLabel } from "./format";
 import { RunReviewModal } from "./RunReviewModal";
@@ -312,7 +313,18 @@ export function AgentRunsSurface({
                 className="wb-runs-row"
                 data-needs-you={attention ? "true" : undefined}
                 key={run.runId}
-                onClick={() => setOpenRunId(run.runId)}
+                onClick={(event) => {
+                  // The row is a button, so the ticket cannot be a nested link
+                  // without invalid markup. Clicking the key opens the ticket;
+                  // anywhere else opens the run. Keyboard reaches the run, and
+                  // the ticket through the run modal's own header link.
+                  const onKey = (event.target as HTMLElement).closest("[data-ticket-key]");
+                  if (onKey) {
+                    openTicket(run.issueKey);
+                    return;
+                  }
+                  setOpenRunId(run.runId);
+                }}
               >
                 <span className="wb-runs-agent">
                   <span className="wb-runs-agent-mark" data-live={live ? "true" : undefined}>
@@ -335,7 +347,13 @@ export function AgentRunsSurface({
 
                 <span className="wb-runs-issue">
                   <span>
-                    <span className="wb-runs-key">{run.issueKey}</span>
+                    <span
+                      className="wb-runs-key"
+                      data-ticket-key={run.issueKey}
+                      title={`Open ${run.issueKey}`}
+                    >
+                      {run.issueKey}
+                    </span>
                     <span
                       className="wb-runs-summary"
                       data-missing={run.issueSummary ? undefined : "true"}

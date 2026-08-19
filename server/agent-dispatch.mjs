@@ -1152,6 +1152,19 @@ export async function dispatch({
     } catch {
       // A missing archive file must not change the run result.
     }
+
+    // Compile the readout now, while nobody is waiting for it. It takes over a
+    // minute to write, and the moment it is wanted is the moment there is no
+    // minute to spare, so the cost is paid here instead. A run's outcome never
+    // depends on it: a readout that cannot be written is simply absent, and the
+    // screen says so.
+    if (typeof deps.readout === "function") {
+      try {
+        await deps.readout(publicRunSummary(run, { includeMessages: true }));
+      } catch {
+        // Recorded as unavailable by the readout itself; never a run failure.
+      }
+    }
   });
 
   return publicRunSummary(run, { includeMessages: true });
