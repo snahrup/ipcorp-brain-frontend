@@ -1,6 +1,74 @@
 # Handoff
 
-## Current: Track FB, the Foreman Briefing (2026-08-17, 8:30 PM ET)
+## Current: Track FB merged, and the surfaces that were lying (2026-08-18, 9:00 PM ET)
+
+Written by `/handoff`, checked against disk. Start with `/pickup`.
+
+**Where the work is.** Everything is MERGED INTO `main` and the main checkout is on it,
+so the everyday Workbench at 5217 finally serves this work. That was not true for most of
+the day, which is why nothing appeared to change: the branch lived in the worktree at
+`.claude/worktrees/dashboard-overload-brainstorm-7917fc` while 5217 served the main
+checkout. Branch `claude/dashboard-overload-brainstorm-7917fc` is 5 commits ahead of its
+own remote, so PUSH IT. `main` is not pushed either.
+
+Newest first, the six that landed today after the earlier Track FB work:
+
+- `014d1b6` deliverables become real documents, not markdown, with a bar against looking over-decorated
+- `f4928e8` First up is something to actually start on
+- `17efec0` ticket titles start where the key ends
+- `00f63c8` a ticket reference opens the ticket, not a browser window
+- `57f6b0b` one press adds Patrick and Dominique as watchers
+- `370ecd3` the agent work packet
+
+**Read these first.** `docs/brainstorm/2026-08-17-foreman-briefing-spec.md` decides
+briefing behavior. `docs/brainstorm/2026-08-18-run-review-design-prompt.md` is the Claude
+Design prompt for the run review surface, written and waiting on a prototype.
+`docs/mythos/state.md` is the authority on proven versus owed.
+
+**What is done, verified at write time.** 44 foreman tests, 22 dispatch and watcher tests,
+11 front-end module tests, all passing, `npx tsc --noEmit` clean. Live against the real
+board: First up leads with MT-341 rather than MT-392, 76 backlog tickets excluded; the
+activity view carries 100 ticket links and none opens a browser window; MT-473 reads
+Dominique, Patrick, Steve as watchers.
+
+**How to run and see it.** The everyday stack is already up: 5217 and 8817, both serving
+`main`. The gateway was restarted by hand today; if server code changes it needs another
+restart to take effect. The 5218 and 8818 pair is the worktree preview
+(`npm run dev:foreman` and `npm run dev:foreman:gateway`) and is no longer needed now that
+main carries the work; both are still listening and can be stopped.
+
+**What is next.** The status badges Steve asked for and did not get: color-coded by tone,
+centered in the cell, and uniform width sized to the longest status name, which is
+"Research / Discovery" at 20 characters. There is already a `wb-status-chip` with
+`data-tone` used in Today that the Work list ignores in favour of a hardcoded
+`wb-status-neutral`, so the fix is to use the pattern that exists. After that, MT-462, the
+governance and access documentation, is the obvious first re-run under the new prompt
+because it produced markdown under the old one.
+
+**What is owed.** Nothing here is pushed. The status badge work is untouched. The run
+review surface exists only as a design prompt. No toast has ever been watched at T-30. The
+briefing's `/briefing/meeting/<id>` route still falls through to the main briefing because
+the per-meeting prep chapters (FB-3b) are not built.
+
+**Merge hazard, live right now.** Another session has uncommitted edits in the main
+checkout to `package.json`, `server/jira-gateway.mjs` and a new untracked `server/workbook/`.
+Those files overlap with this track. Leave them alone and rebase around them.
+
+**Do not redo.** Patrick Stiller and Dominique Mathers were really added as watchers to
+MT-473 while testing, so they get emails on that ticket now; remove them if that is
+unwanted rather than assuming it was a dry run. Do not purge or rewrite historical Jira
+comments: six past runs were audited and none posted a false claim, and the two failures
+said plainly that they had not finished. Never replay a Microsoft 365 action whose result
+came back indeterminate.
+
+**Open question for Steve.** Should MT-462 be re-run now under the new deliverable rules,
+and should the status badge work land before or after that?
+
+**The transcript, as archive rather than plan.** `node ~/.claude/skills/pickup/find-transcripts.mjs`
+lists it; today is `claude:9c0a383e-9a8c-4c26-ac1f-d06f8a533287`, 313 messages. Its manifest
+title reads "Scheduled Jobs Viewer" and is wrong, so match on the id. Read the tail only.
+
+## Previous: Track FB, the Foreman Briefing (2026-08-17, 8:30 PM ET)
 
 Written by `/handoff`. Everything below was checked against disk at that time, not recalled.
 Account-independent: a session signed in as the other Max account on this machine picks it up

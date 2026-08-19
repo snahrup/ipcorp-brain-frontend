@@ -8,6 +8,21 @@ Phase 2: move activity reconciliation fully onto the shared saved-step engine.
 - Safety: no live Jira or communication effect; recommendation and review paths only
 - Also owed: resolve the unused `clock` in `activity-lifecycle.mjs` while in that file
 
+## Track FB is merged into main (2026-08-18)
+
+- The whole track plus today's fixes now sits on `main`, and the main checkout is on it, so
+  the everyday Workbench serves it. Neither `main` nor the branch is pushed.
+- Verified at merge time: 44 foreman tests, 22 dispatch and watcher tests, 11 front-end
+  module tests, typecheck clean. Live: First up leads with MT-341 not MT-392, 76 backlog
+  tickets excluded, 100 ticket links open in place, MT-473 watchers read back correctly.
+- Proven wrong twice today, both worth remembering: a fix verified in the browser is not a
+  fix that was committed (the list indentation change was measured working, then merged
+  without ever being committed), and the same bad ranking existed in two surfaces, so
+  correcting the briefing left Today untouched and the ticket kept leading.
+- Owed: status badges (color-coded, centered, uniform width at the longest status name),
+  FB-3b per-meeting prep chapters, a real toast watched at T-30, the run review surface
+  which exists only as a design prompt, and MT-462 re-run under the new deliverable rules.
+
 ## Parallel track in progress: Track FB, Foreman Briefing (2026-08-17)
 
 - The landing walkthrough program: morning briefing plus per-meeting countdown
