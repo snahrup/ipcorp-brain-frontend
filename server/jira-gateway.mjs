@@ -11,6 +11,7 @@ import { createActivityStore } from "./activity-reconciliation/activity-store.mj
 import { writeProposalProse } from "./activity-reconciliation/voice-writer.mjs";
 import { buildAgentBoard } from "./agent-board.mjs";
 import { dispatch as dispatchAgent, getRun, listRuns } from "./agent-dispatch.mjs";
+import { getReadout } from "./agent-readout.mjs";
 import {
   askQuestion,
   buildFollowUpContext,
@@ -3766,6 +3767,18 @@ async function route(request, response) {
         throw new GatewayError(404, "No record of that run exists.", "run_not_found");
       }
       return sendJson(response, 200, { ok: true, data: detail }, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/api/agents/runs/readout") {
+      const id = url.searchParams.get("id") || "";
+      const parsed = parseRunId(id);
+      if (!parsed) {
+        throw new GatewayError(400, "A valid run id is required.", "invalid_run_id");
+      }
+      const detail = await getRunDetail(parsed, { liveRun: getRun(parsed.issueKey) });
+      const readout = await getReadout(id, detail, {
+        refresh: url.searchParams.get("refresh") === "1",
+      });
+      return sendJson(response, 200, { ok: true, data: readout }, origin);
     }
     if (request.method === "GET" && url.pathname === "/api/agents/runs/questions") {
       const id = url.searchParams.get("id") || "";
