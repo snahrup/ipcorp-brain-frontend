@@ -1,6 +1,123 @@
 # Handoff
 
-## Current: Track FB, the Foreman Briefing (2026-08-17, 8:30 PM ET)
+## Current: Workbook crosswalk on the Work screen (2026-08-18, evening ET)
+
+Written by `/handoff`. Everything below was checked against disk, not recalled. Start with
+`/pickup`.
+
+**Where the work is.** Repo `C:\Users\snahrup\CascadeProjects\ipcorp-brain-frontend`, branch
+`main`, in the MAIN checkout, not a worktree. `main` is 15 commits ahead of `origin/main` and
+nothing is pushed.
+
+Check `git log` before trusting any sha here. Another session was committing to `main` in this
+same directory while this ran: three of its commits landed at 15:54, 15:58 and 15:59, and HEAD
+moved from `46fba49` to `014d1b6` underneath this session. The two do not touch the same files,
+but the branch is shared, so look before you rebase or reset.
+
+One commit from this session:
+
+- `83d696c` the workbook reader, the crosswalk, and the gateway route
+
+**Read these first.** There is no spec document for this feature. The requirements came from
+Patrick in Teams and from Steve in this session, so they are recorded here and nowhere else.
+
+- Patrick, 2026-08-18: "You may also want to have them roll-up, that is the tasks with some
+  hierarchical levels and then put the top 2 tiers into the Gant."
+- Steve: build a new custom view whose job is making people confident that Jira matches the
+  breakdown workbook, and letting them validate for themselves what lines up and what rolls up
+  to what. The audience is Robin and Patrick, not Steve.
+- Steve, asked which hierarchy "top 2 tiers" means and what to do about missing start dates,
+  chose switchable for both: a tier-depth control (1, 2, or all) and a date-mode control
+  (recorded dates with the gaps marked, versus estimate-derived spans labeled as derived).
+
+The header comments in `server/workbook/xlsx-reader.mjs` and `server/workbook/breakdown.mjs`
+explain the parts that look unusual.
+
+**What is done, and verified.** The data foundation, all of it proven:
+
+- `server/workbook/xlsx-reader.mjs` reads .xlsx with no new dependency. Verified two ways: 12
+  unit tests, and a cell-by-cell comparison against openpyxl across all ten sheets of the real
+  workbook with zero differences in text cells. The only differences are Excel date serials,
+  which it deliberately does not convert, in a tab the crosswalk never reads.
+- `server/workbook/breakdown.mjs` parses the workbook into programs, projects and tasks, lines
+  it up against the MT issues, and totals the rollups. 16 unit tests.
+- `GET /api/jira/breakdown-crosswalk` in `server/jira-gateway.mjs`. Exercised live against real
+  Jira and the real file: HTTP 200, 102 KB, 2.3 seconds.
+- Fail-closed proven rather than assumed. Pointed at a missing workbook path, the route returns
+  `coverage: null` with a named reason and still reports the Jira side, instead of an empty
+  crosswalk that would read as a clean result.
+- `npm run test:workbook`, 28 tests, added to `npm run ci`. Node tests did not run in `ci`
+  before this.
+
+A real defect was found and fixed inside the reader, red first. Self-closing `<row/>` and `<c/>`
+tags matched the open-tag branch of the pattern, and their lazy body ran to the next closing
+tag, swallowing the following element and shifting values onto the wrong rows. The real workbook
+has 16 such rows and 252 such cells. Against the original pattern order exactly the two
+swallowing tests fail and the other ten pass; after the fix all twelve pass.
+
+**What the crosswalk says today.** 52 of 52 workbook tasks are on the board. 50 match word for
+word. One is reworded (`F1.4`, where "Chargeback" became "cost-tracking" under the banned-words
+rule). One has no Jira issue at all (`M0.1`, apply the governance security template). Zero
+WBS-coded issues are unaccounted for. Two rows that first looked like mismatches are one
+problem: the workbook's `M4` group label is broken on two rows, which stripped their codes, and
+the crosswalk detects that by text and reports it as a grouping repair instead of two gaps.
+
+**How to run and see it.** The gateway has to be restarted to serve the new route. The instance
+running on 8817 predates this work and returns 404 for it, confirmed.
+
+```
+npm run dev:jira
+curl -s http://127.0.0.1:8817/api/jira/breakdown-crosswalk
+npm run test:workbook
+```
+
+To exercise the route without disturbing a gateway another session is using, run a second one on
+a spare port. The workbook path is overridable, which is how the unreadable-file path was proven:
+
+```
+IPCORP_JIRA_GATEWAY_PORT=8899 node server/jira-gateway.mjs
+IPCORP_MDM_WORKBOOK_PATH=C:/nope/not-here.xlsx node server/jira-gateway.mjs
+```
+
+**What is next.** The view itself, which is the whole point and is not built yet.
+
+1. A Breakdown view under the Work screen, added as a new layout tab in
+   `src/features/jira/JiraWorkSurface.tsx` beside List, Board, Activity, Analytics, Timeline,
+   Gantt and Dependencies. It renders the crosswalk: each workbook row beside its MT issue, the
+   changed words where they differ, the rollup arithmetic expandable so a reader can see the
+   rows that produced each total, and the gaps stated plainly.
+2. The two switches Steve chose, tier depth and date mode, wired into that view and into
+   `src/features/jira/JiraTimeline.tsx` so the Gantt honors them.
+
+**What is owed.**
+
+- No Playwright check exists for any of this. The route and the logic are covered by node tests.
+  Nothing covers a rendered view, because there is no view yet.
+- The date problem, which decides what the Gantt can honestly draw. The workbook-derived
+  subtasks have no start dates at all and one shared due date per program: all 10 Fabric due
+  2026-09-30, all 29 Wave 1 due 2026-12-19, all 5 Wave 2 due 2027-06-30. They were stamped, not
+  scheduled. Board-wide, 310 of 383 MT issues have a due date and no start date, which is why
+  the current Gantt draws 323 of its 375 rows as zero-length marks. Rolling children up rescues
+  only 6 of the 33 affected top-tier rows.
+- `MT-12` stores dates ending 2026-12-18 while its own children run to 2027-06-30. Parent bars
+  should come from rolled-up child dates, not the parent's stored fields.
+- `main` is 15 commits ahead of `origin` and unpushed, and most of that is another session's
+  work. Do not push without checking with Steve first.
+
+**Do not redo.** Nothing here sent mail, wrote to Jira, or ran a Microsoft 365 action. Every
+Jira call was a read. Two temporary gateways were started on ports 8898 and 8899 and both were
+stopped; the everyday one on 8817 was confirmed healthy afterward and was never touched.
+`exceljs` was installed and removed during evaluation, and `package-lock.json` was restored to
+HEAD, so the net dependency change is zero. Do not go looking for it.
+
+**Open question for Steve.** Should the missing `M0.1` become a real MT subtask under `MT-420`,
+or stay visible in the view as a workbook row with no issue? The view can show it honestly
+either way, but creating it is a Jira write and nobody has asked for one.
+
+**The transcript** is the archive, not the plan:
+`C:\Users\snahrup\.nexus\materialized-transcripts\claude\5fb909af-850b-4970-bc7e-bc20b2c0dff4\messages.json`
+
+## Previous: Track FB, the Foreman Briefing (2026-08-17, 8:30 PM ET)
 
 Written by `/handoff`. Everything below was checked against disk at that time, not recalled.
 Account-independent: a session signed in as the other Max account on this machine picks it up

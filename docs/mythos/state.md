@@ -8,6 +8,34 @@ Phase 2: move activity reconciliation fully onto the shared saved-step engine.
 - Safety: no live Jira or communication effect; recommendation and review paths only
 - Also owed: resolve the unused `clock` in `activity-lifecycle.mjs` while in that file
 
+## Parallel track in progress: Workbook crosswalk on the Work screen (2026-08-18)
+
+- The Work screen gets a view that proves the Jira board matches the MDM breakdown workbook,
+  then feeds a tier-limited Gantt. Asked for by Patrick in Teams on 2026-08-18. The audience
+  is Robin and Patrick, so the job is letting them check it themselves, not asserting it.
+- Authority: no spec document exists. The requirements are written down in the current entry
+  of `docs/mythos/handoff.md` and nowhere else.
+- Branch: `main`, main checkout, commit `83d696c`. Shared with another session that was
+  committing to `main` the same afternoon; the two do not touch the same files.
+- PROVEN: the .xlsx reader (12 tests, plus a cell-by-cell match against openpyxl across all
+  ten sheets of the real workbook with zero differences in text cells), the crosswalk and its
+  rollups (16 tests), and `GET /api/jira/breakdown-crosswalk` exercised live against real Jira
+  and the real file (HTTP 200, 102 KB, 2.3s). Fail-closed proven by pointing the route at a
+  missing path: it returns `coverage: null` with a named reason, never an empty crosswalk that
+  would read as a clean result. 28 tests, now inside `npm run ci`, which had never run node
+  tests before.
+- Red-first evidence: self-closing `<row/>` and `<c/>` tags matched the open-tag branch and
+  swallowed the following element, shifting values onto the wrong rows. Exactly two tests fail
+  against the original pattern order and pass after it. The real workbook has 16 such rows and
+  252 such cells, so this was corrupting real reads, not a theoretical case.
+- Result today: 52 of 52 workbook tasks on the board, 50 word for word, 1 reworded (`F1.4`),
+  1 with no issue at all (`M0.1`), 0 unaccounted for on the Jira side.
+- OWED: the view itself does not exist, so nothing here has Playwright coverage. The two
+  switches Steve chose, tier depth and date mode, are unbuilt. And the scheduling data will
+  not support an honest Gantt as it stands: the workbook subtasks carry no start dates and one
+  stamped due date per program, and 310 of 383 MT issues board-wide have a due date and no
+  start date, which is why the existing Gantt draws 323 of its 375 rows as zero-length marks.
+
 ## Parallel track in progress: Track FB, Foreman Briefing (2026-08-17)
 
 - The landing walkthrough program: morning briefing plus per-meeting countdown
