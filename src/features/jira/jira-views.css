@@ -533,6 +533,9 @@
 /* In the work list every chip is the same width, set by the longest status
    name, with the label centred. Elsewhere the chip stays sized to its text. */
 .wb-jira-list-row > .wb-status-chip {
-  justify-self: stretch;
+  justify-self: start;
   justify-content: center;
+  /* Character count of the longest status in the list, set on the container.
+     The dot and its gap plus the pill padding come to about 2.6ch. */
+  min-width: calc(var(--status-chip-ch, 12) * 1ch + 2.6ch);
 }

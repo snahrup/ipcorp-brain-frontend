@@ -513,7 +513,21 @@ export function JiraWorkSurface() {
           runningKeys={runningKeys}
         />
       ) : mode === "list" ? (
-        <section className="wb-jira-list" aria-label="Live MDM Jira issue list">
+        <section
+          className="wb-jira-list"
+          aria-label="Live MDM Jira issue list"
+          // Every row is its own grid, so a max-content column sizes per row and
+          // the chips come out three different widths. The longest status name in
+          // the list is measured once here and every chip is pinned to it.
+          style={
+            {
+              "--status-chip-ch": `${visibleIssues.reduce(
+                (longest, issue) => Math.max(longest, (issue.status.name || "").length),
+                0
+              )}`,
+            } as React.CSSProperties
+          }
+        >
           <div className="wb-jira-list-head">
             <span>Issue</span>
             <span>Status</span>
