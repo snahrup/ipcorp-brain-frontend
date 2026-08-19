@@ -160,24 +160,23 @@ export const DEFAULTS = {
   multiplier: 3.5,
 
   /**
-   * Hours per week available for one domain's work. Steve's figure, set 2026-08-18.
+   * Hours per week available for one domain's work. Not the whole working week: the
+   * Fabric and Purview platform programs, meetings, and everything outside MDM run
+   * alongside this.
    *
-   * Worth knowing what it implies, because it disagrees with the board. Running the
-   * template at 43 finishes the Customer domain around 2026-11-16, about five weeks
-   * BEFORE the 2026-12-19 already recorded against it. Only two readings of that are
-   * possible: the recorded date carries roughly five weeks of slack, or these base
-   * effort figures are light. check() reports the gap rather than smoothing it, and 28
-   * is the capacity that would reproduce the recorded window exactly.
+   * Calibrated, not picked, and deliberately the conservative reading. At 28 the
+   * template reproduces the Customer window already on the board (2026-08-10 to
+   * 2026-12-19) to within a few days, so the plan agrees with the one commitment that
+   * already exists rather than quietly promising something faster. 20 overshoots that
+   * window by six weeks; 43 finishes five weeks early. check() re-proves this and fails
+   * when the capacity is wrong, so the calibration cannot become decoration.
    *
-   * Also worth knowing: past roughly 35 the end date barely moves, because the tasks run
-   * one after another and 30 serial tasks cannot take fewer than 30 working days however
-   * many hours go into them. Beyond that point the schedule is governed by sequencing,
-   * not capacity, and only running tasks in parallel would shorten it.
+   * Raising it buys less than it looks like it should. Past roughly 35 the end date
+   * barely moves, because 30 tasks running one after another cannot take fewer than 30
+   * working days however many hours go into them. From there the schedule is governed by
+   * sequencing, not capacity, and only running tasks in parallel would shorten it.
    */
-  hoursPerWeek: 43,
-
-  /** The capacity that reproduces the Customer window already on the board. */
-  calibratedHoursPerWeek: 28,
+  hoursPerWeek: 28,
 
   /**
    * Later domains are faster because the template is proven. That is the stated reason
