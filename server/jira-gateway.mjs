@@ -58,6 +58,8 @@ import {
   weeklyStatusSubject,
 } from "./weekly-status/build-weekly-status.mjs";
 import { createWorkbenchAgentRouter } from "./workbench-agent/index.mjs";
+import { crosswalkBreakdown, parseBreakdown } from "./workbook/breakdown.mjs";
+import { readWorkbook, WorkbookReadError } from "./workbook/xlsx-reader.mjs";
 
 const HOST = "127.0.0.1";
 const PORT = Number.parseInt(process.env.IPCORP_JIRA_GATEWAY_PORT || "8817", 10);
@@ -68,6 +70,11 @@ const SETTINGS_PATH =
 const TEAM_LIBRARY_PATH =
   process.env.IPCORP_TEAM_LIBRARY_PATH ||
   "C:\\Users\\snahrup\\OneDrive - IP-Corporation\\IT Internal - MDM - Master Data Management\\Team Library";
+// The breakdown workbook sits one level above the Team Library, alongside the other
+// program governance files, not inside it.
+const MDM_WORKBOOK_PATH =
+  process.env.IPCORP_MDM_WORKBOOK_PATH ||
+  "C:\\Users\\snahrup\\OneDrive - IP-Corporation\\IT Internal - MDM - Master Data Management\\MDM Program Project Task Breakdown.xlsx";
 const BRAIN_REPO_PATH =
   process.env.IPCORP_BRAIN_PATH ||
   "C:\\Users\\snahrup\\OneDrive - IP-Corporation\\ipcorp-architecture-brain";
@@ -3218,6 +3225,66 @@ async function readJiraInitiative() {
   };
 }
 
+/**
+ * The breakdown workbook lined up against the live MT board.
+ *
+ * Both sides are read fresh and both read times come back with the result, because the
+ * first question anyone asks of a comparison like this is how current each side is.
+ *
+ * An unreadable workbook is reported as unreadable. It must never come back as a
+ * crosswalk with no rows, which reads as "the workbook is empty" and would quietly turn
+ * a file-access problem into a false all-clear. A OneDrive file that has not downloaded
+ * yet is the common case and says so by name.
+ */
+async function readBreakdownCrosswalk() {
+  const initiative = await readJiraInitiative();
+  const base = {
+    jira: {
+      fetchedAt: initiative.fetchedAt,
+      issueCount: initiative.issues.length,
+      projectKey: initiative.projectKey,
+    },
+    workbook: { path: MDM_WORKBOOK_PATH, readable: false, reason: null, modifiedAt: null },
+    programs: [],
+    unaccounted: [],
+    coverage: null,
+  };
+
+  let bytes;
+  let modifiedAt = null;
+  try {
+    const [contents, info] = await Promise.all([
+      readFile(MDM_WORKBOOK_PATH),
+      stat(MDM_WORKBOOK_PATH),
+    ]);
+    bytes = contents;
+    modifiedAt = info.mtime.toISOString();
+  } catch (reason) {
+    base.workbook.reason =
+      reason?.code === "ENOENT"
+        ? "The breakdown workbook was not found at its configured path."
+        : `The breakdown workbook could not be read: ${reason?.message ?? "unknown error"}`;
+    return base;
+  }
+
+  try {
+    const breakdown = parseBreakdown(readWorkbook(bytes));
+    const crosswalk = crosswalkBreakdown(breakdown, initiative.issues);
+    return {
+      ...base,
+      workbook: { path: MDM_WORKBOOK_PATH, readable: true, reason: null, modifiedAt },
+      ...crosswalk,
+    };
+  } catch (reason) {
+    base.workbook.modifiedAt = modifiedAt;
+    base.workbook.reason =
+      reason instanceof WorkbookReadError
+        ? reason.message
+        : `The breakdown workbook could not be interpreted: ${reason?.message ?? "unknown error"}`;
+    return base;
+  }
+}
+
 async function readJiraAnalyticsInitiative() {
   const [search, statuses] = await Promise.all([
     searchJiraIssues({
@@ -3618,6 +3685,9 @@ async function route(request, response) {
 
     if (request.method === "GET" && url.pathname === "/api/jira/initiative") {
       return sendJson(response, 200, { ok: true, data: await readJiraInitiative() }, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/api/jira/breakdown-crosswalk") {
+      return sendJson(response, 200, { ok: true, data: await readBreakdownCrosswalk() }, origin);
     }
     if (request.method === "GET" && url.pathname === "/api/jira/analytics") {
       const refresh = url.searchParams.get("refresh") === "1";
