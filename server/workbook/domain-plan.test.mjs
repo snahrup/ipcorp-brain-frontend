@@ -49,11 +49,58 @@ test("addWorkingDays steps over a holiday rather than through it", () => {
   assert.equal(addWorkingDays("2026-12-23", 1).toISOString().slice(0, 10), "2026-12-28");
 });
 
-test("the booked estimate is the focused estimate times the multiplier", () => {
+test("the booked estimate is your own time times the multiplier, not the agent's", () => {
   const plan = planDomain({ domain: "Customer", waveNumber: 1, startDate: "2026-08-10" });
   for (const task of plan.tasks) {
-    assert.equal(task.effortHours, Math.round(task.baseHours * DEFAULTS.multiplier * 2) / 2);
+    assert.equal(task.effortHours, Math.round(task.reviewHours * DEFAULTS.multiplier * 2) / 2);
   }
+});
+
+test("a task takes as long as its slowest constraint, never the sum of them", () => {
+  const plan = planDomain({ domain: "Customer", waveNumber: 1, startDate: "2026-08-10" });
+  for (const task of plan.tasks) {
+    assert.equal(task.durationDays, Math.max(1, task.effortDays, task.latencyDays));
+    assert.ok(task.durationDays <= Math.max(1, task.effortDays + task.latencyDays));
+  }
+});
+
+test("a task dominated by waiting says so, and one dominated by work says so", () => {
+  const plan = planDomain({ domain: "Customer", waveNumber: 1, startDate: "2026-08-10" });
+  const kickoff = plan.tasks.find((task) => task.summary.startsWith("Hold the initial meeting"));
+  assert.equal(kickoff.driver, "waiting on people");
+  assert.equal(kickoff.latencyDays, 10);
+  const etl = plan.tasks.find((task) => task.summary.startsWith("Implement ETL"));
+  assert.equal(etl.driver, "the work");
+  assert.equal(etl.latencyDays, 0);
+});
+
+test("more capacity does not shorten a task that is waiting on somebody", () => {
+  // The point of the whole model. Doubling the hours cannot make a steward reply sooner.
+  const slow = planDomain({
+    domain: "Customer",
+    waveNumber: 1,
+    startDate: "2026-08-10",
+    options: { hoursPerWeek: 14 },
+  });
+  const fast = planDomain({
+    domain: "Customer",
+    waveNumber: 1,
+    startDate: "2026-08-10",
+    options: { hoursPerWeek: 60 },
+  });
+  const pick = (plan) =>
+    plan.tasks.find((task) => task.summary.startsWith("Get steward/owner acceptance"));
+  assert.equal(pick(slow).durationDays, pick(fast).durationDays);
+  assert.equal(pick(fast).durationDays, 7);
+});
+
+test("the learning curve speeds up the work but never the waiting", () => {
+  const first = planDomain({ domain: "Customer", waveNumber: 1, startDate: "2026-08-10" });
+  const third = planDomain({ domain: "Product", waveNumber: 3, startDate: "2027-05-20" });
+  assert.ok(third.reviewHours < first.reviewHours, "later domains need less of your time");
+  const pick = (plan) =>
+    plan.tasks.find((task) => task.summary.startsWith("Get steward/owner acceptance"));
+  assert.equal(pick(third).latencyDays, pick(first).latencyDays, "a steward does not reply faster");
 });
 
 test("changing the multiplier scales every estimate and nothing else", () => {
@@ -126,15 +173,22 @@ test("the plan agrees with the Customer window already on the board", () => {
   assert.ok(Math.abs(result.driftWeeks) <= 2);
 });
 
-test("more capacity finishes ahead of the board, which check reports rather than hides", () => {
-  // Recorded because it was measured, and because it is the reason 28 was kept: at 43
-  // the same template finishes Customer about five weeks before the date on the board.
-  // If a later change makes this agree silently, the schedule has drifted and nobody
-  // was told.
-  const result = check({ hoursPerWeek: 43 });
-  assert.equal(result.agrees, false);
-  assert.ok(result.driftWeeks < -3, `expected it to run early, drift was ${result.driftWeeks}`);
-  assert.ok(result.modelledDue < result.actualDue);
+test("past a point, extra capacity cannot move the finish at all", () => {
+  // The finding the whole model exists to show. Once agents do the work, the schedule
+  // is other people, and it stops responding to hours entirely: 60 a week and 100 a
+  // week land on exactly the same day, because what is left is waiting.
+  const sixty = check({ hoursPerWeek: 60 });
+  const hundred = check({ hoursPerWeek: 100 });
+  assert.equal(hundred.modelledDue, sixty.modelledDue);
+  assert.equal(hundred.modelledWeeks, sixty.modelledWeeks);
+
+  // And the whole realistic range is narrow: quadrupling capacity from 14 to 60 buys
+  // about five weeks on a twenty-week domain, not four times the speed.
+  const lean = check({ hoursPerWeek: 14 });
+  assert.ok(
+    lean.modelledWeeks - sixty.modelledWeeks < 6,
+    `quadrupling capacity moved the finish by ${(lean.modelledWeeks - sixty.modelledWeeks).toFixed(1)} weeks`
+  );
 });
 
 test("check disagrees when the weekly capacity is wrong, rather than always passing", () => {

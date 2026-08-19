@@ -30,122 +30,214 @@
 export const TEMPLATE_TASKS = [
   {
     group: "Security setup",
-    hours: 4,
+    agentMinutes: 30,
+    reviewHours: 2,
+    latencyDays: 0,
     task: "Apply the governance security template to this domain before build: access roster, resource groups vs carve-outs, row level security decision",
   },
   {
     group: "Pick the domain",
-    hours: 2,
+    agentMinutes: 30,
+    reviewHours: 1,
+    latencyDays: 5,
     task: "Present the {DOMAIN} recommendation to stewards for weigh-in",
     domainToken: true,
   },
-  { group: "Pick the domain", hours: 0.5, task: "Record the official domain decision" },
+  {
+    group: "Pick the domain",
+    agentMinutes: 10,
+    reviewHours: 0.5,
+    latencyDays: 2,
+    task: "Record the official domain decision",
+  },
   {
     group: "Pick the people",
-    hours: 4,
+    agentMinutes: 45,
+    reviewHours: 2,
+    latencyDays: 3,
     task: "Finalize candidate pro/con matrix incl. priority picks (stewards, owners, BA, data engineer)",
   },
   {
     group: "Pick the people",
-    hours: 1,
+    agentMinutes: 15,
+    reviewHours: 0.5,
+    latencyDays: 5,
     task: "Confirm supporting BA and extracting data engineer assignments",
   },
-  { group: "Pick the people", hours: 1, task: "Get steward/owner acceptance (light-touch ask)" },
   {
     group: "Pick the people",
-    hours: 1,
+    agentMinutes: 15,
+    reviewHours: 0.5,
+    latencyDays: 7,
+    task: "Get steward/owner acceptance (light-touch ask)",
+  },
+  {
+    group: "Pick the people",
+    agentMinutes: 20,
+    reviewHours: 0.5,
+    latencyDays: 1,
     task: "Send Robin and Mike the role time commitment expectations (initial peak, level off, small later peaks) plus the original governance PDF as a reminder",
   },
-  { group: "Source data", hours: 3, task: "Identify source systems feeding the domain" },
   {
     group: "Source data",
-    hours: 6,
+    agentMinutes: 30,
+    reviewHours: 1,
+    latencyDays: 0,
+    task: "Identify source systems feeding the domain",
+  },
+  {
+    group: "Source data",
+    agentMinutes: 60,
+    reviewHours: 2,
+    latencyDays: 0,
     task: "Document source tables/objects in scope for extraction",
   },
   {
     group: "Report inventory",
-    hours: 4,
+    agentMinutes: 45,
+    reviewHours: 1,
+    latencyDays: 2,
     task: "Run the list of domain reports + who accesses them",
   },
   {
     group: "Report inventory",
-    hours: 8,
+    agentMinutes: 90,
+    reviewHours: 2,
+    latencyDays: 0,
     task: "Capture all measures, dimensions, day-to-day usage per report",
   },
-  { group: "Report inventory", hours: 2, task: "Confirm the inventory with stewards/owners" },
+  {
+    group: "Report inventory",
+    agentMinutes: 15,
+    reviewHours: 0.5,
+    latencyDays: 5,
+    task: "Confirm the inventory with stewards/owners",
+  },
   {
     group: "Kickoff and RACI",
-    hours: 2,
+    agentMinutes: 30,
+    reviewHours: 2,
+    latencyDays: 10,
     task: "Hold the initial meeting: Eudias, Steve, Kerri, Patrick + named stewards/owners",
   },
   {
     group: "Kickoff and RACI",
-    hours: 2,
+    agentMinutes: 30,
+    reviewHours: 1,
+    latencyDays: 0,
     task: "Bring the draft RACI to that first touch-base (kept light)",
   },
   {
     group: "Pipelines and model build",
-    hours: 12,
+    agentMinutes: 60,
+    reviewHours: 2,
+    latencyDays: 0,
     task: "Stand up bronze + silver for the domain",
   },
   {
     group: "Pipelines and model build",
-    hours: 16,
+    agentMinutes: 90,
+    reviewHours: 3,
+    latencyDays: 0,
     task: "Implement ETL (port the trial-capacity processes)",
   },
   {
     group: "Pipelines and model build",
-    hours: 16,
+    agentMinutes: 90,
+    reviewHours: 3,
+    latencyDays: 0,
     task: "Build the gold warehouse/lakehouse + draft semantic model from the report inventory",
   },
   {
     group: "Glossary and definitions",
-    hours: 6,
+    agentMinutes: 60,
+    reviewHours: 1.5,
+    latencyDays: 0,
     task: "Draft the glossary internally from gold-model learnings (baseline)",
   },
   {
     group: "Glossary and definitions",
-    hours: 3,
+    agentMinutes: 15,
+    reviewHours: 1,
+    latencyDays: 7,
     task: "Steward/owner additive review of the baseline",
   },
   {
     group: "Glossary and definitions",
-    hours: 8,
+    agentMinutes: 60,
+    reviewHours: 2,
+    latencyDays: 3,
     task: "Define calculations (domain-specific calcs + definitions)",
   },
   {
     group: "Internal first pass",
-    hours: 4,
+    agentMinutes: 45,
+    reviewHours: 2,
+    latencyDays: 0,
     task: "Internal review of pipeline + all layers BEFORE any steward/owner viewing",
   },
   {
     group: "Steward and owner review",
-    hours: 3,
+    agentMinutes: 30,
+    reviewHours: 2,
+    latencyDays: 7,
     task: "Present the draft model + warehouse to stewards/owners; gather input",
   },
-  { group: "Steward and owner review", hours: 8, task: "Iterate to the final model with them" },
+  {
+    group: "Steward and owner review",
+    agentMinutes: 60,
+    reviewHours: 2,
+    latencyDays: 7,
+    task: "Iterate to the final model with them",
+  },
   {
     group: "Security application",
-    hours: 4,
+    agentMinutes: 45,
+    reviewHours: 1.5,
+    latencyDays: 0,
     task: "Apply the Purview security schema to the domain workspace (users, access, RLS vs report-level)",
   },
   {
     group: "Training",
-    hours: 2,
+    agentMinutes: 30,
+    reviewHours: 1,
+    latencyDays: 0,
     task: "Establish what training is needed (per role + per audience)",
   },
-  { group: "Training", hours: 3, task: "Deliver gold-access training to stewards/owners" },
-  { group: "Rules and guidelines", hours: 3, task: "Establish domain rules and guidelines" },
-  { group: "Cadence", hours: 1, task: "Set the recurring meeting cadence AFTER the kickoff" },
+  {
+    group: "Training",
+    agentMinutes: 30,
+    reviewHours: 2,
+    latencyDays: 5,
+    task: "Deliver gold-access training to stewards/owners",
+  },
+  {
+    group: "Rules and guidelines",
+    agentMinutes: 45,
+    reviewHours: 1,
+    latencyDays: 2,
+    task: "Establish domain rules and guidelines",
+  },
+  {
+    group: "Cadence",
+    agentMinutes: 10,
+    reviewHours: 0.5,
+    latencyDays: 3,
+    task: "Set the recurring meeting cadence AFTER the kickoff",
+  },
   {
     group: "After-action",
-    hours: 3,
+    agentMinutes: 45,
+    reviewHours: 1,
+    latencyDays: 2,
     task: "Assess how {WAVE} went: improvements, removals, things we should have added",
     waveToken: true,
   },
   {
     group: "After-action",
-    hours: 2,
+    agentMinutes: 30,
+    reviewHours: 1,
+    latencyDays: 0,
     task: "Feed the template updates into {NEXT_WAVE} planning",
     nextWaveToken: true,
   },
@@ -279,9 +371,19 @@ export function planDomain({ domain, waveNumber, startDate, options = {} }) {
 
   let cursor = toWorkday(toDate(startDate));
   const tasks = TEMPLATE_TASKS.map((template) => {
-    const baseHours = roundHalf(template.hours * curve);
-    const effortHours = roundHalf(baseHours * settings.multiplier);
-    const durationDays = Math.max(1, Math.ceil(effortHours / hoursPerDay));
+    // The learning curve applies to the work, not to other people. A steward does not
+    // reply faster because this is the third domain, so latency is never discounted.
+    const reviewHours = roundHalf(template.reviewHours * curve);
+    const effortHours = roundHalf(reviewHours * settings.multiplier);
+    const agentMinutes = Math.round(template.agentMinutes * curve);
+    const latencyDays = template.latencyDays;
+
+    // A task takes as long as its slowest constraint, not the sum of them. Reviewing
+    // for two hours while waiting a week on a steward still takes a week. Treating
+    // these as additive is how a plan quietly doubles.
+    const effortDays = Math.ceil(effortHours / hoursPerDay);
+    const durationDays = Math.max(1, effortDays, latencyDays);
+    const driver = latencyDays >= effortDays && latencyDays > 0 ? "waiting on people" : "the work";
 
     const start = toWorkday(cursor);
     const due = addWorkingDays(start, durationDays - 1);
@@ -297,13 +399,22 @@ export function planDomain({ domain, waveNumber, startDate, options = {} }) {
     return {
       group: template.group,
       summary,
-      baseHours,
+      agentMinutes,
+      reviewHours,
+      latencyDays,
       effortHours,
+      effortDays,
       durationDays,
+      driver,
       startDate: iso(start),
       dueDate: iso(due),
     };
   });
+
+  const sum = (field) => roundHalf(tasks.reduce((total, task) => total + task[field], 0));
+  const waitingDays = tasks
+    .filter((task) => task.driver === "waiting on people")
+    .reduce((total, task) => total + task.durationDays, 0);
 
   return {
     domain,
@@ -312,8 +423,16 @@ export function planDomain({ domain, waveNumber, startDate, options = {} }) {
     tasks,
     startDate: tasks[0].startDate,
     dueDate: tasks.at(-1).dueDate,
-    baseHours: roundHalf(tasks.reduce((sum, task) => sum + task.baseHours, 0)),
-    effortHours: roundHalf(tasks.reduce((sum, task) => sum + task.effortHours, 0)),
+    reviewHours: sum("reviewHours"),
+    effortHours: sum("effortHours"),
+    agentHours: roundHalf(tasks.reduce((total, task) => total + task.agentMinutes, 0) / 60),
+    // How much of the schedule is other people rather than work. The number that says
+    // whether adding capacity would help at all.
+    waitingDays,
+    waitingShare:
+      Math.round(
+        (waitingDays / tasks.reduce((total, task) => total + task.durationDays, 0)) * 100
+      ) / 100,
     calendarWeeks:
       Math.round(((toDate(tasks.at(-1).dueDate) - toDate(tasks[0].startDate)) / DAY_MS / 7) * 10) /
       10,
@@ -356,6 +475,7 @@ export function planProgram({ domains, firstStart, options = {} }) {
     startDate: plans[0].startDate,
     dueDate: plans.at(-1).dueDate,
     effortHours: roundHalf(plans.reduce((sum, plan) => sum + plan.effortHours, 0)),
+    agentHours: roundHalf(plans.reduce((sum, plan) => sum + plan.agentHours, 0)),
     taskCount: plans.reduce((sum, plan) => sum + plan.tasks.length, 0),
   };
 }
