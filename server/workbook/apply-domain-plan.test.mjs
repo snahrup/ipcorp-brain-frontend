@@ -262,3 +262,45 @@ test("an identical task under a DIFFERENT domain does not count as present", () 
   assert.equal(diff.toCreate, 3, "Sales needs its own copy of both tasks plus its domain ticket");
   assert.equal(diff.alreadyPresent, 0);
 });
+
+test("withDates false puts the estimate on and leaves both dates off", async () => {
+  // Dates for the later domains live in the Workbench, not on the board, so the
+  // tickets carry effort without implying a schedule nobody has committed to.
+  const jira = fakeJira();
+  await applyDomainPlan({
+    plan: PLAN,
+    existingIssues: [],
+    epicKey: "MT-12",
+    request: jira.request,
+    taskTypeId: "1",
+    subtaskTypeId: "5",
+    commit: true,
+    withDates: false,
+  });
+  const updates = jira.calls.filter((call) => call.method === "PUT");
+  assert.ok(updates.length > 0, "the estimate still needs its own call");
+  for (const call of updates) {
+    assert.equal(call.body.fields.duedate, undefined, "no due date may be written");
+    assert.equal(call.body.fields.customfield_11915, undefined, "no start date may be written");
+  }
+  const withEstimate = updates.filter((call) => call.body.fields.timetracking);
+  assert.equal(withEstimate.length, 2, "both tasks carry an estimate");
+  assert.equal(withEstimate[0].body.fields.timetracking.originalEstimate, "12h 30m");
+});
+
+test("a domain parent with no dates and no estimate makes no follow-up call at all", async () => {
+  const jira = fakeJira();
+  await applyDomainPlan({
+    plan: PLAN,
+    existingIssues: [],
+    epicKey: "MT-12",
+    request: jira.request,
+    taskTypeId: "1",
+    subtaskTypeId: "5",
+    commit: true,
+    withDates: false,
+  });
+  // Three creates, but only the two tasks have an estimate to set.
+  assert.equal(jira.calls.filter((call) => call.method === "POST").length, 3);
+  assert.equal(jira.calls.filter((call) => call.method === "PUT").length, 2);
+});
