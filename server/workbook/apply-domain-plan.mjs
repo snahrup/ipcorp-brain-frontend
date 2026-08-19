@@ -164,6 +164,7 @@ export async function applyDomainPlan({
   subtaskTypeId,
   domainParents = {},
   commit = false,
+  withDates = true,
 }) {
   const diff = diffPlanAgainstBoard({ plan, existingIssues, epicKey, domainParents });
   if (!commit) return { ...diff, committed: false, created: [], skipped: [], errors: [] };
@@ -188,7 +189,7 @@ export async function applyDomainPlan({
             summary: domain.parentTitle,
             labels: ["mdm", "backlog-from-workbook", `wave-${domain.waveNumber}`],
           },
-          dates: { startDate: domain.startDate, dueDate: domain.dueDate },
+          dates: withDates ? { startDate: domain.startDate, dueDate: domain.dueDate } : null,
         });
         parentKey = result.key;
         created.push({ key: result.key, summary: domain.parentTitle, kind: "domain" });
@@ -220,7 +221,7 @@ export async function applyDomainPlan({
             summary: task.summary,
             labels: ["mdm", "backlog-from-workbook", `wave-${domain.waveNumber}`],
           },
-          dates: { startDate: task.startDate, dueDate: task.dueDate },
+          dates: withDates ? { startDate: task.startDate, dueDate: task.dueDate } : null,
           estimateHours: task.effortHours,
         });
         created.push({

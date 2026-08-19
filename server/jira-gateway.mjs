@@ -68,7 +68,9 @@ import {
   weeklyStatusSubject,
 } from "./weekly-status/build-weekly-status.mjs";
 import { createWorkbenchAgentRouter } from "./workbench-agent/index.mjs";
+import { applyDomainPlan } from "./workbook/apply-domain-plan.mjs";
 import { crosswalkBreakdown, parseBreakdown } from "./workbook/breakdown.mjs";
+import { planProgram } from "./workbook/domain-plan.mjs";
 import { readWorkbook, WorkbookReadError } from "./workbook/xlsx-reader.mjs";
 
 const HOST = "127.0.0.1";
@@ -1727,6 +1729,23 @@ async function deleteAttachment(id) {
 
 /** The MT project's Sub-task issue type id, resolved once per process. */
 let subtaskTypeIdCache = null;
+let taskTypeIdCache = null;
+
+/** The ordinary Task type, which is what a domain ticket is. */
+export async function getTaskTypeId(requestFn = jiraRequest) {
+  if (taskTypeIdCache) return taskTypeIdCache;
+  const data = await requestFn(
+    `/rest/api/3/issue/createmeta/${INITIATIVE_KEY}/issuetypes?startAt=0&maxResults=100`
+  );
+  const types = Array.isArray(data.issueTypes) ? data.issueTypes : [];
+  const taskType = types.find((type) => type.subtask !== true && /^task$/i.test(type.name ?? ""));
+  if (!taskType?.id) {
+    throw new GatewayError(409, "The MT project has no Task issue type available.", "no_task_type");
+  }
+  taskTypeIdCache = taskType.id;
+  return taskTypeIdCache;
+}
+
 export async function getSubtaskTypeId(requestFn = jiraRequest) {
   if (subtaskTypeIdCache) return subtaskTypeIdCache;
   const data = await requestFn(
@@ -3708,6 +3727,30 @@ async function route(request, response) {
 
     if (request.method === "GET" && url.pathname === "/api/jira/initiative") {
       return sendJson(response, 200, { ok: true, data: await readJiraInitiative() }, origin);
+    }
+    if (request.method === "POST" && url.pathname === "/api/jira/domain-plan/apply") {
+      const body = await readJsonBody(request);
+      const initiative = await readJiraInitiative();
+      const [taskTypeId, subtaskTypeId] = await Promise.all([getTaskTypeId(), getSubtaskTypeId()]);
+      const plan = planProgram({
+        domains: ["Customer", "Sales", "Product", "Finance"],
+        firstStart: "2026-08-10",
+      });
+      const result = await applyDomainPlan({
+        plan,
+        existingIssues: initiative.issues,
+        epicKey: "MT-12",
+        request: jiraRequest,
+        taskTypeId,
+        subtaskTypeId,
+        // Customer already has its ticket under a title predating this planner.
+        domainParents: { Customer: "MT-420" },
+        commit: body.commit === true,
+        // The later domains have no agreed dates. Effort goes on the board;
+        // the schedule stays in the Workbench where it can still be moved.
+        withDates: body.withDates === true,
+      });
+      return sendJson(response, 200, { ok: true, data: result }, origin);
     }
     if (request.method === "GET" && url.pathname === "/api/jira/breakdown-crosswalk") {
       return sendJson(response, 200, { ok: true, data: await readBreakdownCrosswalk() }, origin);
