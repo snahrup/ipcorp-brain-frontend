@@ -24,8 +24,6 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 
-const DAY_MS = 86_400_000;
-
 /** Reuses the same root the agent runs and launcher logs already write under. */
 function localAppDataRoot() {
   return process.env.LOCALAPPDATA || join(process.env.USERPROFILE || homedir(), "AppData", "Local");
