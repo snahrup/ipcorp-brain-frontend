@@ -13,7 +13,7 @@
     "dev:workbench": "powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/start-workbench.ps1",
     "mdm:inventory": "node server/mdm-reconciliation/build-evidence-ledger.mjs",
     "test:mdm-policy": "node --test server/mdm-reconciliation/policy.test.mjs",
-    "test:workbook": "node --test server/workbook/xlsx-reader.test.mjs server/workbook/breakdown.test.mjs server/workbook/domain-plan.test.mjs server/workbook/apply-domain-plan.test.mjs server/workbook/calibration.test.mjs",
+    "test:workbook": "node --test server/workbook/xlsx-reader.test.mjs server/workbook/breakdown.test.mjs server/workbook/domain-plan.test.mjs server/workbook/apply-domain-plan.test.mjs server/workbook/calibration.test.mjs server/workbook/latency-log.test.mjs",
     "test:foreman": "node --test server/foreman/rank.test.mjs server/foreman/ledger.test.mjs server/foreman/briefing.test.mjs server/foreman/narration.test.mjs server/foreman/candidates.test.mjs server/foreman/staleness.test.mjs server/foreman/countdown.test.mjs server/foreman/toast.test.mjs",
     "test:foreman:e2e": "playwright test --config playwright.foreman.config.ts",
     "dev:foreman": "vite --config vite.foreman.config.ts",
