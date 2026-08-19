@@ -28,6 +28,16 @@ export const WORKBENCH_DESTINATIONS: Record<
       },
     ]),
   },
+  autonomy: {
+    label: viewCopy.autonomy.label,
+    sections: sections([
+      {
+        key: "autonomy-view",
+        label: "Watch the work, not the status word.",
+        hints: ["autonomy", "agent runs", "what did the agent do", "review a run", "supervise"],
+      },
+    ]),
+  },
   work: {
     label: viewCopy.work.label,
     sections: sections([

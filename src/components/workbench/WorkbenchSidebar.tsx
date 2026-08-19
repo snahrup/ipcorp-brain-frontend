@@ -9,6 +9,7 @@ import {
   Mail,
   PlugZap,
   Presentation,
+  Radar,
   ShieldCheck,
   SquareKanban,
 } from "lucide-react";
@@ -33,6 +34,12 @@ const primaryItems: SidebarItem[] = [
     label: "Agent Board",
     helper: "Is the agent keeping up",
     icon: SquareKanban,
+  },
+  {
+    key: "autonomy",
+    label: "Autonomy",
+    helper: "Supervise agent runs",
+    icon: Radar,
   },
   { key: "work", label: "Work", helper: "List and board", icon: BriefcaseBusiness },
   { key: "meetings", label: "Meetings", helper: "Prepare and follow up", icon: CalendarDays },

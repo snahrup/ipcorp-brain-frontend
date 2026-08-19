@@ -11,6 +11,14 @@ import { createActivityStore } from "./activity-reconciliation/activity-store.mj
 import { writeProposalProse } from "./activity-reconciliation/voice-writer.mjs";
 import { buildAgentBoard } from "./agent-board.mjs";
 import { dispatch as dispatchAgent, getRun, listRuns } from "./agent-dispatch.mjs";
+import {
+  askQuestion,
+  buildFollowUpContext,
+  getRunDetail,
+  listQuestions,
+  parseRunId,
+  withRunId,
+} from "./agent-runs.mjs";
 import { getDailyMeetingPrep, readDailyMeetingPrepFile } from "./daily-meeting-prep.mjs";
 import {
   answerItem as answerForemanItem,
@@ -3745,7 +3753,77 @@ async function route(request, response) {
       return sendJson(response, 200, { ok: true, data: getRun(key) }, origin);
     }
     if (request.method === "GET" && url.pathname === "/api/agents/runs") {
-      return sendJson(response, 200, { ok: true, data: await listRuns() }, origin);
+      return sendJson(response, 200, { ok: true, data: (await listRuns()).map(withRunId) }, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/api/agents/runs/detail") {
+      const id = url.searchParams.get("id") || "";
+      const parsed = parseRunId(id);
+      if (!parsed) {
+        throw new GatewayError(400, "A valid run id is required.", "invalid_run_id");
+      }
+      const detail = await getRunDetail(parsed, { liveRun: getRun(parsed.issueKey) });
+      if (!detail) {
+        throw new GatewayError(404, "No record of that run exists.", "run_not_found");
+      }
+      return sendJson(response, 200, { ok: true, data: detail }, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/api/agents/runs/questions") {
+      const id = url.searchParams.get("id") || "";
+      if (!parseRunId(id)) {
+        throw new GatewayError(400, "A valid run id is required.", "invalid_run_id");
+      }
+      return sendJson(response, 200, { ok: true, data: await listQuestions(id) }, origin);
+    }
+    if (request.method === "POST" && url.pathname === "/api/agents/runs/questions") {
+      const body = await readJsonBody(request);
+      const id = String(body.id || "");
+      const parsed = parseRunId(id);
+      if (!parsed) {
+        throw new GatewayError(400, "A valid run id is required.", "invalid_run_id");
+      }
+      const detail = await getRunDetail(parsed, { liveRun: getRun(parsed.issueKey) });
+      if (!detail) {
+        throw new GatewayError(404, "No record of that run exists.", "run_not_found");
+      }
+      const thread = await askQuestion(id, String(body.question || ""), { detail });
+      return sendJson(response, 202, { ok: true, data: thread }, origin);
+    }
+    if (request.method === "POST" && url.pathname === "/api/agents/runs/changes") {
+      const body = await readJsonBody(request);
+      const id = String(body.id || "");
+      const parsed = parseRunId(id);
+      if (!parsed) {
+        throw new GatewayError(400, "A valid run id is required.", "invalid_run_id");
+      }
+      const instruction = String(body.instruction || "").trim();
+      if (!instruction) {
+        throw new GatewayError(
+          400,
+          "A change request needs an instruction.",
+          "invalid_instruction"
+        );
+      }
+      const prior = await getRunDetail(parsed, { liveRun: getRun(parsed.issueKey) });
+      if (!prior) {
+        throw new GatewayError(404, "No record of that run exists.", "run_not_found");
+      }
+      // A change request is a normal dispatch: transition-first, same outcome
+      // writing, same guard against a second run on a ticket already running.
+      const run = await dispatchAgent({
+        issueKey: parsed.issueKey,
+        agent: prior.agent === "codex" ? "codex" : "claude",
+        context: buildFollowUpContext(prior, instruction),
+        followsRun: id,
+        cwd: BRAIN_REPO_PATH,
+        deps: {
+          getIssue,
+          transition: transitionIssueTo,
+          comment: addIssueComment,
+          logWork: logIssueWork,
+          attach: addIssueAttachment,
+        },
+      });
+      return sendJson(response, 202, { ok: true, data: withRunId(run) }, origin);
     }
     if (request.method === "GET" && url.pathname === "/api/meeting-prep/daily") {
       const data = await getDailyMeetingPrep(url.searchParams.get("date") || "");

@@ -1,0 +1,925 @@
+/* Autonomy screen: agent runs on Jira work items.
+   Blue-and-white Workbench system only; green/amber/red stay semantic. */
+
+.wb-runs-surface {
+  display: grid;
+  gap: 16px;
+}
+
+/* ---------- truth bar ---------- */
+
+.wb-runs-truthbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.wb-runs-truthbar > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--green);
+}
+
+.wb-runs-truthbar > div > div {
+  display: grid;
+  gap: 1px;
+}
+
+.wb-runs-truthbar strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.wb-runs-truthbar span {
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.wb-runs-truthbar .wb-runs-refresh-error {
+  color: var(--red);
+  font-size: 12px;
+}
+
+/* Polling state, honest about whether the screen is watching or idle. */
+.wb-runs-poll {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-soft);
+  font-size: 11.5px;
+}
+
+.wb-runs-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--action-blue);
+  animation: wb-runs-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes wb-runs-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wb-runs-pulse {
+    animation: none;
+  }
+}
+
+/* ---------- toolbar ---------- */
+
+.wb-runs-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.wb-runs-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px;
+  min-width: 200px;
+  flex: 1 1 200px;
+  max-width: 320px;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  color: var(--text-soft);
+}
+
+.wb-runs-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.wb-runs-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.wb-runs-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.wb-runs-count {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  color: var(--text-soft);
+  font-size: 12.5px;
+}
+
+.wb-runs-count strong {
+  color: var(--text);
+  font-size: 15px;
+}
+
+/* ---------- run list ---------- */
+
+.wb-runs-list {
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.wb-runs-head,
+.wb-runs-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.1fr) minmax(230px, 1.6fr) 132px minmax(150px, 1fr) 104px 148px;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 16px;
+}
+
+.wb-runs-head {
+  background: var(--panel-soft);
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.wb-runs-row {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--bg-2);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.wb-runs-row:last-child {
+  border-bottom: 0;
+}
+
+.wb-runs-row:hover {
+  background: var(--panel-soft);
+}
+
+/* A run waiting on a person is tinted, not just chipped, so scanning the list
+   catches it without reading every status word. */
+.wb-runs-row[data-needs-you="true"] {
+  background: rgba(176, 118, 26, 0.05);
+}
+
+.wb-runs-row[data-needs-you="true"]:hover {
+  background: rgba(176, 118, 26, 0.09);
+}
+
+/* Who ran it */
+.wb-runs-agent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.wb-runs-agent-mark {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--accent-dim);
+  color: var(--action-blue);
+}
+
+.wb-runs-agent-mark[data-live="true"] {
+  background: var(--action-blue);
+  color: #ffffff;
+}
+
+.wb-runs-agent > div {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.wb-runs-agent strong {
+  font-size: 12.5px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wb-runs-agent small {
+  font-size: 11px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wb-runs-agent small code {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-soft);
+}
+
+/* What it worked on */
+.wb-runs-issue {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wb-runs-issue > span {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.wb-runs-key {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.wb-runs-issue .wb-runs-summary {
+  font-size: 12.5px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wb-runs-issue .wb-runs-summary[data-missing="true"] {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.wb-runs-follows {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--blue-support);
+}
+
+/* Status + note */
+.wb-runs-status {
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+}
+
+/* How much it actually did */
+.wb-runs-activity {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.wb-runs-activity strong {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--text);
+}
+
+.wb-runs-activity .wb-runs-doing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--action-blue);
+  font-weight: 600;
+}
+
+/* Delivered */
+.wb-runs-delivered {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+.wb-runs-delivered[data-failed="true"] {
+  color: var(--red);
+}
+
+.wb-runs-delivered[data-none="true"] {
+  color: var(--muted);
+}
+
+/* Started / duration */
+.wb-runs-when {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+.wb-runs-when strong {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--text);
+}
+
+/* ---------- loading, error, empty ---------- */
+
+.wb-runs-state {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 56px 24px;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  color: var(--text-soft);
+}
+
+.wb-runs-state h2 {
+  font-size: 17px;
+  color: var(--text);
+}
+
+.wb-runs-state p {
+  max-width: 44ch;
+  font-size: 13px;
+}
+
+.wb-runs-state-error {
+  color: var(--red);
+}
+
+.wb-runs-state-error h2 {
+  color: var(--red);
+}
+
+.wb-runs-state-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.wb-runs-state-actions span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---------- switcher + stub views ---------- */
+
+.wb-autonomy-switcher {
+  flex-wrap: wrap;
+}
+
+.wb-autonomy-stub {
+  display: grid;
+  gap: 8px;
+  padding: 40px 32px;
+  background: var(--panel);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-md);
+}
+
+.wb-autonomy-stub h2 {
+  font-size: 17px;
+  color: var(--text);
+}
+
+.wb-autonomy-stub p {
+  max-width: 62ch;
+  font-size: 13px;
+}
+
+.wb-autonomy-stub small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* ---------- run review modal ---------- */
+
+.wb-runs-modal {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: min(880px, calc(100vw - 32px));
+  max-height: min(860px, calc(100dvh - 48px));
+  background: #f7f9fb;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  box-shadow: 0 28px 70px rgba(7, 26, 44, 0.32);
+}
+
+.wb-runs-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #dbe3ea;
+}
+
+.wb-runs-modal-header > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.wb-runs-modal-header h2 {
+  color: var(--navy-2);
+  font-family: var(--font-heading);
+  font-size: clamp(18px, 1.6vw, 23px);
+  line-height: 1.18;
+}
+
+.wb-runs-modal-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.wb-runs-modal-meta code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-soft);
+}
+
+.wb-runs-modal-meta .wb-runs-meta-sep {
+  color: var(--line-strong);
+}
+
+.wb-runs-modal-body {
+  overflow-y: auto;
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px 24px;
+}
+
+.wb-runs-section {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.wb-runs-section > header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+.wb-runs-section > header h3 {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.wb-runs-section > header small {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.wb-runs-missing {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-style: italic;
+}
+
+/* The request: the exact instruction, clipped until opened. */
+.wb-runs-request {
+  margin: 0;
+  padding: 12px 14px;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--text-soft);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.wb-runs-request[data-clipped="true"] {
+  max-height: 180px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(#000 60%, transparent);
+  mask-image: linear-gradient(#000 60%, transparent);
+}
+
+.wb-runs-more {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--action-blue);
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.wb-runs-approach {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+/* Plan steps */
+.wb-runs-plan {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wb-runs-step {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+  padding: 9px 4px;
+  border-bottom: 1px solid var(--bg-2);
+}
+
+.wb-runs-step:last-child {
+  border-bottom: 0;
+}
+
+.wb-runs-step-icon {
+  display: grid;
+  place-items: center;
+  padding-top: 1px;
+}
+
+.wb-runs-step[data-status="done"] .wb-runs-step-icon {
+  color: var(--green);
+}
+
+.wb-runs-step[data-status="active"] .wb-runs-step-icon {
+  color: var(--action-blue);
+}
+
+.wb-runs-step[data-status="pending"] .wb-runs-step-icon {
+  color: var(--muted-2);
+}
+
+.wb-runs-step[data-status="skipped"] .wb-runs-step-icon {
+  color: var(--amber);
+}
+
+.wb-runs-step[data-status="failed"] .wb-runs-step-icon {
+  color: var(--red);
+}
+
+.wb-runs-step > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wb-runs-step-title {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.wb-runs-step[data-status="pending"] .wb-runs-step-title {
+  color: var(--text-soft);
+}
+
+.wb-runs-step[data-status="skipped"] .wb-runs-step-title {
+  text-decoration: line-through;
+  text-decoration-color: var(--line-strong);
+  color: var(--text-soft);
+}
+
+.wb-runs-step-note {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.wb-runs-step[data-status="failed"] .wb-runs-step-note {
+  color: var(--red);
+}
+
+.wb-runs-step-state {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Working notes: the agent's own prose, in order */
+.wb-runs-notes {
+  display: grid;
+  gap: 10px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.wb-runs-note {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.wb-runs-note header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.wb-runs-note header strong {
+  color: var(--text-soft);
+  font-weight: 650;
+}
+
+.wb-runs-note p {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.wb-runs-note[data-role="sent"] p {
+  color: var(--text-soft);
+}
+
+.wb-runs-note-pending {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--action-blue);
+}
+
+/* Delivered */
+.wb-runs-files {
+  display: grid;
+  gap: 6px;
+}
+
+.wb-runs-file {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text);
+  min-width: 0;
+}
+
+.wb-runs-file code {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+  text-align: left;
+}
+
+.wb-runs-file[data-ok="true"] svg {
+  color: var(--green);
+}
+
+.wb-runs-file[data-ok="false"] {
+  border-color: rgba(200, 16, 46, 0.35);
+}
+
+.wb-runs-file[data-ok="false"] svg {
+  color: var(--red);
+}
+
+.wb-runs-file small {
+  flex: none;
+  color: var(--red);
+  font-size: 11px;
+}
+
+.wb-runs-comment {
+  padding: 12px 14px;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+/* Questions */
+.wb-runs-honesty {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 12px;
+  background: var(--blue-dim);
+  border: 1px solid rgba(68, 96, 132, 0.25);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--blue-support);
+}
+
+.wb-runs-qa {
+  display: grid;
+  gap: 10px;
+}
+
+.wb-runs-question {
+  display: grid;
+  gap: 8px;
+}
+
+.wb-runs-q,
+.wb-runs-a {
+  display: grid;
+  gap: 3px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.wb-runs-q {
+  background: var(--accent-dim);
+  border: 1px solid rgba(27, 94, 158, 0.22);
+  color: var(--text);
+  justify-self: end;
+  max-width: 85%;
+}
+
+.wb-runs-a {
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  color: var(--text);
+  justify-self: start;
+  max-width: 92%;
+  white-space: pre-wrap;
+}
+
+.wb-runs-a[data-state="failed"] {
+  border-color: rgba(200, 16, 46, 0.35);
+  color: var(--red);
+}
+
+.wb-runs-q header,
+.wb-runs-a header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.wb-runs-composer {
+  display: grid;
+  gap: 8px;
+}
+
+.wb-runs-composer textarea {
+  min-height: 64px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.wb-runs-composer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wb-runs-composer-actions small {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.wb-runs-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--red);
+}
+
+.wb-runs-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 12px;
+  background: var(--green-dim);
+  border: 1px solid rgba(30, 123, 77, 0.28);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--green);
+}
+
+/* ---------- phone ---------- */
+
+@media (max-width: 900px) {
+  .wb-runs-head {
+    display: none;
+  }
+
+  .wb-runs-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 14px 16px;
+  }
+
+  .wb-runs-issue .wb-runs-summary {
+    white-space: normal;
+  }
+
+  .wb-runs-status {
+    justify-items: start;
+  }
+
+  .wb-runs-toolbar-actions {
+    margin-left: 0;
+  }
+
+  .wb-runs-modal {
+    width: 100vw;
+    max-height: 100dvh;
+    border-radius: 0;
+    border: 0;
+  }
+
+  .wb-modal-backdrop:has(.wb-runs-modal) {
+    padding: 0;
+  }
+
+  .wb-runs-q {
+    max-width: 100%;
+  }
+
+  .wb-runs-a {
+    max-width: 100%;
+  }
+}

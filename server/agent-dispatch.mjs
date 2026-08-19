@@ -44,6 +44,8 @@ const runs = new Map();
 const AGENTS = {
   claude: {
     label: "Claude Code",
+    // The pinned model, surfaced on the run record. Keep in step with args below.
+    model: "opus",
     command: "claude",
     args: () => [
       "-p",
@@ -63,6 +65,7 @@ const AGENTS = {
   },
   codex: {
     label: "Codex",
+    model: "gpt-5.6-sol",
     command: "codex",
     // codex exec reads its instructions from stdin when no prompt argument is
     // given, which is documented in its own help.
@@ -184,6 +187,18 @@ function publicRunSummary(run, { includeMessages = false } = {}) {
     exitCode: Number.isFinite(run.exitCode) ? run.exitCode : null,
     error: run.error ? String(run.error) : null,
     humanize: run.humanize ?? null,
+    issueSummary: run.issueSummary ? String(run.issueSummary) : null,
+    sessionName: run.sessionName ? String(run.sessionName) : null,
+    model: run.model ? String(run.model) : null,
+    followsRun: run.followsRun ? String(run.followsRun) : null,
+    // null = the record has no field (an older run); [] = the run delivered nothing.
+    attachments: Array.isArray(run.attachments)
+      ? run.attachments.map((entry) => ({
+          path: String(entry.path || ""),
+          ok: Boolean(entry.ok),
+          error: entry.error ? String(entry.error) : null,
+        }))
+      : null,
   };
   if (includeMessages) summary.messages = publicMessages(run);
   return summary;
@@ -376,6 +391,28 @@ Any file you produce or materially change gets attached to ${issue.key}, because
 in a comment is unreachable for anyone reading the board. List every one of them by
 absolute path in the ATTACH block below. Files that only exist on disk do not count as
 delivered.
+
+BEFORE THE WORK, STATE YOUR PLAN
+Print these two blocks before your first tool call, exactly in this shape. The
+Workbench parses them so Steve can watch the run against its own plan; they are
+never published to Jira.
+
+APPROACH:
+<one short paragraph: how you intend to tackle this, before doing it>
+END APPROACH
+PLAN:
+1. <first phase, a few words>
+2. <next phase>
+END PLAN
+
+Keep the plan to 3 to 7 steps. As you work, print one line at each transition,
+alone on its own line:
+STEP 1 START
+STEP 1 DONE
+STEP 2 SKIP <why it is no longer needed>
+STEP 2 FAIL <what stopped it>
+Every step you started ends as DONE, SKIP or FAIL before the ATTACH block. If the
+work changes shape mid-run, SKIP the steps that no longer apply with the reason.
 
 AS YOU WORK
 Whatever you say between tool calls is shown to Steve live while this runs, so it has to
@@ -915,7 +952,15 @@ export async function listRuns() {
  * @param deps.comment       (key, text) => void
  * @param deps.logWork       (key, seconds, text) => void
  */
-export async function dispatch({ issueKey, agent, context, cwd, deps }) {
+export async function dispatch({
+  issueKey,
+  agent,
+  context,
+  cwd,
+  deps,
+  followsRun = null,
+  sessionName = null,
+}) {
   const config = AGENTS[agent];
   if (!config) throw new Error(`Unknown agent "${agent}".`);
 
@@ -944,6 +989,10 @@ export async function dispatch({ issueKey, agent, context, cwd, deps }) {
     issueKey,
     agent,
     agentLabel: config.label,
+    issueSummary: issue.summary ?? null,
+    model: config.model ?? null,
+    sessionName,
+    followsRun,
     state: "running",
     startedAt: nowIso(),
     finishedAt: null,
