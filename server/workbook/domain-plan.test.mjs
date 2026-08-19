@@ -7,6 +7,7 @@ import {
   HOLIDAYS,
   planDomain,
   planProgram,
+  sensitivity,
   TEMPLATE_TASKS,
 } from "./domain-plan.mjs";
 
@@ -204,4 +205,30 @@ test("the plan survives JSON, since it travels to the browser", () => {
   assert.equal(revived.domains.length, 4);
   assert.equal(revived.assumptions.multiplier, 3.5);
   assert.ok(revived.domains[0].tasks[0].summary.length > 0);
+});
+
+test("the sensitivity sweep leaves the shared template exactly as it found it", () => {
+  // The sweep mutates TEMPLATE_TASKS in place to perturb one input at a time. If a
+  // restore were ever missed, every plan built afterwards in the same process would be
+  // silently wrong, which is the worst class of bug this file could have.
+  const before = JSON.parse(JSON.stringify(TEMPLATE_TASKS));
+  sensitivity();
+  assert.deepEqual(JSON.parse(JSON.stringify(TEMPLATE_TASKS)), before);
+});
+
+test("latency dominates the answer and agent duration does not move it at all", () => {
+  const result = sensitivity();
+  const worst = result.inputs[0];
+  assert.equal(worst.field, "latencyDays", "the most load-bearing input should be a wait");
+  const agentInputs = result.inputs.filter((input) => input.field === "agentMinutes");
+  assert.ok(agentInputs.length > 0);
+  for (const input of agentInputs) {
+    assert.equal(input.shiftDays, 0, "agent wall clock is too small to move the schedule");
+  }
+});
+
+test("most of the sensitivity sits in a handful of inputs, not spread across all of them", () => {
+  const result = sensitivity();
+  assert.ok(result.topSixShare >= 0.4, `top six accounted for ${result.topSixShare}`);
+  assert.ok(result.inertInputs > 0, "some inputs should not move the answer at all");
 });

@@ -514,3 +514,58 @@ export function check(options = {}) {
     agrees: Math.abs(driftWeeks) <= 2,
   };
 }
+
+/**
+ * Which assumptions the answer actually depends on.
+ *
+ * A plan built on judgment is not made defensible by refining every figure in it. It is
+ * made defensible by knowing which figures matter, so scrutiny goes where it changes
+ * something. This perturbs one input at a time and reports how far the program end
+ * moves, which converts "ninety numbers I made up" into a short list worth arguing about
+ * and a long tail that can be left alone.
+ *
+ * Run against the current template it says something uncomfortable and useful: doubling
+ * every effort figure moves the finish 12%, doubling every agent duration moves it not
+ * at all, and doubling the latency figures moves it 77%. The schedule is a claim about
+ * how fast people respond, wearing a costume made of effort estimates.
+ */
+export function sensitivity({ domains, firstStart, options = {} } = {}) {
+  const list = domains ?? ["Customer", "Sales", "Product", "Finance"];
+  const start = firstStart ?? "2026-08-10";
+  const lengthOf = (plan) => (toDate(plan.dueDate) - toDate(plan.startDate)) / DAY_MS;
+  const baseline = lengthOf(planProgram({ domains: list, firstStart: start, options }));
+
+  const inputs = [];
+  for (const template of TEMPLATE_TASKS) {
+    for (const field of ["latencyDays", "reviewHours", "agentMinutes"]) {
+      const original = template[field];
+      if (!original) continue;
+      template[field] = original * 2;
+      let moved;
+      try {
+        moved = lengthOf(planProgram({ domains: list, firstStart: start, options }));
+      } finally {
+        // Restored in a finally so a throw mid-sweep cannot leave the shared template
+        // permanently doubled, which would silently corrupt every later plan.
+        template[field] = original;
+      }
+      inputs.push({
+        task: template.task,
+        field,
+        value: original,
+        shiftDays: Math.round(moved - baseline),
+      });
+    }
+  }
+
+  inputs.sort((a, b) => b.shiftDays - a.shiftDays);
+  const totalShift = inputs.reduce((sum, input) => sum + Math.max(0, input.shiftDays), 0);
+  const topSix = inputs.slice(0, 6).reduce((sum, input) => sum + Math.max(0, input.shiftDays), 0);
+
+  return {
+    baselineDays: Math.round(baseline),
+    inputs,
+    inertInputs: inputs.filter((input) => input.shiftDays === 0).length,
+    topSixShare: totalShift ? Math.round((topSix / totalShift) * 100) / 100 : 0,
+  };
+}
