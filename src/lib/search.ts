@@ -27,6 +27,7 @@ import {
 export type ViewKey =
   | "today"
   | "agent-board"
+  | "autonomy"
   | "work"
   | "library"
   | "data-work"

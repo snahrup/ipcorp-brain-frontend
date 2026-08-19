@@ -96,6 +96,7 @@ import { SourceHealthView } from "./views/SourceHealthView";
 import { TimelineView } from "./views/TimelineView";
 import {
   AgentBoardView,
+  AutonomyView,
   ConnectionsView,
   DailyMeetingPrepView,
   MeetingsWorkspaceView,
@@ -274,6 +275,7 @@ export default function App() {
     if (window.location.pathname === "/meetings/daily-prep") return "daily-prep";
     if (window.location.pathname === "/meetings/wrap-up") return "meeting-wrap-up";
     if (window.location.pathname === "/meetings") return "meetings";
+    if (window.location.pathname.startsWith("/autonomy")) return "autonomy";
     if (window.location.pathname.startsWith("/work")) return "work";
     return "today";
   });
@@ -283,6 +285,7 @@ export default function App() {
       if (window.location.pathname === "/meetings/daily-prep") setActiveView("daily-prep");
       else if (window.location.pathname === "/meetings/wrap-up") setActiveView("meeting-wrap-up");
       else if (window.location.pathname === "/meetings") setActiveView("meetings");
+      else if (window.location.pathname.startsWith("/autonomy")) setActiveView("autonomy");
       else if (window.location.pathname.startsWith("/work")) setActiveView("work");
       else setActiveView("today");
       setDetail(null);
@@ -360,7 +363,9 @@ export default function App() {
             ? "/meetings"
             : view === "work"
               ? "/work"
-              : "/";
+              : view === "autonomy"
+                ? "/autonomy"
+                : "/";
     if (window.location.pathname !== nextPath) window.history.pushState({}, "", nextPath);
     setDetail(null);
   };
@@ -475,6 +480,7 @@ export default function App() {
                 />
               )}
               {activeView === "agent-board" && <AgentBoardView />}
+              {activeView === "autonomy" && <AutonomyView />}
               {activeView === "work" && (
                 <WorkView
                   items={workbenchSnapshot.workItems}

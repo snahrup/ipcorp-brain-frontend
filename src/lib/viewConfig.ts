@@ -35,6 +35,14 @@ export const viewCopy: Record<
       "Only the agent's own pipelines write this board. Cards age amber then red on their own, so a glance answers whether it is keeping up.",
     action: "Check what is waiting on you",
   },
+  autonomy: {
+    label: "Autonomy",
+    eyebrow: "Background work",
+    title: "Watch the work, not the status word.",
+    summary:
+      "Every agent run on a real work item: what it was asked, how it approached it, and what it delivered.",
+    action: "Review what needs you",
+  },
   work: {
     label: "Work",
     eyebrow: "Team knowledge work",

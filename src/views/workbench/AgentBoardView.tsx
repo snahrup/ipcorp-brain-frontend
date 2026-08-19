@@ -1,6 +1,7 @@
 import { AlertCircle, ArrowUpRight, LoaderCircle, RefreshCw, SquareKanban } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { WorkspaceHero } from "../../components/workbench/WorkspaceHero";
+import { interceptTicketClick } from "../../features/jira/openTicket";
 import { GATEWAY } from "../../lib/gateway";
 import { AgentBoardCardModal } from "./AgentBoardCardModal";
 import { type Board, type BoardReference, referenceOf, resolveHref } from "./agent-board-model";
@@ -244,6 +245,7 @@ export function AgentBoardView() {
                                 href={href}
                                 rel="noreferrer"
                                 target="_blank"
+                                onClick={(event) => interceptTicketClick(event, href)}
                               >
                                 {item.text}
                                 <ArrowUpRight aria-hidden="true" size={12} />
@@ -382,11 +384,19 @@ export function AgentBoardView() {
                       "data-tone": item.tone,
                       id: `board-card-${item.id}`,
                     };
-                    // A real target opens the real thing, in a new tab so the
+                    // A ticket opens in place, over the board. Anything else
+                    // that has a real target still opens in a new tab so the
                     // board stays where it was.
                     if (href) {
                       return (
-                        <a {...shared} href={href} key={item.id} rel="noreferrer" target="_blank">
+                        <a
+                          {...shared}
+                          href={href}
+                          key={item.id}
+                          rel="noreferrer"
+                          target="_blank"
+                          onClick={(event) => interceptTicketClick(event, href)}
+                        >
                           {body}
                         </a>
                       );

@@ -1,4 +1,4 @@
-import { BookOpen, BriefcaseBusiness, CalendarDays, Home, SquareKanban } from "lucide-react";
+import { BriefcaseBusiness, CalendarDays, Home, Radar, SquareKanban } from "lucide-react";
 import type { ViewKey } from "../../lib/search";
 import "./mobile-tab-bar.css";
 
@@ -9,14 +9,16 @@ type Tab = { key: ViewKey; label: string; icon: typeof Home };
  * here: it is a desktop tool surface and would make the bar too crowded to
  * hit accurately. The Agent Board took Sources' spot on 2026-08-13: Steve
  * checks the loop from his phone constantly, and source health already
- * surfaces on the board itself when something is down.
+ * surfaces on the board itself when something is down. Autonomy took Library's
+ * spot on 2026-08-18 for the same reason: supervising runs is a phone activity and
+ * the library is not. Swap the line back to restore Library.
  */
 const TABS: Tab[] = [
   { key: "today", label: "Today", icon: Home },
   { key: "agent-board", label: "Agent", icon: SquareKanban },
   { key: "work", label: "Work", icon: BriefcaseBusiness },
   { key: "meetings", label: "Meetings", icon: CalendarDays },
-  { key: "library", label: "Library", icon: BookOpen },
+  { key: "autonomy", label: "Autonomy", icon: Radar },
 ];
 
 /**

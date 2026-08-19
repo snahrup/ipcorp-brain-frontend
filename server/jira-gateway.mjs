@@ -11,6 +11,16 @@ import { createActivityStore } from "./activity-reconciliation/activity-store.mj
 import { writeProposalProse } from "./activity-reconciliation/voice-writer.mjs";
 import { buildAgentBoard } from "./agent-board.mjs";
 import { dispatch as dispatchAgent, getRun, listRuns } from "./agent-dispatch.mjs";
+import { getReadout } from "./agent-readout.mjs";
+import {
+  askQuestion,
+  buildFollowUpContext,
+  getRunDetail,
+  listQuestions,
+  parseRunId,
+  runIdOf,
+  withRunId,
+} from "./agent-runs.mjs";
 import { getDailyMeetingPrep, readDailyMeetingPrepFile } from "./daily-meeting-prep.mjs";
 import {
   answerItem as answerForemanItem,
@@ -58,6 +68,8 @@ import {
   weeklyStatusSubject,
 } from "./weekly-status/build-weekly-status.mjs";
 import { createWorkbenchAgentRouter } from "./workbench-agent/index.mjs";
+import { crosswalkBreakdown, parseBreakdown } from "./workbook/breakdown.mjs";
+import { readWorkbook, WorkbookReadError } from "./workbook/xlsx-reader.mjs";
 
 const HOST = "127.0.0.1";
 const PORT = Number.parseInt(process.env.IPCORP_JIRA_GATEWAY_PORT || "8817", 10);
@@ -68,6 +80,11 @@ const SETTINGS_PATH =
 const TEAM_LIBRARY_PATH =
   process.env.IPCORP_TEAM_LIBRARY_PATH ||
   "C:\\Users\\snahrup\\OneDrive - IP-Corporation\\IT Internal - MDM - Master Data Management\\Team Library";
+// The breakdown workbook sits one level above the Team Library, alongside the other
+// program governance files, not inside it.
+const MDM_WORKBOOK_PATH =
+  process.env.IPCORP_MDM_WORKBOOK_PATH ||
+  "C:\\Users\\snahrup\\OneDrive - IP-Corporation\\IT Internal - MDM - Master Data Management\\MDM Program Project Task Breakdown.xlsx";
 const BRAIN_REPO_PATH =
   process.env.IPCORP_BRAIN_PATH ||
   "C:\\Users\\snahrup\\OneDrive - IP-Corporation\\ipcorp-architecture-brain";
@@ -3218,6 +3235,79 @@ async function readJiraInitiative() {
   };
 }
 
+/**
+ * The breakdown workbook lined up against the live MT board.
+ *
+ * Both sides are read fresh and both read times come back with the result, because the
+ * first question anyone asks of a comparison like this is how current each side is.
+ *
+ * An unreadable workbook is reported as unreadable. It must never come back as a
+ * crosswalk with no rows, which reads as "the workbook is empty" and would quietly turn
+ * a file-access problem into a false all-clear. A OneDrive file that has not downloaded
+ * yet is the common case and says so by name.
+ */
+/**
+ * Write a finished run's readout, as the last thing a dispatch does.
+ *
+ * Wired here rather than inside the dispatcher so that module keeps knowing
+ * nothing about readouts. Failures are swallowed by the caller on purpose: a
+ * readout is a convenience layered on the run, never a condition of it.
+ */
+async function writeRunReadout(summary) {
+  const id = runIdOf(summary);
+  if (!id) return;
+  await getReadout(id, summary, { refresh: true });
+}
+
+async function readBreakdownCrosswalk() {
+  const initiative = await readJiraInitiative();
+  const base = {
+    jira: {
+      fetchedAt: initiative.fetchedAt,
+      issueCount: initiative.issues.length,
+      projectKey: initiative.projectKey,
+    },
+    workbook: { path: MDM_WORKBOOK_PATH, readable: false, reason: null, modifiedAt: null },
+    programs: [],
+    unaccounted: [],
+    coverage: null,
+  };
+
+  let bytes;
+  let modifiedAt = null;
+  try {
+    const [contents, info] = await Promise.all([
+      readFile(MDM_WORKBOOK_PATH),
+      stat(MDM_WORKBOOK_PATH),
+    ]);
+    bytes = contents;
+    modifiedAt = info.mtime.toISOString();
+  } catch (reason) {
+    base.workbook.reason =
+      reason?.code === "ENOENT"
+        ? "The breakdown workbook was not found at its configured path."
+        : `The breakdown workbook could not be read: ${reason?.message ?? "unknown error"}`;
+    return base;
+  }
+
+  try {
+    const breakdown = parseBreakdown(readWorkbook(bytes));
+    const crosswalk = crosswalkBreakdown(breakdown, initiative.issues);
+    return {
+      ...base,
+      workbook: { path: MDM_WORKBOOK_PATH, readable: true, reason: null, modifiedAt },
+      ...crosswalk,
+    };
+  } catch (reason) {
+    base.workbook.modifiedAt = modifiedAt;
+    base.workbook.reason =
+      reason instanceof WorkbookReadError
+        ? reason.message
+        : `The breakdown workbook could not be interpreted: ${reason?.message ?? "unknown error"}`;
+    return base;
+  }
+}
+
 async function readJiraAnalyticsInitiative() {
   const [search, statuses] = await Promise.all([
     searchJiraIssues({
@@ -3619,6 +3709,9 @@ async function route(request, response) {
     if (request.method === "GET" && url.pathname === "/api/jira/initiative") {
       return sendJson(response, 200, { ok: true, data: await readJiraInitiative() }, origin);
     }
+    if (request.method === "GET" && url.pathname === "/api/jira/breakdown-crosswalk") {
+      return sendJson(response, 200, { ok: true, data: await readBreakdownCrosswalk() }, origin);
+    }
     if (request.method === "GET" && url.pathname === "/api/jira/analytics") {
       const refresh = url.searchParams.get("refresh") === "1";
       return sendJson(
@@ -3666,6 +3759,7 @@ async function route(request, response) {
           // run could only describe what it made, and a path in a comment is
           // unreachable for anyone reading the board.
           attach: addIssueAttachment,
+          readout: writeRunReadout,
         },
       });
       return sendJson(response, 202, { ok: true, data: run }, origin);
@@ -3675,7 +3769,90 @@ async function route(request, response) {
       return sendJson(response, 200, { ok: true, data: getRun(key) }, origin);
     }
     if (request.method === "GET" && url.pathname === "/api/agents/runs") {
-      return sendJson(response, 200, { ok: true, data: await listRuns() }, origin);
+      return sendJson(response, 200, { ok: true, data: (await listRuns()).map(withRunId) }, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/api/agents/runs/detail") {
+      const id = url.searchParams.get("id") || "";
+      const parsed = parseRunId(id);
+      if (!parsed) {
+        throw new GatewayError(400, "A valid run id is required.", "invalid_run_id");
+      }
+      const detail = await getRunDetail(parsed, { liveRun: getRun(parsed.issueKey) });
+      if (!detail) {
+        throw new GatewayError(404, "No record of that run exists.", "run_not_found");
+      }
+      return sendJson(response, 200, { ok: true, data: detail }, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/api/agents/runs/readout") {
+      const id = url.searchParams.get("id") || "";
+      const parsed = parseRunId(id);
+      if (!parsed) {
+        throw new GatewayError(400, "A valid run id is required.", "invalid_run_id");
+      }
+      const detail = await getRunDetail(parsed, { liveRun: getRun(parsed.issueKey) });
+      const readout = await getReadout(id, detail, {
+        refresh: url.searchParams.get("refresh") === "1",
+      });
+      return sendJson(response, 200, { ok: true, data: readout }, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/api/agents/runs/questions") {
+      const id = url.searchParams.get("id") || "";
+      if (!parseRunId(id)) {
+        throw new GatewayError(400, "A valid run id is required.", "invalid_run_id");
+      }
+      return sendJson(response, 200, { ok: true, data: await listQuestions(id) }, origin);
+    }
+    if (request.method === "POST" && url.pathname === "/api/agents/runs/questions") {
+      const body = await readJsonBody(request);
+      const id = String(body.id || "");
+      const parsed = parseRunId(id);
+      if (!parsed) {
+        throw new GatewayError(400, "A valid run id is required.", "invalid_run_id");
+      }
+      const detail = await getRunDetail(parsed, { liveRun: getRun(parsed.issueKey) });
+      if (!detail) {
+        throw new GatewayError(404, "No record of that run exists.", "run_not_found");
+      }
+      const thread = await askQuestion(id, String(body.question || ""), { detail });
+      return sendJson(response, 202, { ok: true, data: thread }, origin);
+    }
+    if (request.method === "POST" && url.pathname === "/api/agents/runs/changes") {
+      const body = await readJsonBody(request);
+      const id = String(body.id || "");
+      const parsed = parseRunId(id);
+      if (!parsed) {
+        throw new GatewayError(400, "A valid run id is required.", "invalid_run_id");
+      }
+      const instruction = String(body.instruction || "").trim();
+      if (!instruction) {
+        throw new GatewayError(
+          400,
+          "A change request needs an instruction.",
+          "invalid_instruction"
+        );
+      }
+      const prior = await getRunDetail(parsed, { liveRun: getRun(parsed.issueKey) });
+      if (!prior) {
+        throw new GatewayError(404, "No record of that run exists.", "run_not_found");
+      }
+      // A change request is a normal dispatch: transition-first, same outcome
+      // writing, same guard against a second run on a ticket already running.
+      const run = await dispatchAgent({
+        issueKey: parsed.issueKey,
+        agent: prior.agent === "codex" ? "codex" : "claude",
+        context: buildFollowUpContext(prior, instruction),
+        followsRun: id,
+        cwd: BRAIN_REPO_PATH,
+        deps: {
+          getIssue,
+          transition: transitionIssueTo,
+          comment: addIssueComment,
+          logWork: logIssueWork,
+          attach: addIssueAttachment,
+          readout: writeRunReadout,
+        },
+      });
+      return sendJson(response, 202, { ok: true, data: withRunId(run) }, origin);
     }
     if (request.method === "GET" && url.pathname === "/api/meeting-prep/daily") {
       const data = await getDailyMeetingPrep(url.searchParams.get("date") || "");

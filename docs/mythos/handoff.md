@@ -68,6 +68,258 @@ and should the status badge work land before or after that?
 lists it; today is `claude:9c0a383e-9a8c-4c26-ac1f-d06f8a533287`, 313 messages. Its manifest
 title reads "Scheduled Jobs Viewer" and is wrong, so match on the id. Read the tail only.
 
+<!-- Two sessions wrote a handoff the same night. Both entries are kept: this
+     one covers Track FB and the surfaces that were lying, the one below covers
+     the Autonomy screen and the workbook. Neither supersedes the other. -->
+
+## Current: Run readouts, the Autonomy screen, and what actually drives the MDM dates (2026-08-19, small hours ET)
+
+Written by `/handoff`. Everything below was checked against disk, not recalled. Start with
+`/pickup`. The entry below this one covers the first half of the same session and is still
+accurate; this one carries everything after it.
+
+**Where the work is.** Repo `C:\Users\snahrup\CascadeProjects\ipcorp-brain-frontend`, branch
+`main`, in the MAIN checkout, not a worktree. Working tree clean. `main` is **30 commits ahead
+of `origin/main` and nothing is pushed**, and most of that is not from this session.
+
+Another session was committing to `main` in this same directory through the afternoon. Read
+`git log` before trusting any sha here.
+
+Sixteen commits from this session, newest first:
+
+- `98a8ca1` the Agent Board opens tickets in place, including the card itself
+- `cc008f3` readout written at run completion; ticket keys open the ticket
+- `1135ac7` the run readout pipeline
+- `a7cc4ce` the Autonomy screen, from the applied handoff package
+- `871f3cf` `3127f05` measuring the waiting
+- `bbcff28` the sensitivity sweep
+- `204d247` the latency model
+- `9b85965` `7ff3fc5` the estimate calibration loop
+- `e57bbf3` the safe apply step for the domain plan
+- `5fa7b25` `1d5fc61` `e0913e7` the four-domain schedule model
+- `67647a4` `83d696c` the workbook crosswalk (covered by the entry below)
+
+**Read these first.** `docs/specs/workbench-autonomy-monitor.md` decides the Autonomy screen's
+behaviour. The header comments in `server/agent-readout.mjs`, `server/workbook/domain-plan.mjs`
+and `server/workbook/latency-log.mjs` carry the reasoning for the parts that look unusual.
+`docs/mythos/state.md` is the authority on proven versus owed.
+
+**The finding that matters most, because it changes what to build next.** Steve said every
+template step will eventually be handed to an agent. That breaks effort as a planning unit. A
+sensitivity sweep over the domain plan settled it: doubling every effort figure moves the
+program end 12%, doubling every agent duration moves it **0%**, and doubling the latency
+figures moves it **77%**. One number, ten days to get six calendars aligned for a kickoff,
+moves the end by 56 days on its own. Capacity has stopped being a lever: 60 hours a week and
+100 hours a week finish on exactly the same day, and that is a test.
+
+So the schedule is a claim about how fast people respond. Do not spend effort refining effort.
+
+**What is done, and verified.**
+
+- The **Autonomy screen** at `/autonomy`, from the applied package. Run list, review modal,
+  four gateway endpoints. Exercised against real data: 17 runs, 11 needing review, durations
+  matching the raw records to the second. Ask-a-question and request-changes both work.
+- The **run readout**: `server/agent-readout.mjs` plus `GET /api/agents/runs/readout`. Compiled
+  automatically as the last thing a dispatch does, then cached, so it is ready when it is
+  wanted. Its sections follow how the run ended. Every claim carries a verbatim quote and
+  anything unquotable is dropped and the drop reported. Proven on two real runs: the blocked one
+  named the exact credential error with nothing dropped, the finished one explained why the
+  document missed its date and correctly dropped one true-but-unquotable claim.
+- **Ticket references open in place** everywhere now, including the Agent Board card itself,
+  which is the whole tappable surface on a phone. Only `/browse/KEY` addresses are caught, so
+  meeting and gateway links are untouched and a modified click still reaches Jira.
+- The **workbook crosswalk** and the **four-domain schedule model**, covered below and in
+  `state.md`.
+- The **estimate calibration loop** and the **latency log**, both built to refuse rather than
+  invent. Both currently silent, which is the correct state: there is no measured basis on this
+  board for anything yet.
+
+Checks at handoff: `npm run test:runs` 27 pass, `npm run test:workbook` 86 pass, `npx tsc
+--noEmit` clean, tree clean.
+
+**How to run and see it.**
+
+```
+npm run dev:jira
+npm run dev
+```
+
+The frontend autostarts on 5217 and this repo requires `strictPort` there, so use the running
+one rather than starting a second. The gateway on 8817 was restarted from this session and will
+die with it; the ecosystem healer starts it again from its own scheduled task within five
+minutes, or `npm run dev:jira` brings it straight back.
+
+```
+curl -s "http://127.0.0.1:8817/api/agents/runs"
+curl -s "http://127.0.0.1:8817/api/jira/breakdown-crosswalk"
+npm run test:runs && npm run test:workbook
+```
+
+State written outside the repo, on purpose, so Tailwind's source scan does not reload every open
+tab: readouts in `%LOCALAPPDATA%\IPCorpBrain\run-readouts`, latency in
+`%LOCALAPPDATA%\IPCorpBrain\latency-observations.json` (not created yet).
+
+**What is next.**
+
+1. Render the readout inside the run review modal. It is produced, cached and reachable by URL,
+   but the modal was built before it existed, so right now nothing shows it.
+2. The interactive planner Steve asked for: a global hours-per-week control, per-week or
+   per-month capacity overrides, and a parallelism control. The parallelism one is not optional:
+   30 serial tasks cannot take fewer than 30 working days, so without it the slider stops
+   responding at the top end and looks broken when it is telling the truth.
+3. `tests/autonomy.spec.ts`, covering gateway down, empty, list and needs-you, using the stub
+   approach in `tests/agent-board.spec.ts`.
+
+**What is owed.**
+
+- No Playwright coverage for any of tonight's work. Node tests only.
+- The readout's richest fields stay empty on every existing run. Plan step outcomes and
+  attachments were added to the record tonight, so only runs dispatched from now on carry them.
+- The 90 numbers in the domain plan are judgment, not measurement, and the sensitivity sweep
+  says nine of them govern the answer. There is no measured basis available to fix that: the
+  worklogs are written to match their estimates (51% land within 2%), and the status history has
+  a median of 0.0 days against a 13-day average, which is bulk transitions rather than workflow.
+- In the run list, a ticket key opens the ticket by click delegation, which is a mouse
+  affordance and not a keyboard one, because the row is itself a button. The keyboard path is
+  the run modal's header link. Revisit if that row is restructured.
+- `main` is 30 ahead of `origin` and unpushed, mostly another session's work. Do not push
+  without checking with Steve.
+- Two CSS descending-specificity warnings in `agent-runs.css`, from the package as delivered.
+
+**Do not redo.** Nothing tonight wrote to Jira, sent mail, or ran a Microsoft 365 action; every
+Jira call was a read. **The 94-item domain plan was deliberately NOT written to Jira** after
+Steve decided the dates stay local so the interactive model and the self-correcting loop can
+work; the apply step exists, defaults to a dry run, and is safe to re-run. Two dry runs against
+real data caught bugs that would have created 124 issues and duplicated the whole Customer
+domain, so trust the dry run. `exceljs` was installed and removed during evaluation and the
+lockfile restored, so do not look for it. `npm run lint:fix` rewrites line endings across ~45
+files it does not otherwise change; run biome on specific paths instead.
+
+**Open question for Steve.** The missing "apply the governance security template before build"
+task still has no MT issue. He said it should be a replicated template step across all domains,
+which is right and matches how `M10.1` already works, but only Customer has a domain parent
+today. Create it for Customer alone, or wait until each later domain gets its parent?
+
+**The transcript** is the archive, not the plan:
+`C:\Users\snahrup\.nexus\materialized-transcripts\claude\5fb909af-850b-4970-bc7e-bc20b2c0dff4\messages.json`
+
+## Previous: Workbook crosswalk on the Work screen (2026-08-18, evening ET)
+
+Written by `/handoff`. Everything below was checked against disk, not recalled. Start with
+`/pickup`.
+
+**Where the work is.** Repo `C:\Users\snahrup\CascadeProjects\ipcorp-brain-frontend`, branch
+`main`, in the MAIN checkout, not a worktree. `main` is 15 commits ahead of `origin/main` and
+nothing is pushed.
+
+Check `git log` before trusting any sha here. Another session was committing to `main` in this
+same directory while this ran: three of its commits landed at 15:54, 15:58 and 15:59, and HEAD
+moved from `46fba49` to `014d1b6` underneath this session. The two do not touch the same files,
+but the branch is shared, so look before you rebase or reset.
+
+One commit from this session:
+
+- `83d696c` the workbook reader, the crosswalk, and the gateway route
+
+**Read these first.** There is no spec document for this feature. The requirements came from
+Patrick in Teams and from Steve in this session, so they are recorded here and nowhere else.
+
+- Patrick, 2026-08-18: "You may also want to have them roll-up, that is the tasks with some
+  hierarchical levels and then put the top 2 tiers into the Gant."
+- Steve: build a new custom view whose job is making people confident that Jira matches the
+  breakdown workbook, and letting them validate for themselves what lines up and what rolls up
+  to what. The audience is Robin and Patrick, not Steve.
+- Steve, asked which hierarchy "top 2 tiers" means and what to do about missing start dates,
+  chose switchable for both: a tier-depth control (1, 2, or all) and a date-mode control
+  (recorded dates with the gaps marked, versus estimate-derived spans labeled as derived).
+
+The header comments in `server/workbook/xlsx-reader.mjs` and `server/workbook/breakdown.mjs`
+explain the parts that look unusual.
+
+**What is done, and verified.** The data foundation, all of it proven:
+
+- `server/workbook/xlsx-reader.mjs` reads .xlsx with no new dependency. Verified two ways: 12
+  unit tests, and a cell-by-cell comparison against openpyxl across all ten sheets of the real
+  workbook with zero differences in text cells. The only differences are Excel date serials,
+  which it deliberately does not convert, in a tab the crosswalk never reads.
+- `server/workbook/breakdown.mjs` parses the workbook into programs, projects and tasks, lines
+  it up against the MT issues, and totals the rollups. 16 unit tests.
+- `GET /api/jira/breakdown-crosswalk` in `server/jira-gateway.mjs`. Exercised live against real
+  Jira and the real file: HTTP 200, 102 KB, 2.3 seconds.
+- Fail-closed proven rather than assumed. Pointed at a missing workbook path, the route returns
+  `coverage: null` with a named reason and still reports the Jira side, instead of an empty
+  crosswalk that would read as a clean result.
+- `npm run test:workbook`, 28 tests, added to `npm run ci`. Node tests did not run in `ci`
+  before this.
+
+A real defect was found and fixed inside the reader, red first. Self-closing `<row/>` and `<c/>`
+tags matched the open-tag branch of the pattern, and their lazy body ran to the next closing
+tag, swallowing the following element and shifting values onto the wrong rows. The real workbook
+has 16 such rows and 252 such cells. Against the original pattern order exactly the two
+swallowing tests fail and the other ten pass; after the fix all twelve pass.
+
+**What the crosswalk says today.** 52 of 52 workbook tasks are on the board. 50 match word for
+word. One is reworded (`F1.4`, where "Chargeback" became "cost-tracking" under the banned-words
+rule). One has no Jira issue at all (`M0.1`, apply the governance security template). Zero
+WBS-coded issues are unaccounted for. Two rows that first looked like mismatches are one
+problem: the workbook's `M4` group label is broken on two rows, which stripped their codes, and
+the crosswalk detects that by text and reports it as a grouping repair instead of two gaps.
+
+**How to run and see it.** The gateway has to be restarted to serve the new route. The instance
+running on 8817 predates this work and returns 404 for it, confirmed.
+
+```
+npm run dev:jira
+curl -s http://127.0.0.1:8817/api/jira/breakdown-crosswalk
+npm run test:workbook
+```
+
+To exercise the route without disturbing a gateway another session is using, run a second one on
+a spare port. The workbook path is overridable, which is how the unreadable-file path was proven:
+
+```
+IPCORP_JIRA_GATEWAY_PORT=8899 node server/jira-gateway.mjs
+IPCORP_MDM_WORKBOOK_PATH=C:/nope/not-here.xlsx node server/jira-gateway.mjs
+```
+
+**What is next.** The view itself, which is the whole point and is not built yet.
+
+1. A Breakdown view under the Work screen, added as a new layout tab in
+   `src/features/jira/JiraWorkSurface.tsx` beside List, Board, Activity, Analytics, Timeline,
+   Gantt and Dependencies. It renders the crosswalk: each workbook row beside its MT issue, the
+   changed words where they differ, the rollup arithmetic expandable so a reader can see the
+   rows that produced each total, and the gaps stated plainly.
+2. The two switches Steve chose, tier depth and date mode, wired into that view and into
+   `src/features/jira/JiraTimeline.tsx` so the Gantt honors them.
+
+**What is owed.**
+
+- No Playwright check exists for any of this. The route and the logic are covered by node tests.
+  Nothing covers a rendered view, because there is no view yet.
+- The date problem, which decides what the Gantt can honestly draw. The workbook-derived
+  subtasks have no start dates at all and one shared due date per program: all 10 Fabric due
+  2026-09-30, all 29 Wave 1 due 2026-12-19, all 5 Wave 2 due 2027-06-30. They were stamped, not
+  scheduled. Board-wide, 310 of 383 MT issues have a due date and no start date, which is why
+  the current Gantt draws 323 of its 375 rows as zero-length marks. Rolling children up rescues
+  only 6 of the 33 affected top-tier rows.
+- `MT-12` stores dates ending 2026-12-18 while its own children run to 2027-06-30. Parent bars
+  should come from rolled-up child dates, not the parent's stored fields.
+- `main` is 15 commits ahead of `origin` and unpushed, and most of that is another session's
+  work. Do not push without checking with Steve first.
+
+**Do not redo.** Nothing here sent mail, wrote to Jira, or ran a Microsoft 365 action. Every
+Jira call was a read. Two temporary gateways were started on ports 8898 and 8899 and both were
+stopped; the everyday one on 8817 was confirmed healthy afterward and was never touched.
+`exceljs` was installed and removed during evaluation, and `package-lock.json` was restored to
+HEAD, so the net dependency change is zero. Do not go looking for it.
+
+**Open question for Steve.** Should the missing `M0.1` become a real MT subtask under `MT-420`,
+or stay visible in the view as a workbook row with no issue? The view can show it honestly
+either way, but creating it is a Jira write and nobody has asked for one.
+
+**The transcript** is the archive, not the plan:
+`C:\Users\snahrup\.nexus\materialized-transcripts\claude\5fb909af-850b-4970-bc7e-bc20b2c0dff4\messages.json`
+
 ## Previous: Track FB, the Foreman Briefing (2026-08-17, 8:30 PM ET)
 
 Written by `/handoff`. Everything below was checked against disk at that time, not recalled.

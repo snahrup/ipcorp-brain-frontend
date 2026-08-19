@@ -1,4 +1,5 @@
 export { AgentBoardView } from "./AgentBoardView";
+export { AutonomyView } from "./AutonomyView";
 export { ConnectionsView } from "./ConnectionsView";
 export { DailyMeetingPrepView } from "./DailyMeetingPrepView";
 export { MeetingsWorkspaceView } from "./MeetingsWorkspaceView";

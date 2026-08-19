@@ -1,6 +1,7 @@
 import { ArrowUpRight, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { interceptTicketClick } from "../../features/jira/openTicket";
 import { useBodyScrollLock } from "../../lib/useBodyScrollLock";
 import {
   type BoardCard,
@@ -138,6 +139,7 @@ export function AgentBoardCardModal({
               target="_blank"
               rel="noreferrer"
               data-testid="board-card-modal-link"
+              onClick={(event) => interceptTicketClick(event, href)}
             >
               {reference.label}
               <ArrowUpRight size={15} />

@@ -23,6 +23,75 @@ Phase 2: move activity reconciliation fully onto the shared saved-step engine.
   FB-3b per-meeting prep chapters, a real toast watched at T-30, the run review surface
   which exists only as a design prompt, and MT-462 re-run under the new deliverable rules.
 
+<!-- Both sessions' status blocks are kept; they cover different tracks. -->
+
+## Parallel track in progress: Autonomy screen and run readouts (2026-08-19)
+
+- Every agent run on one screen, and a compiled readout per run written for someone about to
+  be asked about it in a meeting. Asked for by Steve on 2026-08-18.
+- Authority: `docs/specs/workbench-autonomy-monitor.md` for the screen; the header comment in
+  `server/agent-readout.mjs` for the readout's rules.
+- Branch: `main`, main checkout, commits `a7cc4ce` through `98a8ca1`.
+- PROVEN: the screen against real data (17 runs, 11 needing review, durations matching the raw
+  records to the second, ask and request-changes both working); the readout on two real runs,
+  where the blocked one named the exact credential error with nothing dropped and the finished
+  one dropped one true-but-unquotable claim; ticket references opening in place from the run
+  list, the run modal and the Agent Board card, with no new tab created. 27 node tests,
+  typecheck clean.
+- Readouts are compiled at run completion and cached, so the wait is paid when nobody is
+  waiting. A readout that cannot be supported by its own record is withheld with its reason,
+  never templated.
+- OWED: nothing renders the readout yet, since the review modal predates it. No Playwright
+  coverage. Plan step outcomes and attachments only exist on runs dispatched after 2026-08-19,
+  so the readout stays thin on everything older. A ticket key in the run list is reachable by
+  mouse but not keyboard, because the row is itself a button.
+
+## Parallel track: what actually drives the MDM domain schedule (2026-08-19)
+
+- The four-domain plan is now a claim about human response time, not about effort.
+- A sensitivity sweep decided it: doubling every effort figure moves the program end 12%,
+  doubling every agent duration moves it 0%, doubling the latency figures moves it 77%. Ten
+  days to align six calendars for a kickoff moves the end 56 days by itself. 60 hours a week
+  and 100 hours a week finish on the same day, and that is a test.
+- PROVEN: the model, the sweep, the safe apply step and both learning loops, 86 tests. Two dry
+  runs against the real board caught bugs that would have created 124 issues and duplicated the
+  entire Customer domain.
+- NOT DONE ON PURPOSE: none of the 94 planned items were written to Jira. Steve decided the
+  dates stay local so the interactive model and the self-correcting loop can work.
+- OWED, and it is the honest headline: there is no measured basis for any number in the plan.
+  The worklogs are written to match their estimates, 51% landing within 2%. The status history
+  has a median of 0.0 days against a 13-day average, which is bulk transitions rather than
+  workflow. Both learning loops are built and both correctly refuse to learn from it. The nine
+  latency figures that govern the answer are the ones to measure first.
+
+## Parallel track in progress: Workbook crosswalk on the Work screen (2026-08-18)
+
+- The Work screen gets a view that proves the Jira board matches the MDM breakdown workbook,
+  then feeds a tier-limited Gantt. Asked for by Patrick in Teams on 2026-08-18. The audience
+  is Robin and Patrick, so the job is letting them check it themselves, not asserting it.
+- Authority: no spec document exists. The requirements are written down in the current entry
+  of `docs/mythos/handoff.md` and nowhere else.
+- Branch: `main`, main checkout, commit `83d696c`. Shared with another session that was
+  committing to `main` the same afternoon; the two do not touch the same files.
+- PROVEN: the .xlsx reader (12 tests, plus a cell-by-cell match against openpyxl across all
+  ten sheets of the real workbook with zero differences in text cells), the crosswalk and its
+  rollups (16 tests), and `GET /api/jira/breakdown-crosswalk` exercised live against real Jira
+  and the real file (HTTP 200, 102 KB, 2.3s). Fail-closed proven by pointing the route at a
+  missing path: it returns `coverage: null` with a named reason, never an empty crosswalk that
+  would read as a clean result. 28 tests, now inside `npm run ci`, which had never run node
+  tests before.
+- Red-first evidence: self-closing `<row/>` and `<c/>` tags matched the open-tag branch and
+  swallowed the following element, shifting values onto the wrong rows. Exactly two tests fail
+  against the original pattern order and pass after it. The real workbook has 16 such rows and
+  252 such cells, so this was corrupting real reads, not a theoretical case.
+- Result today: 52 of 52 workbook tasks on the board, 50 word for word, 1 reworded (`F1.4`),
+  1 with no issue at all (`M0.1`), 0 unaccounted for on the Jira side.
+- OWED: the view itself does not exist, so nothing here has Playwright coverage. The two
+  switches Steve chose, tier depth and date mode, are unbuilt. And the scheduling data will
+  not support an honest Gantt as it stands: the workbook subtasks carry no start dates and one
+  stamped due date per program, and 310 of 383 MT issues board-wide have a due date and no
+  start date, which is why the existing Gantt draws 323 of its 375 rows as zero-length marks.
+
 ## Parallel track in progress: Track FB, Foreman Briefing (2026-08-17)
 
 - The landing walkthrough program: morning briefing plus per-meeting countdown
