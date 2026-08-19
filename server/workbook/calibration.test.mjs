@@ -1,12 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { summaryKey } from "./apply-domain-plan.mjs";
-import {
-  applyCorrections,
-  assessSignal,
-  collectSamples,
-  learnFromActuals,
-} from "./calibration.mjs";
+import { applyCorrections, collectSamples, learnFromActuals } from "./calibration.mjs";
 
 const TEMPLATE = [
   { group: "Source data", hours: 3, task: "Identify source systems feeding the domain" },
